@@ -39,7 +39,6 @@ class QTrappingPattern(QTrapGroup):
         for trap in traps:
             spots.append(trap.spot)
         self.fabscreen.setData(spots=spots)
-        self.updatePipeline()
 
     def updatePipeline(self):
         """Provide a list of "properties" to CGH
@@ -150,9 +149,11 @@ class QTrappingPattern(QTrapGroup):
         # Add trap
         if modifiers == Qt.ShiftModifier:
             self.add(QTrap(r=position))
+            self.updatePipeline()
         # Delete trap
         elif modifiers == Qt.ControlModifier:
             self.remove(self.clickedGroup(position))
+            self.updatePipeline()
         else:
             pass
 
@@ -178,12 +179,13 @@ class QTrappingPattern(QTrapGroup):
         # Move traps
         if self.group is not None:
             self.moveGroup(pos)
-            self.updateScreen()
+            self.updatePipeline()
         # Update selection box
         elif self.selection.isVisible():
             region = QRect(self.origin, QPoint(pos)).normalized()
             self.selection.setGeometry(region)
             self.selectedTraps(region)
+        self.updateScreen()
 
     def mouseRelease(self, event):
         """Event handler for mouseRelease events.
