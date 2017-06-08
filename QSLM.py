@@ -2,7 +2,7 @@
 
 """QSLM.py: PyQt abstraction for a Spatial Light Modulator (SLM)."""
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 import numpy as np
 
 
@@ -12,9 +12,16 @@ class QSLM(QtGui.QLabel):
 
     def __init__(self, parent=None, **kwargs):
         super(QSLM, self).__init__(parent)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        desktop = QtGui.QDesktopWidget()
+        if desktop.numScreens() == 2:
+            # create window on screen 2
+            rect = desktop.screenGeometry(1)
+            self.w, self.h = rect.width(), rect.height()
+        else:
+            self.w, self.h = 512, 512
         self.image = QtGui.QImage()
-        phi = np.random.randint(
-            low=0, high=255, size=(512, 512), dtype=np.uint8)
+        phi = np.zeros((self.w, self.h), dtype=np.uint8)
         self.data = phi
         self.setData(phi)
         self.center = np.array([self.width(), self.height()]) / 2
