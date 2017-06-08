@@ -4,8 +4,8 @@
 
 from traps import QTrappingPattern
 import QFabScreen as fs
-from CGH import CGH
 from QSLM import QSLM
+from CGH import CGH
 
 
 def main():
@@ -20,10 +20,9 @@ def main():
     pattern = QTrappingPattern(fabscreen)
 
     slm = QSLM()
-    cgh = CGH(slm)
     slm.show()
 
-    pattern.pipeline = cgh
+    pattern.pipeline = CGH(slm)
 
     sys.exit(app.exec_())
 
