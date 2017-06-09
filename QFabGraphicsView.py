@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-"""QFabScreen.py: PyQt GUI for live video with graphical overlay."""
+"""QFabGraphicsView.py: PyQt GUI for live video with graphical overlay."""
 
 import numpy as np
 import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtGui
 import QCameraItem as qc
-from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 
 
-class QFabScreen(pg.GraphicsLayoutWidget):
+class QFabGraphicsView(pg.GraphicsLayoutWidget):
     """Interactive display for pyfab system.
     Incorporates a QCameraItem to display live video and a
     ScatterPlotItem to present graphical representations of traps
@@ -23,7 +23,7 @@ class QFabScreen(pg.GraphicsLayoutWidget):
     sigFSMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
 
     def __init__(self, parent=None, **kwargs):
-        super(QFabScreen, self).__init__(parent)
+        super(QFabGraphicsView, self).__init__(parent)
 
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
@@ -157,7 +157,7 @@ def main():
 
     app = QtGui.QApplication(sys.argv)
 
-    fabscreen = QFabScreen(size=(640, 480), gray=True)
+    fabscreen = QFabGraphicsView(size=(640, 480), gray=True)
     fabscreen.show()
 
     d = demopattern(fabscreen)

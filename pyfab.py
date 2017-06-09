@@ -2,19 +2,19 @@
 
 """pyfab.py: GUI for holographic optical trapping."""
 
+from pyqtgraph.Qt import QtGui
 from traps import QTrappingPattern
-import QFabScreen as fs
+from QFabGraphicsView import QFabGraphicsView
 from QSLM import QSLM
 from CGH import CGH
 
 
 def main():
     import sys
-    from pyqtgraph.Qt import QtGui
 
     app = QtGui.QApplication(sys.argv)
 
-    fabscreen = fs.QFabScreen(size=(640, 480), gray=True)
+    fabscreen = QFabGraphicsView(size=(640, 480), gray=True)
     fabscreen.show()
 
     pattern = QTrappingPattern(fabscreen)
