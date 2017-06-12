@@ -14,8 +14,7 @@ class QSLM(QtGui.QLabel):
         super(QSLM, self).__init__(parent)
         desktop = QtGui.QDesktopWidget()
         if desktop.numScreens() == 2:
-            # create undecorated window on screen 2
-            self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+            self.setWindowFlags(QtCore.Qt.FramelessWindowHint)            
             rect = desktop.screenGeometry(1)
             self.w, self.h = rect.width(), rect.height()
         else:
