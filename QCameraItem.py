@@ -36,7 +36,7 @@ class QCameraDevice(QObject):
 
     def __init__(self,
                  cameraId=0,
-                 mirrored=False,
+                 mirrored=True,
                  flipped=True,
                  transposed=True,
                  gray=False,
@@ -78,8 +78,8 @@ class QCameraDevice(QObject):
             frame = cv2.cvtColor(frame, self._conversion)
             if self.transposed:
                 frame = cv2.transpose(frame)
-            if self.flipped:
-                frame = cv2.flip(frame, -1)
+            if self.flipped or self.mirrored:
+                frame = cv2.flip(frame, self.flipped*(1-2*self.mirrored))
         return ready, frame
 
     @property
