@@ -3,20 +3,36 @@
 """QCameraItem.py: pyqtgraph module for OpenCV video camera."""
 
 import cv2
-from threading import Thread
 import pyqtgraph as pg
-from PyQt4.QtCore import QObject, QPoint, QRectF, QSizeF, QTimer, Qt
+from PyQt4.QtCore import QObject, QThread, QPoint, QRectF, QSizeF, QTimer, Qt
 
 
 def is_cv2():
     return cv2.__version__.startswith("2.")
 
 
+class QCameraThread(QThread):
+    def __init__(self, parent):
+        super(QCameraThread, self).__init__()
+        self.parent = parent
+        self.keepGrabbing = True
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        while self.keepGrabbing:
+            self.parent.grab()
+
+    def stop(self):
+        self.keepGrabbing = False
+    
+        
 class QCameraDevice(QObject):
     """Low latency OpenCV camera intended to act as an image source
     for PyQt applications.
     """
-    _DEFAULT_FPS = 30
+    _DEFAULT_FPS = 24
 
     def __init__(self,
                  cameraId=0,
@@ -34,31 +50,30 @@ class QCameraDevice(QObject):
         self.gray = gray
 
         self.camera = cv2.VideoCapture(cameraId)
+        self.thread = QCameraThread(self.camera)
 
         self.size = size
         # self.fps = int(self.camera.get(cv2.CAP_PROP_FPS))
-        self.fps = 24
-
-        self._running = False
+        self.fps = self._DEFAULT_FPS
 
     # Reduce latency by continuously grabbing frames in a background thread
     def start(self):
-        if not self._running:
-            self._running = True
-            self.thread = Thread(target=self.update, args=())
-            self.thread.start()
+        self.thread.start()
         return self
 
-    def update(self):
-        while self._running:
-            self.camera.grab()
-
     def stop(self):
-        self._running = False
+        self.thread.stop()
+
+    def close(self):
+        self.stop()
+        self.camera.release()
 
     # Read requests return the most recently grabbed frame
     def read(self):
-        ready, frame = self.camera.retrieve()
+        if self.thread.isRunning():
+            ready, frame = self.camera.retrieve()
+        else:
+            ready, frame = False, None
         if ready:
             frame = cv2.cvtColor(frame, self._conversion)
             if self.transposed:
@@ -174,6 +189,10 @@ class QCameraItem(pg.ImageItem):
         self._timer.stop()
         self.cameraDevice.stop()
 
+    def close(self):
+        self.stop()
+        self.cameraDevice.close()
+
     def nextframe(self):
         ready, frame = self.cameraDevice.read()
         if ready:
@@ -229,7 +248,7 @@ class QCameraWidget(pg.PlotWidget):
         self.setMouseEnabled(x=False, y=False)
 
     def closeEvent(self, event):
-        self.cameraItem.stop()
+        self.cameraItem.close()
 
 
 def main():
