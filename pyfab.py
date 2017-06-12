@@ -7,24 +7,26 @@ from traps import QTrappingPattern
 from QFabGraphicsView import QFabGraphicsView
 from QSLM import QSLM
 from CGH import CGH
+import sys
 
+class pyfab(QtGui.QApplication):
 
-def main():
-    import sys
+    def __init__(self):
+        super(pyfab, self).__init__(sys.argv)
+        self.fabscreen = QFabGraphicsView(size=(640,480), gray=True, mirrored=False)
+        self.fabscreen.show()
+        self.pattern = QTrappingPattern(self.fabscreen)
+        self.slm = QSLM()
+        self.slm.show()
+        self.pattern.pipeline = CGH(self.slm)
+        self.fabscreen.sigFSClosed.connect(self.cleanup)
+        self.exec_()
 
-    app = QtGui.QApplication(sys.argv)
-
-    fabscreen = QFabGraphicsView(size=(640, 480), gray=True)
-    fabscreen.show()
-
-    pattern = QTrappingPattern(fabscreen)
-
-    slm = QSLM()
-    slm.show()
-
-    pattern.pipeline = CGH(slm)
-
-    sys.exit(app.exec_())
+    def cleanup(self):
+        self.slm.close()
+        
 
 if __name__ == '__main__':
-    main()
+    import sys
+
+    app = pyfab()
