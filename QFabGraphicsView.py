@@ -21,6 +21,7 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
     sigFSMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigFSMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigFSMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
+    sigFSMouseWheel = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigFSClosed = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, **kwargs):
@@ -63,11 +64,14 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
 
     def mouseMoveEvent(self, event):
         self.sigFSMouseMove.emit(event)
-
         event.accept()
 
     def mouseReleaseEvent(self, event):
         self.sigFSMouseRelease.emit(event)
+        event.accept()
+
+    def mouseWheelEvent(self, event):
+        self.sigFSMouseWheel.emit(event)
         event.accept()
 
     def setData(self, **kwargs):
