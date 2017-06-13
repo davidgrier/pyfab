@@ -22,6 +22,7 @@ class QTrappingPattern(QTrapGroup):
         self.fabscreen.sigFSMousePress.connect(self.mousePress)
         self.fabscreen.sigFSMouseMove.connect(self.mouseMove)
         self.fabscreen.sigFSMouseRelease.connect(self.mouseRelease)
+        self.fabscreen.sigFSWheel.connect(self.wheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.fabscreen)
@@ -197,3 +198,14 @@ class QTrappingPattern(QTrapGroup):
         self.group = None
         self.selection.hide()
         self.updateScreen()
+
+    def wheel(self, event):
+        """Event handler for mouse wheel events.
+        """
+        pos = event.pos()
+        position = self.dataCoords(pos)
+        self.trap = self.clickedTrap(position)
+        self.group = self.groupOf(self.trap)
+        if self.group is not None:
+            dr = QtGui.QVector3D(0, 0, event.delta())
+            self.group.moveBy(dr)
