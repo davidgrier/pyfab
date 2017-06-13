@@ -28,18 +28,23 @@ class CGH(object):
 
         self.slm = slm
         # geometry in SLM plane
-        sx, sy = slm.center
-        self.w = slm.width()
-        self.h = slm.height()
-        factor = 2. * np.pi / self.w / 10.
-        qx = np.linspace(0 - sx, self.w - 1 - sx, self.w)
-        qy = np.linspace(0 - sy, self.h - 1 - sy, self.h)
-        self.iqx = factor * 1j * qx
-        self.iqy = factor * 1j * qy
+        self.precompute()
         # geometry in video plane
         self.rc = QtGui.QVector3D(320., 240., 0)
         self.m = QtGui.QMatrix4x4()
         self.m.setToIdentity()
+
+    def precompute(self):
+        sx, sy = self.slm.center
+        self.w = self.slm.width()
+        self.h = self.slm.height()
+        factor = 2. * np.pi / self.w / 10.
+        qx = factor * np.linspace(0 - sx, self.w - 1 - sx, self.w)
+        qy = factor * np.linspace(0 - sy, self.h - 1 - sy, self.h)
+        self.iqx = 1j * qx
+        self.iqy = 1j * qy
+        self.iqxsq = 1j * qx * qx
+        self.iqysq = 1j * qy * qy
 
     @jit
     def setData(self, properties):
@@ -47,7 +52,8 @@ class CGH(object):
         for property in properties:
             r = self.m * (property['r'] - self.rc)
             amp = property['a'] * np.exp(1j * property['phi'])
-            psi += np.outer(amp * np.exp(self.iqy * r.y()),
-                            np.exp(self.iqx * r.x()))
+            ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
+            ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
+            psi += np.outer(amp* ey, ex)
         phi = (256. * (np.angle(psi) / np.pi + 1.)).astype(np.uint8)
         self.slm.setData(phi)
