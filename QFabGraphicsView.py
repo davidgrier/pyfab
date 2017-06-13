@@ -5,7 +5,7 @@
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
-import QCameraItem as qc
+from QCameraItem import QCameraItem
 from PyQt4.QtCore import Qt
 
 
@@ -33,8 +33,7 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
                              lockAspect=True,
                              enableMenu=False,
                              enableMouse=False)
-
-        self.camera = qc.QCameraItem(**kwargs)
+        self.camera = QCameraItem(**kwargs)
         vb.addItem(self.camera)
 
         size = self.camera.size

@@ -8,11 +8,28 @@ from numba import jit
 
 
 class CGH(object):
+    """Base class for computing computer-generated holograms.
+
+    For each trap, the coordinate r obtained from the fabscreen
+    is measured relative to the calibrated location rc of the
+    zeroth-order focal point, which itself is measured relative to
+    the center of the focal plane. The resulting displacement is
+    projected onto the coordinate system in the SLM place.
+    Projection involves a calibrated rotation about z with
+    a rotation matrix m.
+
+    The hologram is computed using calibrated wavenumbers for
+    the Cartesian coordinates in the SLM plane.  These differ from
+    each other because the SLM is likely to be tilted relative to the
+    optical axis.
+    """
 
     def __init__(self, slm=None):
         self.slm = slm
         self.w = slm.width()
         self.h = slm.height()
+        self.m = QtGui.QMatrix4x4()
+        self.m.setToIdentity()
         sx, sy = slm.center
         self.rc = QtGui.QVector3D(320., 240., 0)
         factor = 2. * np.pi / self.w / 10.
@@ -25,7 +42,7 @@ class CGH(object):
     def setData(self, properties):
         psi = np.zeros((self.w, self.h), dtype=np.complex_)
         for property in properties:
-            r = property['r'] - self.rc
+            r = self.m * (property['r'] - self.rc)
             fac = property['a'] * np.exp(1j * property['phi'])
             psi += np.outer(fac * np.exp(self.iqy * r.y()),
                             np.exp(self.iqx * r.x()))
