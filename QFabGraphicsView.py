@@ -72,7 +72,6 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
 
     def wheelEvent(self, event):
         self.sigFSWheel.emit(event)
-        print event
         event.accept()
 
     def setData(self, **kwargs):

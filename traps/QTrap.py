@@ -29,13 +29,11 @@ class QTrap(object):
         self.a = a
         self.phi = phi
         # appearance
-        size = 10
         symbol = 'o'
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 100, 100, 120),
                       states.grouping: pg.mkBrush(255, 255, 100, 120)}
         self.pen = pg.mkPen('k', width=0.5)
-        self.size = size
         self.symbol = symbol
         # operational state
         self._state = None
@@ -45,6 +43,7 @@ class QTrap(object):
         """Translate trap.
         """
         self.r = self.r + dr
+        
 
     def isWithin(self, rect):
         """Return True if this trap lies within the specified rectangle.
@@ -94,8 +93,9 @@ class QTrap(object):
     def spot(self):
         """Graphical representation of trap.
         """
+        size = np.clip(10. + self.r.z()/10., 5., 20.)
         return {'pos': self._r.toPointF(),
-                'size': self.size,
+                'size': size,
                 'pen': self.pen,
                 'brush': self.brush[self._state],
                 'symbol': self.symbol}
