@@ -20,7 +20,7 @@ class pyfab(QtGui.QApplication):
         self.slm.show()
         self.pattern.pipeline = CGH(self.slm)
         self.fabscreen.sigFSClosed.connect(self.cleanup)
-        self.exec_()
+        #self.exec_()
 
     def cleanup(self):
         self.slm.close()
