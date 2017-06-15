@@ -94,7 +94,7 @@ class QTrap(object):
         """Graphical representation of trap.
         """
         size = np.clip(10. + self.r.z()/10., 5., 20.)
-        return {'pos': self._r.toPointF(),
+        return {'pos': self.r.toPointF(),
                 'size': size,
                 'pen': self.pen,
                 'brush': self.brush[self._state],
@@ -104,6 +104,6 @@ class QTrap(object):
     def properties(self):
         """Physical properties of trap.
         """
-        return {'r': self._r,
+        return {'r': self.r,
                 'a': self.a,
                 'phi': self.phi}
