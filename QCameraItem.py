@@ -4,14 +4,18 @@
 
 import cv2
 import pyqtgraph as pg
-from PyQt4.QtCore import QObject, QThread, QPoint, QRectF, QSizeF, QTimer, Qt
+from pyqtgraph import QtCore
+from PyQt4.QtCore import Qt
 
 
 def is_cv2():
     return cv2.__version__.startswith("2.")
 
 
-class QCameraThread(QThread):
+class QCameraThread(QtCore.QThread):
+    """Grab frames as fast as possible to minimize
+    latency for frame acquisition.
+    """
     def __init__(self, parent):
         super(QCameraThread, self).__init__()
         self.parent = parent
@@ -28,7 +32,7 @@ class QCameraThread(QThread):
         self.keepGrabbing = False
     
         
-class QCameraDevice(QObject):
+class QCameraDevice(QtCore.QObject):
     """Low latency OpenCV camera intended to act as an image source
     for PyQt applications.
     """
@@ -90,7 +94,7 @@ class QCameraDevice(QObject):
         else:
             h = long(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
             w = long(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
-        return QSizeF(w, h)
+        return QtCore.QSizeF(w, h)
 
     @size.setter
     def size(self, size):
@@ -159,7 +163,7 @@ class QCameraDevice(QObject):
 
     @property
     def roi(self):
-        return QRectF(QPoint(0, 0), self.size)
+        return QtCore.QRectF(0., 0., self.size.width(), self.size.height())
 
 
 class QCameraItem(pg.ImageItem):
@@ -179,7 +183,7 @@ class QCameraItem(pg.ImageItem):
         if ready:
             self.setImage(frame, autoLevels=False)
 
-        self._timer = QTimer(self)
+        self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.nextframe)
         self._timer.setInterval(1000 / self.cameraDevice.fps)
         self._timer.start()
