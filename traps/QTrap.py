@@ -91,7 +91,7 @@ class QTrap(object):
 
     @property
     def spot(self):
-        """Graphical representation of trap.
+        """Graphical representation of a trap.
         """
         size = np.clip(10. + self.r.z()/10., 5., 20.)
         return {'pos': self.r.toPointF(),
@@ -102,7 +102,7 @@ class QTrap(object):
 
     @property
     def properties(self):
-        """Physical properties of trap.
+        """Physical properties of a trap.
         """
         return {'r': self.r,
                 'a': self.a,
