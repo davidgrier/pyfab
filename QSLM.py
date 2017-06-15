@@ -17,8 +17,13 @@ class QSLM(QtGui.QLabel):
             self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
             rect = desktop.screenGeometry(1)
             self.w, self.h = rect.width(), rect.height()
+            self.move(rect.left(), rect.top())
+            self.resize(self.w, self.h)
+            self.showMaximized()
         else:
             self.w, self.h = 512, 512
+            self.resize(self.w, self.h)
+            self.show()
         self.image = QtGui.QImage()
         phi = np.zeros((self.w, self.h), dtype=np.uint8)
         self.data = phi

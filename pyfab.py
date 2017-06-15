@@ -19,7 +19,6 @@ class pyfab(QtGui.QApplication):
         self.fabscreen.show()
         self.pattern = QTrappingPattern(self.fabscreen)
         self.slm = QSLM()
-        self.slm.show()
         self.pattern.pipeline = CGH(self.slm)
         self.fabscreen.sigFSClosed.connect(self.cleanup)
 
