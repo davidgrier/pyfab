@@ -25,6 +25,8 @@ class CGH(object):
     """
 
     def __init__(self, slm=None):
+        # Trap properties for current pattern
+        self.trapdata = []
 
         # SLM geometry
         self.slm = slm
@@ -55,6 +57,18 @@ class CGH(object):
         # Calibration constant:
         # theta: float
         self.theta = 0.
+        
+    @jit
+    def compute(self):
+        psi = np.zeros((self.w, self.h), dtype=np.complex_)
+        for properties in self.trapdata:
+            r = self.m * properties['r']
+            amp = properties['a'] * np.exp(1j * properties['phi'])
+            ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
+            ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
+            psi += np.outer(amp * ey, ex)
+        phi = (256. * (np.angle(psi) / np.pi + 1.)).astype(np.uint8)
+        self.slm.setData(phi)
 
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane.
@@ -76,6 +90,7 @@ class CGH(object):
     def rs(self, rs):
         self._rs = rs
         self.updateGeometry()
+        self.compute()
 
     @property
     def qpp(self):
@@ -85,6 +100,7 @@ class CGH(object):
     def qpp(self, value):
         self._qpp = value
         self.updateGeometry()
+        self.compute()
 
     @property
     def alpha(self):
@@ -94,6 +110,7 @@ class CGH(object):
     def alpha(self, value):
         self._alpha = value
         self.updateGeometry()
+        self.compute()
 
     def updateTransformationMatrix(self):
         self.m.setToIdentity()
@@ -108,6 +125,7 @@ class CGH(object):
     def rc(self, value):
         self._rc = value
         self.updateTransformationMatrix()
+        self.compute()
 
     @property
     def theta(self):
@@ -117,15 +135,34 @@ class CGH(object):
     def theta(self, value):
         self._theta = value
         self.updateTransformationMatrix()
+        self.compute
 
-    @jit
-    def setData(self, properties):
-        psi = np.zeros((self.w, self.h), dtype=np.complex_)
-        for property in properties:
-            r = self.m * property['r']
-            amp = property['a'] * np.exp(1j * property['phi'])
-            ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
-            ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
-            psi += np.outer(amp * ey, ex)
-        phi = (256. * (np.angle(psi) / np.pi + 1.)).astype(np.uint8)
-        self.slm.setData(phi)
+    def setData(self, trapdata):
+        self.trapdata = trapdata
+        self.compute()
+        
+    @property
+    def calibration(self):
+        return {'qpp': self.qpp,
+                'alpha' : self.alpha,
+                'rs': self.rs,
+                'rc': self.rc,
+                'theta': self.theta}
+
+    @calibration.setter
+    def calibration(self, values):
+        if not isinstance(values, dict):
+            return
+        if values.has_key('qpp'):
+            self._qpp = values['qpp']
+        if values.has_key('alpha'):
+            self._alpha = values['alpha']
+        if values.has_key('rs'):
+            self._rs = values['rs']
+        if values.has_key('rc'):
+            self._rc = values['rc']
+        if values.has_key('theta'):
+            self._theta = values['theta']
+        self.updateGeometry()
+        self.updateTransformationMatrix()
+        self.compute()
