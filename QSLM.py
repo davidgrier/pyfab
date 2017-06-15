@@ -14,7 +14,7 @@ class QSLM(QtGui.QLabel):
         super(QSLM, self).__init__(parent)
         desktop = QtGui.QDesktopWidget()
         if desktop.numScreens() == 2:
-            self.setWindowFlags(QtCore.Qt.FramelessWindowHint)            
+            self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
             rect = desktop.screenGeometry(1)
             self.w, self.h = rect.width(), rect.height()
         else:
@@ -23,7 +23,6 @@ class QSLM(QtGui.QLabel):
         phi = np.zeros((self.w, self.h), dtype=np.uint8)
         self.data = phi
         self.setData(phi)
-        self.center = np.array([self.width(), self.height()]) / 2
 
     def toImage(self, data):
         img = QtGui.QImage(data.data,
