@@ -6,6 +6,7 @@ import cv2
 import pyqtgraph as pg
 from pyqtgraph import QtCore
 from PyQt4.QtCore import Qt
+import numpy as np
 
 
 def is_cv2():
@@ -16,9 +17,9 @@ class QCameraThread(QtCore.QThread):
     """Grab frames as fast as possible to minimize
     latency for frame acquisition.
     """
-    def __init__(self, parent):
+    def __init__(self, camera):
         super(QCameraThread, self).__init__()
-        self.parent = parent
+        self.camera = camera
         self.keepGrabbing = True
 
     def __del__(self):
@@ -26,7 +27,7 @@ class QCameraThread(QtCore.QThread):
 
     def run(self):
         while self.keepGrabbing:
-            self.parent.grab()
+            self.camera.grab()
 
     def stop(self):
         self.keepGrabbing = False
@@ -172,6 +173,8 @@ class QCameraItem(pg.ImageItem):
     a camera for updated video frames.
     """
 
+    newFrame = QtCore.pyqtSignal(np.ndarray)
+    
     def __init__(self, cameraDevice=None, parent=None, **kwargs):
         super(QCameraItem, self).__init__(parent, **kwargs)
 
@@ -184,7 +187,7 @@ class QCameraItem(pg.ImageItem):
             self.setImage(frame, autoLevels=False)
 
         self._timer = QtCore.QTimer(self)
-        self._timer.timeout.connect(self.nextframe)
+        self._timer.timeout.connect(self.updateImage)
         self._timer.setInterval(1000 / self.cameraDevice.fps)
         self._timer.start()
         self.destroyed.connect(self.stop)
@@ -197,10 +200,12 @@ class QCameraItem(pg.ImageItem):
         self.stop()
         self.cameraDevice.close()
 
-    def nextframe(self):
-        ready, frame = self.cameraDevice.read()
+    @QtCore.pyqtSlot()
+    def updateImage(self):
+        ready, image = self.cameraDevice.read()
         if ready:
-            self.setImage(frame, autoLevels=False)
+            self.setImage(image, autoLevels=False)
+            self.newFrame.emit(image)
 
     @property
     def paused(self):
