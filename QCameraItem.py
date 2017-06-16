@@ -14,8 +14,8 @@ def is_cv2():
 
 
 class QCameraThread(QtCore.QThread):
-    """Grab frames as fast as possible to minimize
-    latency for frame acquisition.
+    """Grab frames as fast as possible in a separate thread 
+    to minimize latency for frame acquisition.
     """
     def __init__(self, camera):
         super(QCameraThread, self).__init__()
@@ -58,8 +58,14 @@ class QCameraDevice(QtCore.QObject):
         self.thread = QCameraThread(self.camera)
 
         self.size = size
-        # self.fps = int(self.camera.get(cv2.CAP_PROP_FPS))
-        self.fps = self._DEFAULT_FPS
+        
+        if is_cv2():
+            self.fps = int(self.camera.get(cv2.cv.CV_CAP_PROP_FPS))
+            print 'here'
+        else:
+            self.fps = int(self.camera.get(cv2.CAP_PROP_FPS))
+        if self.fps <= 0:
+            self.fps = self._DEFAULT_FPS
 
     # Reduce latency by continuously grabbing frames in a background thread
     def start(self):
@@ -252,7 +258,7 @@ class QCameraWidget(pg.PlotWidget):
 
         self.addItem(self.cameraItem)
         self.setRange(self.cameraItem.roi, padding=0.)
-        self.setAspectLocked()
+        self.setAspectLocked(True)
         self.setMouseEnabled(x=False, y=False)
 
     def closeEvent(self, event):
