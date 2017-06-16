@@ -2,8 +2,8 @@
 
 """QTrappingPattern.py: Interface between QFabScreen and QSLM."""
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt, QPoint, QRect, QRectF, QSize
+from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import Qt
 from QTrap import QTrap
 from QTrapGroup import QTrapGroup
 from states import states
@@ -26,7 +26,7 @@ class QTrappingPattern(QTrapGroup):
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.fabscreen)
-        self.origin = QPoint()
+        self.origin = QtCore.QPoint()
         # selected trap and group
         self.trap = None
         self.group = None
@@ -84,7 +84,7 @@ class QTrappingPattern(QTrapGroup):
         """Return a list of traps whose groups fall
         entirely within the selection region.
         """
-        rect = self.dataCoords(QRectF(region)).boundingRect()
+        rect = self.dataCoords(QtCore.QRectF(region)).boundingRect()
         for child in self.children:
             if child.isWithin(rect):
                 self.selected.append(child)
@@ -133,8 +133,8 @@ class QTrappingPattern(QTrapGroup):
         self.group = self.groupOf(self.trap)
         # update selection rectangle
         if self.group is None:
-            self.origin = QPoint(pos)
-            self.selection.setGeometry(QRect(self.origin, QSize()))
+            self.origin = QtCore.QPoint(pos)
+            self.selection.setGeometry(QtCore.QRect(self.origin, QtCore.QSize()))
             self.selection.show()
         # break selected group
         elif modifiers == Qt.ControlModifier:
@@ -158,6 +158,7 @@ class QTrappingPattern(QTrapGroup):
         else:
             pass
 
+    @QtCore.pyqtSlot(QtGui.QMouseEvent)
     def mousePress(self, event):
         """Event handler for mousePress events.
         """
@@ -172,6 +173,7 @@ class QTrappingPattern(QTrapGroup):
             pass
         self.updateScreen()
 
+    @QtCore.pyqtSlot(QtGui.QMouseEvent)
     def mouseMove(self, event):
         """Event handler for mouseMove events.
         """
@@ -183,11 +185,12 @@ class QTrappingPattern(QTrapGroup):
             self.updatePipeline()
         # Update selection box
         elif self.selection.isVisible():
-            region = QRect(self.origin, QPoint(pos)).normalized()
+            region = QtCore.QRect(self.origin, QtCore.QPoint(pos)).normalized()
             self.selection.setGeometry(region)
             self.selectedTraps(region)
         self.updateScreen()
 
+    @QtCore.pyqtSlot(QtGui.QMouseEvent)
     def mouseRelease(self, event):
         """Event handler for mouseRelease events.
         """
@@ -199,6 +202,7 @@ class QTrappingPattern(QTrapGroup):
         self.selection.hide()
         self.updateScreen()
 
+    @QtCore.pyqtSlot(QtGui.QWheelEvent)
     def wheel(self, event):
         """Event handler for mouse wheel events.
         """
