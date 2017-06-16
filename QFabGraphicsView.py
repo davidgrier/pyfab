@@ -18,11 +18,11 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
     corresponding to mouse events.  A separate module must
     interpret these signals and update the trap display accordingly.
     """
-    sigFSMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigFSMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigFSMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigFSWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
-    sigFSClosed = QtCore.pyqtSignal()
+    sigMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
+    sigMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
+    sigMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
+    sigWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
+    sigClosed = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, **kwargs):
         super(QFabGraphicsView, self).__init__(parent)
@@ -49,7 +49,7 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
 
     def closeEvent(self, event):
         self.camera.close()
-        self.sigFSClosed.emit()
+        self.sigClosed.emit()
 
     def selectedPoint(self, position):
         index = -1
@@ -59,19 +59,19 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
         return index
 
     def mousePressEvent(self, event):
-        self.sigFSMousePress.emit(event)
+        self.sigMousePress.emit(event)
         event.accept()
 
     def mouseMoveEvent(self, event):
-        self.sigFSMouseMove.emit(event)
+        self.sigMouseMove.emit(event)
         event.accept()
 
     def mouseReleaseEvent(self, event):
-        self.sigFSMouseRelease.emit(event)
+        self.sigMouseRelease.emit(event)
         event.accept()
 
     def wheelEvent(self, event):
-        self.sigFSWheel.emit(event)
+        self.sigWheel.emit(event)
         event.accept()
 
     def setData(self, **kwargs):
@@ -90,9 +90,9 @@ class demopattern(object):
     def __init__(self, fabscreen):
         self.fabscreen = fabscreen
         # Connect to signals coming from fabscreen
-        self.fabscreen.sigFSMousePress.connect(self.mousePress)
-        self.fabscreen.sigFSMouseMove.connect(self.mouseMove)
-        self.fabscreen.sigFSMouseRelease.connect(self.mouseRelease)
+        self.fabscreen.sigMousePress.connect(self.mousePress)
+        self.fabscreen.sigMouseMove.connect(self.mouseMove)
+        self.fabscreen.sigMouseRelease.connect(self.mouseRelease)
         # Graphics for traps
         self.brush = {'normal': pg.mkBrush(100, 255, 100, 120),
                       'selected': pg.mkBrush(255, 100, 100, 120)}

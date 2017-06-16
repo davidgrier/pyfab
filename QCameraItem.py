@@ -173,7 +173,7 @@ class QCameraItem(pg.ImageItem):
     a camera for updated video frames.
     """
 
-    newFrame = QtCore.pyqtSignal(np.ndarray)
+    sigNewFrame = QtCore.pyqtSignal(np.ndarray)
     
     def __init__(self, cameraDevice=None, parent=None, **kwargs):
         super(QCameraItem, self).__init__(parent, **kwargs)
@@ -182,9 +182,7 @@ class QCameraItem(pg.ImageItem):
             self.cameraDevice = QCameraDevice(**kwargs).start()
         else:
             self.cameraDevice = cameraDevice.start()
-        ready, frame = self.cameraDevice.read()
-        if ready:
-            self.setImage(frame, autoLevels=False)
+        self.updateImage()
 
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.updateImage)
@@ -204,8 +202,9 @@ class QCameraItem(pg.ImageItem):
     def updateImage(self):
         ready, image = self.cameraDevice.read()
         if ready:
-            self.setImage(image, autoLevels=False)
-            self.newFrame.emit(image)
+            self._image = image.copy()
+            self.setImage(self._image, autoLevels=False)
+            self.sigNewFrame.emit(self._image)
 
     @property
     def paused(self):

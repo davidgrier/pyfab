@@ -18,11 +18,11 @@ class QTrappingPattern(QTrapGroup):
         super(QTrappingPattern, self).__init__()
         self.fabscreen = fabscreen
         self.pipeline = None
-        # Connect to signals coming from fabscreen
-        self.fabscreen.sigFSMousePress.connect(self.mousePress)
-        self.fabscreen.sigFSMouseMove.connect(self.mouseMove)
-        self.fabscreen.sigFSMouseRelease.connect(self.mouseRelease)
-        self.fabscreen.sigFSWheel.connect(self.wheel)
+        # Connect to signals coming from fabscreen (QFabGraphicsView)
+        self.fabscreen.sigMousePress.connect(self.mousePress)
+        self.fabscreen.sigMouseMove.connect(self.mouseMove)
+        self.fabscreen.sigMouseRelease.connect(self.mouseRelease)
+        self.fabscreen.sigWheel.connect(self.wheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.fabscreen)
