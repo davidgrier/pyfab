@@ -57,8 +57,8 @@ class CGH(object):
         # Calibration constant:
         # theta: float
         self.theta = 0.
-        
-    @jit
+
+    @jit(parallel=True)
     def compute(self):
         psi = np.zeros((self.w, self.h), dtype=np.complex_)
         for properties in self.trapdata:
@@ -140,11 +140,11 @@ class CGH(object):
     def setData(self, trapdata):
         self.trapdata = trapdata
         self.compute()
-        
+
     @property
     def calibration(self):
         return {'qpp': self.qpp,
-                'alpha' : self.alpha,
+                'alpha': self.alpha,
                 'rs': self.rs,
                 'rc': self.rc,
                 'theta': self.theta}
@@ -153,15 +153,15 @@ class CGH(object):
     def calibration(self, values):
         if not isinstance(values, dict):
             return
-        if values.has_key('qpp'):
+        if 'qpp' in values:
             self._qpp = values['qpp']
-        if values.has_key('alpha'):
+        if 'alpha' in values:
             self._alpha = values['alpha']
-        if values.has_key('rs'):
+        if 'rs' in values:
             self._rs = values['rs']
-        if values.has_key('rc'):
+        if 'rc' in values:
             self._rc = values['rc']
-        if values.has_key('theta'):
+        if 'theta' in values:
             self._theta = values['theta']
         self.updateGeometry()
         self.updateTransformationMatrix()
