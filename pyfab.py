@@ -14,18 +14,22 @@ class pyfab(QtGui.QApplication):
 
     def __init__(self):
         super(pyfab, self).__init__(sys.argv)
+        screen_size = (640, 480)
         self.fabscreen = QFabGraphicsView(
-            size=(640, 480), gray=True, mirrored=False)
+            size=screen_size, gray=True, mirrored=False)
         self.fabscreen.show()
         self.pattern = QTrappingPattern(self.fabscreen)
         self.slm = QSLM()
         self.cgh = CGH(self.slm)
-        
+        # get calibration constants
+        self.cgh.rc = [dim / 2 for dim in screen_size]
+
         self.pattern.pipeline = self.cgh
         self.fabscreen.sigClosed.connect(self.cleanup)
 
     def cleanup(self):
         self.slm.close()
+
 
 if __name__ == '__main__':
     app = pyfab()

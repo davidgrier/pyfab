@@ -43,20 +43,20 @@ class CGH(object):
         # Location of optical axis in SLM coordinates
         # Calibration constant:
         # rs: QPointF
-        self.rs = QtCore.QPointF(self.w / 2., self.h / 2.)
+        self._rs = QtCore.QPointF(self.w / 2., self.h / 2.)
+        self.updateGeometry()
 
         # Coordinate transformation matrix for trap locations
         self.m = QtGui.QMatrix4x4()
-        self._rc = QtCore.QPointF()
-        self._theta = 0.
         # Location of optical axis in camera coordinates
         # Calibration constant:
         # rc: QPointF
-        self.rc = QtCore.QPointF(320., 240.)
+        self._rc = QtCore.QPointF(320., 240.)
         # Orientation of camera relative to SLM
         # Calibration constant:
         # theta: float
-        self.theta = 0.
+        self._theta = 0.
+        self.updateTransformationMatrix()
 
     @jit(parallel=True)
     def compute_one(self, amp, x, y, z):
@@ -97,7 +97,10 @@ class CGH(object):
 
     @rs.setter
     def rs(self, rs):
-        self._rs = rs
+        if isinstance(rs, QtCore.QPointF):
+            self._rs = rs
+        else:
+            self._rs = QtCore.QPointF(rs[0], rs[1])
         self.updateGeometry()
         self.compute()
 
@@ -106,8 +109,8 @@ class CGH(object):
         return self._qpp
 
     @qpp.setter
-    def qpp(self, value):
-        self._qpp = value
+    def qpp(self, qpp):
+        self._qpp = float(qpp)
         self.updateGeometry()
         self.compute()
 
@@ -116,8 +119,8 @@ class CGH(object):
         return self._alpha
 
     @alpha.setter
-    def alpha(self, value):
-        self._alpha = value
+    def alpha(self, alpha):
+        self._alpha = float(alpha)
         self.updateGeometry()
         self.compute()
 
@@ -131,8 +134,11 @@ class CGH(object):
         return self._rc
 
     @rc.setter
-    def rc(self, value):
-        self._rc = value
+    def rc(self, rc):
+        if isinstance(rc, QtCore.QPointF):
+            self._rc = rc
+        else:
+            self._rc = QtCore.QPointF(rc[0], rc[1])
         self.updateTransformationMatrix()
         self.compute()
 
@@ -141,8 +147,8 @@ class CGH(object):
         return self._theta
 
     @theta.setter
-    def theta(self, value):
-        self._theta = value
+    def theta(self, theta):
+        self._theta = float(theta)
         self.updateTransformationMatrix()
         self.compute
 
