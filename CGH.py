@@ -59,14 +59,18 @@ class CGH(object):
         self.theta = 0.
 
     @jit(parallel=True)
+    def inner_compute(self, amp, x, y, z):
+        ex = np.exp(self.iqx * x + self.iqxsq * z)
+        ey = np.exp(self.iqy * y + self.iqysq * z)
+        return np.outer(amp * ey, ex)
+
+    @jit(parallel=True)
     def compute(self):
         psi = np.zeros((self.w, self.h), dtype=np.complex_)
         for properties in self.trapdata:
             r = self.m * properties['r']
             amp = properties['a'] * np.exp(1j * properties['phi'])
-            ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
-            ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
-            psi += np.outer(amp * ey, ex)
+            psi += self.inner_compute(amp, r.x(), r.y(), r.z())
         phi = (256. * (np.angle(psi) / np.pi + 1.)).astype(np.uint8)
         self.slm.setData(phi)
 
