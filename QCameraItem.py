@@ -180,10 +180,10 @@ class QCameraItem(pg.ImageItem):
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, cameraDevice=None, parent=None, **kwargs):
+    def __init__(self, device=None, parent=None, **kwargs):
         super(QCameraItem, self).__init__(parent, **kwargs)
 
-        if cameraDevice is None:
+        if device is None:
             self.device = QCameraDevice(**kwargs).start()
         else:
             self.device = cameraDevice.start()
@@ -191,7 +191,7 @@ class QCameraItem(pg.ImageItem):
 
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.updateImage)
-        self._timer.setInterval(1000 / self.cameraDevice.fps)
+        self._timer.setInterval(1000 / self.device.fps)
         self._timer.start()
         self.destroyed.connect(self.stop)
 
@@ -205,7 +205,7 @@ class QCameraItem(pg.ImageItem):
 
     @QtCore.pyqtSlot()
     def updateImage(self):
-        ready, image = self.cameraDevice.read()
+        ready, image = self.device.read()
         if ready:
             self._image = image.copy()
             self.setImage(self._image, autoLevels=False)
@@ -228,7 +228,7 @@ class QCameraItem(pg.ImageItem):
 
     @size.setter
     def size(self, s):
-        pass
+        self.device.size = s
 
     @property
     def fps(self):
@@ -236,7 +236,15 @@ class QCameraItem(pg.ImageItem):
 
     @fps.setter
     def fps(self, fps):
-        pass
+        self.device.fps = fps
+
+    @property
+    def gray(self):
+        return self.device.gray
+
+    @gray.setter
+    def gray(self, gray):
+        self.device.gray = gray
 
 
 class QCameraWidget(pg.PlotWidget):
