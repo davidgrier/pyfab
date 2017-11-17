@@ -186,7 +186,7 @@ class QCameraItem(pg.ImageItem):
         if device is None:
             self.device = QCameraDevice(**kwargs).start()
         else:
-            self.device = cameraDevice.start()
+            self.device = device.start()
         self.updateImage()
 
         self._timer = QtCore.QTimer(self)
