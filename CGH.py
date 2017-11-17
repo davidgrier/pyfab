@@ -32,29 +32,20 @@ class CGH(object):
         self.slm = slm
         self.w = self.slm.width()
         self.h = self.slm.height()
+
         # Conversion from SLM pixels to wavenumbers
-        # Calibration constant:
-        # qpp: float
         self._qpp = 2. * np.pi / self.w / 10.
         # Effective aspect ratio of SLM pixels
-        # Calibration constant:
-        # alpha: float
         self._alpha = 1.
         # Location of optical axis in SLM coordinates
-        # Calibration constant:
-        # rs: QPointF
         self._rs = QtCore.QPointF(self.w / 2., self.h / 2.)
         self.updateGeometry()
 
         # Coordinate transformation matrix for trap locations
         self.m = QtGui.QMatrix4x4()
         # Location of optical axis in camera coordinates
-        # Calibration constant:
-        # rc: QPointF
         self._rc = QtCore.QPointF(320., 240.)
         # Orientation of camera relative to SLM
-        # Calibration constant:
-        # theta: float
         self._theta = 0.
         self.updateTransformationMatrix()
 

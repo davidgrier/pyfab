@@ -14,9 +14,10 @@ def is_cv2():
 
 
 class QCameraThread(QtCore.QThread):
-    """Grab frames as fast as possible in a separate thread 
+    """Grab frames as fast as possible in a separate thread
     to minimize latency for frame acquisition.
     """
+
     def __init__(self, camera):
         super(QCameraThread, self).__init__()
         self.camera = camera
@@ -31,8 +32,8 @@ class QCameraThread(QtCore.QThread):
 
     def stop(self):
         self.keepGrabbing = False
-    
-        
+
+
 class QCameraDevice(QtCore.QObject):
     """Low latency OpenCV camera intended to act as an image source
     for PyQt applications.
@@ -58,7 +59,7 @@ class QCameraDevice(QtCore.QObject):
         self.thread = QCameraThread(self.camera)
 
         self.size = size
-        
+
         # if is_cv2():
         #    self.fps = int(self.camera.get(cv2.cv.CV_CAP_PROP_FPS))
         # else:
@@ -88,7 +89,7 @@ class QCameraDevice(QtCore.QObject):
             if self.transposed:
                 frame = cv2.transpose(frame)
             if self.flipped or self.mirrored:
-                frame = cv2.flip(frame, self.flipped*(1-2*self.mirrored))
+                frame = cv2.flip(frame, self.flipped * (1 - 2 * self.mirrored))
         return ready, frame
 
     @property
@@ -178,14 +179,14 @@ class QCameraItem(pg.ImageItem):
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
-    
+
     def __init__(self, cameraDevice=None, parent=None, **kwargs):
         super(QCameraItem, self).__init__(parent, **kwargs)
 
         if cameraDevice is None:
-            self.cameraDevice = QCameraDevice(**kwargs).start()
+            self.device = QCameraDevice(**kwargs).start()
         else:
-            self.cameraDevice = cameraDevice.start()
+            self.device = cameraDevice.start()
         self.updateImage()
 
         self._timer = QtCore.QTimer(self)
@@ -196,11 +197,11 @@ class QCameraItem(pg.ImageItem):
 
     def stop(self):
         self._timer.stop()
-        self.cameraDevice.stop()
+        self.device.stop()
 
     def close(self):
         self.stop()
-        self.cameraDevice.close()
+        self.device.close()
 
     @QtCore.pyqtSlot()
     def updateImage(self):
@@ -223,18 +224,18 @@ class QCameraItem(pg.ImageItem):
 
     @property
     def size(self):
-        return self.cameraDevice.size
+        return self.device.size
 
     @size.setter
     def size(self, s):
         pass
 
     @property
-    def roi(self):
-        return self.cameraDevice.roi
+    def fps(self):
+        return self.device.fps
 
-    @roi.setter
-    def roi(self, r):
+    @fps.setter
+    def fps(self, fps):
         pass
 
 
@@ -273,6 +274,7 @@ def main():
     widget = QCameraWidget(item, background='w')
     widget.show()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()
