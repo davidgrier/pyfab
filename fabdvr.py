@@ -2,6 +2,7 @@
 
 import cv2
 from QCameraItem import QCameraItem
+import os
 
 
 class fabdvr(object):
@@ -87,7 +88,7 @@ class fabdvr(object):
     @filename.setter
     def filename(self, filename):
         if not self.isrecording():
-            self._filename = filename
+            self._filename = os.path.expanduser(filename)
 
     def hascamera(self):
         return isinstance(self.camera, QCameraItem)
