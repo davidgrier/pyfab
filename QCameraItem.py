@@ -95,11 +95,11 @@ class QCameraDevice(QtCore.QObject):
     @property
     def size(self):
         if is_cv2():
-            h = long(self.camera.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
-            w = long(self.camera.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
+            h = int(self.camera.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+            w = int(self.camera.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
         else:
-            h = long(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            w = long(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+            h = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            w = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
         return QtCore.QSizeF(w, h)
 
     @size.setter
@@ -259,17 +259,17 @@ class QCameraWidget(pg.PlotWidget):
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         if cameraItem is None:
-            self.cameraItem = QCameraItem(**kwargs)
+            self.camera = QCameraItem(**kwargs)
         else:
-            self.cameraItem = cameraItem
+            self.camera = cameraItem
 
-        self.addItem(self.cameraItem)
-        self.setRange(self.cameraItem.roi, padding=0.)
+        self.addItem(self.camera)
+        self.setRange(self.camera.device.roi, padding=0.)
         self.setAspectLocked(True)
         self.setMouseEnabled(x=False, y=False)
 
     def closeEvent(self, event):
-        self.cameraItem.close()
+        self.camera.close()
 
 
 def main():
