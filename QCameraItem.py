@@ -222,30 +222,6 @@ class QCameraItem(pg.ImageItem):
         else:
             self._timer.start()
 
-    @property
-    def size(self):
-        return self.device.size
-
-    @size.setter
-    def size(self, s):
-        self.device.size = s
-
-    @property
-    def fps(self):
-        return self.device.fps
-
-    @fps.setter
-    def fps(self, fps):
-        self.device.fps = fps
-
-    @property
-    def gray(self):
-        return self.device.gray
-
-    @gray.setter
-    def gray(self, gray):
-        self.device.gray = gray
-
 
 class QCameraWidget(pg.PlotWidget):
     """Demonstration of how to embed a QCameraItem in a display

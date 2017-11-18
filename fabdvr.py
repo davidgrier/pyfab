@@ -61,7 +61,6 @@ class fabdvr(object):
         if self.isrecording():
             self.camera.sigNewFrame.disconnect()
             self._writer.release()
-            print('recording stopped')
         self.nframes = 0
         self._writer = None
 
@@ -99,7 +98,7 @@ class fabdvr(object):
 
     def size(self):
         if self.hascamera():
-            sz = self.camera.size
+            sz = self.camera.device.size
             w = int(sz.width())
             h = int(sz.height())
             return (w, h)
