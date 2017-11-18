@@ -9,7 +9,7 @@ class fabdvr(object):
 
     def __init__(self, camera=None,
                  filename='~/data/fabdvr.avi',
-                 codec='HFYU'):
+                 codec='HFYU', **kwds):
         """Record digital video stream with lossless compression
 
         :param camera: object reference to QCameraItem
@@ -26,6 +26,7 @@ class fabdvr(object):
         ;        LAGS does not work (not found)
 
         """
+        super(fabdvr, self).__init__(**kwds)
         self._writer = None
         self.camera = camera
         self.filename = filename
