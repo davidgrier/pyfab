@@ -37,7 +37,7 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
         self.camera = QCameraItem(**kwargs)
         vb.addItem(self.camera)
 
-        size = self.camera.size
+        size = self.camera.device.size
         vb.setLimits(xMin=0, yMin=0, xMax=size.width(), yMax=size.height())
         vb.setRange(xRange=[0, size.width()], yRange=[0, size.height()])
 
