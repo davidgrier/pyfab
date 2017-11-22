@@ -19,7 +19,7 @@ class pyfab(QtGui.QApplication):
             size=screen_size, gray=True, mirrored=False)
         self.fabscreen.show()
         self.pattern = QTrappingPattern(self.fabscreen)
-        self.slm = QSLM()
+        self.slm = QSLM(fake=True)
         self.cgh = CGH(self.slm)
         # get calibration constants
         self.cgh.rc = [dim / 2 for dim in screen_size]

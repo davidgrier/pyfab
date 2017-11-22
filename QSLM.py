@@ -2,7 +2,7 @@
 
 """QSLM.py: PyQt abstraction for a Spatial Light Modulator (SLM)."""
 
-from PyQt4 import QtGui, QtCore
+from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 
 
@@ -10,24 +10,24 @@ class QSLM(QtGui.QLabel):
 
     gray = [QtGui.qRgb(i, i, i) for i in range(256)]
 
-    def __init__(self, parent=None, **kwargs):
+    def __init__(self, parent=None, fake=False, **kwargs):
         super(QSLM, self).__init__(parent)
         desktop = QtGui.QDesktopWidget()
-        if desktop.numScreens() == 2:
-            self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        if (desktop.screenCount() == 2) and not fake:
             rect = desktop.screenGeometry(1)
             self.w, self.h = rect.width(), rect.height()
-            self.move(rect.left(), rect.top())
-            self.resize(self.w, self.h)
-            self.showMaximized()
+            parent = desktop.screen(1)
+            super(QSLM, self).__init__(parent)
+            self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         else:
-            self.w, self.h = 512, 512
+            self.w, self.h = 1024, 768
+            super(QSLM, self).__init__(parent)
             self.resize(self.w, self.h)
-            self.show()
         self.image = QtGui.QImage()
         phi = np.zeros((self.w, self.h), dtype=np.uint8)
         self.data = phi
         self.setData(phi)
+        self.show()
 
     def toImage(self, data):
         img = QtGui.QImage(data.data,
