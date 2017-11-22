@@ -56,7 +56,7 @@ class CGH(object):
         """
         ex = np.exp(self.iqx * x + self.iqxsq * z)
         ey = np.exp(self.iqy * y + self.iqysq * z)
-        return np.outer(amp * ey, ex)
+        return np.outer(amp * ex, ey)
 
     @jit(parallel=True)
     def compute(self):
