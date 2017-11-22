@@ -11,20 +11,20 @@ class QSLM(QtGui.QLabel):
     gray = [QtGui.qRgb(i, i, i) for i in range(256)]
 
     def __init__(self, parent=None, fake=False, **kwargs):
-        super(QSLM, self).__init__(parent)
         desktop = QtGui.QDesktopWidget()
         if (desktop.screenCount() == 2) and not fake:
             rect = desktop.screenGeometry(1)
-            self.w, self.h = rect.width(), rect.height()
+            w, h = rect.width(), rect.height()
             parent = desktop.screen(1)
             super(QSLM, self).__init__(parent)
             self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         else:
-            self.w, self.h = 1024, 768
+            w, h = 1024, 768
             super(QSLM, self).__init__(parent)
-            self.resize(self.w, self.h)
+            self.resize(w, h)
+            self.setWindowTitle('SLM')
         self.image = QtGui.QImage()
-        phi = np.zeros((self.w, self.h), dtype=np.uint8)
+        phi = np.zeros((w, h), dtype=np.uint8)
         self.data = phi
         self.setData(phi)
         self.show()
