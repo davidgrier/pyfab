@@ -22,12 +22,11 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
     sigMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
-    sigClosed = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, **kwargs):
         super(QFabGraphicsView, self).__init__(parent)
 
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        #self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # CameraItem displays video feed
         vb = self.addViewBox(border=None,
@@ -49,7 +48,6 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
 
     def closeEvent(self, event):
         self.camera.close()
-        self.sigClosed.emit()
 
     def selectedPoint(self, position):
         index = -1
