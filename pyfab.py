@@ -10,10 +10,10 @@ from CGH import CGH
 import sys
 
 
-class pyfab(QtGui.QApplication):
+class pyfab(QtGui.QWidget):
 
     def __init__(self):
-        super(pyfab, self).__init__(sys.argv)
+        super(pyfab, self).__init__()
         screen_size = (640, 480)
         self.fabscreen = QFabGraphicsView(
             size=screen_size, gray=True, mirrored=False)
@@ -32,5 +32,9 @@ class pyfab(QtGui.QApplication):
 
 
 if __name__ == '__main__':
-    app = pyfab()
+    app = QtGui.QApplication(sys.argv)
+    win = QtGui.QMainWindow()
+    instrument = pyfab()
+    instrument.show()
+    win.setCentralWidget(instrument)
     sys.exit(app.exec_())
