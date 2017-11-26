@@ -25,10 +25,12 @@ class pyfab(QtGui.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.fabscreen)
         controls = QtGui.QVBoxLayout()
+        controls.setSpacing(1)
+        controls.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         controls.addWidget(self.dvr)
         controls.addWidget(QCGH(self.cgh))
-        controls.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        controls.setSpacing(1)
+        controls.addItem(QtGui.QSpacerItem(
+            20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         layout.addItem(controls)
         self.setLayout(layout)
 

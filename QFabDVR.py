@@ -1,4 +1,5 @@
 from PyQt4 import QtGui
+from PyQt4.QtCore import Qt
 from fabdvr import fabdvr
 
 
@@ -11,18 +12,24 @@ class QFabDVR(fabdvr, QtGui.QFrame):
     def initUI(self):
         self.setFrameShape(QtGui.QFrame.Box)
         layout = QtGui.QGridLayout(self)
+        layout.setMargin(1)
+        layout.setHorizontalSpacing(6)
+        layout.setVerticalSpacing(3)
         title = QtGui.QLabel('Video Recorder')
         self.brecord = QtGui.QPushButton('Record', self)
         self.bstop = QtGui.QPushButton('Stop', self)
         self.wframe = QtGui.QLCDNumber(self)
         self.wframe.setNumDigits(5)
-        self.wfilename = QtGui.QLabel()
+        wfilelabel = QtGui.QLabel('file name')
+        wfilelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.wfilename = QtGui.QLineEdit()
         self.wfilename.setText(self.filename)
         layout.addWidget(title, 1, 1, 1, 3)
         layout.addWidget(self.brecord, 2, 1)
         layout.addWidget(self.bstop, 2, 2)
         layout.addWidget(self.wframe, 2, 3)
-        layout.addWidget(self.wfilename, 3, 1, 1, 3)
+        layout.addWidget(wfilelabel, 3, 1)
+        layout.addWidget(self.wfilename, 3, 2, 1, 2)
         self.setLayout(layout)
         self.brecord.clicked.connect(self.handleRecord)
         self.bstop.clicked.connect(self.handleStop)
