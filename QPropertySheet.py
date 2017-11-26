@@ -1,11 +1,13 @@
 from PyQt4 import QtGui
 from PyQt4.QtGui import QFrame, QGridLayout, QLabel, QLineEdit, QCheckBox
 from PyQt4.QtGui import QIntValidator, QDoubleValidator
-from PyQt4.QtCore import Qt, QString
+from PyQt4.QtCore import Qt, QString, pyqtSignal
 import numpy as np
 
 
 class QFabProperty(QLineEdit):
+
+    valueChanged = pyqtSignal()
 
     def __init__(self, name, value, min, max):
         super(QFabProperty, self).__init__()
@@ -26,26 +28,31 @@ class QFabProperty(QLineEdit):
 
     def updateValue(self):
         self._value = self.type(str(self.text()))
+        self.valueChanged.emit()
 
     @property
     def value(self):
         return self._value
 
     @value.setter
-    def value(self, value):
-        self._value = np.clip(self.type(value), self.min, self.max)
-        self.setText(QString(str(self._value)))
+    def value(self, _value):
+        value = np.clip(self.type(_value), self.min, self.max)
+        self.setText(QString(str(value)))
+        self.updateValue()
 
 
 class QFabBoolean(QCheckBox):
 
+    valueChanged = pyqtSignal()
+
     def __init__(self, name, value):
         super(QFabBoolean, self).__init__()
         self.value = bool(value)
-        self.stateChanged.connect(self.updateState)
+        self.stateChanged.connect(self.updateValue)
 
-    def updateState(self, state):
+    def updateValue(self, state):
         self._value = (state == Qt.Checked)
+        self.valueChanged.emit()
 
     @property
     def value(self):
@@ -53,11 +60,11 @@ class QFabBoolean(QCheckBox):
 
     @value.setter
     def value(self, value):
-        self._value = bool(value)
-        if self._value:
+        if bool(value):
             self.setCheckState(Qt.Checked)
         else:
             self.setCheckState(Qt.Unchecked)
+        self.updateValue(self.checkState())
 
 
 class QPropertySheet(QFrame):
@@ -87,19 +94,20 @@ class QPropertySheet(QFrame):
         self.layout.addWidget(QLabel('max'), self.row, 4)
         self.row += 1
 
-    def registerProperty(self, name, value, min='', max=''):
+    def registerProperty(self, name, value, min=None, max=None):
         wname = QLabel(QString(name))
         wname.setAlignment(Qt.AlignRight)
         if isinstance(value, bool):
             wvalue = QFabBoolean(name, value)
         else:
             wvalue = QFabProperty(name, value, min, max)
-        wmin = QLabel(QString(str(min)))
-        wmax = QLabel(QString(str(max)))
         self.layout.addWidget(wname, self.row, 1)
         self.layout.addWidget(wvalue, self.row, 2)
-        self.layout.addWidget(wmin, self.row, 3)
-        self.layout.addWidget(wmax, self.row, 4)
+        if min is not None:
+            wmin = QLabel(QString(str(min)))
+            wmax = QLabel(QString(str(max)))
+            self.layout.addWidget(wmin, self.row, 3)
+            self.layout.addWidget(wmax, self.row, 4)
         self.row += 1
         return wvalue
 

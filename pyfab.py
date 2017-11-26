@@ -9,6 +9,7 @@ from QSLM import QSLM
 from CGH import CGH
 from QCGH import QCGH
 from QFabDVR import QFabDVR
+from QFabCamera import QFabCamera
 import sys
 
 
@@ -28,6 +29,7 @@ class pyfab(QtGui.QWidget):
         controls.setSpacing(1)
         controls.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         controls.addWidget(self.dvr)
+        controls.addWidget(QFabCamera(self.fabscreen.camera.device))
         controls.addWidget(QCGH(self.cgh))
         controls.addItem(QtGui.QSpacerItem(
             20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
