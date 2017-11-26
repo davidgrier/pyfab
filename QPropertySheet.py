@@ -69,30 +69,30 @@ class QFabBoolean(QCheckBox):
 
 class QPropertySheet(QFrame):
 
-    def __init__(self, title=None, **kwargs):
+    def __init__(self, title=None, header=True, **kwargs):
         super(QPropertySheet, self).__init__(**kwargs)
         self.setFrameShape(QFrame.Box)
         self.properties = dict()
-        self.title = title
-        self.initUI()
+        self.initUI(title, header)
 
-    def initUI(self):
+    def initUI(self, title, header):
         self.layout = QGridLayout(self)
         self.layout.setMargin(3)
         self.layout.setHorizontalSpacing(10)
         self.layout.setVerticalSpacing(3)
         self.setLayout(self.layout)
         self.row = 1
-        if self.title is not None:
-            self.layout.addWidget(QLabel(self.title), self.row, 1, 1, 4)
+        if title is not None:
+            self.layout.addWidget(QLabel(title), self.row, 1, 1, 4)
             self.row += 1
-        self.layout.addWidget(QLabel('property'), self.row, 1)
-        label = QLabel('value')
-        label.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(label, self.row, 2)
-        self.layout.addWidget(QLabel('min'), self.row, 3)
-        self.layout.addWidget(QLabel('max'), self.row, 4)
-        self.row += 1
+        if header is True:
+            self.layout.addWidget(QLabel('property'), self.row, 1)
+            label = QLabel('value')
+            label.setAlignment(Qt.AlignCenter)
+            self.layout.addWidget(label, self.row, 2)
+            self.layout.addWidget(QLabel('min'), self.row, 3)
+            self.layout.addWidget(QLabel('max'), self.row, 4)
+            self.row += 1
 
     def registerProperty(self, name, value, min=None, max=None):
         wname = QLabel(QString(name))

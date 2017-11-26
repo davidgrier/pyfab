@@ -4,7 +4,7 @@ from QPropertySheet import QPropertySheet
 class QFabCamera(QPropertySheet):
 
     def __init__(self, camera=None):
-        super(QFabCamera, self).__init__(title='Camera')
+        super(QFabCamera, self).__init__(title='Camera', header=False)
         self.camera = camera
         self.wmirrored = self.registerProperty('mirrored', self.mirrored)
         self.wflipped = self.registerProperty('flipped', self.flipped)
