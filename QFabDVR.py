@@ -1,9 +1,11 @@
 from PyQt4 import QtGui
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, pyqtSignal
 from fabdvr import fabdvr
 
 
 class QFabDVR(fabdvr, QtGui.QFrame):
+
+    recording = pyqtSignal(bool)
 
     def __init__(self, **kwargs):
         super(QFabDVR, self).__init__(**kwargs)
@@ -40,9 +42,11 @@ class QFabDVR(fabdvr, QtGui.QFrame):
 
     def handleRecord(self):
         super(QFabDVR, self).record(1000)
+        self.recording.emit(True)
 
     def handleStop(self):
         super(QFabDVR, self).stop()
+        self.recording.emit(False)
 
 
 def main():

@@ -37,7 +37,7 @@ class QFabProperty(QLineEdit):
     @value.setter
     def value(self, _value):
         value = np.clip(self.type(_value), self.min, self.max)
-        self.setText(QString(str(value)))
+        self.setText(QString('%.4f' % value))
         self.updateValue()
 
 
@@ -109,7 +109,23 @@ class QPropertySheet(QFrame):
             self.layout.addWidget(wmin, self.row, 3)
             self.layout.addWidget(wmax, self.row, 4)
         self.row += 1
+        self.properties[name] = wvalue
         return wvalue
+
+    @property
+    def enabled(self):
+        result = True
+        for propname in self.properties:
+            prop = self.properties[propname]
+            result = result and prop.isEnabled()
+        return(result)
+
+    @enabled.setter
+    def enabled(self, value):
+        state = bool(value)
+        for propname in self.properties:
+            prop = self.properties[propname]
+            prop.setEnabled(state)
 
 
 def main():
