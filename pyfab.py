@@ -55,10 +55,7 @@ class pyfab(QtGui.QWidget):
         self.dvr.recording.connect(self.handleRecording)
 
     def handleRecording(self, recording):
-        if recording:
-            self.wcamera.enabled = False
-        else:
-            self.wcamera.enabled = True
+        self.wcamera.enabled = not recording
 
     def init_calibration(self):
         sz = self.fabscreen.size()
