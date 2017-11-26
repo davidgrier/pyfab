@@ -1,7 +1,6 @@
-from PyQt4 import QtGui
 from PyQt4.QtGui import QFrame, QGridLayout, QLabel, QLineEdit, QCheckBox
 from PyQt4.QtGui import QIntValidator, QDoubleValidator
-from PyQt4.QtCore import Qt, QString, pyqtSignal
+from PyQt4.QtCore import Qt, QString, pyqtSignal, pyqtSlot
 import numpy as np
 
 
@@ -26,6 +25,7 @@ class QFabProperty(QLineEdit):
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
+    @pyqtSlot
     def updateValue(self):
         self._value = self.type(str(self.text()))
         self.valueChanged.emit()
@@ -130,8 +130,9 @@ class QPropertySheet(QFrame):
 
 def main():
     import sys
+    from PyQt4.QtGui import QApplication
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     sheet = QPropertySheet()
     wxc = sheet.registerProperty('xc', 10, -100, 100)
     wyc = sheet.registerProperty('yc', 200, -100, 100)

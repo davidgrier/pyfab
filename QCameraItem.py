@@ -4,7 +4,7 @@
 
 import cv2
 import pyqtgraph as pg
-from pyqtgraph import QtCore
+from pyqtgraph.Qt import QtCore
 from PyQt4.QtCore import Qt
 import numpy as np
 
