@@ -26,19 +26,20 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
     def __init__(self, parent=None, **kwargs):
         super(QFabGraphicsView, self).__init__(parent)
 
-        #self.setAttribute(Qt.WA_DeleteOnClose, True)
+        # self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # CameraItem displays video feed
-        vb = self.addViewBox(border=None,
-                             lockAspect=True,
-                             enableMenu=False,
-                             enableMouse=False)
         self.camera = QCameraItem(**kwargs)
-        vb.addItem(self.camera)
-
         size = self.camera.device.size
-        vb.setLimits(xMin=0, yMin=0, xMax=size.width(), yMax=size.height())
-        vb.setRange(xRange=[0, size.width()], yRange=[0, size.height()])
+        xmax = size.width() - 1
+        ymax = size.height() - 1
+        vb = self.addViewBox(enableMenu=False,
+                             enableMouse=False)
+        # vb.setLimits(xMin=0, yMin=0, xMax=xmax, yMax=ymax)
+        vb.setRange(xRange=[0, xmax], yRange=[0, ymax], padding=0)
+        # vb.setAspectLocked()
+        # vb.setBackgroundColor('w')
+        vb.addItem(self.camera)
 
         # ScatterPlotItem shows graphical representations of traps
         pen = pg.mkPen('k', width=0.5)

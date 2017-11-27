@@ -1,6 +1,6 @@
 from PyQt4.QtGui import QFrame, QGridLayout, QLabel, QLineEdit, QCheckBox
 from PyQt4.QtGui import QIntValidator, QDoubleValidator
-from PyQt4.QtCore import Qt, QString, pyqtSignal, pyqtSlot
+from PyQt4.QtCore import Qt, QString, pyqtSignal
 import numpy as np
 
 
@@ -25,7 +25,6 @@ class QFabProperty(QLineEdit):
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
-    @pyqtSlot
     def updateValue(self):
         self._value = self.type(str(self.text()))
         self.valueChanged.emit()
