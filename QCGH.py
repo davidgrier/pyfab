@@ -21,7 +21,9 @@ class QCGH(QPropertySheet):
         self.wtheta.valueChanged.connect(self.updateTheta)
 
     def updateXs(self):
-        self.cgh.rs.setX(self.wxs.value)
+        rs = self.cgh.rs
+        rs.setX(self.wxs.value)
+        self.cgh.rs = rs
 
     @property
     def xs(self):
@@ -33,7 +35,9 @@ class QCGH(QPropertySheet):
         self.updateXs()
 
     def updateYs(self):
-        self.cgh.rs.setY(self.wys.value)
+        rs = self.cgh.rs
+        rs.setY(self.wys.value)
+        self.cgh.rs = rs
 
     @property
     def ys(self):
@@ -57,7 +61,9 @@ class QCGH(QPropertySheet):
         self.updateAlpha()
 
     def updateXc(self):
-        self.cgh.rc.setX(self.wxc.value)
+        rc = self.cgh.rc
+        rc.setX(self.wxc.value)
+        self.cgh.rc = rc
 
     @property
     def xc(self):
@@ -69,7 +75,9 @@ class QCGH(QPropertySheet):
         self.updateXc()
 
     def updateYc(self):
-        self.cgh.rc.setY(self.wyc.value)
+        rc = self.cgh.rc
+        rc.setY(self.wyc.value)
+        self.cgh.rc = rc
 
     @property
     def yc(self):
