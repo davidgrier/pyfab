@@ -59,7 +59,7 @@ class pyfab(QtGui.QWidget):
 
     def init_calibration(self):
         sz = self.fabscreen.size()
-        self.cgh.rc = (sz.width() / 2, sz.height() / 2)
+        self.cgh.rc = (sz.width() / 2, sz.height() / 2, 0.)
 
     def closeEvent(self, event):
         self.slm.close()

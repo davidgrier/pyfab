@@ -12,6 +12,7 @@ class QCGH(QPropertySheet):
         self.walpha = self.registerProperty('alpha', cgh.alpha, 0.1, 10.)
         self.wxc = self.registerProperty('xc', cgh.rc.x(), 0, 512)
         self.wyc = self.registerProperty('yc', cgh.rc.y(), 0, 512)
+        self.wzc = self.registerProperty('zc', cgh.rc.z(), 0, 512)
         self.wtheta = self.registerProperty('theta', cgh.theta, -1, 1)
         self.wxs.valueChanged.connect(self.updateXs)
         self.wys.valueChanged.connect(self.updateYs)
@@ -87,6 +88,20 @@ class QCGH(QPropertySheet):
     def yc(self, yc):
         self.wyc.value = yc
         self.updateYc()
+
+    def updateZc(self):
+        rc = self.cgh.rc
+        rc.setZ(self.wzc.value)
+        self.cgh.rc = rc
+
+    @property
+    def zc(self):
+        return self.cgh.rc.z()
+
+    @zc.setter
+    def zc(self, zc):
+        self.wzc.value = zc
+        self.updateZc()
 
     @property
     def theta(self):

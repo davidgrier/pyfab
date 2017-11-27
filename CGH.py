@@ -44,7 +44,7 @@ class CGH(object):
         # Coordinate transformation matrix for trap locations
         self.m = QtGui.QMatrix4x4()
         # Location of optical axis in camera coordinates
-        self._rc = QtCore.QPointF(320., 240.)
+        self._rc = QtGui.QVector3D(320., 240., 0.)
         # Orientation of camera relative to SLM
         self._theta = 0.
         self.updateTransformationMatrix()
@@ -117,7 +117,7 @@ class CGH(object):
 
     def updateTransformationMatrix(self):
         self.m.setToIdentity()
-        self.m.translate(-self._rc.x(), -self._rc.y())
+        self.m.translate(-self.rc)
         self.m.rotate(self._theta, 0., 0., 1.)
 
     @property
@@ -126,10 +126,10 @@ class CGH(object):
 
     @rc.setter
     def rc(self, rc):
-        if isinstance(rc, QtCore.QPointF):
+        if isinstance(rc, QtGui.QVector3D):
             self._rc = rc
         else:
-            self._rc = QtCore.QPointF(rc[0], rc[1])
+            self._rc = QtGui.QVector3D(rc[0], rc[1], rc[2])
         self.updateTransformationMatrix()
         self.compute()
 
