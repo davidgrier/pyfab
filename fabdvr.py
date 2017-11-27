@@ -61,9 +61,11 @@ class fabdvr(object):
         self._writer = None
 
     def write(self, frame):
-        img = cv2.transpose(frame)
-        img = cv2.flip(img, 0)
-        self._writer.write(img)
+        if self.camera.device.transposed:
+            frame = cv2.transpose(frame)
+        if self.camera.device.flipped:
+            frame = cv2.flip(frame, 0)
+        self._writer.write(frame)
         self.framenumber += 1
         if (self.framenumber == self._nframes):
             self.stop()
