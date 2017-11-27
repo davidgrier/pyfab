@@ -46,15 +46,11 @@ class fabdvr(object):
         if not self.hascamera():
             return
         self.framenumber = 0
-        try:
-            self._writer = cv2.VideoWriter(self.filename,
-                                           self._fourcc,
-                                           self.camera.device.fps,
-                                           self.size(),
-                                           not self.camera.device.gray)
-        except:
-            print('did not get video writer!')
-            raise
+        self._writer = cv2.VideoWriter(self.filename,
+                                       self._fourcc,
+                                       self.camera.device.fps,
+                                       self.size(),
+                                       not self.camera.device.gray)
         self.camera.sigNewFrame.connect(self.write)
 
     def stop(self):
