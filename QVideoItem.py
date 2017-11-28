@@ -23,7 +23,7 @@ class QVideoItem(pg.ImageItem):
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
     def __init__(self, device=None, parent=None,
-                 mirrored=True,
+                 mirrored=False,
                  flipped=True,
                  transposed=False,
                  gray=False,
@@ -59,13 +59,13 @@ class QVideoItem(pg.ImageItem):
 
     @QtCore.pyqtSlot()
     def updateImage(self):
-        ready, image = self.device.read()
+        ready, frame = self.device.read()
         if ready:
-            image = cv2.cvtColor(image, self._conversion)
+            image = cv2.cvtColor(frame, self._conversion)
             if self.transposed:
                 image = cv2.transpose(image)
             if self.flipped or self.mirrored:
-                image = cv2.flip(image, self.flipped * (1 - 2 * self.mirrored))
+                image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
             self.setImage(image, autoLevels=False)
             self.sigNewFrame.emit(image)
 

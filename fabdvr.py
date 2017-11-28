@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import cv2
-from QCameraItem import QVideoItem
+from QVideoItem import QVideoItem
 import os
 
 
