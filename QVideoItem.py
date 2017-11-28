@@ -116,7 +116,7 @@ class QVideoWidget(pg.PlotWidget):
             self.source = cameraItem
 
         self.addItem(self.source)
-        self.setRange(self.camera.device.roi, padding=0.)
+        self.setRange(self.source.device.roi, padding=0.)
         self.setAspectLocked(True)
         self.setMouseEnabled(x=False, y=False)
 
@@ -129,8 +129,8 @@ def main():
     from PyQt4.QtGui import QApplication
 
     app = QApplication(sys.argv)
-    camera = QCameraDevice(gray=True, size=(640, 480))
-    video = QVideoItem(camera)
+    camera = QCameraDevice(size=(640, 480))
+    video = QVideoItem(camera, gray=True)
     widget = QVideoWidget(video, background='w')
     widget.show()
     sys.exit(app.exec_())

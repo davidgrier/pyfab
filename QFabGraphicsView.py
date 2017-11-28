@@ -31,8 +31,9 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
         # VideoItem displays video feed
         self.video = QVideoItem(**kwargs)
         vb = self.addViewBox(enableMenu=False,
-                             enableMouse=False)
-        vb.setRange(self.video.device.roi)
+                             enableMouse=False,
+                             lockAspect=1.)
+        vb.setRange(self.video.device.roi, padding=0, update=True)
         # vb.setAspectLocked()
         # vb.setBackgroundColor('w')
         vb.addItem(self.video)
