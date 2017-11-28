@@ -27,7 +27,7 @@ class pyfab(QtGui.QWidget):
         self.fabscreen = QFabGraphicsView(
             size=screen_size, gray=True, mirrored=False)
         # DVR
-        self.dvr = QFabDVR(camera=self.fabscreen.camera)
+        self.dvr = QFabDVR(source=self.fabscreen.video)
         # spatial light modulator
         self.slm = QSLM(fake=True)
         # computation pipeline for the trapping pattern
@@ -44,7 +44,7 @@ class pyfab(QtGui.QWidget):
         controls.setSpacing(1)
         controls.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         controls.addWidget(self.dvr)
-        self.wvideo = QFabVideo(self.fabscreen.camera)
+        self.wvideo = QFabVideo(self.fabscreen.video)
         controls.addWidget(self.wvideo)
         controls.addWidget(QCGH(self.cgh))
         controls.addItem(QtGui.QSpacerItem(

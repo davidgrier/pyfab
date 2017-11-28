@@ -7,7 +7,8 @@ import os
 
 class fabdvr(object):
 
-    def __init__(self, camera=None,
+    def __init__(self,
+                 source=None,
                  filename='~/data/fabdvr.avi',
                  codec='HFYU', **kwds):
         """Record digital video stream with lossless compression
@@ -28,7 +29,7 @@ class fabdvr(object):
         """
         super(fabdvr, self).__init__(**kwds)
         self._writer = None
-        self.camera = camera
+        self.source = source
         self.filename = filename
         self._framenumber = 0
         self._nframes = 0
@@ -43,27 +44,27 @@ class fabdvr(object):
             self.start()
 
     def start(self):
-        if not self.hascamera():
+        if not self.hassource():
             return
         self.framenumber = 0
         self._writer = cv2.VideoWriter(self.filename,
                                        self._fourcc,
-                                       self.camera.device.fps,
+                                       self.source.device.fps,
                                        self.size(),
-                                       not self.camera.gray)
-        self.camera.sigNewFrame.connect(self.write)
+                                       not self.source.gray)
+        self.source.sigNewFrame.connect(self.write)
 
     def stop(self):
         if self.isrecording():
-            self.camera.sigNewFrame.disconnect()
+            self.source.sigNewFrame.disconnect()
             self._writer.release()
         self.nframes = 0
         self._writer = None
 
     def write(self, frame):
-        if self.camera.transposed:
+        if self.source.transposed:
             frame = cv2.transpose(frame)
-        if self.camera.flipped:
+        if self.source.flipped:
             frame = cv2.flip(frame, 0)
         self._writer.write(frame)
         self.framenumber += 1
@@ -71,13 +72,13 @@ class fabdvr(object):
             self.stop()
 
     @property
-    def camera(self):
-        return self._camera
+    def source(self):
+        return self._source
 
-    @camera.setter
-    def camera(self, camera):
-        if isinstance(camera, QVideoItem):
-            self._camera = camera
+    @source.setter
+    def source(self, source):
+        if isinstance(source, QVideoItem):
+            self._source = source
 
     @property
     def filename(self):
@@ -88,15 +89,15 @@ class fabdvr(object):
         if not self.isrecording():
             self._filename = os.path.expanduser(filename)
 
-    def hascamera(self):
-        return isinstance(self.camera, QVideoItem)
+    def hassource(self):
+        return isinstance(self.source, QVideoItem)
 
     def isrecording(self):
         return (self._writer is not None)
 
     def size(self):
-        if self.hascamera():
-            sz = self.camera.device.size
+        if self.hassource():
+            sz = self.source.device.size
             w = int(sz.width())
             h = int(sz.height())
             return (w, h)
@@ -109,14 +110,15 @@ class fabdvr(object):
 
 if __name__ == '__main__':
     from PyQt4 import QtGui
-    from QCameraItem import QCameraDevice, QVideoWidget
+    from QCameraDevice import QCameraDevice
+    from QVideoItem import QVideoWidget
     import sys
 
     app = QtGui.QApplication(sys.argv)
     device = QCameraDevice(size=(640, 480), gray=True)
-    camera = QVideoItem(device)
-    widget = QVideoWidget(camera, background='w')
+    source = QVideoItem(device)
+    widget = QVideoWidget(source, background='w')
     widget.show()
-    dvr = fabdvr(camera=camera)
+    dvr = fabdvr(source=source)
     dvr.record(24)
     sys.exit(app.exec_())

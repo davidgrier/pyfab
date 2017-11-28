@@ -11,7 +11,7 @@ from PyQt4.QtCore import Qt
 
 class QFabGraphicsView(pg.GraphicsLayoutWidget):
     """Interactive display for pyfab system.
-    Incorporates a QCameraItem to display live video and a
+    Incorporates a QVideoItem to display live video and a
     ScatterPlotItem to present graphical representations of traps
     overlayed on the video stream.
     Interaction with traps is handled by emitting custom signals
@@ -28,7 +28,7 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
 
         # self.setAttribute(Qt.WA_DeleteOnClose, True)
 
-        # CameraItem displays video feed
+        # VideoItem displays video feed
         self.video = QVideoItem(**kwargs)
         vb = self.addViewBox(enableMenu=False,
                              enableMouse=False)
