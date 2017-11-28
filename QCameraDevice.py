@@ -86,7 +86,7 @@ class QCameraDevice(QtCore.QObject):
         else:
             h = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
             w = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
-        return QtCore.QSizeF(w, h)
+        return QtCore.QSize(w, h)
 
     @size.setter
     def size(self, size):
