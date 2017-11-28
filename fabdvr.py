@@ -72,15 +72,6 @@ class fabdvr(object):
             self.stop()
 
     @property
-    def source(self):
-        return self._source
-
-    @source.setter
-    def source(self, source):
-        if isinstance(source, QVideoItem):
-            self._source = source
-
-    @property
     def filename(self):
         return self._filename
 
