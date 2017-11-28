@@ -48,11 +48,15 @@ class QCameraDevice(QtCore.QObject):
 
         self.size = size
 
-        # if is_cv2():
-        #    self.fps = int(self.camera.get(cv2.cv.CV_CAP_PROP_FPS))
-        # else:
-        #    self.fps = int(self.camera.get(cv2.CAP_PROP_FPS))
-        self.fps = self._DEFAULT_FPS
+        try:
+            if is_cv2():
+                self.fps = int(self.camera.get(cv2.cv.CV_CAP_PROP_FPS))
+            else:
+                self.fps = int(self.camera.get(cv2.CAP_PROP_FPS))
+        except RuntimeError:
+            raise
+        else:
+            self.fps = self._DEFAULT_FPS
 
     # Reduce latency by continuously grabbing frames in a background thread
     def start(self):
