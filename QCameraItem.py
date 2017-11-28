@@ -125,9 +125,10 @@ class QVideoItem(pg.ImageItem):
     def __init__(self, device=None, parent=None,
                  mirrored=True,
                  flipped=True,
-                 transposed=True,
+                 transposed=False,
                  gray=False,
                  **kwargs):
+        pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(parent)
 
         if device is None:
