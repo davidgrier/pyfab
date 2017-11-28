@@ -5,7 +5,7 @@
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
-from QCameraItem import QCameraItem
+from QVideoItem import QVideoItem
 from PyQt4.QtCore import Qt
 
 
@@ -29,17 +29,13 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
         # self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # CameraItem displays video feed
-        self.camera = QCameraItem(**kwargs)
-        size = self.camera.device.size
-        xmax = size.width() - 1
-        ymax = size.height() - 1
+        self.video = QVideoItem(**kwargs)
         vb = self.addViewBox(enableMenu=False,
                              enableMouse=False)
-        # vb.setLimits(xMin=0, yMin=0, xMax=xmax, yMax=ymax)
-        vb.setRange(xRange=[0, xmax], yRange=[0, ymax], padding=0)
+        vb.setRange(self.video.device.roi)
         # vb.setAspectLocked()
         # vb.setBackgroundColor('w')
-        vb.addItem(self.camera)
+        vb.addItem(self.video)
 
         # ScatterPlotItem shows graphical representations of traps
         pen = pg.mkPen('k', width=0.5)
@@ -48,7 +44,7 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
         vb.addItem(self.traps)
 
     def closeEvent(self, event):
-        self.camera.close()
+        self.video.close()
 
     def selectedPoint(self, position):
         index = -1

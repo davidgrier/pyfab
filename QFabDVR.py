@@ -51,12 +51,12 @@ class QFabDVR(fabdvr, QtGui.QFrame):
 
 def main():
     import sys
-    from QCameraItem import QCameraDevice, QCameraItem, QCameraWidget
+    from QCameraItem import QCameraDevice, QVideoItem, QVideoWidget
 
     app = QtGui.QApplication(sys.argv)
     device = QCameraDevice(size=(640, 480), gray=True)
-    camera = QCameraItem(device)
-    widget = QCameraWidget(camera, background='w')
+    camera = QVideoItem(device)
+    widget = QVideoWidget(camera, background='w')
     widget.show()
     dvr = QFabDVR(camera=camera)
     dvr.show()

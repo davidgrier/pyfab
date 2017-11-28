@@ -9,7 +9,7 @@ from QSLM import QSLM
 from CGH import CGH
 from QCGH import QCGH
 from QFabDVR import QFabDVR
-from QFabCamera import QFabCamera
+from QFabVideo import QFabVideo
 import sys
 
 
@@ -44,8 +44,8 @@ class pyfab(QtGui.QWidget):
         controls.setSpacing(1)
         controls.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         controls.addWidget(self.dvr)
-        self.wcamera = QFabCamera(self.fabscreen.camera.device)
-        controls.addWidget(self.wcamera)
+        self.wvideo = QFabVideo(self.fabscreen.camera)
+        controls.addWidget(self.wvideo)
         controls.addWidget(QCGH(self.cgh))
         controls.addItem(QtGui.QSpacerItem(
             20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
@@ -55,7 +55,7 @@ class pyfab(QtGui.QWidget):
         self.dvr.recording.connect(self.handleRecording)
 
     def handleRecording(self, recording):
-        self.wcamera.enabled = not recording
+        self.wvideo.enabled = not recording
 
     def init_calibration(self):
         sz = self.fabscreen.size()

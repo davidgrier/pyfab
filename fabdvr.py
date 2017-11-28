@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import cv2
-from QCameraItem import QCameraItem
+from QCameraItem import QVideoItem
 import os
 
 
@@ -50,7 +50,7 @@ class fabdvr(object):
                                        self._fourcc,
                                        self.camera.device.fps,
                                        self.size(),
-                                       not self.camera.device.gray)
+                                       not self.camera.gray)
         self.camera.sigNewFrame.connect(self.write)
 
     def stop(self):
@@ -61,9 +61,9 @@ class fabdvr(object):
         self._writer = None
 
     def write(self, frame):
-        if self.camera.device.transposed:
+        if self.camera.transposed:
             frame = cv2.transpose(frame)
-        if self.camera.device.flipped:
+        if self.camera.flipped:
             frame = cv2.flip(frame, 0)
         self._writer.write(frame)
         self.framenumber += 1
@@ -76,7 +76,7 @@ class fabdvr(object):
 
     @camera.setter
     def camera(self, camera):
-        if isinstance(camera, QCameraItem):
+        if isinstance(camera, QVideoItem):
             self._camera = camera
 
     @property
@@ -89,7 +89,7 @@ class fabdvr(object):
             self._filename = os.path.expanduser(filename)
 
     def hascamera(self):
-        return isinstance(self.camera, QCameraItem)
+        return isinstance(self.camera, QVideoItem)
 
     def isrecording(self):
         return (self._writer is not None)
@@ -109,13 +109,13 @@ class fabdvr(object):
 
 if __name__ == '__main__':
     from PyQt4 import QtGui
-    from QCameraItem import QCameraDevice, QCameraWidget
+    from QCameraItem import QCameraDevice, QVideoWidget
     import sys
 
     app = QtGui.QApplication(sys.argv)
     device = QCameraDevice(size=(640, 480), gray=True)
-    camera = QCameraItem(device)
-    widget = QCameraWidget(camera, background='w')
+    camera = QVideoItem(device)
+    widget = QVideoWidget(camera, background='w')
     widget.show()
     dvr = fabdvr(camera=camera)
     dvr.record(24)

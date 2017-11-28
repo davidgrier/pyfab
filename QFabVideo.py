@@ -1,10 +1,10 @@
 from QPropertySheet import QPropertySheet
 
 
-class QFabCamera(QPropertySheet):
+class QFabVideo(QPropertySheet):
 
     def __init__(self, camera=None):
-        super(QFabCamera, self).__init__(title='Camera', header=False)
+        super(QFabVideo, self).__init__(title='Video Camera', header=False)
         self.camera = camera
         self.wmirrored = self.registerProperty('mirrored', self.mirrored)
         self.wflipped = self.registerProperty('flipped', self.flipped)
