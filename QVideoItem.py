@@ -40,6 +40,7 @@ class QVideoItem(pg.ImageItem):
         self.flipped = bool(flipped)
         self.transposed = bool(transposed)
         self.gray = bool(gray)
+        self._filters = list()
 
         self.updateImage()
 
@@ -66,6 +67,8 @@ class QVideoItem(pg.ImageItem):
                 image = cv2.transpose(image)
             if self.flipped or self.mirrored:
                 image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
+            for filter in self._filters:
+                image = filter(image)
             self.setImage(image, autoLevels=False)
             self.sigNewFrame.emit(image)
 
@@ -98,6 +101,13 @@ class QVideoItem(pg.ImageItem):
                 self._conversion = cv2.COLOR_BGR2GRAY
             else:
                 self._conversion = cv2.COLOR_BGR2RGB
+
+    def registerFilter(self, filter):
+        self._filters.append(filter)
+
+    def unregisterFilter(self, filter):
+        if filter in self._filters:
+            self._filters.remove(filter)
 
 
 class QVideoWidget(pg.PlotWidget):
