@@ -5,6 +5,7 @@
 import numpy as np
 from PyQt4 import QtGui, QtCore
 from numba import jit
+import json
 
 
 class CGH(object):
@@ -159,16 +160,29 @@ class CGH(object):
     def calibration(self, values):
         if not isinstance(values, dict):
             return
-        if 'qpp' in values:
-            self._qpp = values['qpp']
-        if 'alpha' in values:
-            self._alpha = values['alpha']
-        if 'rs' in values:
-            self._rs = values['rs']
-        if 'rc' in values:
-            self._rc = values['rc']
-        if 'theta' in values:
-            self._theta = values['theta']
+        for attribute, value in values:
+            try:
+                setattr(self, '_' + attribute, value)
+            except AttributeError:
+                print('unknown attribute:', attribute)
+        # if 'qpp' in values:
+        #    self._qpp = values['qpp']
+        # if 'alpha' in values:
+        #    self._alpha = values['alpha']
+        # if 'rs' in values:
+        #    self._rs = values['rs']
+        # if 'rc' in values:
+        #    self._rc = values['rc']
+        # if 'theta' in values:
+        #    self._theta = values['theta']
         self.updateGeometry()
         self.updateTransformationMatrix()
         self.compute()
+
+    def serialize(self):
+        return json.dumps(self.calibration,
+                          indent=2, separators=(',', ': '))
+
+    def deserialize(self, s):
+        values = json.loads(s)
+        self.calibration = values
