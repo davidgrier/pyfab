@@ -76,8 +76,8 @@ class CGH(object):
         """
         qx = np.linspace(-self.rs.x(), self.w - 1 - self.rs.x(), self.w)
         qy = np.linspace(-self.rs.y(), self.h - 1 - self.rs.y(), self.h)
-        qx = self._qpp * qx
-        qy = self._alpha * self._qpp * qy
+        qx = self.qpp * qx
+        qy = self.alpha * self.qpp * qy
         self.iqx = 1j * qx
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx

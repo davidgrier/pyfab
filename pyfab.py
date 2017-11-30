@@ -33,7 +33,7 @@ class pyfab(QtGui.QWidget):
         # DVR
         self.dvr = QFabDVR(source=self.fabscreen.video)
         # spatial light modulator
-        self.slm = QSLM(fake=True)
+        self.slm = QSLM()
         # computation pipeline for the trapping pattern
         self.pattern = QTrappingPattern(self.fabscreen)
         self.cgh = CGH(self.slm)
