@@ -152,36 +152,25 @@ class CGH(object):
     def calibration(self):
         return {'qpp': self.qpp,
                 'alpha': self.alpha,
-                'rs': self.rs,
-                'rc': self.rc,
+                'rs': (self.rs.x(), self.rs.y()),
+                'rc': (self.rc.x(), self.rc.y(), self.rc.z()),
                 'theta': self.theta}
 
     @calibration.setter
     def calibration(self, values):
         if not isinstance(values, dict):
             return
-        for attribute, value in values:
+        for attribute, value in values.iteritems():
             try:
-                setattr(self, '_' + attribute, value)
+                setattr(self, attribute, value)
             except AttributeError:
                 print('unknown attribute:', attribute)
-        # if 'qpp' in values:
-        #    self._qpp = values['qpp']
-        # if 'alpha' in values:
-        #    self._alpha = values['alpha']
-        # if 'rs' in values:
-        #    self._rs = values['rs']
-        # if 'rc' in values:
-        #    self._rc = values['rc']
-        # if 'theta' in values:
-        #    self._theta = values['theta']
-        self.updateGeometry()
-        self.updateTransformationMatrix()
-        self.compute()
 
     def serialize(self):
         return json.dumps(self.calibration,
-                          indent=2, separators=(',', ': '))
+                          indent=2,
+                          separators=(',', ': '),
+                          ensure_ascii=False)
 
     def deserialize(self, s):
         values = json.loads(s)

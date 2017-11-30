@@ -12,6 +12,9 @@ from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
 from QFabFilter import QFabFilter
 import sys
+import io
+import datetime
+import os
 
 
 class pyfab(QtGui.QWidget):
@@ -20,7 +23,7 @@ class pyfab(QtGui.QWidget):
         super(pyfab, self).__init__()
         self.init_hardware()
         self.init_ui()
-        self.init_calibration()
+        self.init_configuration()
 
     def init_hardware(self):
         # video screen
@@ -59,11 +62,20 @@ class pyfab(QtGui.QWidget):
     def handleRecording(self, recording):
         self.wvideo.enabled = not recording
 
-    def init_calibration(self):
+    def init_configuration(self):
         sz = self.fabscreen.size()
         self.cgh.rc = (sz.width() / 2, sz.height() / 2, 0.)
 
+    def save_configuration(self):
+        scgh = self.cgh.serialize()
+        tn = datetime.datetime.now()
+        fn = '~/.pyfab/pyfab_{:%Y%b%d_%H:%M:%S}.json'.format(tn)
+        fn = os.path.expanduser(fn)
+        with io.open(fn, 'w', encoding='utf8') as configfile:
+            configfile.write(unicode(scgh))
+            
     def closeEvent(self, event):
+        self.save_configuration()
         self.slm.close()
 
 
