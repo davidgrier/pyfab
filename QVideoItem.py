@@ -62,7 +62,7 @@ class QVideoItem(pg.ImageItem):
     def updateImage(self):
         ready, image = self.device.read()
         if ready:
-            if image.ndims == 3:
+            if image.ndim == 3:
                 image = cv2.cvtColor(image, self._conversion)
             if self.transposed:
                 image = cv2.transpose(image)
