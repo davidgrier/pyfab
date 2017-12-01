@@ -50,7 +50,7 @@ class CGH(object):
         self._theta = 0.
         self.updateTransformationMatrix()
 
-    @jit(parallel=True)
+#    @jit(parallel=True)
     def compute_one(self, amp, x, y, z):
         """Compute phase hologram for one trap with
         specified complex amplitude and position
@@ -59,7 +59,7 @@ class CGH(object):
         ey = np.exp(self.iqy * y + self.iqysq * z)
         return np.outer(amp * ex, ey)
 
-    @jit(parallel=True)
+#    @jit(parallel=True)
     def compute(self):
         """Compute phase hologram for specified traps
         """
@@ -68,8 +68,8 @@ class CGH(object):
             r = self.m * properties['r']
             amp = properties['a'] * np.exp(1j * properties['phi'])
             psi += self.compute_one(amp, r.x(), r.y(), r.z())
-        phi = (256. * (np.angle(psi) / np.pi + 1.)).astype(np.uint8)
-        self.slm.data = phi
+        phi = (128. * (np.angle(psi) / np.pi + 1.)).astype(np.uint8)
+        self.slm.data = phi.T
 
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane.
@@ -119,7 +119,8 @@ class CGH(object):
     def updateTransformationMatrix(self):
         self.m.setToIdentity()
         self.m.translate(-self.rc)
-        self.m.rotate(self._theta, 0., 0., 1.)
+        self.m.rotate(self.theta, 0., 0., 1.)
+        print(self.rc, self.theta)
 
     @property
     def rc(self):

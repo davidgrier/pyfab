@@ -63,8 +63,10 @@ class pyfab(QtGui.QWidget):
         self.wvideo.enabled = not recording
 
     def init_configuration(self):
-        sz = self.fabscreen.size()
+        sz = self.fabscreen.video.device.size
         self.cgh.rc = (sz.width() / 2, sz.height() / 2, 0.)
+        sz = self.slm.size()
+        self.cgh.rs = (sz.width() / 2, sz.height() / 2)
 
     def save_configuration(self):
         scgh = self.cgh.serialize()

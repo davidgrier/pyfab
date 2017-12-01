@@ -4,11 +4,11 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
+from PIL import Image
+from PIL.ImageQt import ImageQt
 
 
 class QSLM(QtGui.QLabel):
-
-    gray = [QtGui.qRgb(i, i, i) for i in range(256)]
 
     def __init__(self, parent=None, fake=False, **kwargs):
         desktop = QtGui.QDesktopWidget()
@@ -36,11 +36,7 @@ class QSLM(QtGui.QLabel):
     @data.setter
     def data(self, d):
         self._data = d
-        print(d.shape,d.strides)
-        img = QtGui.QImage(d.data,
-                           d.shape[0], d.shape[1], d.shape[0],
-                           QtGui.QImage.Format_Indexed8)
-        img.setColorTable(self.gray)
+        img = QtGui.QImage(ImageQt(Image.fromarray(d)))
         pix = QtGui.QPixmap.fromImage(img)
         self.setPixmap(pix)
         
