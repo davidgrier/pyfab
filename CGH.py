@@ -142,7 +142,7 @@ class CGH(object):
     def theta(self, theta):
         self._theta = float(theta)
         self.updateTransformationMatrix()
-        self.compute
+        self.compute()
 
     def setData(self, trapdata):
         self.trapdata = trapdata
