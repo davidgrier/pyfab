@@ -3,7 +3,6 @@
 """jansen.py: GUI for holographic video microscopy."""
 
 from pyqtgraph.Qt import QtGui
-from traps import QTrappingPattern
 from QFabGraphicsView import QFabGraphicsView
 from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
