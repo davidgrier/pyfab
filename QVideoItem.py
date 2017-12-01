@@ -60,9 +60,10 @@ class QVideoItem(pg.ImageItem):
 
     @QtCore.pyqtSlot()
     def updateImage(self):
-        ready, frame = self.device.read()
+        ready, image = self.device.read()
         if ready:
-            image = cv2.cvtColor(frame, self._conversion)
+            if image.ndims == 3:
+                image = cv2.cvtColor(image, self._conversion)
             if self.transposed:
                 image = cv2.transpose(image)
             if self.flipped or self.mirrored:

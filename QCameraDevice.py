@@ -106,7 +106,7 @@ class QCameraDevice(QtCore.QObject):
     @fps.setter
     def fps(self, fps):
         if (fps > 0):
-            self._fps = fps
+            self._fps = float(fps)
         else:
             self._fps = self._DEFAULT_FPS
 
