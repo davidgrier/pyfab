@@ -68,14 +68,14 @@ class CGH(object):
             r = self.m * properties['r']
             amp = properties['a'] * np.exp(1j * properties['phi'])
             psi += self.compute_one(amp, r.x(), r.y(), r.z())
-        phi = ((128./np.pi) * np.angle(psi) + 128.).astype(np.uint8)
+        phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
         self.slm.data = phi.T
 
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane.
         """
-        qx = np.linspace(-self.rs.x(), self.w - 1 - self.rs.x(), self.w)
-        qy = np.linspace(-self.rs.y(), self.h - 1 - self.rs.y(), self.h)
+        qx = np.arange(self.w) - self.rs.x()
+        qy = np.arange(self.h) - self.rs.y()
         qx = self.qpp * qx
         qy = self.alpha * self.qpp * qy
         self.iqx = 1j * qx

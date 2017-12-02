@@ -21,7 +21,7 @@ class vmedian(object):
     def filter(self, data):
         self.add(data)
         return self.get()
-    
+
     def get(self):
         """Return current median image
 
@@ -30,7 +30,7 @@ class vmedian(object):
 
         """
         return np.median(self.buffer, axis=0).astype(np.uint8)
-    
+
     def add(self, data):
         """include a new image in the median calculation
 
@@ -47,11 +47,16 @@ class vmedian(object):
         else:
             self.buffer[self.index, :, :] = data
             self.index = self.index + 1
-            
+
         if self.index == 3:
             self.index = 0
             self.initialized = True
-            
+
+    def reset(self):
+        self.initialized = False
+        if isinstance(self.child, vmedian):
+            self.child.reset()
+
     @property
     def dimensions(self):
         return self._dimensions
@@ -66,7 +71,7 @@ class vmedian(object):
             self.initialized = False
             if isinstance(self.child, vmedian):
                 self.child.dimensions = dimensions
-            
+
     @property
     def order(self):
         return self._order

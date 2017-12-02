@@ -23,11 +23,14 @@ class QFabFilter(QtGui.QFrame):
         title = QtGui.QLabel('Video Filters')
         bmedian = QtGui.QCheckBox(QtCore.QString('Median'))
         bnormalize = QtGui.QCheckBox(QtCore.QString('Normalize'))
+        bsample = QtGui.QCheckBox(QtCore.QString('Sample & Hold'))
         layout.addWidget(title)
         layout.addWidget(bmedian)
         layout.addWidget(bnormalize)
+        layout.addWidget(bsample)
         bmedian.clicked.connect(self.handleMedian)
         bnormalize.clicked.connect(self.handleNormalize)
+        bsample.clicked.connect(self.handleSample)
 
     def handleMedian(self, selected):
         if selected:
@@ -40,10 +43,23 @@ class QFabFilter(QtGui.QFrame):
         nrm = frame.astype(float) / med
         self.median.add(frame)
         return np.clip(100 * nrm, 0, 255).astype(np.uint8)
-                                     
+
     def handleNormalize(self, selected):
         if selected:
             self.video.registerFilter(self.normalize)
         else:
             self.video.unregisterFilter(self.normalize)
-            
+
+    def samplehold(self, frame):
+        if not self.median.initialized:
+            self.median.add(frame)
+            self.background = np.clip(self.median.get(), 1, 255)
+        nrm = frame.astype(float) / self.background
+        return np.clip(100 * nrm, 0, 255).astype(np.uint8)
+
+    def handleSample(self, selected):
+        if selected:
+            self.median.reset()
+            self.video.registerFilter(self.samplehold)
+        else:
+            self.video.unregisterFilter(self.samplehold)
