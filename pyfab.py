@@ -19,24 +19,25 @@ import os
 
 class pyfab(QtGui.QWidget):
 
-    def __init__(self):
+    def __init__(self, size=(640, 480)):
         super(pyfab, self).__init__()
-        self.init_hardware()
+        self.init_hardware(size)
         self.init_ui()
         self.init_configuration()
 
-    def init_hardware(self):
+    def init_hardware(self, size):
         # video screen
-        screen_size = (640, 480)
-        self.fabscreen = QFabGraphicsView(
-            size=screen_size, gray=True, mirrored=False)
+        self.fabscreen = QFabGraphicsView(size=size, gray=True)
+        self.video = QFabVideo(self.fabscreen.video)
+        self.filters = QFabFilter(self.fabscreen.video)
         # DVR
         self.dvr = QFabDVR(source=self.fabscreen.video)
+        self.dvr.recording.connect(self.handleRecording)
         # spatial light modulator
         self.slm = QSLM()
         # computation pipeline for the trapping pattern
-        self.pattern = QTrappingPattern(self.fabscreen)
         self.cgh = CGH(self.slm)
+        self.pattern = QTrappingPattern(self.fabscreen)
         self.pattern.pipeline = self.cgh
 
     def init_ui(self):
@@ -44,20 +45,31 @@ class pyfab(QtGui.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
         layout.addWidget(self.fabscreen)
-        wcontrols = QtGui.QWidget()
-        controls = QtGui.QVBoxLayout()
-        controls.setSpacing(1)
-        controls.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        controls.addWidget(self.dvr)
-        self.wvideo = QFabVideo(self.fabscreen.video)
-        controls.addWidget(self.wvideo)
-        controls.addWidget(QFabFilter(self.fabscreen.video))
-        controls.addWidget(QCGH(self.cgh))
-        wcontrols.setLayout(controls)
-        layout.addWidget(wcontrols)
+        tabs = QtGui.QTabWidget()
+        tabs.addTab(self.controlTab(), 'Controls')
+        tabs.addTab(self.trapTab(), 'Traps')
+        layout.addWidget(tabs)
         self.setLayout(layout)
         self.show()
-        self.dvr.recording.connect(self.handleRecording)
+
+    def controlTab(self):
+        wcontrols = QtGui.QWidget()
+        layout = QtGui.QVBoxLayout()
+        layout.setSpacing(1)
+        layout.addWidget(self.dvr)
+        layout.addWidget(self.video)
+        layout.addWidget(self.filters)
+        layout.addWidget(QCGH(self.cgh))
+        wcontrols.setLayout(layout)
+        return wcontrols
+
+    def trapTab(self):
+        wtraps = QtGui.QWidget()
+        layout = QtGui.QVBoxLayout()
+        layout.setSpacing(1)
+        layout.addWidget(QtGui.QLabel('placeholder'))
+        wtraps.setLayout(layout)
+        return wtraps
 
     def handleRecording(self, recording):
         self.wvideo.enabled = not recording
@@ -75,7 +87,7 @@ class pyfab(QtGui.QWidget):
         fn = os.path.expanduser(fn)
         with io.open(fn, 'w', encoding='utf8') as configfile:
             configfile.write(unicode(scgh))
-            
+
     def closeEvent(self, event):
         self.save_configuration()
         self.slm.close()

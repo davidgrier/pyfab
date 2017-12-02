@@ -134,7 +134,8 @@ class QTrappingPattern(QTrapGroup):
         # update selection rectangle
         if self.group is None:
             self.origin = QtCore.QPoint(pos)
-            self.selection.setGeometry(QtCore.QRect(self.origin, QtCore.QSize()))
+            rect = QtCore.QRect(self.origin, QtCore.QSize())
+            self.selection.setGeometry(rect)
             self.selection.show()
         # break selected group
         elif modifiers == Qt.ControlModifier:
@@ -212,7 +213,7 @@ class QTrappingPattern(QTrapGroup):
         self.group = self.groupOf(self.trap)
         if self.group is not None:
             self.group.state = states.selected
-            dr = QtGui.QVector3D(0., 0., event.delta()/120.)
+            dr = QtGui.QVector3D(0., 0., event.delta() / 120.)
             self.group.moveBy(dr)
             self.updatePipeline()
             self.updateScreen()

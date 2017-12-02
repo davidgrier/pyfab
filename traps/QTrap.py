@@ -43,7 +43,6 @@ class QTrap(object):
         """Translate trap.
         """
         self.r = self.r + dr
-        
 
     def isWithin(self, rect):
         """Return True if this trap lies within the specified rectangle.
@@ -59,9 +58,9 @@ class QTrap(object):
     def r(self, r):
         if r is None:
             return
-        elif type(r) == QtGui.QVector3D:
+        elif isinstance(r, QtGui.QVector3D):
             self._r = r
-        elif type(r) == QtCore.QPointF:
+        elif isinstance(r, QtCore.QPointF):
             z = self._r.z()
             self._r = QtGui.QVector3D(r)
             self._r.setZ(z)
@@ -93,7 +92,7 @@ class QTrap(object):
     def spot(self):
         """Graphical representation of a trap.
         """
-        size = np.clip(10. + self.r.z()/10., 5., 20.)
+        size = np.clip(10. + self.r.z() / 10., 5., 20.)
         return {'pos': self.r.toPointF(),
                 'size': size,
                 'pen': self.pen,
