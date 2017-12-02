@@ -51,6 +51,7 @@ class pyfab(QtGui.QWidget):
         layout.addWidget(tabs)
         self.setLayout(layout)
         self.show()
+        tabs.setFixedSize(tabs.size())
 
     def controlTab(self):
         wcontrols = QtGui.QWidget()
