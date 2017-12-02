@@ -42,6 +42,8 @@ class QVideoItem(pg.ImageItem):
         self.gray = bool(gray)
         self._filters = list()
 
+        self._shape = None
+
         self.updateImage()
 
         self._timer = QtCore.QTimer(self)
@@ -71,7 +73,11 @@ class QVideoItem(pg.ImageItem):
             for filter in self._filters:
                 image = filter(image)
             self.setImage(image, autoLevels=False)
+            self._shape = image.shape
             self.sigNewFrame.emit(image)
+
+    def shape(self):
+        return self._shape
 
     @property
     def paused(self):

@@ -12,9 +12,8 @@ class QFabFilter(QtGui.QFrame):
         self.init_ui()
 
     def init_filters(self):
-        size = self.video.device.size
-        dim = (size.height(), size.width())
-        self.median = vmedian(order=3, dimensions=dim)
+        shape = self.video.shape()
+        self.median = vmedian(order=3, shape=shape)
 
     def init_ui(self):
         self.setFrameShape(QtGui.QFrame.Box)
@@ -23,7 +22,7 @@ class QFabFilter(QtGui.QFrame):
         title = QtGui.QLabel('Video Filters')
         bmedian = QtGui.QCheckBox(QtCore.QString('Median'))
         bnormalize = QtGui.QCheckBox(QtCore.QString('Normalize'))
-        bsample = QtGui.QCheckBox(QtCore.QString('Sample & Hold'))
+        bsample = QtGui.QCheckBox(QtCore.QString('Sample and Hold'))
         layout.addWidget(title)
         layout.addWidget(bmedian)
         layout.addWidget(bnormalize)
@@ -39,9 +38,10 @@ class QFabFilter(QtGui.QFrame):
             self.video.unregisterFilter(self.median.filter)
 
     def normalize(self, frame):
-        med = np.clip(self.median.get(), 1, 255)
-        nrm = frame.astype(float) / med
         self.median.add(frame)
+        med = self.median.get()
+        med = np.clip(med, 1, 255)
+        nrm = frame.astype(float) / med
         return np.clip(100 * nrm, 0, 255).astype(np.uint8)
 
     def handleNormalize(self, selected):
