@@ -51,6 +51,8 @@ class QFabFilter(QtGui.QFrame):
             self.video.unregisterFilter(self.normalize)
 
     def samplehold(self, frame):
+        if not frame.shape == self.median.shape:
+            self.median.add(frame)
         if not self.median.initialized:
             self.median.add(frame)
             self.background = np.clip(self.median.get(), 1, 255)
