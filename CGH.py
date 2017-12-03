@@ -57,23 +57,27 @@ class CGH(object):
         """
         ex = np.exp(self.iqx * x + self.iqxsq * z)
         ey = np.exp(self.iqy * y + self.iqysq * z)
-        return np.outer(amp * ex, ey)
+        return np.outer(amp * ex, ey, self._buffer)
 
     @jit(parallel=True)
     def compute(self):
         """Compute phase hologram for specified traps
         """
-        psi = np.zeros((self.w, self.h), dtype=np.complex_)
+        self._psi *= 0. + 0j
         for properties in self.trapdata:
             r = self.m * properties['r']
             amp = properties['a'] * np.exp(1j * properties['phi'])
-            psi += self.compute_one(amp, r.x(), r.y(), r.z())
-        phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
+            self._psi += self.compute_one(amp, r.x(), r.y(), r.z())
+        phi = ((128. / np.pi) * np.angle(self._psi) + 127.).astype(np.uint8)
         self.slm.data = phi.T
 
     def updateGeometry(self):
-        """Compute position-dependent properties in SLM plane.
+        """Compute position-dependent properties in SLM plane
+        and allocate buffers.
         """
+        shape = (self.w, self.h)
+        self._buffer = np.empty(shape, dtype=np.complex_)
+        self._psi = np.empty(shape, dtype=np.complex_)
         qx = np.arange(self.w) - self.rs.x()
         qy = np.arange(self.h) - self.rs.y()
         qx = self.qpp * qx
