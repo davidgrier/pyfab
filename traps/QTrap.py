@@ -8,14 +8,22 @@ from PyQt4 import QtCore, QtGui
 from states import states
 
 
-class QTrap(object):
+class QTrap(QtCore.QObject):
     """A trap has physical properties, including three-dimensional
     position, relative amplitude and relative phase.
     It also has an appearance as presented on the QFabScreen.
     """
 
-    def __init__(self, parent=None, r=None, a=None, phi=None,
-                 state=None, name=None):
+    valueChanged = QtCore.pyqtSignal(QtCore.QObject)
+
+    def __init__(self,
+                 parent=None,
+                 r=None,
+                 a=None,
+                 phi=None,
+                 state=states.normal,
+                 name=None):
+        super(QTrap, self).__init__()
         # organization
         self.parent = parent
         self.name = name
@@ -29,15 +37,14 @@ class QTrap(object):
         self.a = a
         self.phi = phi
         # appearance
-        symbol = 'o'
+        self.symbol = 'o'
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 100, 100, 120),
                       states.grouping: pg.mkBrush(255, 255, 100, 120)}
         self.pen = pg.mkPen('k', width=0.5)
-        self.symbol = symbol
+
         # operational state
-        self._state = None
-        self.state = state
+        self._state = state
 
     def moveBy(self, dr):
         """Translate trap.
@@ -66,6 +73,13 @@ class QTrap(object):
             self._r.setZ(z)
         elif isinstance(r, (list, tuple)):
             self._r = QtGui.QVector3D(r[0], r[1], r[2])
+        self.valueChanged.emit(self)
+
+    def setA(self, a):
+        self.a = a
+
+    def setPhi(self, phi):
+        self.phi = phi
 
     @property
     def pos(self):
@@ -81,12 +95,8 @@ class QTrap(object):
 
     @state.setter
     def state(self, state):
-        if self._state == states.static:
-            return
-        if state in states:
+        if self.state is not states.static:
             self._state = state
-        else:
-            self._state = states.normal
 
     @property
     def spot(self):

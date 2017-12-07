@@ -1,6 +1,8 @@
 from PyQt4 import QtGui, QtCore
 from vmedian import vmedian
 import numpy as np
+import cv2
+from matplotlib.pylab import cm
 
 
 class QFabFilter(QtGui.QFrame):
@@ -23,13 +25,16 @@ class QFabFilter(QtGui.QFrame):
         bmedian = QtGui.QCheckBox(QtCore.QString('Median'))
         bnormalize = QtGui.QCheckBox(QtCore.QString('Normalize'))
         bsample = QtGui.QCheckBox(QtCore.QString('Sample and Hold'))
+        bndvi = QtGui.QCheckBox(QtCore.QString('NDVI'))
         layout.addWidget(title)
         layout.addWidget(bmedian)
         layout.addWidget(bnormalize)
         layout.addWidget(bsample)
+        layout.addWidget(bndvi)
         bmedian.clicked.connect(self.handleMedian)
         bnormalize.clicked.connect(self.handleNormalize)
         bsample.clicked.connect(self.handleSample)
+        bndvi.clicked.connect(self.handleNDVI)
 
     def handleMedian(self, selected):
         if selected:
@@ -65,3 +70,21 @@ class QFabFilter(QtGui.QFrame):
             self.video.registerFilter(self.samplehold)
         else:
             self.video.unregisterFilter(self.samplehold)
+
+    def ndvi(self, frame):
+        if frame.ndim == 3:
+            (r, g, b) = cv2.split(frame)
+            r = r.astype(float)
+            g = g.astype(float)
+            ndx = (r - g) / np.clip(r + g, 1., 255)
+            ndx = np.clip(128. * ndx + 127., 0, 255).astype(np.uint8)
+        else:
+            ndx = frame
+        ndx = (255 * cm.RdYlGn_r(ndx)).astype(np.uint8)
+        return ndx
+
+    def handleNDVI(self, selected):
+        if selected:
+            self.video.registerFilter(self.ndvi)
+        else:
+            self.video.unregisterFilter(self.ndvi)
