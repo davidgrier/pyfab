@@ -51,6 +51,11 @@ class CGH(object):
         self.updateTransformationMatrix()
 
     @jit(parallel=True)
+    def quantize(self):
+        phi = ((128./np.pi) * np.angle(self._psi) + 127.).astype(np.uint8)
+        return phi.T
+
+    @jit(parallel=True)
     def compute_one(self, amp, x, y, z):
         """Compute phase hologram for one trap with
         specified complex amplitude and position
@@ -68,8 +73,7 @@ class CGH(object):
             r = self.m * properties['r']
             amp = properties['a'] * np.exp(1j * properties['phi'])
             self._psi += self.compute_one(amp, r.x(), r.y(), r.z())
-        phi = ((128. / np.pi) * np.angle(self._psi) + 127.).astype(np.uint8)
-        self.slm.data = phi.T
+        self.slm.data = self.quantize()
 
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane
