@@ -158,7 +158,7 @@ class QTrappingPattern(QTrapGroup):
             self.updatePipeline()
         # Delete trap
         elif modifiers == Qt.ControlModifier:
-            self.remove(self.clickedGroup(position))
+            self.remove(self.clickedGroup(position), delete=True)
             self.updatePipeline()
         else:
             pass
