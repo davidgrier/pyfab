@@ -1,4 +1,4 @@
-from PyQt4.QtGui import QFrame, QVBoxLayout, QHBoxLayout
+from PyQt4.QtGui import QFrame, QWidget, QVBoxLayout, QHBoxLayout
 from PyQt4.QtGui import QLineEdit, QDoubleValidator
 from PyQt4.QtCore import Qt, pyqtSignal, QString
 
@@ -33,28 +33,30 @@ class QTrapProperty(QLineEdit):
         self.updateValue()
 
 
-class QTrapLine(QHBoxLayout):
+class QTrapLine(QWidget):
 
     def __init__(self, trap):
         super(QTrapLine, self).__init__()
-        self.setSpacing(1)
-        self.setMargin(0)
+        layout = QHBoxLayout()
+        layout.setSpacing(1)
+        layout.setMargin(0)
         self.wx = QTrapProperty(trap.r.x())
         self.wy = QTrapProperty(trap.r.y())
         self.wz = QTrapProperty(trap.r.z())
         self.wa = QTrapProperty(trap.a, decimals=2)
         self.wp = QTrapProperty(trap.phi, decimals=2)
-        self.addWidget(self.wx)
-        self.addWidget(self.wy)
-        self.addWidget(self.wz)
-        self.addWidget(self.wa)
-        self.addWidget(self.wp)
+        layout.addWidget(self.wx)
+        layout.addWidget(self.wy)
+        layout.addWidget(self.wz)
+        layout.addWidget(self.wa)
+        layout.addWidget(self.wp)
         trap.valueChanged.connect(self.updateValues)
         self.wx.valueChanged.connect(trap.r.setX)
         self.wy.valueChanged.connect(trap.r.setY)
         self.wz.valueChanged.connect(trap.r.setZ)
         self.wa.valueChanged.connect(trap.setA)
         self.wp.valueChanged.connect(trap.setPhi)
+        self.setLayout(layout)
 
     def updateValues(self, trap):
         self.wx.value = trap.r.x()
@@ -71,6 +73,8 @@ class QTrapWidget(QFrame):
         self.setFrameShape(QFrame.Box)
         self.properties = dict()
         self.init_ui()
+        if pattern is not None:
+            pattern.trapAdded.connect(self.registerTrap)
 
     def init_ui(self):
         self.layout = QVBoxLayout(self)
@@ -79,7 +83,16 @@ class QTrapWidget(QFrame):
 
     def registerTrap(self, trap):
         trapline = QTrapLine(trap)
-        self.layout.addLayout(trapline)
+        self.properties[trap] = trapline
+        self.layout.addWidget(trapline)
+        trap.destroyed.connect(lambda: self.unregisterTrap(trap))
+
+    def unregisterTrap(self, trap):
+        self.properties[trap].deleteLater()
+        del self.properties[trap]
+
+    def count(self):
+        return self.layout.count()
 
 
 if __name__ == '__main__':
@@ -91,8 +104,15 @@ if __name__ == '__main__':
     wtrap = QTrapWidget()
     trapa = QTrap()
     trapb = QTrap()
+    trapc = QTrap()
     wtrap.registerTrap(trapa)
     wtrap.registerTrap(trapb)
     wtrap.show()
+    # change trap properties
     trapa.r = (100, 100, 10)
+    trapc.r = (50, 50, 5)
+    # remove trap after display
+    trapb.deleteLater()
+    wtrap.registerTrap(trapc)
+
     sys.exit(app.exec_())

@@ -14,6 +14,8 @@ class QTrappingPattern(QTrapGroup):
     Implements logic for manipulating traps.
     """
 
+    trapAdded = QtCore.pyqtSignal(QTrap)
+
     def __init__(self, fabscreen):
         super(QTrappingPattern, self).__init__()
         self.fabscreen = fabscreen
@@ -150,7 +152,9 @@ class QTrappingPattern(QTrapGroup):
         position = self.dataCoords(pos)
         # Add trap
         if modifiers == Qt.ShiftModifier:
-            self.add(QTrap(r=position))
+            trap = QTrap(r=position)
+            self.add(trap)
+            self.trapAdded.emit(trap)
             self.updatePipeline()
         # Delete trap
         elif modifiers == Qt.ControlModifier:

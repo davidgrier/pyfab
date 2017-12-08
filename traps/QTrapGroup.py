@@ -2,13 +2,15 @@
 
 """QTrapGroup.py: Container for optical traps."""
 
+from PyQt4 import QtCore
 from QTrap import QTrap
 from states import states
 
 
-class QTrapGroup(object):
+class QTrapGroup(QtCore.QObject):
 
     def __init__(self, name=None):
+        super(QTrapGroup, self).__init__()
         self.parent = None
         self.children = []
         self.name = name
@@ -27,6 +29,8 @@ class QTrapGroup(object):
         if thischild in self.children:
             thischild.parent = None
             self.children.remove(thischild)
+            if isinstance(thischild, QTrap):
+                thischild.deleteLater()
         else:
             for child in self.children:
                 if isinstance(child, QTrapGroup):

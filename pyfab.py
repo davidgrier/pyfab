@@ -68,7 +68,7 @@ class pyfab(QtGui.QWidget):
         wtraps = QtGui.QWidget()
         layout = QtGui.QVBoxLayout()
         layout.setSpacing(1)
-        layout.addWidget(QTrapWidget())
+        layout.addWidget(QTrapWidget(self.pattern))
         wtraps.setLayout(layout)
         return wtraps
 
