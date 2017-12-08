@@ -80,6 +80,7 @@ class QTrapWidget(QFrame):
         self.layout = QVBoxLayout(self)
         self.layout.setSpacing(1)
         self.layout.setMargin(1)
+        self.layout.setAlignment(Qt.AlignTop)
 
     def registerTrap(self, trap):
         trapline = QTrapLine(trap)
