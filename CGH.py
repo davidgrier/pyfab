@@ -76,8 +76,8 @@ class CGH(object):
         and allocate buffers.
         """
         shape = (self.w, self.h)
-        self._buffer = np.empty(shape, dtype=np.complex_)
-        self._psi = np.empty(shape, dtype=np.complex_)
+        self._buffer = np.zeros(shape, dtype=np.complex_)
+        self._psi = np.zeros(shape, dtype=np.complex_)
         qx = np.arange(self.w) - self.rs.x()
         qy = np.arange(self.h) - self.rs.y()
         qx = self.qpp * qx
