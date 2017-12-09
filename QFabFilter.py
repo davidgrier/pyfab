@@ -80,7 +80,8 @@ class QFabFilter(QtGui.QFrame):
             ndx = np.clip(128. * ndx + 127., 0, 255).astype(np.uint8)
         else:
             ndx = frame
-        ndx = (255 * cm.RdYlGn_r(ndx)).astype(np.uint8)
+        ndx = cm.RdYlGn_r(ndx, bytes=True)
+        ndx = cv2.cvtColor(ndx, cv2.COLOR_BGRA2BGR)
         return ndx
 
     def handleNDVI(self, selected):

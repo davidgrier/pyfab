@@ -66,6 +66,7 @@ class fabdvr(object):
             frame = cv2.transpose(frame)
         if self.source.flipped:
             frame = cv2.flip(frame, 0)
+        print(frame.shape)
         self._writer.write(frame)
         self.framenumber += 1
         if (self.framenumber == self._nframes):
