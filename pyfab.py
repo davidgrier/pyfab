@@ -6,6 +6,7 @@ from pyqtgraph.Qt import QtGui
 from traps import QTrappingPattern, QTrapWidget
 from QFabGraphicsView import QFabGraphicsView
 from QSLM import QSLM
+from cudaCGH import cudaCGH
 from CGH import CGH
 from QCGH import QCGH
 from QFabDVR import QFabDVR
@@ -36,7 +37,10 @@ class pyfab(QtGui.QWidget):
         # spatial light modulator
         self.slm = QSLM()
         # computation pipeline for the trapping pattern
-        self.cgh = CGH(self.slm)
+        try:
+            self.cgh = cudaCGH(self.slm)
+        except:
+            self.cgh = CGH(self.slm)
         self.pattern = QTrappingPattern(self.fabscreen)
         self.pattern.pipeline = self.cgh
 

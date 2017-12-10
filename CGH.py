@@ -6,6 +6,7 @@ import numpy as np
 from PyQt4 import QtGui, QtCore
 from numba import jit
 import json
+from time import time
 
 
 class CGH(object):
@@ -68,12 +69,14 @@ class CGH(object):
     def compute(self):
         """Compute phase hologram for specified traps
         """
+        start = time()
         self._psi *= 0. + 0j
         for properties in self.trapdata:
             r = self.m * properties['r']
             amp = properties['a'] * np.exp(1j * properties['phi'])
             self._psi += self.compute_one(amp, r.x(), r.y(), r.z())
         self.slm.data = self.quantize()
+        self.time = time() - start
 
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane
