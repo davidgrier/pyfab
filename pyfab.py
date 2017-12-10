@@ -6,8 +6,10 @@ from pyqtgraph.Qt import QtGui
 from traps import QTrappingPattern, QTrapWidget
 from QFabGraphicsView import QFabGraphicsView
 from QSLM import QSLM
-from cudaCGH import cudaCGH
-from CGH import CGH
+try:
+    from cudaCGH import cudaCGH
+except ImportError:
+    from CGH import CGH
 from QCGH import QCGH
 from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
@@ -39,7 +41,7 @@ class pyfab(QtGui.QWidget):
         # computation pipeline for the trapping pattern
         try:
             self.cgh = cudaCGH(self.slm)
-        except:
+        except NameError:
             self.cgh = CGH(self.slm)
         self.pattern = QTrappingPattern(self.fabscreen)
         self.pattern.pipeline = self.cgh
