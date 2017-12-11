@@ -16,16 +16,20 @@ class cudaCGH(CGH):
         mod = SourceModule("""
         #include <pycuda-complex.hpp>
 
-        __global__ void outer(pycuda::complex<float> *x, pycuda::complex<float> *y, pycuda::complex<float> *c, int nx, int ny)
+        __global__ void outer(pycuda::complex<float> *x, \
+                              pycuda::complex<float> *y, \
+                              pycuda::complex<float> *out, \
+                              int nx, int ny)
         {
           int i = threadIdx.x + blockDim.x * blockIdx.x;
           int j = threadIdx.y + blockDim.y * blockIdx.y;
           if (i < nx && j < ny){
-            c[i*ny + j] = x[i]*y[j];
+            out[i*ny + j] = x[i]*y[j];
           }
         }
 
-        __global__ void phase(float *im, float *re, float *out, int nx, int ny)
+        __global__ void phase(float *im, float *re, float *out, \
+                              int nx, int ny)
         {
           int i = threadIdx.x + blockIdx.x * blockDim.x;
           int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -69,10 +73,8 @@ class cudaCGH(CGH):
         self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
         qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
         qy = gpuarray.arange(self.h, dtype=np.float32).astype(np.complex64)
-        qx -= self.rs.x()
-        qy -= self.rs.y()
-        qx *= self.qpp
-        qy *= self.qpp
+        qx = self.qpp * (qx - self.rs.x())
+        qy = self.qpp * (qy - self.rs.y())
         self.iqx = 1j * qx
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
