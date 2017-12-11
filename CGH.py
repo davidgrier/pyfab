@@ -73,7 +73,7 @@ class CGH(object):
         self._psi *= 0. + 0j
         for properties in self.trapdata:
             r = self.m * properties['r']
-            amp = properties['a'] * np.exp(1j * properties['phi'])
+            amp = properties['amp']
             self._psi += self.compute_one(amp, r.x(), r.y(), r.z())
         self.slm.data = self.quantize()
         self.time = time() - start

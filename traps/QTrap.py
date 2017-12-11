@@ -19,8 +19,8 @@ class QTrap(QtCore.QObject):
     def __init__(self,
                  parent=None,
                  r=None,
-                 a=None,
-                 phi=None,
+                 a=1.,
+                 phi=2.*np.pi*np.random.uniform(),
                  state=states.normal,
                  name=None):
         super(QTrap, self).__init__()
@@ -28,11 +28,6 @@ class QTrap(QtCore.QObject):
         self.parent = parent
         self.name = name
         # physical properties
-        self._r = QtGui.QVector3D(0, 0, 0)
-        if a is None:
-            a = 1.
-        if phi is None:
-            phi = np.random.uniform() * 2 * np.pi
         self.r = r
         self.a = a
         self.phi = phi
@@ -54,7 +49,7 @@ class QTrap(QtCore.QObject):
     def isWithin(self, rect):
         """Return True if this trap lies within the specified rectangle.
         """
-        return rect.contains(self.pos)
+        return rect.contains(self.r.toPointF())
 
     @property
     def r(self):
@@ -64,28 +59,53 @@ class QTrap(QtCore.QObject):
     @r.setter
     def r(self, r):
         if r is None:
-            return
+            self._r = QtGui.QVector(0, 0, 0)
         elif isinstance(r, QtGui.QVector3D):
             self._r = r
         elif isinstance(r, QtCore.QPointF):
-            z = self._r.z()
+            try:
+                z = self._r.z()
+            except AttributeError:
+                z = 0.
             self._r = QtGui.QVector3D(r)
             self._r.setZ(z)
         elif isinstance(r, (list, tuple)):
             self._r = QtGui.QVector3D(r[0], r[1], r[2])
         self.valueChanged.emit(self)
 
-    def setA(self, a):
-        self.a = a
+    def updateAmp(self):
+        try:
+            self.amp = self.a * np.exp(1j * self.phi)
+        except AttributeError:
+            self.amp = 1. + 0j
 
-    def setPhi(self, phi):
-        self.phi = phi
+    def setA(self, a):
+        self._a = a
+        self.updateAmp()
 
     @property
-    def pos(self):
-        """In-plane position of trap.
-        """
-        return self.r.toPointF()
+    def a(self):
+        return self._a
+
+    @a.setter
+    def a(self, a):
+        if a is not None:
+            self.setA(a)
+            self.valueChanged.emit(self)
+
+    def setPhi(self, phi):
+        self._phi = phi
+        self.updateAmp()
+
+    @property
+    def phi(self):
+        return self._phi
+
+    @phi.setter
+    def phi(self, phi):
+        if phi is not None:
+            self.setPhi(phi)
+            self.valueChanged.emit(self)
 
     @property
     def state(self):
@@ -114,5 +134,4 @@ class QTrap(QtCore.QObject):
         """Physical properties of a trap.
         """
         return {'r': self.r,
-                'a': self.a,
-                'phi': self.phi}
+                'amp': self.amp}
