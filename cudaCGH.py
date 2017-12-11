@@ -28,14 +28,15 @@ class cudaCGH(CGH):
           }
         }
 
-        __global__ void phase(float *im, float *re, float *out, \
+        __global__ void phase(float *im, float *re, unsigned char *out, \
                               int nx, int ny)
         {
           int i = threadIdx.x + blockIdx.x * blockDim.x;
           int j = threadIdx.y + blockIdx.y * blockDim.y;
           if (i < nx && j < ny){
             int n = i*ny + j;
-            out[n] = (128./3.14159265359) * atan2f(im[n], re[n]) + 127.;
+            float phi = (128./3.14159265359) * atan2f(im[n], re[n]) + 127.;
+            out[n] = (unsigned char) phi;
           }
         }
         """)
@@ -52,7 +53,7 @@ class cudaCGH(CGH):
         self.phase(self._psi.imag, self._psi.real, self._phi,
                    np.int32(self.w), np.int32(self.h),
                    block=self.block, grid=self.grid)
-        phi = self._phi.get().astype(np.uint8)
+        phi = self._phi.get()
         return phi.T
     
     def compute_one(self, amp, x, y, z):
@@ -68,7 +69,7 @@ class cudaCGH(CGH):
         shape = (self.w, self.h)
         self._buffer = gpuarray.zeros(shape, dtype=np.complex64)
         self._psi = gpuarray.zeros(shape, dtype=np.complex64)
-        self._phi = gpuarray.zeros(shape, dtype=np.float32)
+        self._phi = gpuarray.zeros(shape, dtype=np.uint8)
         self._ex = gpuarray.zeros(self.w, dtype=np.complex64)
         self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
         qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
