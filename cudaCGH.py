@@ -56,8 +56,8 @@ class cudaCGH(CGH):
         self.phase(self._psi, self._phi,
                    np.int32(self.w), np.int32(self.h),
                    block=self.block, grid=self.grid)
-        phi = self._phi.get()
-        return phi.T
+        self._phi.get(self.phi)
+        return self.phi.T
     
     def compute_one(self, amp, x, y, z):
         cumath.exp(self.iqx * x + self.iqxsq * z, out=self._ex)
@@ -73,6 +73,7 @@ class cudaCGH(CGH):
         self._buffer = gpuarray.zeros(shape, dtype=np.complex64)
         self._psi = gpuarray.zeros(shape, dtype=np.complex64)
         self._phi = gpuarray.zeros(shape, dtype=np.uint8)
+        self.phi = np.zeros(shape, dtype=np.uint8)
         self._ex = gpuarray.zeros(self.w, dtype=np.complex64)
         self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
         qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
