@@ -21,13 +21,11 @@ class QTrap(QtCore.QObject):
                  r=None,
                  a=1.,
                  phi=None,
-                 state=states.normal,
-                 name=None):
+                 state=states.normal):
         super(QTrap, self).__init__()
         self.active = False
         # organization
         self.parent = parent
-        self.name = name
         # physical properties
         self.r = r
         self.a = a
