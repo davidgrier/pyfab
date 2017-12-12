@@ -59,9 +59,9 @@ class cudaCGH(CGH):
         self._phi.get(self.phi)
         return self.phi.T
     
-    def compute_one(self, amp, x, y, z):
-        cumath.exp(self.iqx * x + self.iqxsq * z, out=self._ex)
-        cumath.exp(self.iqy * y + self.iqysq * z, out=self._ey)
+    def compute_one(self, amp, r):
+        cumath.exp(self.iqx * r.x() + self.iqxsq * r.z(), out=self._ex)
+        cumath.exp(self.iqy * r.y() + self.iqysq * r.z(), out=self._ey)
         self._ex *= amp
         self.outer(self._ex, self._ey, self._buffer,
                    np.int32(self.w), np.int32(self.h),

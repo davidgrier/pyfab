@@ -57,12 +57,12 @@ class CGH(object):
         return phi.T
 
     @jit(parallel=True)
-    def compute_one(self, amp, x, y, z):
+    def compute_one(self, amp, r):
         """Compute phase hologram for one trap with
         specified complex amplitude and position
         """
-        ex = np.exp(self.iqx * x + self.iqxsq * z)
-        ey = np.exp(self.iqy * y + self.iqysq * z)
+        ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
+        ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
         return np.outer(amp * ex, ey, self._buffer)
 
     @jit(parallel=True)
@@ -74,7 +74,7 @@ class CGH(object):
         for properties in self.trapdata:
             r = self.m * properties['r']
             amp = properties['amp']
-            self._psi += self.compute_one(amp, r.x(), r.y(), r.z())
+            self._psi += self.compute_one(amp, r)
         self.slm.data = self.quantize()
         self.time = time() - start
 
