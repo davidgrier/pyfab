@@ -2,7 +2,7 @@
 
 """pyfab.py: GUI for holographic optical trapping."""
 
-from pyqtgraph.Qt import QtGui
+from pyqtgraph.Qt import QtGui, QtCore
 from traps import QTrappingPattern, QTrapWidget
 from QFabGraphicsView import QFabGraphicsView
 from QSLM import QSLM
@@ -62,6 +62,7 @@ class pyfab(QtGui.QWidget):
     def controlTab(self):
         wcontrols = QtGui.QWidget()
         layout = QtGui.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(1)
         layout.addWidget(self.dvr)
         layout.addWidget(self.video)
@@ -73,6 +74,7 @@ class pyfab(QtGui.QWidget):
     def trapTab(self):
         wtraps = QtGui.QWidget()
         layout = QtGui.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(1)
         layout.addWidget(QTrapWidget(self.pattern))
         wtraps.setLayout(layout)
