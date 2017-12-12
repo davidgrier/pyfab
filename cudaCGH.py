@@ -28,14 +28,17 @@ class cudaCGH(CGH):
           }
         }
 
-        __global__ void phase(float *im, float *re, unsigned char *out, \
+        __global__ void phase(pycuda::complex<float> *psi, \
+                              unsigned char *out, \
                               int nx, int ny)
         {
           int i = threadIdx.x + blockIdx.x * blockDim.x;
           int j = threadIdx.y + blockIdx.y * blockDim.y;
           if (i < nx && j < ny){
             int n = i*ny + j;
-            float phi = (128./3.14159265359) * atan2f(im[n], re[n]) + 127.;
+            float im = psi[n]._M_re;
+            float re = psi[n]._M_im;
+            float phi = (128./3.14159265359) * atan2f(im, re) + 127.;
             out[n] = (unsigned char) phi;
           }
         }
@@ -50,7 +53,7 @@ class cudaCGH(CGH):
                      (dy + (my > 0)) * self.block[1])
 
     def quantize(self):
-        self.phase(self._psi.imag, self._psi.real, self._phi,
+        self.phase(self._psi, self._phi,
                    np.int32(self.w), np.int32(self.h),
                    block=self.block, grid=self.grid)
         phi = self._phi.get()
