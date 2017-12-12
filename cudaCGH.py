@@ -36,8 +36,8 @@ class cudaCGH(CGH):
           int j = threadIdx.y + blockIdx.y * blockDim.y;
           if (i < nx && j < ny){
             int n = i*ny + j;
-            float im = psi[n]._M_re;
-            float re = psi[n]._M_im;
+            float im = psi[n]._M_im;
+            float re = psi[n]._M_re;
             float phi = (128./3.14159265359) * atan2f(im, re) + 127.;
             out[n] = (unsigned char) phi;
           }
