@@ -20,17 +20,21 @@ class QTrap(QtCore.QObject):
                  parent=None,
                  r=None,
                  a=1.,
-                 phi=2.*np.pi*np.random.uniform(),
+                 phi=None,
                  state=states.normal,
                  name=None):
         super(QTrap, self).__init__()
+        self.active = False
         # organization
         self.parent = parent
         self.name = name
         # physical properties
         self.r = r
         self.a = a
-        self.phi = phi
+        if phi is None:
+            self.phi = np.random.uniform(low=0., high=2.*np.pi)
+        else:
+            self.phi = phi
         # appearance
         self.symbol = 'o'
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
@@ -40,6 +44,7 @@ class QTrap(QtCore.QObject):
 
         # operational state
         self._state = state
+        self.active = True
 
     def moveBy(self, dr):
         """Translate trap.
@@ -51,13 +56,30 @@ class QTrap(QtCore.QObject):
         """
         return rect.contains(self.r.toPointF())
 
+    def update(self):
+        if self.active:
+            self.parent.update()
+
     @property
     def r(self):
         """Three-dimensional position of trap."""
         return self._r
 
+    def setX(self, x):
+        self._r.setX(x)
+        self.update()
+
+    def setY(self, y):
+        self._r.setY(y)
+        self.update()
+
+    def setZ(self, z):
+        self._r.setZ(z)
+        self.update()
+
     @r.setter
     def r(self, r):
+        self.active = False
         if r is None:
             self._r = QtGui.QVector(0, 0, 0)
         elif isinstance(r, QtGui.QVector3D):
@@ -72,12 +94,15 @@ class QTrap(QtCore.QObject):
         elif isinstance(r, (list, tuple)):
             self._r = QtGui.QVector3D(r[0], r[1], r[2])
         self.valueChanged.emit(self)
+        self.active = True
+        self.update()
 
     def updateAmp(self):
         try:
             self.amp = self.a * np.exp(1j * self.phi)
         except AttributeError:
             self.amp = 1. + 0j
+        self.update()
 
     def setA(self, a):
         self._a = a

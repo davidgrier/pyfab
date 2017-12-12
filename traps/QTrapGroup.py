@@ -9,17 +9,18 @@ from states import states
 
 class QTrapGroup(QtCore.QObject):
 
-    def __init__(self, name=None):
+    def __init__(self, parent=None, name=None):
         super(QTrapGroup, self).__init__()
-        self.parent = None
+        self.parent = parent
         self.children = []
         self.name = name
+        self.active = True
 
     def add(self, child):
         """Add an object to the trap group.
         """
-        self.children.append(child)
         child.parent = self
+        self.children.append(child)
 
     def remove(self, thischild, delete=False):
         """Remove an object from the trap group.
@@ -42,6 +43,10 @@ class QTrapGroup(QtCore.QObject):
         for child in self.children:
             child.deleteLater()
         super(QTrapGroup, self).deleteLater()
+
+    def update(self):
+        if self.active:
+            self.parent.update()
 
     def count(self):
         """Return the number of items in the group.
@@ -83,5 +88,8 @@ class QTrapGroup(QtCore.QObject):
     def moveBy(self, dr):
         """Translate traps in the group.
         """
+        self.active = False
         for child in self.children:
             child.moveBy(dr)
+        self.active = True
+        self.update()
