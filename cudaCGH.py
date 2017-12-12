@@ -32,13 +32,17 @@ class cudaCGH(CGH):
                               unsigned char *out, \
                               int nx, int ny)
         {
-          int i = threadIdx.x + blockIdx.x * blockDim.x;
-          int j = threadIdx.y + blockIdx.y * blockDim.y;
+          int i = threadIdx.x + blockDim.x * blockIdx.x;
+          int j = threadIdx.y + blockDim.y * blockIdx.y;
+
+          int n;
+          float im, re, phi;
+
           if (i < nx && j < ny){
-            int n = i*ny + j;
-            float im = psi[n]._M_im;
-            float re = psi[n]._M_re;
-            float phi = (128./3.14159265359) * atan2f(im, re) + 127.;
+            n = i*ny + j;
+            im = psi[n]._M_im;
+            re = psi[n]._M_re;
+            phi = (128./3.14159265359) * atan2f(im, re) + 127.;
             out[n] = (unsigned char) phi;
           }
         }

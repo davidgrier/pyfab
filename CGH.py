@@ -70,7 +70,7 @@ class CGH(object):
         """Compute phase hologram for specified traps
         """
         start = time()
-        self._psi *= 0. + 0j
+        self._psi.fill(0. + 0j)
         for properties in self.trapdata:
             r = self.m * properties['r']
             amp = properties['amp']
