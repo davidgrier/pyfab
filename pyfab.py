@@ -55,6 +55,7 @@ class pyfab(QtGui.QWidget):
         tabs.addTab(self.controlTab(), 'Controls')
         tabs.addTab(self.trapTab(), 'Traps')
         layout.addWidget(tabs)
+        layout.setAlignment(tabs, QtCore.Qt.AlignTop)
         self.setLayout(layout)
         self.show()
         tabs.setFixedSize(tabs.size())
