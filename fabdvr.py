@@ -56,7 +56,7 @@ class fabdvr(object):
 
     def stop(self):
         if self.isrecording():
-            self.source.sigNewFrame.disconnect()
+            self.source.sigNewFrame.disconnect(self.write)
             self._writer.release()
         self.nframes = 0
         self._writer = None
