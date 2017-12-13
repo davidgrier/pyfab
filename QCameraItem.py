@@ -149,6 +149,7 @@ class QVideoItem(pg.ImageItem):
         self._timer.start()
         self.destroyed.connect(self.stop)
 
+    @QtCore.pyqtSlot()
     def stop(self):
         self._timer.stop()
         self.device.stop()

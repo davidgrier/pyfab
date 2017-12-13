@@ -36,6 +36,7 @@ class QFabFilter(QtGui.QFrame):
         bsample.clicked.connect(self.handleSample)
         bndvi.clicked.connect(self.handleNDVI)
 
+    @QtCore.pyqtSlot(bool)
     def handleMedian(self, selected):
         if selected:
             self.video.registerFilter(self.median.filter)
@@ -49,6 +50,7 @@ class QFabFilter(QtGui.QFrame):
         nrm = frame.astype(float) / med
         return np.clip(100 * nrm, 0, 255).astype(np.uint8)
 
+    @QtCore.pyqtSlot(bool)
     def handleNormalize(self, selected):
         if selected:
             self.video.registerFilter(self.normalize)
@@ -64,6 +66,7 @@ class QFabFilter(QtGui.QFrame):
         nrm = frame.astype(float) / self.background
         return np.clip(100 * nrm, 0, 255).astype(np.uint8)
 
+    @QtCore.pyqtSlot(bool)
     def handleSample(self, selected):
         if selected:
             self.median.reset()
@@ -84,6 +87,7 @@ class QFabFilter(QtGui.QFrame):
         ndx = cv2.cvtColor(ndx, cv2.COLOR_BGRA2BGR)
         return ndx
 
+    @QtCore.pyqtSlot(bool)
     def handleNDVI(self, selected):
         if selected:
             self.video.registerFilter(self.ndvi)

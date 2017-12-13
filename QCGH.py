@@ -1,3 +1,4 @@
+from PyQt4 import QtCore
 from QPropertySheet import QPropertySheet
 
 
@@ -22,6 +23,7 @@ class QCGH(QPropertySheet):
         self.wyc.valueChanged.connect(self.updateYc)
         self.wtheta.valueChanged.connect(self.updateTheta)
 
+    @QtCore.pyqtSlot()
     def updateXs(self):
         rs = self.cgh.rs
         rs.setX(self.wxs.value)
@@ -36,6 +38,7 @@ class QCGH(QPropertySheet):
         self.wxs.value = xs
         self.updateXs()
 
+    @QtCore.pyqtSlot()
     def updateYs(self):
         rs = self.cgh.rs
         rs.setY(self.wys.value)
@@ -50,6 +53,7 @@ class QCGH(QPropertySheet):
         self.wys.value = ys
         self.updateYs()
 
+    @QtCore.pyqtSlot()
     def updateQpp(self):
         self.cgh.qpp = self.wqpp.value
 
@@ -62,6 +66,7 @@ class QCGH(QPropertySheet):
         self.wqpp.value = qpp
         self.updateQpp()
 
+    @QtCore.pyqtSlot()
     def updateAlpha(self):
         self.cgh.alpha = self.walpha.value
 
@@ -74,6 +79,7 @@ class QCGH(QPropertySheet):
         self.walpha.value = alpha
         self.updateAlpha()
 
+    @QtCore.pyqtSlot()
     def updateXc(self):
         rc = self.cgh.rc
         rc.setX(self.wxc.value)
@@ -88,6 +94,7 @@ class QCGH(QPropertySheet):
         self.wxc.value = xc
         self.updateXc()
 
+    @QtCore.pyqtSlot()
     def updateYc(self):
         rc = self.cgh.rc
         rc.setY(self.wyc.value)
@@ -102,6 +109,7 @@ class QCGH(QPropertySheet):
         self.wyc.value = yc
         self.updateYc()
 
+    @QtCore.pyqtSlot()
     def updateZc(self):
         rc = self.cgh.rc
         rc.setZ(self.wzc.value)
@@ -116,6 +124,7 @@ class QCGH(QPropertySheet):
         self.wzc.value = zc
         self.updateZc()
 
+    @QtCore.pyqtSlot()
     def updateTheta(self):
         self.cgh.theta = self.wtheta.value
         

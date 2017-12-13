@@ -1,11 +1,11 @@
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt, pyqtSignal
+from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import Qt
 from fabdvr import fabdvr
 
 
 class QFabDVR(fabdvr, QtGui.QFrame):
 
-    recording = pyqtSignal(bool)
+    recording = QtCore.pyqtSignal(bool)
 
     def __init__(self, **kwargs):
         super(QFabDVR, self).__init__(**kwargs)
@@ -40,10 +40,12 @@ class QFabDVR(fabdvr, QtGui.QFrame):
         super(QFabDVR, self).write(frame)
         self.wframe.display(self.framenumber)
 
+    @QtCore.pyqtSlot()
     def handleRecord(self):
         super(QFabDVR, self).record(1000)
         self.recording.emit(True)
 
+    @QtCore.pyqtSlot()
     def handleStop(self):
         super(QFabDVR, self).stop()
         self.recording.emit(False)
