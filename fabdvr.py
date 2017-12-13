@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from PyQt4 import QtCore
 import cv2
 from QVideoItem import QVideoItem
 import os
@@ -61,6 +62,7 @@ class fabdvr(object):
         self.nframes = 0
         self._writer = None
 
+    @QtCore.pyqtSlot()
     def write(self, frame):
         if self.source.transposed:
             frame = cv2.transpose(frame)
