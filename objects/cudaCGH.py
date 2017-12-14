@@ -83,7 +83,7 @@ class cudaCGH(CGH):
         qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
         qy = gpuarray.arange(self.h, dtype=np.float32).astype(np.complex64)
         qx = self.qpp * (qx - self.rs.x())
-        qy = self.qpp * (qy - self.rs.y())
+        qy = self.alpha * self.qpp * (qy - self.rs.y())
         self.iqx = 1j * qx
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
