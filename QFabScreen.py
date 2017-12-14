@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""QFabGraphicsView.py: PyQt GUI for live video with graphical overlay."""
+"""QFabScreen.py: PyQt GUI for live video with graphical overlay."""
 
 import numpy as np
 import pyqtgraph as pg
@@ -9,7 +9,7 @@ from QVideoItem import QVideoItem
 from PyQt4.QtCore import Qt
 
 
-class QFabGraphicsView(pg.GraphicsLayoutWidget):
+class QFabScreen(pg.GraphicsLayoutWidget):
     """Interactive display for pyfab system.
     Incorporates a QVideoItem to display live video and a
     ScatterPlotItem to present graphical representations of traps
@@ -24,7 +24,7 @@ class QFabGraphicsView(pg.GraphicsLayoutWidget):
     sigWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
 
     def __init__(self, parent=None, **kwargs):
-        super(QFabGraphicsView, self).__init__(parent)
+        super(QFabScreen, self).__init__(parent)
 
         # self.setAttribute(Qt.WA_DeleteOnClose, True)
 
@@ -158,10 +158,10 @@ def main():
 
     app = QtGui.QApplication(sys.argv)
 
-    fabscreen = QFabGraphicsView(size=(640, 480), gray=True)
+    fabscreen = QFabScreen(size=(640, 480), gray=True)
     fabscreen.show()
 
-    d = demopattern(fabscreen)
+    demopattern(fabscreen)
 
     sys.exit(app.exec_())
 

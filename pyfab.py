@@ -4,7 +4,7 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 from traps import QTrappingPattern, QTrapWidget
-from QFabGraphicsView import QFabGraphicsView
+from QFabScreen import QFabScreen
 from QSLM import QSLM
 try:
     from cudaCGH import cudaCGH
@@ -30,7 +30,7 @@ class pyfab(QtGui.QWidget):
 
     def init_hardware(self, size):
         # video screen
-        self.fabscreen = QFabGraphicsView(size=size, gray=True)
+        self.fabscreen = QFabScreen(size=size, gray=True)
         self.video = QFabVideo(self.fabscreen.video)
         self.filters = QFabFilter(self.fabscreen.video)
         # DVR
