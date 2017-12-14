@@ -2,50 +2,53 @@
 
 """jansen.py: GUI for holographic video microscopy."""
 
-from pyqtgraph.Qt import QtGui
-from QFabGraphicsView import QFabGraphicsView
-from QFabDVR import QFabDVR
-from QFabVideo import QFabVideo
-from QFabFilter import QFabFilter
+from pyqtgraph.Qt import QtGui, QtCore
+import objects
 import sys
 
 
 class jansen(QtGui.QWidget):
 
-    def __init__(self):
+    def __init__(self, size=(640, 480)):
         super(jansen, self).__init__()
-        self.init_hardware()
+        self.init_hardware(size)
         self.init_ui()
 
-    def init_hardware(self):
+    def init_hardware(self, size):
         # video screen
-        screen_size = (640, 480)
-        self.fabscreen = QFabGraphicsView(
-            size=screen_size, gray=True, mirrored=False)
+        self.fabscreen = objects.QFabScreen(size=size, gray=True)
+        self.video = objects.QFabVideo(self.fabscreen.video)
+        self.filters = objects.QFabFilter(self.fabscreen.video)
         # DVR
-        self.dvr = QFabDVR(source=self.fabscreen.video)
+        self.dvr = objects.QFabDVR(source=self.fabscreen.video)
+        self.dvr.recording.connect(self.handleRecording)
 
     def init_ui(self):
         layout = QtGui.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
         layout.addWidget(self.fabscreen)
-        wcontrols = QtGui.QWidget()
-        controls = QtGui.QVBoxLayout()
-        controls.setSpacing(1)
-        controls.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        controls.addWidget(self.dvr)
-        self.wvideo = QFabVideo(self.fabscreen.video)
-        controls.addWidget(self.wvideo)
-        controls.addWidget(QFabFilter(self.fabscreen.video))
-        wcontrols.setLayout(controls)
-        layout.addWidget(wcontrols)
+        tabs = QtGui.QTabWidget()
+        tabs.addTab(self.videoTab(), 'Video')
+        layout.addWidget(tabs)
+        layout.setAlignment(tabs, QtCore.Qt.AlignTop)
         self.setLayout(layout)
         self.show()
-        self.dvr.recording.connect(self.handleRecording)
+        tabs.setFixedWidth(tabs.width())
+
+    def videoTab(self):
+        wvideo = QtGui.QWidget()
+        layout = QtGui.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        layout.setSpacing(1)
+        layout.addWidget(self.dvr)
+        layout.addWidget(self.video)
+        layout.addWidget(self.filters)
+        wvideo.setLayout(layout)
+        return wvideo
 
     def handleRecording(self, recording):
-        self.wvideo.enabled = not recording
+        self.video.enabled = not recording
 
 
 if __name__ == '__main__':
