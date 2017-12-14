@@ -91,7 +91,7 @@ class pyfab(QtGui.QWidget):
 
     def query_save_configuration(self):
         query = 'Save current configuration?'
-        reply = QtGui.QMessageBox.question(self, 'Message',
+        reply = QtGui.QMessageBox.question(self, 'Confirmation',
                                            query,
                                            QtGui.QMessageBox.Yes,
                                            QtGui.QMessageBox.No)
