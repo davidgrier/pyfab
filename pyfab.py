@@ -3,18 +3,8 @@
 """pyfab.py: GUI for holographic optical trapping."""
 
 from pyqtgraph.Qt import QtGui, QtCore
-from traps import * #QTrappingPattern, QTrapWidget
-from objects import *
-#from QFabScreen import QFabScreen
-#from QSLM import QSLM
-#try:
-#    from cudaCGH import cudaCGH
-#except ImportError:
-#    from CGH import CGH
-#from QCGH import QCGH
-#from QFabDVR import QFabDVR
-#from QFabVideo import QFabVideo
-#from QFabFilter import QFabFilter
+import traps
+import objects
 import sys
 import io
 import datetime
@@ -31,20 +21,20 @@ class pyfab(QtGui.QWidget):
 
     def init_hardware(self, size):
         # video screen
-        self.fabscreen = QFabScreen(size=size, gray=True)
-        self.video = QFabVideo(self.fabscreen.video)
-        self.filters = QFabFilter(self.fabscreen.video)
+        self.fabscreen = objects.QFabScreen(size=size, gray=True)
+        self.video = objects.QFabVideo(self.fabscreen.video)
+        self.filters = objects.QFabFilter(self.fabscreen.video)
         # DVR
-        self.dvr = QFabDVR(source=self.fabscreen.video)
+        self.dvr = objects.QFabDVR(source=self.fabscreen.video)
         self.dvr.recording.connect(self.handleRecording)
         # spatial light modulator
-        self.slm = QSLM()
+        self.slm = objects.QSLM()
         # computation pipeline for the trapping pattern
         try:
-            self.cgh = cudaCGH(self.slm)
+            self.cgh = objects.cudaCGH(self.slm)
         except NameError:
-            self.cgh = CGH(self.slm)
-        self.pattern = QTrappingPattern(self.fabscreen)
+            self.cgh = objects.CGH(self.slm)
+        self.pattern = traps.QTrappingPattern(self.fabscreen)
         self.pattern.pipeline = self.cgh
 
     def init_ui(self):
@@ -69,7 +59,7 @@ class pyfab(QtGui.QWidget):
         layout.addWidget(self.dvr)
         layout.addWidget(self.video)
         layout.addWidget(self.filters)
-        layout.addWidget(QCGH(self.cgh))
+        layout.addWidget(objects.QCGH(self.cgh))
         wcontrols.setLayout(layout)
         return wcontrols
 
@@ -78,7 +68,7 @@ class pyfab(QtGui.QWidget):
         layout = QtGui.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(1)
-        layout.addWidget(QTrapWidget(self.pattern))
+        layout.addWidget(traps.QTrapWidget(self.pattern))
         wtraps.setLayout(layout)
         return wtraps
 
@@ -99,8 +89,19 @@ class pyfab(QtGui.QWidget):
         with io.open(fn, 'w', encoding='utf8') as configfile:
             configfile.write(unicode(scgh))
 
+    def query_save_configuration(self):
+        query = 'Save current configuration?'
+        reply = QtGui.QMessageBox.question(self, 'Message',
+                                           query,
+                                           QtGui.QMessageBox.Yes,
+                                           QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            self.save_configuration()
+        else:
+            pass
+
     def closeEvent(self, event):
-        self.save_configuration()
+        self.query_save_configuration()
         self.slm.close()
 
 
