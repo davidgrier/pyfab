@@ -43,25 +43,34 @@ class pyfab(QtGui.QWidget):
         layout.setSpacing(1)
         layout.addWidget(self.fabscreen)
         tabs = QtGui.QTabWidget()
-        tabs.addTab(self.controlTab(), 'Controls')
+        tabs.addTab(self.videoTab(), 'Video')
+        tabs.addTab(self.cghTab(), 'CGH')
         tabs.addTab(self.trapTab(), 'Traps')
         layout.addWidget(tabs)
         layout.setAlignment(tabs, QtCore.Qt.AlignTop)
         self.setLayout(layout)
         self.show()
-        tabs.setFixedSize(tabs.size())
+        tabs.setFixedWidth(tabs.width())
 
-    def controlTab(self):
-        wcontrols = QtGui.QWidget()
+    def videoTab(self):
+        wvideo = QtGui.QWidget()
         layout = QtGui.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(1)
         layout.addWidget(self.dvr)
         layout.addWidget(self.video)
         layout.addWidget(self.filters)
+        wvideo.setLayout(layout)
+        return wvideo
+
+    def cghTab(self):
+        wcgh = QtGui.QWidget()
+        layout = QtGui.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        layout.setSpacing(1)
         layout.addWidget(objects.QCGH(self.cgh))
-        wcontrols.setLayout(layout)
-        return wcontrols
+        wcgh.setLayout(layout)
+        return wcgh
 
     def trapTab(self):
         wtraps = QtGui.QWidget()
