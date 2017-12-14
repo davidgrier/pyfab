@@ -9,6 +9,7 @@ import sys
 import io
 import datetime
 import os
+import json
 
 
 class pyfab(QtGui.QWidget):
@@ -34,6 +35,7 @@ class pyfab(QtGui.QWidget):
             self.cgh = objects.cudaCGH(self.slm)
         except NameError:
             self.cgh = objects.CGH(self.slm)
+        self.wcgh = objects.QCGH(self.cgh)
         self.pattern = traps.QTrappingPattern(self.fabscreen)
         self.pattern.pipeline = self.cgh
 
@@ -68,7 +70,7 @@ class pyfab(QtGui.QWidget):
         layout = QtGui.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(1)
-        layout.addWidget(objects.QCGH(self.cgh))
+        layout.addWidget(self.wcgh)
         wcgh.setLayout(layout)
         return wcgh
 
@@ -86,14 +88,27 @@ class pyfab(QtGui.QWidget):
 
     def init_configuration(self):
         sz = self.fabscreen.video.device.size
-        self.cgh.rc = (sz.width() / 2, sz.height() / 2, 0.)
-        sz = self.slm.size()
-        self.cgh.rs = (sz.width() / 2, sz.height() / 2)
+        fn = '~/.pyfab/pyfab.json'
+        fn = os.path.expanduser(fn)
+        try:
+            values = json.load(io.open(fn))
+            self.wcgh.calibration = values
+        except IOError:
+            self.wcgh.xc = sz.width() / 2
+            self.wcgh.yc = sz.height() / 2
+            self.wcgh.zc = 0.
+            sz = self.slm.size()
+            self.wcgh.xs = sz.width() / 2
+            self.wcgh.ys = sz.height() / 2
 
     def save_configuration(self):
-        scgh = self.cgh.serialize()
+        scgh = self.wcgh.serialize()
         tn = datetime.datetime.now()
         fn = '~/.pyfab/pyfab_{:%Y%b%d_%H:%M:%S}.json'.format(tn)
+        fn = os.path.expanduser(fn)
+        with io.open(fn, 'w', encoding='utf8') as configfile:
+            configfile.write(unicode(scgh))
+        fn = '~/.pyfab/pyfab.json'
         fn = os.path.expanduser(fn)
         with io.open(fn, 'w', encoding='utf8') as configfile:
             configfile.write(unicode(scgh))

@@ -1,5 +1,6 @@
 from PyQt4 import QtCore
 from QPropertySheet import QPropertySheet
+import json
 
 
 class QCGH(QPropertySheet):
@@ -136,6 +137,33 @@ class QCGH(QPropertySheet):
     def theta(self, theta):
         self.wtheta.value = theta
         self.updateTheta()
+
+    @property
+    def calibration(self):
+        return {'xc': self.xc,
+                'yc': self.yc,
+                'zc': self.zc,
+                'xs': self.xs,
+                'ys': self.ys,
+                'qpp': self.qpp,
+                'alpha': self.alpha,
+                'theta': self.theta}
+
+    @calibration.setter
+    def calibration(self, values):
+        if not isinstance(values, dict):
+            return
+        for attribute, value in values.iteritems():
+            try:
+                setattr(self, attribute, value)
+            except AttributeError:
+                print('unknown attribute:', attribute)
+
+    def serialize(self):
+        return json.dumps(self.calibration,
+                          indent=2,
+                          separators=(',', ': '),
+                          ensure_ascii=False)
 
 
 def main():
