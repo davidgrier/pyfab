@@ -16,10 +16,9 @@ class maxtask(task):
         else:
             self.frame = np.maximum(frame, self.frame)
         self.n += 1
-        if self.n == self.nframes:
+        if self.n >= self.nframes:
             self.dotask()
         self.done = True
 
     def dotask(self):
         print('task complete')
-        
