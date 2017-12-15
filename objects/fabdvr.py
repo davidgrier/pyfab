@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtCore
-import numpy as np
 import cv2
-from QVideoItem import QVideoItem
 import os
 
 
@@ -46,7 +43,7 @@ class fabdvr(object):
             self.start()
 
     def start(self):
-        if not self.hassource():
+        if self.source is None:
             return
         self.framenumber = 0
         self._writer = cv2.VideoWriter(self.filename,
@@ -63,7 +60,6 @@ class fabdvr(object):
         self.nframes = 0
         self._writer = None
 
-    @QtCore.pyqtSlot(np.ndarray)
     def write(self, frame):
         if self.source.transposed:
             frame = cv2.transpose(frame)
@@ -83,20 +79,17 @@ class fabdvr(object):
         if not self.isrecording():
             self._filename = os.path.expanduser(filename)
 
-    def hassource(self):
-        return isinstance(self.source, QVideoItem)
-
     def isrecording(self):
         return (self._writer is not None)
 
     def size(self):
-        if self.hassource():
+        if self.source is None:
+            return None
+        else:
             sz = self.source.device.size
             w = int(sz.width())
             h = int(sz.height())
             return (w, h)
-        else:
-            return None
 
     def framenumber(self):
         return self._framenumber
