@@ -28,13 +28,13 @@ class jansen(QtGui.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
         layout.addWidget(self.fabscreen)
-        tabs = QtGui.QTabWidget()
-        tabs.addTab(self.videoTab(), 'Video')
-        layout.addWidget(tabs)
-        layout.setAlignment(tabs, QtCore.Qt.AlignTop)
+        self.tabs = QtGui.QTabWidget()
+        self.tabs.addTab(self.videoTab(), 'Video')
+        layout.addWidget(self.tabs)
+        layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
         self.setLayout(layout)
         self.show()
-        tabs.setFixedWidth(tabs.width())
+        self.tabs.setFixedWidth(self.tabs.width())
 
     def videoTab(self):
         wvideo = QtGui.QWidget()

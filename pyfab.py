@@ -3,6 +3,7 @@
 """pyfab.py: GUI for holographic optical trapping."""
 
 from pyqtgraph.Qt import QtGui, QtCore
+from jansen import jansen
 import traps
 import objects
 import sys
@@ -12,22 +13,14 @@ import os
 import json
 
 
-class pyfab(QtGui.QWidget):
+class pyfab(jansen):
 
     def __init__(self, size=(640, 480)):
-        super(pyfab, self).__init__()
-        self.init_hardware(size)
-        self.init_ui()
+        super(pyfab, self).__init__(size=size)
         self.init_configuration()
 
     def init_hardware(self, size):
-        # video screen
-        self.fabscreen = objects.QFabScreen(size=size, gray=True)
-        self.video = objects.QFabVideo(self.fabscreen.video)
-        self.filters = objects.QFabFilter(self.fabscreen.video)
-        # DVR
-        self.dvr = objects.QFabDVR(source=self.fabscreen.video)
-        self.dvr.recording.connect(self.handleRecording)
+        super(pyfab, self).init_hardware(size)
         # spatial light modulator
         self.slm = objects.QSLM()
         # computation pipeline for the trapping pattern
@@ -40,30 +33,9 @@ class pyfab(QtGui.QWidget):
         self.pattern.pipeline = self.cgh
 
     def init_ui(self):
-        layout = QtGui.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(1)
-        layout.addWidget(self.fabscreen)
-        tabs = QtGui.QTabWidget()
-        tabs.addTab(self.videoTab(), 'Video')
-        tabs.addTab(self.cghTab(), 'CGH')
-        tabs.addTab(self.trapTab(), 'Traps')
-        layout.addWidget(tabs)
-        layout.setAlignment(tabs, QtCore.Qt.AlignTop)
-        self.setLayout(layout)
-        self.show()
-        tabs.setFixedWidth(tabs.width())
-
-    def videoTab(self):
-        wvideo = QtGui.QWidget()
-        layout = QtGui.QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setSpacing(1)
-        layout.addWidget(self.dvr)
-        layout.addWidget(self.video)
-        layout.addWidget(self.filters)
-        wvideo.setLayout(layout)
-        return wvideo
+        super(pyfab, self).init_ui()
+        self.tabs.addTab(self.cghTab(), 'CGH')
+        self.tabs.addTab(self.trapTab(), 'Traps')
 
     def cghTab(self):
         wcgh = QtGui.QWidget()
@@ -82,9 +54,6 @@ class pyfab(QtGui.QWidget):
         layout.addWidget(traps.QTrapWidget(self.pattern))
         wtraps.setLayout(layout)
         return wtraps
-
-    def handleRecording(self, recording):
-        self.video.enabled = not recording
 
     def init_configuration(self):
         sz = self.fabscreen.video.device.size
