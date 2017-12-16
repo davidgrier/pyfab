@@ -4,6 +4,7 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 import objects
+import tasks
 import sys
 
 
@@ -19,6 +20,7 @@ class jansen(QtGui.QWidget):
         self.fabscreen = objects.QFabScreen(size=size, gray=True)
         self.video = objects.QFabVideo(self.fabscreen.video)
         self.filters = objects.QFabFilter(self.fabscreen.video)
+        self.tasks = tasks.taskmanager(parent=self)
         # DVR
         self.dvr = objects.QFabDVR(source=self.fabscreen.video)
         self.dvr.recording.connect(self.handleRecording)

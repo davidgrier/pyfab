@@ -1,21 +1,30 @@
+from collections import deque
+
+
 class taskmanager(object):
 
     def __init__(self, parent):
         self.parent = parent
         self.source = parent.fabscreen.video
-        self.source.sigNewFrame.connect(self.handleTask)
         self.task = None
+        self.queue = deque()
 
     def handleTask(self, frame):
         if self.task is None:
-            return
+            try:
+                self.task = self.queue.popleft()
+            except IndexError:
+                self.source.sigNewFrame.disconnect(self.handleTask)
+                return
+        self.task.process(frame)
         if self.task.isDone():
             del task
             self.task = None
-        else:
-            self.task.process(frame)
-            
+
     def registerTask(self, task):
         if self.task is None:
             self.task = task
             self.task.parent = self.parent
+            self.source.sigNewFrame.connect(self.handleTask)
+        else:
+            self.queue.append(task)
