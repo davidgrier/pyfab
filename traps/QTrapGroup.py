@@ -29,7 +29,7 @@ class QTrapGroup(QtCore.QObject):
         """
         if thischild in self.children:
             thischild.parent = None
-            self.children.remove(thischild)
+            self.children.remove(thischild, delete=delete)
             if delete is True:
                 thischild.deleteLater()
         else:
