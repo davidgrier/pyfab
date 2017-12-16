@@ -36,7 +36,8 @@ class QTrappingPattern(QTrapGroup):
         self.selected = []
 
     def updateScreen(self):
-        """Provide a list of "spots" to QFabScreen.
+        """Provide a list of spots to QFabScreen without updating
+        CGH pipeline.
         """
         traps = self.flatten()
         spots = []
@@ -45,10 +46,12 @@ class QTrappingPattern(QTrapGroup):
         self.fabscreen.setData(spots=spots)
 
     def update(self):
-        """Provide a list of "properties" to CGH.
-        This will be called by children in response to changes in properties,
-        which can be triggered by mouse events, interaction with property
-        widgets, or direct programmatic control of traps or groups.
+        """Provide a list of properties to CGH pipeline and update
+        display on QFabScreen.
+        This will be called by children when their properties change.
+        Changes can be triggered by mouse events, by interaction with
+        property widgets, or by direct programmatic control of traps
+        or groups.
         """
         if self.pipeline is None:
             return
@@ -225,3 +228,9 @@ class QTrappingPattern(QTrapGroup):
             self.group.state = states.selected
             dr = QtGui.QVector3D(0., 0., event.delta() / 120.)
             self.group.moveBy(dr)
+
+    def clearTraps(self):
+        """Remove all traps from trapping pattern.
+        """
+        for child in self.children:
+            self.remove(child, delete=True)
