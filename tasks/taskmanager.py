@@ -18,7 +18,6 @@ class taskmanager(object):
                 return
         self.task.process(frame)
         if self.task.isDone():
-            del task
             self.task = None
 
     def registerTask(self, task):

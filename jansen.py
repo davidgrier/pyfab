@@ -56,4 +56,5 @@ class jansen(QtGui.QWidget):
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     instrument = jansen()
+    instrument.tasks.registerTask(tasks.maxtask())
     sys.exit(app.exec_())
