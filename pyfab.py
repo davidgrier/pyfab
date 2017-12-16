@@ -26,7 +26,7 @@ class pyfab(jansen):
         # computation pipeline for the trapping pattern
         try:
             self.cgh = objects.cudaCGH(self.slm)
-        except NameError:
+        except (NameError, AttributeError):
             self.cgh = objects.CGH(self.slm)
         self.wcgh = objects.QCGH(self.cgh)
         self.pattern = traps.QTrappingPattern(self.fabscreen)
