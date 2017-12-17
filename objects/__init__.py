@@ -16,4 +16,5 @@ __all__ = ['QFabScreen',
            'QCGH',
            'QFabDVR',
            'QFabVideo',
-           'QFabFilter']
+           'QFabFilter',
+           'fabconfig']

@@ -1,6 +1,5 @@
 from PyQt4 import QtCore
 from QPropertySheet import QPropertySheet
-import json
 
 
 class QCGH(QPropertySheet):
@@ -158,12 +157,6 @@ class QCGH(QPropertySheet):
                 setattr(self, attribute, value)
             except AttributeError:
                 print('unknown attribute:', attribute)
-
-    def serialize(self):
-        return json.dumps(self.calibration,
-                          indent=2,
-                          separators=(',', ': '),
-                          ensure_ascii=False)
 
 
 def main():
