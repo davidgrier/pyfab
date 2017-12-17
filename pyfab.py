@@ -9,6 +9,8 @@ class pyfab(QtGui.QMainWindow):
         super(pyfab, self).__init__()
         self.init_ui()
         self.instrument = QFabWidget()
+        self.config = fabconfig(self)
+        self.config.restore(self.instrument.wcgh)
         self.setCentralWidget(self.instrument)
         self.show()
 
@@ -24,6 +26,10 @@ class pyfab(QtGui.QMainWindow):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(exitAction)
+
+    def closeEvent(self, event):
+        self.config.query_save(self.instrument.wcgh)
+        self.instrument.close()
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)

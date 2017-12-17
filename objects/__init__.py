@@ -8,6 +8,7 @@ from QCGH import QCGH
 from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
 from QFabFilter import QFabFilter
+from fabconfig import fabconfig
 
 __all__ = ['QFabScreen',
            'QSLM',

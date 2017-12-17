@@ -7,10 +7,6 @@ from QJansenWidget import QJansenWidget
 import traps
 import objects
 import sys
-import io
-import datetime
-import os
-import json
 
 
 class QFabWidget(QJansenWidget):
@@ -57,46 +53,19 @@ class QFabWidget(QJansenWidget):
 
     def init_configuration(self):
         sz = self.fabscreen.video.device.size
-        fn = '~/.pyfab/pyfab.json'
-        fn = os.path.expanduser(fn)
-        try:
-            values = json.load(io.open(fn))
-            self.wcgh.calibration = values
-        except IOError:
-            self.wcgh.xc = sz.width() / 2
-            self.wcgh.yc = sz.height() / 2
-            self.wcgh.zc = 0.
-            sz = self.slm.size()
-            self.wcgh.xs = sz.width() / 2
-            self.wcgh.ys = sz.height() / 2
+        self.wcgh.xc = sz.width() / 2
+        self.wcgh.yc = sz.height() / 2
+        self.wcgh.zc = 0.
+        sz = self.slm.size()
+        self.wcgh.xs = sz.width() / 2
+        self.wcgh.ys = sz.height() / 2
 
-    def save_configuration(self):
-        scgh = self.wcgh.serialize()
-        tn = datetime.datetime.now()
-        fn = '~/.pyfab/pyfab_{:%Y%b%d_%H:%M:%S}.json'.format(tn)
-        fn = os.path.expanduser(fn)
-        with io.open(fn, 'w', encoding='utf8') as configfile:
-            configfile.write(unicode(scgh))
-        fn = '~/.pyfab/pyfab.json'
-        fn = os.path.expanduser(fn)
-        with io.open(fn, 'w', encoding='utf8') as configfile:
-            configfile.write(unicode(scgh))
-
-    def query_save_configuration(self):
-        query = 'Save current configuration?'
-        reply = QtGui.QMessageBox.question(self, 'Confirmation',
-                                           query,
-                                           QtGui.QMessageBox.Yes,
-                                           QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
-            self.save_configuration()
-        else:
-            pass
-
-    def closeEvent(self, event):
+    def close(self):
         self.pattern.clearTraps()
-        self.query_save_configuration()
         self.slm.close()
+        
+    def closeEvent(self, event):
+        self.close()
 
 
 if __name__ == '__main__':

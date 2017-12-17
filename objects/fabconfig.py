@@ -5,7 +5,8 @@ from PyQt4 import QtGui
 
 
 class fabconfig(object):
-    def __init__(self):
+    def __init__(self, parent):
+        self.parent = parent
         fn = '~/.pyfab/pyfab.json'
         self.filename = os.path.expanduser(fn)
 
@@ -20,17 +21,17 @@ class fabconfig(object):
     def restore(self, object):
         try:
             config = json.load(io.open(self.filename))
-            self.object.calibration = config
+            object.calibration = config
         except IOError:
             print('could not open '+self.filename)
 
     def query_save(self, object):
         query = 'Save current configuration?'
-        reply = QtGui.QMessageBox.questions(self,
-                                            'Confirmation',
-                                            query,
-                                            QtGui.QMessageBox.Yes,
-                                            QtGui.QMessageBox.No)
+        reply = QtGui.QMessageBox.question(self.parent,
+                                           'Confirmation',
+                                           query,
+                                           QtGui.QMessageBox.Yes,
+                                           QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             self.save(object)
         else:
