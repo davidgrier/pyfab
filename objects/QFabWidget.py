@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""pyfab.py: GUI for holographic optical trapping."""
+"""QFabWidget.py: GUI for holographic optical trapping."""
 
 from pyqtgraph.Qt import QtGui, QtCore
 from jansen import jansen
@@ -13,14 +13,14 @@ import os
 import json
 
 
-class pyfab(jansen):
+class QFabWidget(jansen):
 
     def __init__(self, size=(640, 480)):
-        super(pyfab, self).__init__(size=size)
+        super(QFabWidget, self).__init__(size=size)
         self.init_configuration()
 
     def init_hardware(self, size):
-        super(pyfab, self).init_hardware(size)
+        super(QFabWidget, self).init_hardware(size)
         # spatial light modulator
         self.slm = objects.QSLM()
         # computation pipeline for the trapping pattern
@@ -33,7 +33,7 @@ class pyfab(jansen):
         self.pattern.pipeline = self.cgh
 
     def init_ui(self):
-        super(pyfab, self).init_ui()
+        super(QFabWidget, self).init_ui()
         self.tabs.addTab(self.cghTab(), 'CGH')
         self.tabs.addTab(self.trapTab(), 'Traps')
 
@@ -100,5 +100,5 @@ class pyfab(jansen):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    instrument = pyfab()
+    QFabWidget()
     sys.exit(app.exec_())
