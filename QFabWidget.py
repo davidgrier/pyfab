@@ -3,7 +3,7 @@
 """QFabWidget.py: GUI for holographic optical trapping."""
 
 from pyqtgraph.Qt import QtGui, QtCore
-from jansen import jansen
+from QJansenWidget import QJansenWidget
 import traps
 import objects
 import sys
@@ -13,7 +13,7 @@ import os
 import json
 
 
-class QFabWidget(jansen):
+class QFabWidget(QJansenWidget):
 
     def __init__(self, size=(640, 480)):
         super(QFabWidget, self).__init__(size=size)
@@ -94,6 +94,7 @@ class QFabWidget(jansen):
             pass
 
     def closeEvent(self, event):
+        self.pattern.clearTraps()
         self.query_save_configuration()
         self.slm.close()
 

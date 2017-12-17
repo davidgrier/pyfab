@@ -1,18 +1,19 @@
 from PyQt4 import QtGui
-from pyfab import pyfab
+from QFabWidget import QFabWidget
 import sys
 
 
-class qpyfab(QtGui.QMainWindow):
+class pyfab(QtGui.QMainWindow):
     def __init__(self):
-        super(qpyfab, self).__init__()
-        self.instrument = pyfab()
+        super(pyfab, self).__init__()
         self.init_ui()
+        self.instrument = QFabWidget()
+        self.setCentralWidget(self.instrument)
+        self.show()
 
     def init_ui(self):
-        self.statusBar().showMessage('Ready')
         self.setWindowTitle('PyFab')
-
+        self.statusBar().showMessage('Ready')
         exitIcon = QtGui.QIcon.fromTheme('exit')
         exitAction = QtGui.QAction(exitIcon, '&Exit', self)
         exitAction.setShortcut('Ctrl-Q')
@@ -23,11 +24,7 @@ class qpyfab(QtGui.QMainWindow):
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(exitAction)
 
-        self.setCentralWidget(self.instrument)
-        self.show()
-
-
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    qpyfab()
+    instrument = pyfab()
     sys.exit(app.exec_())
