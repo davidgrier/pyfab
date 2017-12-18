@@ -29,7 +29,7 @@ class taskmanager(object):
                 taskclass = getattr(taskmodule, task)
                 task = taskclass()
             except ImportError:
-                print('could not import module')
+                print('could not import '+task )
                 return
         if self.task is None:
             self.task = task
