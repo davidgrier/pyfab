@@ -1,4 +1,5 @@
 from collections import deque
+import importlib
 
 
 class taskmanager(object):
@@ -21,6 +22,15 @@ class taskmanager(object):
             self.task = None
 
     def registerTask(self, task):
+        if isinstance(task, str):
+            print(task)
+            try:
+                taskmodule = importlib.import_module('tasks.'+task)
+                taskclass = getattr(taskmodule, task)
+                task = taskclass()
+            except ImportError:
+                print('could not import module')
+                return
         if self.task is None:
             self.task = task
             self.task.parent = self.parent

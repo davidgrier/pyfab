@@ -22,6 +22,7 @@ class pyfab(QtGui.QMainWindow):
         menubar = self.menuBar()
         menubar.setNativeMenuBar(False)
         fileMenu = menubar.addMenu('&File')
+        taskMenu = menubar.addMenu('&Tasks')
 
         snapIcon = QtGui.QIcon.fromTheme('camera-photo')
         snapAction = QtGui.QAction(snapIcon, 'Save &Photo', self)
@@ -47,6 +48,11 @@ class pyfab(QtGui.QMainWindow):
         exitAction.setStatusTip('Exit PyFab')
         exitAction.triggered.connect(QtGui.qApp.quit)
         fileMenu.addAction(exitAction)
+
+        maxIcon = QtGui.QIcon.fromTheme('document-save')
+        maxAction = QtGui.QAction(maxIcon, 'Max Image', self)
+        maxAction.triggered.connect(lambda: self.instrument.tasks.registerTask('maxtask'))
+        taskMenu.addAction(maxAction)
 
     def savePhoto(self, select=False):
         filename = self.config.filename(suffix='.png')
