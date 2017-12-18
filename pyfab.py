@@ -51,10 +51,7 @@ class pyfab(QtGui.QMainWindow):
         fileMenu.addAction(exitAction)
 
     def savePhoto(self, select=False):
-        dir = os.path.expanduser('~/data/')
-        now = datetime.now()
-        basename = now.strftime('pyfab_%Y%b%d_%H%M%S.png')
-        filename = os.path.join(dir, basename)
+        filename = self.config.filename(suffix='.png')
         if select:
             filename = QtGui.QFileDialog.getSaveFileName(
                 self, 'Save Snapshot',
