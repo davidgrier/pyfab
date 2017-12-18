@@ -32,7 +32,7 @@ class fabconfig(object):
             config = json.load(io.open(self.configfile))
             object.calibration = config
         except IOError:
-            print('could not open '+self.filename)
+            print('could not open '+self.configfile)
 
     def query_save(self, object):
         query = 'Save current configuration?'
