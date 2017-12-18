@@ -3,6 +3,7 @@ from QFabWidget import QFabWidget
 from objects import fabconfig
 import sys
 import os
+from datetime import datetime
 
 
 class pyfab(QtGui.QMainWindow):
@@ -30,6 +31,12 @@ class pyfab(QtGui.QMainWindow):
         snapAction.triggered.connect(self.savePhoto)
         fileMenu.addAction(snapAction)
 
+        snapasIcon = QtGui.QIcon.fromTheme('camera-photo')
+        snapasAction = QtGui.QAction(snapasIcon, 'Save Photo As ...', self)
+        snapasAction.setStatusTip('Save a snapshot')
+        snapasAction.triggered.connect(lambda: self.savePhoto(True))
+        fileMenu.addAction(snapasAction)
+
         saveIcon = QtGui.QIcon.fromTheme('document-save')
         saveAction = QtGui.QAction(saveIcon, '&Save Settings', self)
         saveAction.setStatusTip('Save current settings')
@@ -43,12 +50,20 @@ class pyfab(QtGui.QMainWindow):
         exitAction.triggered.connect(QtGui.qApp.quit)
         fileMenu.addAction(exitAction)
 
-    def savePhoto(self):
-        filename, filter = QtGui.QFileDialog.getSaveFileName(
-            parent=self, caption='Save Snapshot',
-            directory=os.path.expanduser('~/data'),
-            filter='*.png')
-        print(filename)
+    def savePhoto(self, select=False):
+        dir = os.path.expanduser('~/data/')
+        now = datetime.now()
+        basename = now.strftime('pyfab_%Y%b%d_%H%M%S.png')
+        filename = os.path.join(dir, basename)
+        if select:
+            filename = QtGui.QFileDialog.getSaveFileName(
+                self, 'Save Snapshot',
+                directory=filename,
+                filter='Image files (*.png)')
+        if filename:
+            qimage = self.instrument.fabscreen.video.qimage
+            qimage.mirrored(vertical=True).save(filename)
+            self.statusBar().showMessage('Saved ' + filename)
 
     def saveSettings(self):
         self.config.save(self.instrument.wcgh)
