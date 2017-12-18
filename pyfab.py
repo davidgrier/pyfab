@@ -2,8 +2,6 @@ from PyQt4 import QtGui
 from QFabWidget import QFabWidget
 from objects import fabconfig
 import sys
-import os
-from datetime import datetime
 
 
 class pyfab(QtGui.QMainWindow):
