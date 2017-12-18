@@ -20,6 +20,7 @@ class QJansenWidget(QtGui.QWidget):
         self.fabscreen = objects.QFabScreen(size=size, gray=True)
         self.video = objects.QFabVideo(self.fabscreen.video)
         self.filters = objects.QFabFilter(self.fabscreen.video)
+        self.config = objects.fabconfig(self)
         self.tasks = tasks.taskmanager(parent=self)
         # DVR
         self.dvr = objects.QFabDVR(source=self.fabscreen.video)
