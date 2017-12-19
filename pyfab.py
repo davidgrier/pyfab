@@ -51,8 +51,15 @@ class pyfab(QtGui.QMainWindow):
 
         maxIcon = QtGui.QIcon.fromTheme('document-save')
         maxAction = QtGui.QAction(maxIcon, 'Max Image', self)
-        maxAction.triggered.connect(lambda: self.instrument.tasks.registerTask('maxtask'))
+        maxAction.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('maxtask'))
         taskMenu.addAction(maxAction)
+
+        findIcon = QtGui.QIcon.fromTheme('camera-photo')
+        findAction = QtGui.QAction(findIcon, 'Find traps', self)
+        findAction.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('findtraps'))
+        taskMenu.addAction(findAction)
 
     def savePhoto(self, select=False):
         filename = self.config.filename(suffix='.png')

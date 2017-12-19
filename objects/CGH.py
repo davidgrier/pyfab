@@ -129,8 +129,8 @@ class CGH(object):
 
     def updateTransformationMatrix(self):
         self.m.setToIdentity()
-        self.m.translate(-self.rc)
         self.m.rotate(self.theta, 0., 0., 1.)
+        self.m.translate(-self.rc)
 
     @property
     def rc(self):
