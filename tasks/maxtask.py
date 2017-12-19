@@ -6,7 +6,7 @@ import cv2
 class maxtask(task):
 
     def __init__(self, nframes=10, **kwargs):
-        super(maxtask, self).__init__(self, nframes=nframes, **kwargs)
+        super(maxtask, self).__init__(nframes=nframes, **kwargs)
         self.frame = None
 
     def doprocess(self, frame):

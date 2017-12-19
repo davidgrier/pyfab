@@ -23,6 +23,7 @@ class pyfab(QtGui.QMainWindow):
         menubar.setNativeMenuBar(False)
         fileMenu = menubar.addMenu('&File')
         taskMenu = menubar.addMenu('&Tasks')
+        calibrateMenu = menubar.addMenu('&Calibrate')
 
         snapIcon = QtGui.QIcon.fromTheme('camera-photo')
         snapAction = QtGui.QAction(snapIcon, 'Save &Photo', self)
@@ -60,6 +61,12 @@ class pyfab(QtGui.QMainWindow):
         findAction.triggered.connect(
             lambda: self.instrument.tasks.registerTask('findtraps'))
         taskMenu.addAction(findAction)
+
+        rcIcon = QtGui.QIcon.fromTheme('camera-photo')
+        rcAction = QtGui.QAction(rcIcon, 'Calibrate rc', self)
+        rcAction.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('calibrate_rc'))
+        calibrateMenu.addAction(rcAction)
 
     def savePhoto(self, select=False):
         filename = self.config.filename(suffix='.png')

@@ -12,6 +12,9 @@ class task(object):
     def isDone(self):
         return self.done
 
+    def setParent(self, parent):
+        self.parent = parent
+
     def doprocess(self, frame):
         pass
 

@@ -30,9 +30,9 @@ class taskmanager(object):
             except ImportError:
                 print('could not import '+task)
                 return
+        task.setParent(self.parent)
         if self.task is None:
             self.task = task
-            self.task.parent = self.parent
             self.source.sigNewFrame.connect(self.handleTask)
         else:
             self.queue.append(task)
