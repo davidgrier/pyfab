@@ -1,10 +1,12 @@
 from maxtask import maxtask
+import trackpy as tp
 
 
 class findtraps(maxtask):
 
-    def __init__(self, nframes=5):
-        super(findtraps, self).__init__(self, nframes)
+    def __init__(self, **kwargs):
+        super(findtraps, self).__init__(self, *kwargs)
 
     def dotask(self):
-        print('find traps')
+        f = tp.locate(self.frame, 11)
+        print(f)

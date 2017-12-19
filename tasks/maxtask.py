@@ -5,21 +5,15 @@ import cv2
 
 class maxtask(task):
 
-    def __init__(self, nframes=5):
-        super(maxtask, self).__init__()
-        self.nframes = nframes
-        self.n = 0
+    def __init__(self, nframes=5, **kwargs):
+        super(maxtask, self).__init__(self, nframes=nframes, **kwargs)
         self.frame = None
 
-    def process(self, frame):
+    def doprocess(self, frame):
         if self.frame is None:
             self.frame = frame
         else:
             self.frame = np.maximum(frame, self.frame)
-        self.n += 1
-        if self.n >= self.nframes:
-            self.dotask()
-            self.done = True
 
     def dotask(self):
         fn = self.parent.config.filename(prefix='maxtask', suffix='.png')
