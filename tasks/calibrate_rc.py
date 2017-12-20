@@ -12,8 +12,7 @@ class calibrate_rc(maxtask):
         self.parent.pattern.clearTraps()
 
     def dotask(self):
-        f = tp.locate(self.frame, 11, topn=1,
-                      characterize=False)
+        f = tp.locate(self.frame, 11, topn=1, characterize=False)
         self.parent.wcgh.xc = f['x']
         self.parent.wcgh.yc = f['y']
         print('calibrate_rc done')

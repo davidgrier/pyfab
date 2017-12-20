@@ -232,5 +232,7 @@ class QTrappingPattern(QTrapGroup):
     def clearTraps(self):
         """Remove all traps from trapping pattern.
         """
-        for child in self.children:
-            self.remove(child, delete=True)
+        traps = self.flatten()
+        for trap in traps:
+            self.remove(trap, delete=True)
+        self.update()
