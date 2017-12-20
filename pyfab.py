@@ -68,6 +68,12 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('calibrate_rc'))
         calibrateMenu.addAction(rcAction)
 
+        cghIcon = QtGui.QIcon.fromTheme('camera-photo')
+        cghAction = QtGui.QAction(cghIcon, 'Calibrate CGH', self)
+        cghAction.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('calibrate_cgh'))
+        calibrateMenu.addAction(cghAction)
+
     def savePhoto(self, select=False):
         filename = self.config.filename(suffix='.png')
         if select:

@@ -4,7 +4,7 @@ class task(object):
                  parent=None,
                  delay=0,
                  nframes=0):
-        self.parent = parent
+        self.setParent(parent)
         self.done = False
         self.delay = delay
         self.nframes = nframes

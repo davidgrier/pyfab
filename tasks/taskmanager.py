@@ -26,11 +26,12 @@ class taskmanager(object):
             try:
                 taskmodule = importlib.import_module('tasks.'+task)
                 taskclass = getattr(taskmodule, task)
-                task = taskclass()
+                task = taskclass(parent=self.parent)
             except ImportError:
                 print('could not import '+task)
                 return
-        task.setParent(self.parent)
+        else:
+            task.setParent(self.parent)
         if self.task is None:
             self.task = task
             self.source.sigNewFrame.connect(self.handleTask)

@@ -107,6 +107,13 @@ class QTrappingPattern(QTrapGroup):
             self.selected = []
         self.updateScreen()
 
+    def createTrap(self, position, update=True):
+        trap = QTrap(r=position, parent=self)
+        self.add(trap)
+        self.trapAdded.emit(trap)
+        if update:
+            self.update()
+
     def createGroup(self):
         """Combine selected objects into new group.
         """
@@ -164,10 +171,7 @@ class QTrappingPattern(QTrapGroup):
         position = self.dataCoords(pos)
         # Add trap
         if modifiers == Qt.ShiftModifier:
-            trap = QTrap(r=position, parent=self)
-            self.add(trap)
-            self.trapAdded.emit(trap)
-            self.update()
+            self.createTrap(position)
         # Delete trap
         elif modifiers == Qt.ControlModifier:
             self.remove(self.clickedGroup(position), delete=True)
