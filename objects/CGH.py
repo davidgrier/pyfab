@@ -78,6 +78,9 @@ class CGH(object):
         self.slm.data = self.quantize()
         self.time = time() - start
 
+    def outertheta(self, x, y):
+        return np.atan2.outer(y, x)
+
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane
         and allocate buffers.
@@ -93,6 +96,7 @@ class CGH(object):
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
         self.iqysq = 1j * qy * qy
+        self.itheta = 1j * self.outertheta(qx, qy)
 
     @property
     def rs(self):

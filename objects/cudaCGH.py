@@ -10,7 +10,7 @@ class cudaCGH(CGH):
 
     def __init__(self, slm=None):
         super(cudaCGH, self).__init__(slm=slm)
-        self.init_cuda()
+        self.init_cuda()        
 
     def init_cuda(self):
         mod = SourceModule("""
@@ -34,6 +34,18 @@ class cudaCGH(CGH):
             return(-angle);
           else
             return(angle);
+        }
+        
+        __global__ void outertheta(float *x, \
+                                   float *y, \
+                                   float *out, \
+                                   int nx, int ny)
+        {
+          int i = threadIdx.x + blockDim.x * blockIdx.x;
+          int j = threadIdx.y + blockDim.y * blockIdx.y;
+          if (i < nx && j < ny) {
+            out[i*ny + j] = arctan(y[i], x[i]);
+          }
         }
 
         __global__ void outer(pycuda::complex<float> *x, \
@@ -70,6 +82,7 @@ class cudaCGH(CGH):
         """)
         self.outer = mod.get_function("outer")
         self.phase = mod.get_function("phase")
+        self.outertheta = mod.get_function("outertheta")
         self.npts = np.int32(self.w * self.h)
         self.block = (16, 16, 1)
         dx, mx = divmod(self.w, self.block[0])
