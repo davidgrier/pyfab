@@ -20,7 +20,7 @@ class cudaCGH(CGH):
           const float ONEQTR_PI = 0.78539819;
           const float THRQTR_PI = 2.3561945;
           float r, angle;
-          float abs_y = fabs(x) + 1e-10;
+          float abs_y = fabs(y) + 1e-10;
           if (x < 0.) {
             r = (x + abs_y) / (abs_y - x);
             angle = THRQTR_PI;
@@ -57,12 +57,13 @@ class cudaCGH(CGH):
 
           int n;
           float im, re, phi;
+          const float RAD2BYTE = 40.743664;
 
           if (i < nx && j < ny){
             n = i*ny + j;
             im = psi[n]._M_im;
             re = psi[n]._M_re;
-            phi = (128./3.14159265359) * arctan(im, re) + 127.;
+            phi = RAD2BYTE * arctan(im, re) + 127.;
             out[n] = (unsigned char) phi;
           }
         }

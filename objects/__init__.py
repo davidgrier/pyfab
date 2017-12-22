@@ -3,7 +3,8 @@ from QSLM import QSLM
 try:
     from cudaCGH import cudaCGH
 except ImportError:
-    from CGH import CGH
+    pass
+from CGH import CGH
 from QCGH import QCGH
 from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
