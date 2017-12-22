@@ -77,7 +77,6 @@ class CGH(object):
             self._psi += self.compute_one(amp, r)
         self.slm.data = self.quantize()
         self.time = time() - start
-        print(self.time)
 
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane
