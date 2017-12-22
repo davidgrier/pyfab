@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from PyQt4 import QtGui
 from QFabWidget import QFabWidget
 from objects import fabconfig
@@ -47,7 +49,8 @@ class pyfab(QtGui.QMainWindow):
         exitAction = QtGui.QAction(exitIcon, '&Exit', self)
         exitAction.setShortcut('Ctrl-Q')
         exitAction.setStatusTip('Exit PyFab')
-        exitAction.triggered.connect(QtGui.qApp.quit)
+        # exitAction.triggered.connect(QtGui.qApp.quit)
+        exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
         maxIcon = QtGui.QIcon.fromTheme('document-save')
@@ -89,9 +92,12 @@ class pyfab(QtGui.QMainWindow):
     def saveSettings(self):
         self.config.save(self.instrument.wcgh)
 
-    def closeEvent(self, event):
-        self.config.query_save(self.instrument.wcgh)
+    def close(self):
         self.instrument.close()
+        QtGui.qApp.quit()
+        
+    def closeEvent(self, event):
+        self.close()
 
 
 if __name__ == '__main__':
