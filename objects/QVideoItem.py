@@ -5,7 +5,6 @@
 import cv2
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
-from PyQt4.QtCore import Qt
 import numpy as np
 from QCameraDevice import QCameraDevice
 
@@ -126,7 +125,7 @@ class QVideoWidget(pg.PlotWidget):
 
     def __init__(self, cameraItem=None, **kwargs):
         super(QVideoWidget, self).__init__(**kwargs)
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         if cameraItem is None:
             self.source = QVideoItem(**kwargs)
