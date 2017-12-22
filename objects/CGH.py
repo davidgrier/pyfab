@@ -79,7 +79,7 @@ class CGH(object):
         self.time = time() - start
 
     def outertheta(self, x, y):
-        return np.atan2.outer(y, x)
+        return np.arctan2.outer(y, x)
 
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane

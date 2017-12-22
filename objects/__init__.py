@@ -3,6 +3,7 @@ from QSLM import QSLM
 try:
     from cudaCGH import cudaCGH
 except ImportError:
+    print('could not import cudaCGH')
     pass
 from CGH import CGH
 from QCGH import QCGH
