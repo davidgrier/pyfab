@@ -114,6 +114,17 @@ class QTrappingPattern(QTrapGroup):
         if update:
             self.update()
 
+    def createTraps(self, positions):
+        if len(positions) < 1:
+            return
+        group = QTrapGroup()
+        self.add(group)
+        for position in positions:
+            trap = QTrap(r=position, parent=group)
+            group.add(trap)
+            self.trapAdded.emit(trap)
+        self.update()
+
     def createGroup(self):
         """Combine selected objects into new group.
         """

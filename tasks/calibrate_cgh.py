@@ -1,5 +1,5 @@
 from maxtask import maxtask
-from PyQt4 import QtGui
+from PyQt4.QtGui import QVector3D
 
 
 class calibrate_cgh(maxtask):
@@ -10,7 +10,8 @@ class calibrate_cgh(maxtask):
     def setParent(self, parent):
         self.parent = parent
         self.parent.pattern.clearTraps()
-        r = self.parent.cgh.rc + QtGui.QVector3D(100, 0, 0)
-        self.parent.pattern.createTrap(r)
-        
-        
+        rc = self.parent.cgh.rc
+        r1 = rc + QVector3D(100, 0, 0)
+        r2 = rc - QVector3D(0, 100, 0)
+        r = [r1, r2]
+        self.parent.pattern.createTraps(r)
