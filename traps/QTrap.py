@@ -30,7 +30,7 @@ class QTrap(QtCore.QObject):
         self.r = r
         self.a = a
         if phi is None:
-            self.phi = np.random.uniform(low=0., high=2.*np.pi)
+            self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
             self.phi = phi
         # appearance
@@ -63,6 +63,26 @@ class QTrap(QtCore.QObject):
         """Three-dimensional position of trap."""
         return self._r
 
+    @r.setter
+    def r(self, r):
+        self.active = False
+        if r is None:
+            self._r = QtGui.QVector(0, 0, 0)
+        elif isinstance(r, QtGui.QVector3D):
+            self._r = r
+        elif isinstance(r, QtCore.QPointF):
+            self._r = QtGui.QVector3D(r)
+        elif isinstance(r, (list, tuple)):
+            if len(r) == 3:
+                self._r = QtGui.QVector3D(r[0], r[1], r[2])
+            elif len(r) == 2:
+                self._r = QtGui.QVector3D(r[0], r[1], 0.)
+            else:
+                return
+        self.valueChanged.emit(self)
+        self.active = True
+        self.update()
+
     def setX(self, x):
         self._r.setX(x)
         self.update()
@@ -73,26 +93,6 @@ class QTrap(QtCore.QObject):
 
     def setZ(self, z):
         self._r.setZ(z)
-        self.update()
-
-    @r.setter
-    def r(self, r):
-        self.active = False
-        if r is None:
-            self._r = QtGui.QVector(0, 0, 0)
-        elif isinstance(r, QtGui.QVector3D):
-            self._r = r
-        elif isinstance(r, QtCore.QPointF):
-            try:
-                z = self._r.z()
-            except AttributeError:
-                z = 0.
-            self._r = QtGui.QVector3D(r)
-            self._r.setZ(z)
-        elif isinstance(r, (list, tuple)):
-            self._r = QtGui.QVector3D(r[0], r[1], r[2])
-        self.valueChanged.emit(self)
-        self.active = True
         self.update()
 
     def updateAmp(self):
