@@ -23,6 +23,7 @@ class QFabWidget(QJansenWidget):
         try:
             self.cgh = objects.cudaCGH(self.slm)
         except (NameError, AttributeError):
+            print('could not load cudaCGH')
             self.cgh = objects.CGH(self.slm)
         self.wcgh = objects.QCGH(self.cgh)
         self.pattern = traps.QTrappingPattern(self.fabscreen)
@@ -63,7 +64,7 @@ class QFabWidget(QJansenWidget):
     def close(self):
         self.pattern.clearTraps()
         self.slm.close()
-        
+
     def closeEvent(self, event):
         self.close()
 

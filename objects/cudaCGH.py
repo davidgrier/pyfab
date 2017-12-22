@@ -16,6 +16,26 @@ class cudaCGH(CGH):
         mod = SourceModule("""
         #include <pycuda-complex.hpp>
 
+        __device__ float arctan(float y, float x){
+          const float ONEQTR_PI = 0.78539819;
+          const float THRQTR_PI = 2.3561945;
+          float r, angle;
+          float abs_y = fabs(x) + 1e-10;
+          if (x < 0.) {
+            r = (x + abs_y) / (abs_y - x);
+            angle = THRQTR_PI;
+          }
+          else {
+            r = (x - abs_y) / (x + abs_y);
+            angle = ONEQTR_PI;
+          }
+          angle += (0.1963 * r * r - 0.9817) * r;
+          if (y < 0.)
+            return(-angle);
+          else
+            return(angle);
+        }
+
         __global__ void outer(pycuda::complex<float> *x, \
                               pycuda::complex<float> *y, \
                               pycuda::complex<float> *out, \
@@ -42,7 +62,7 @@ class cudaCGH(CGH):
             n = i*ny + j;
             im = psi[n]._M_im;
             re = psi[n]._M_re;
-            phi = (128./3.14159265359) * atan2f(im, re) + 127.;
+            phi = (128./3.14159265359) * arctan(im, re) + 127.;
             out[n] = (unsigned char) phi;
           }
         }
@@ -62,7 +82,7 @@ class cudaCGH(CGH):
                    block=self.block, grid=self.grid)
         self._phi.get(self.phi)
         return self.phi.T
-    
+
     def compute_one(self, amp, r):
         cumath.exp(self.iqx * r.x() + self.iqxsq * r.z(), out=self._ex)
         cumath.exp(self.iqy * r.y() + self.iqysq * r.z(), out=self._ey)
@@ -89,7 +109,7 @@ class cudaCGH(CGH):
         self.iqxsq = 1j * qx * qx
         self.iqysq = 1j * qy * qy
 
-        
+
 if __name__ == '__main__':
     from PyQt4.QtGui import QApplication
     import sys
