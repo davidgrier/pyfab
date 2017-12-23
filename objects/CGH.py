@@ -53,7 +53,7 @@ class CGH(object):
 
     @jit(parallel=True)
     def quantize(self):
-        phi = ((128./np.pi) * np.angle(self._psi) + 127.).astype(np.uint8)
+        phi = ((128. / np.pi) * np.angle(self._psi) + 127.).astype(np.uint8)
         return phi.T
 
     @jit(parallel=True)
@@ -66,9 +66,9 @@ class CGH(object):
         return np.outer(amp * ex, ey, self._buffer)
 
     def window(self, r):
-        x = [r.x()/self.w, r.y()/self.h]
-        fac = 1./np.prod(np.sinc(x))
-        return np.min((fac*fac, 100.))
+        x = [r.x() / self.w, r.y() / self.h]
+        fac = 1. / np.prod(np.sinc(x))
+        return np.min((fac * fac, 100.))
 
     @jit(parallel=True)
     def compute(self):
