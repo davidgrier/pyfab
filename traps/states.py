@@ -8,3 +8,4 @@ class states(Enum):
     normal = 1
     selected = 2
     grouping = 3
+    inactive = 4

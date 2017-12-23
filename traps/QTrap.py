@@ -21,7 +21,8 @@ class QTrap(QtCore.QObject):
                  r=None,
                  a=1.,
                  phi=None,
-                 state=states.normal):
+                 state=states.normal,
+                 active=True):
         super(QTrap, self).__init__()
         self.active = False
         # organization
@@ -37,12 +38,13 @@ class QTrap(QtCore.QObject):
         self.symbol = 'o'
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 100, 100, 120),
-                      states.grouping: pg.mkBrush(255, 255, 100, 120)}
+                      states.grouping: pg.mkBrush(255, 255, 100, 120),
+                      states.inactive: pg.mkBrush(0, 0, 255, 120)}
         self.pen = pg.mkPen('k', width=0.5)
 
         # operational state
         self._state = state
-        self.active = True
+        self.active = active
 
     def moveBy(self, dr):
         """Translate trap.
@@ -65,6 +67,7 @@ class QTrap(QtCore.QObject):
 
     @r.setter
     def r(self, r):
+        active = self.active
         self.active = False
         if r is None:
             self._r = QtGui.QVector(0, 0, 0)
@@ -80,7 +83,7 @@ class QTrap(QtCore.QObject):
             else:
                 return
         self.valueChanged.emit(self)
-        self.active = True
+        self.active = active
         self.update()
 
     def setX(self, x):

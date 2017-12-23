@@ -117,12 +117,13 @@ class QTrappingPattern(QTrapGroup):
     def createTraps(self, positions):
         if len(positions) < 1:
             return
-        group = QTrapGroup()
+        group = QTrapGroup(active=False)
         self.add(group)
         for position in positions:
-            trap = QTrap(r=position, parent=group)
+            trap = QTrap(r=position, parent=group, active=False)
             group.add(trap)
             self.trapAdded.emit(trap)
+        group.active = True
         self.update()
 
     def createGroup(self):

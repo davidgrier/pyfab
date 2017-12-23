@@ -9,17 +9,18 @@ from states import states
 
 class QTrapGroup(QtCore.QObject):
 
-    def __init__(self, parent=None, name=None):
+    def __init__(self, parent=None, name=None, active=True):
         super(QTrapGroup, self).__init__()
         self.parent = parent
         self.children = []
         self.name = name
-        self.active = True
+        self.active = active
 
     def add(self, child):
         """Add an object to the trap group.
         """
         child.parent = self
+        child.active = self.active
         self.children.append(child)
 
     def remove(self, thischild, delete=False):
@@ -84,6 +85,16 @@ class QTrapGroup(QtCore.QObject):
         if state in states:
             for child in self.children:
                 child.state = state
+
+    @property
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, active):
+        for child in self.children:
+            child.active = active
+        self._active = active
 
     def moveBy(self, dr):
         """Translate traps in the group.
