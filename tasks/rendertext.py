@@ -10,7 +10,7 @@ class rendertext(task):
 
     def __init__(self,
                  text='hello',
-                 spacing = 20,
+                 spacing=20,
                  fuzz=0.05,
                  **kwargs):
         super(rendertext, self).__init__(**kwargs)
@@ -28,10 +28,11 @@ class rendertext(task):
         draw.text((0, 0), self.text, font=self.font, fill=255)
         bmp = np.array(img) > 128
         bmp = bmp[::-1]
+        sz = self.parent.fabscreen.video.device.size
         y, x = np.nonzero(bmp)
-        x = x - np.mean(x) + normal(scale=self.fuzz, size=len(x))
-        y = y - np.mean(y) + normal(scale=self.fuzz, size=len(y))
-        x = x * self.spacing + 320
-        y = y * self.spacing + 240
+        x = x + normal(scale=self.fuzz, size=len(x)) - np.mean(x)
+        y = y + normal(scale=self.fuzz, size=len(y)) - np.mean(y)
+        x = x * self.spacing + sz.width() / 2
+        y = y * self.spacing + sz.height() / 2
         p = list(map(lambda x, y: QVector3D(x, y, 0), x, y))
         self.parent.pattern.createTraps(p)
