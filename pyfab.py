@@ -59,11 +59,11 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('maxtask'))
         taskMenu.addAction(maxAction)
 
-        findIcon = QtGui.QIcon.fromTheme('camera-photo')
-        findAction = QtGui.QAction(findIcon, 'Find traps', self)
-        findAction.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('findtraps'))
-        taskMenu.addAction(findAction)
+        textIcon = QtGui.QIcon.fromTheme('camera-photo')
+        textAction = QtGui.QAction(textIcon, 'Render text', self)
+        textAction.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('rendertext'))
+        taskMenu.addAction(textAction)
 
         rcIcon = QtGui.QIcon.fromTheme('camera-photo')
         rcAction = QtGui.QAction(rcIcon, 'Calibrate rc', self)
@@ -95,7 +95,7 @@ class pyfab(QtGui.QMainWindow):
     def close(self):
         self.instrument.close()
         QtGui.qApp.quit()
-        
+
     def closeEvent(self, event):
         self.close()
 
