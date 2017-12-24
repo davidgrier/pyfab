@@ -63,7 +63,7 @@ class CGH(object):
         """
         ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
-        return np.outer(amp * ex, ey, self._buffer)
+        self._psi += np.outer(amp * ex, ey, self._buffer)
 
     def window(self, r):
         x = [r.x() / self.w, r.y() / self.h]
@@ -79,7 +79,7 @@ class CGH(object):
         for properties in self.trapdata:
             r = self.m * properties['r']
             amp = properties['amp'] * self.window(r)
-            self._psi += self.compute_one(amp, r)
+            self.compute_one(amp, r)
         self.slm.data = self.quantize()
         self.time = time() - start
 

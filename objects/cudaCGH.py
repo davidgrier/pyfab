@@ -1,7 +1,7 @@
 from CGH import CGH
 import pycuda.gpuarray as gpuarray
-import pycuda.cumath as cumath
 import pycuda.autoinit
+import pycuda.cumath as cumath
 from pycuda.compiler import SourceModule
 import numpy as np
 
@@ -54,11 +54,13 @@ class cudaCGH(CGH):
                               pyComplex *out, \
                               int nx, int ny)
         {
+          pyComplex bj;
           for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
               j < ny; j += blockDim.y * gridDim.y) {
+            bj = b[j];
             for(int i = threadIdx.x + blockDim.x * blockIdx.x; \
                 i < nx; i += blockDim.x * gridDim.x) {
-              out[i*ny + j] = a[i]*b[j];
+              out[i*ny + j] += a[i]*bj;
             }
           }
         }
@@ -81,9 +83,9 @@ class cudaCGH(CGH):
           }
         }
         """)
-        self.outer = mod.get_function("outer")
-        self.phase = mod.get_function("phase")
-        self.outertheta = mod.get_function("outertheta")
+        self.outer = mod.get_function('outer')
+        self.phase = mod.get_function('phase')
+        self.outertheta = mod.get_function('outertheta')
         self.npts = np.int32(self.w * self.h)
         self.block = (16, 16, 1)
         dx, mx = divmod(self.w, self.block[0])
@@ -102,14 +104,12 @@ class cudaCGH(CGH):
         cumath.exp(self.iqx * r.x() + self.iqxsq * r.z(), out=self._ex)
         cumath.exp(self.iqy * r.y() + self.iqysq * r.z(), out=self._ey)
         self._ex *= amp
-        self.outer(self._ex, self._ey, self._buffer,
+        self.outer(self._ex, self._ey, self._psi,
                    np.int32(self.w), np.int32(self.h),
                    block=self.block, grid=self.grid)
-        return self._buffer
 
     def updateGeometry(self):
         shape = (self.w, self.h)
-        self._buffer = gpuarray.zeros(shape, dtype=np.complex64)
         self._psi = gpuarray.zeros(shape, dtype=np.complex64)
         self._phi = gpuarray.zeros(shape, dtype=np.uint8)
         self.phi = np.zeros(shape, dtype=np.uint8)
