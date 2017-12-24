@@ -10,11 +10,12 @@ class cudaCGH(CGH):
 
     def __init__(self, slm=None):
         super(cudaCGH, self).__init__(slm=slm)
-        self.init_cuda()        
+        self.init_cuda()
 
     def init_cuda(self):
         mod = SourceModule("""
         #include <pycuda-complex.hpp>
+        typedef pycuda::complex<float> pyComplex;
 
         __device__ float arctan(float y, float x){
           const float ONEQTR_PI = 0.78539819;
@@ -48,9 +49,9 @@ class cudaCGH(CGH):
           }
         }
 
-        __global__ void outer(pycuda::complex<float> *x, \
-                              pycuda::complex<float> *y, \
-                              pycuda::complex<float> *out, \
+        __global__ void outer(pyComplex *x, \
+                              pyComplex *y, \
+                              pyComplex *out, \
                               int nx, int ny)
         {
           int i = threadIdx.x + blockDim.x * blockIdx.x;
@@ -60,7 +61,7 @@ class cudaCGH(CGH):
           }
         }
 
-        __global__ void phase(pycuda::complex<float> *psi, \
+        __global__ void phase(pyComplex *psi, \
                               unsigned char *out, \
                               int nx, int ny)
         {
