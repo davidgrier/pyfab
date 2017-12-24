@@ -49,15 +49,17 @@ class cudaCGH(CGH):
           }
         }
 
-        __global__ void outer(pyComplex *x, \
-                              pyComplex *y, \
+        __global__ void outer(pyComplex *a, \
+                              pyComplex *b, \
                               pyComplex *out, \
                               int nx, int ny)
         {
-          int i = threadIdx.x + blockDim.x * blockIdx.x;
-          int j = threadIdx.y + blockDim.y * blockIdx.y;
-          if (i < nx && j < ny){
-            out[i*ny + j] = x[i]*y[j];
+          for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
+              j < ny; j += blockDim.y * gridDim.y) {
+            for(int i = threadIdx.x + blockDim.x * blockIdx.x; \
+                i < nx; i += blockDim.x * gridDim.x) {
+              out[i*ny + j] = a[i]*b[j];
+            }
           }
         }
 
