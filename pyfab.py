@@ -70,6 +70,11 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('rendertext'))
         taskMenu.addAction(textAction)
 
+        textasAction = QtGui.QAction(textIcon, 'Render text ...', self)
+        textasAction.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('rendertextas'))
+        taskMenu.addAction(textasAction)
+
         rcIcon = QtGui.QIcon.fromTheme('camera-photo')
         rcAction = QtGui.QAction(rcIcon, 'Calibrate rc', self)
         rcAction.triggered.connect(

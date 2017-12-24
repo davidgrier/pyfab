@@ -17,9 +17,9 @@ class rendertext(task):
         dir, _ = os.path.split(__file__)
         font = os.path.join(dir, 'Ubuntu-R.ttf')
         self.font = ImageFont.truetype(font)
-        self.text = text
         self.spacing = spacing
         self.fuzz = fuzz
+        self.text = text
 
     def dotask(self):
         sz = self.font.getsize(self.text)
