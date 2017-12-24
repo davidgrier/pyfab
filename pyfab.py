@@ -10,10 +10,10 @@ class pyfab(QtGui.QMainWindow):
 
     def __init__(self):
         super(pyfab, self).__init__()
-        self.init_ui()
         self.instrument = QFabWidget()
         self.config = fabconfig(self)
         self.config.restore(self.instrument.wcgh)
+        self.init_ui()
         self.setCentralWidget(self.instrument)
         self.show()
 
@@ -53,6 +53,11 @@ class pyfab(QtGui.QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
+        clearIcon = QtGui.QIcon.fromTheme('camera-photo')
+        clearAction = QtGui.QAction(clearIcon, 'Clear traps', self)
+        clearAction.triggered.connect(self.instrument.pattern.clearTraps)
+        taskMenu.addAction(clearAction)
+                                      
         maxIcon = QtGui.QIcon.fromTheme('document-save')
         maxAction = QtGui.QAction(maxIcon, 'Max Image', self)
         maxAction.triggered.connect(
