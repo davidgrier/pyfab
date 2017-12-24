@@ -69,14 +69,12 @@ class cudaCGH(CGH):
           int j = threadIdx.y + blockDim.y * blockIdx.y;
 
           int n;
-          float im, re, phi;
+          float phi;
           const float RAD2BYTE = 40.743664;
 
           if (i < nx && j < ny){
             n = i*ny + j;
-            im = psi[n]._M_im;
-            re = psi[n]._M_re;
-            phi = RAD2BYTE * arctan(im, re) + 127.;
+            phi = RAD2BYTE * arg(psi[n]) + 127.;
             out[n] = (unsigned char) phi;
           }
         }
