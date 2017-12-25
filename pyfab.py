@@ -58,12 +58,6 @@ class pyfab(QtGui.QMainWindow):
         clearAction.triggered.connect(self.instrument.pattern.clearTraps)
         taskMenu.addAction(clearAction)
                                       
-        maxIcon = QtGui.QIcon.fromTheme('document-save')
-        maxAction = QtGui.QAction(maxIcon, 'Max Image', self)
-        maxAction.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('maxtask'))
-        taskMenu.addAction(maxAction)
-
         textIcon = QtGui.QIcon.fromTheme('camera-photo')
         textAction = QtGui.QAction(textIcon, 'Render text', self)
         textAction.triggered.connect(

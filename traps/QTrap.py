@@ -21,6 +21,7 @@ class QTrap(QtCore.QObject):
                  r=None,
                  a=1.,
                  phi=None,
+                 psi=None,
                  state=states.normal,
                  active=True):
         super(QTrap, self).__init__()
@@ -34,6 +35,8 @@ class QTrap(QtCore.QObject):
             self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
             self.phi = phi
+        # structuring field
+        self.psi = psi
         # appearance
         self.symbol = 'o'
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),

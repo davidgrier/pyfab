@@ -58,12 +58,12 @@ class CGH(object):
 
     @jit(parallel=True)
     def compute_one(self, amp, r):
-        """Compute phase hologram for one trap with
-        specified complex amplitude and position
+        """Compute phase hologram to displace a trap with
+        a specified complex amplitude to a specified position
         """
         ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
-        self._psi += np.outer(amp * ex, ey, self._buffer)
+        self._psi += np.outer(amp * ex, ey, self._delta)
 
     def window(self, r):
         x = [r.x() / self.w, r.y() / self.h]
@@ -91,8 +91,8 @@ class CGH(object):
         and allocate buffers.
         """
         shape = (self.w, self.h)
-        self._buffer = np.zeros(shape, dtype=np.complex_)
         self._psi = np.zeros(shape, dtype=np.complex_)
+        self._delta
         qx = np.arange(self.w) - self.rs.x()
         qy = np.arange(self.h) - self.rs.y()
         qx = self.qpp * qx

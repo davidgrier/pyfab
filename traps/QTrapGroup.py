@@ -15,6 +15,7 @@ class QTrapGroup(QtCore.QObject):
         self.children = []
         self.name = name
         self.active = active
+        self.psi = None
 
     def add(self, child):
         """Add an object to the trap group.
@@ -22,12 +23,18 @@ class QTrapGroup(QtCore.QObject):
         child.parent = self
         child.active = self.active
         self.children.append(child)
+        if child.psi is not None:
+            if self.psi is None:
+                self.psi = child.psi
+            else:
+                self.psi += child.psi
 
     def remove(self, thischild, delete=False):
         """Remove an object from the trap group.
         If the group is now empty, remove it
         from its parent group
         """
+        self.psi = None
         if thischild in self.children:
             thischild.parent = None
             self.children.remove(thischild)
