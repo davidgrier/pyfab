@@ -28,6 +28,18 @@ class QTrap(QtCore.QObject):
         self.active = False
         # organization
         self.parent = parent
+        # operational state
+        self._state = state
+        # appearance
+        self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
+                      states.selected: pg.mkBrush(255, 100, 100, 120),
+                      states.grouping: pg.mkBrush(255, 255, 100, 120),
+                      states.inactive: pg.mkBrush(0, 0, 255, 120)}
+        self.spot = {'pos': QtCore.QPointF(),
+                     'size': 10.,
+                     'pen': pg.mkPen('k', width=0.5),
+                     'brush': self.brush[state],
+                     'symbol': 'o'}
         # physical properties
         self.r = r
         self.a = a
@@ -37,15 +49,6 @@ class QTrap(QtCore.QObject):
             self.phi = phi
         # structuring field
         self.psi = psi
-        # operational state
-        self._state = state
-        # appearance
-        self.symbol = 'o'
-        self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
-                      states.selected: pg.mkBrush(255, 100, 100, 120),
-                      states.grouping: pg.mkBrush(255, 255, 100, 120),
-                      states.inactive: pg.mkBrush(0, 0, 255, 120)}
-        self.pen = pg.mkPen('k', width=0.5)
 
         self.active = active
 
@@ -62,6 +65,10 @@ class QTrap(QtCore.QObject):
     def update(self):
         if self.active:
             self.parent.update()
+
+    def update_spot(self):
+        self.spot['pos'] = self.r.toPointF()
+        self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
 
     @property
     def r(self):
@@ -85,6 +92,7 @@ class QTrap(QtCore.QObject):
                 self._r = QtGui.QVector3D(r[0], r[1], 0.)
             else:
                 return
+        self.update_spot()
         self.valueChanged.emit(self)
         self.active = active
         self.update()
@@ -146,14 +154,4 @@ class QTrap(QtCore.QObject):
     def state(self, state):
         if self.state is not states.static:
             self._state = state
-
-    @property
-    def spot(self):
-        """Graphical representation of a trap.
-        """
-        size = np.clip(10. + self.r.z() / 10., 5., 20.)
-        return {'pos': self.r.toPointF(),
-                'size': size,
-                'pen': self.pen,
-                'brush': self.brush[self._state],
-                'symbol': self.symbol}
+            self.spot['brush'] = self.brush[state]
