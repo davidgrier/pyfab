@@ -37,6 +37,8 @@ class QTrap(QtCore.QObject):
             self.phi = phi
         # structuring field
         self.psi = psi
+        # operational state
+        self._state = state
         # appearance
         self.symbol = 'o'
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
@@ -45,8 +47,6 @@ class QTrap(QtCore.QObject):
                       states.inactive: pg.mkBrush(0, 0, 255, 120)}
         self.pen = pg.mkPen('k', width=0.5)
 
-        # operational state
-        self._state = state
         self.active = active
 
     def moveBy(self, dr):
@@ -157,10 +157,3 @@ class QTrap(QtCore.QObject):
                 'pen': self.pen,
                 'brush': self.brush[self._state],
                 'symbol': self.symbol}
-
-    @property
-    def properties(self):
-        """Physical properties of a trap.
-        """
-        return {'r': self.r,
-                'amp': self.amp}

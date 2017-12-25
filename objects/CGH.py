@@ -28,7 +28,7 @@ class CGH(object):
 
     def __init__(self, slm=None):
         # Trap properties for current pattern
-        self.trapdata = []
+        self.traps = []
 
         # SLM geometry
         self.slm = slm
@@ -76,9 +76,9 @@ class CGH(object):
         """
         start = time()
         self._psi.fill(0. + 0j)
-        for properties in self.trapdata:
-            r = self.m * properties['r']
-            amp = properties['amp'] * self.window(r)
+        for trap in self.traps:
+            r = self.m * trap.r
+            amp = trap.amp * self.window(r)
             self.compute_one(amp, r)
         self.slm.data = self.quantize()
         self.time = time() - start
@@ -92,7 +92,7 @@ class CGH(object):
         """
         shape = (self.w, self.h)
         self._psi = np.zeros(shape, dtype=np.complex_)
-        self._delta
+        self._delta = np.zeros(shape, dtype=np.complex_)
         qx = np.arange(self.w) - self.rs.x()
         qy = np.arange(self.h) - self.rs.y()
         qx = self.qpp * qx
@@ -164,8 +164,8 @@ class CGH(object):
         self.updateTransformationMatrix()
         self.compute()
 
-    def setData(self, trapdata):
-        self.trapdata = trapdata
+    def setData(self, traps):
+        self.traps = traps
         self.compute()
 
     @property
