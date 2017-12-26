@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from fabdvr import fabdvr
+from clickable import clickable
 
 
 class QFabDVR(fabdvr, QtGui.QFrame):
@@ -26,6 +27,8 @@ class QFabDVR(fabdvr, QtGui.QFrame):
         wfilelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.wfilename = QtGui.QLineEdit()
         self.wfilename.setText(self.filename)
+        self.wfilename.setReadOnly(True)
+        clickable(self.wfilename).connect(self.getFilename)
         layout.addWidget(title, 1, 1, 1, 3)
         layout.addWidget(self.brecord, 2, 1)
         layout.addWidget(self.bstop, 2, 2)
@@ -39,6 +42,16 @@ class QFabDVR(fabdvr, QtGui.QFrame):
     def write(self, frame):
         super(QFabDVR, self).write(frame)
         self.wframe.display(self.framenumber)
+
+    def getFilename(self):
+        if self.isrecording():
+            return
+        fn = self.filename
+        filename = QtGui.QFileDialog.getSaveFileName(
+            self, 'Video File Name', fn, 'Video files (*.avi)')
+        if filename:
+            self.filename = str(filename)
+            self.wfilename.setText(self.filename)
 
     @QtCore.pyqtSlot()
     def handleRecord(self):
