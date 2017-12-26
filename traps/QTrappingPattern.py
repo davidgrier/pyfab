@@ -56,10 +56,8 @@ class QTrappingPattern(QTrapGroup):
         if self.pipeline is None:
             return
         traps = self.flatten()
-#        properties = []
         spots = []
         for trap in traps:
-            #            properties.append(trap.properties)
             spots.append(trap.spot)
         self.pipeline.setData(traps)
         self.fabscreen.setData(spots=spots)

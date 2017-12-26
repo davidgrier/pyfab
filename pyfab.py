@@ -27,6 +27,7 @@ class pyfab(QtGui.QMainWindow):
         taskMenu = menubar.addMenu('&Tasks')
         calibrateMenu = menubar.addMenu('&Calibrate')
 
+        # FILE MENU
         snapIcon = QtGui.QIcon.fromTheme('camera-photo')
         snapAction = QtGui.QAction(snapIcon, 'Save &Photo', self)
         snapAction.setStatusTip('Save a snapshot')
@@ -49,34 +50,36 @@ class pyfab(QtGui.QMainWindow):
         exitAction = QtGui.QAction(exitIcon, '&Exit', self)
         exitAction.setShortcut('Ctrl-Q')
         exitAction.setStatusTip('Exit PyFab')
-        # exitAction.triggered.connect(QtGui.qApp.quit)
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-        clearIcon = QtGui.QIcon.fromTheme('camera-photo')
-        clearAction = QtGui.QAction(clearIcon, 'Clear traps', self)
+        # TASK MENU
+        clearAction = QtGui.QAction('Clear traps', self)
+        clearAction.setStatusTip('Delete all traps')
         clearAction.triggered.connect(self.instrument.pattern.clearTraps)
         taskMenu.addAction(clearAction)
-                                      
-        textIcon = QtGui.QIcon.fromTheme('camera-photo')
-        textAction = QtGui.QAction(textIcon, 'Render text', self)
+
+        textAction = QtGui.QAction('Render text', self)
+        textAction.setStatusTip('Render text as a pattern of traps')
         textAction.triggered.connect(
             lambda: self.instrument.tasks.registerTask('rendertext'))
         taskMenu.addAction(textAction)
 
-        textasAction = QtGui.QAction(textIcon, 'Render text ...', self)
+        textasAction = QtGui.QAction('Render text ...', self)
+        textasAction.setStatusTip('Render text as a pattern of traps')
         textasAction.triggered.connect(
             lambda: self.instrument.tasks.registerTask('rendertextas'))
         taskMenu.addAction(textasAction)
 
-        rcIcon = QtGui.QIcon.fromTheme('camera-photo')
-        rcAction = QtGui.QAction(rcIcon, 'Calibrate rc', self)
+        # CALIBRATION MENU
+        rcAction = QtGui.QAction('Calibrate rc', self)
+        rcAction.setStatusTip('Find location of optical axis in field of view')
         rcAction.triggered.connect(
             lambda: self.instrument.tasks.registerTask('calibrate_rc'))
         calibrateMenu.addAction(rcAction)
 
-        cghIcon = QtGui.QIcon.fromTheme('camera-photo')
-        cghAction = QtGui.QAction(cghIcon, 'Calibrate CGH', self)
+        cghAction = QtGui.QAction('Calibrate CGH', self)
+        cghAction.setStatusTip('NOT IMPLEMENTED YET')
         cghAction.triggered.connect(
             lambda: self.instrument.tasks.registerTask('calibrate_cgh'))
         calibrateMenu.addAction(cghAction)
