@@ -99,14 +99,17 @@ class QTrap(QtCore.QObject):
 
     def setX(self, x):
         self._r.setX(x)
+        self.update_spot()
         self.update()
 
     def setY(self, y):
         self._r.setY(y)
+        self.update_spot()
         self.update()
 
     def setZ(self, z):
         self._r.setZ(z)
+        self.update_spot()
         self.update()
 
     def updateAmp(self):
