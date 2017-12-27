@@ -27,23 +27,23 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         # VideoItem displays video feed
         self.video = QVideoItem(**kwargs)
         # Graphical representations of traps
-        self.traps = pg.ScatterPlotItem()
+        self.plot = pg.ScatterPlotItem()
         # ViewBox presents video and plot of trap positions
         vb = self.addViewBox(enableMenu=False,
                              enableMouse=False,
                              lockAspect=1.)
         vb.setRange(self.video.device.roi, padding=0, update=True)
         vb.addItem(self.video)
-        vb.addItem(self.traps)
+        vb.addItem(self.plot)
 
     def closeEvent(self, event):
         self.video.close()
 
     def selectedPoint(self, position):
         index = -1
-        points = self.traps.pointsAt(position)
+        points = self.plot.pointsAt(position)
         if len(points) > 0:
-            index = self.traps.points().tolist().index(points[0])
+            index = self.plot.points().tolist().index(points[0])
         return index
 
     def mousePressEvent(self, event):
@@ -66,4 +66,4 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         '''
         Accepts keyword arguments for ScatterPlotItem
         '''
-        self.traps.setData(**kwargs)
+        self.plot.setData(**kwargs)
