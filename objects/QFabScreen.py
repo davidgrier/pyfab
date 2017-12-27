@@ -2,7 +2,6 @@
 
 """QFabScreen.py: PyQt GUI for live video with graphical overlay."""
 
-import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 from QVideoItem import QVideoItem
@@ -25,22 +24,16 @@ class QFabScreen(pg.GraphicsLayoutWidget):
     def __init__(self, parent=None, **kwargs):
         super(QFabScreen, self).__init__(parent)
 
-        # self.setAttribute(Qt.WA_DeleteOnClose, True)
-
         # VideoItem displays video feed
         self.video = QVideoItem(**kwargs)
+        # Graphical representations of traps
+        self.traps = pg.ScatterPlotItem()
+        # ViewBox presents video and plot of trap positions
         vb = self.addViewBox(enableMenu=False,
                              enableMouse=False,
                              lockAspect=1.)
         vb.setRange(self.video.device.roi, padding=0, update=True)
-        # vb.setAspectLocked()
-        # vb.setBackgroundColor('w')
         vb.addItem(self.video)
-
-        # ScatterPlotItem shows graphical representations of traps
-        pen = pg.mkPen('k', width=0.5)
-        brush = pg.mkBrush(100, 255, 100, 120)
-        self.traps = pg.ScatterPlotItem(size=10, pen=pen, brush=brush)
         vb.addItem(self.traps)
 
     def closeEvent(self, event):
