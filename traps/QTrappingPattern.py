@@ -46,24 +46,20 @@ class QTrappingPattern(QTrapGroup):
         """
         traps = self.flatten()
         spots = [trap.spot for trap in traps]
-        # for trap in traps:
-        #    spots.append(trap.spot)
         self.fabscreen.setData(spots=spots)
         if project and self.pipeline is not None:
             self.pipeline.setData(traps)
 
     def dataCoords(self, coords):
-        return self.fabscreen.traps.mapFromScene(coords)
+        return self.fabscreen.plot.mapFromScene(coords)
 
     def clickedTrap(self, position):
         """Return the trap at the specified position
         """
-        trap = None
-        points = self.fabscreen.traps.pointsAt(position)
-        if len(points) > 0:
-            index = self.fabscreen.traps.points().tolist().index(points[0])
-            trap = self.flatten()[index]
-        return trap
+        index = self.fabscreen.selectedPoint(position)
+        if index is None:
+            return None
+        return self.flatten()[index]
 
     def groupOf(self, child):
         """Return the highest-level group containing the specified object.

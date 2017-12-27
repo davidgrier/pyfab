@@ -40,7 +40,7 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         self.video.close()
 
     def selectedPoint(self, position):
-        index = -1
+        index = None
         points = self.plot.pointsAt(position)
         if len(points) > 0:
             index = self.plot.points().tolist().index(points[0])
