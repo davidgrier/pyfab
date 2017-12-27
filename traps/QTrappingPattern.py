@@ -35,32 +35,22 @@ class QTrappingPattern(QTrapGroup):
         self.group = None
         self.selected = []
 
-    def updateScreen(self):
-        """Provide a list of spots to QFabScreen without updating
-        CGH pipeline.
-        """
-        traps = self.flatten()
-        spots = []
-        for trap in traps:
-            spots.append(trap.spot)
-        self.fabscreen.setData(spots=spots)
+    def update(self, project=True):
+        """Provide a list of spots to screen for plotting
+        and optionally send trap data to CGH pipeline.
 
-    def update(self):
-        """Provide a list of properties to CGH pipeline and update
-        display on QFabScreen.
         This will be called by children when their properties change.
         Changes can be triggered by mouse events, by interaction with
         property widgets, or by direct programmatic control of traps
         or groups.
         """
-        if self.pipeline is None:
-            return
         traps = self.flatten()
-        spots = []
-        for trap in traps:
-            spots.append(trap.spot)
-        self.pipeline.setData(traps)
+        spots = [trap.spot for trap in traps]
+        # for trap in traps:
+        #    spots.append(trap.spot)
         self.fabscreen.setData(spots=spots)
+        if project and self.pipeline is not None:
+            self.pipeline.setData(traps)
 
     def dataCoords(self, coords):
         return self.fabscreen.traps.mapFromScene(coords)
@@ -103,7 +93,7 @@ class QTrappingPattern(QTrapGroup):
                 child.state = states.normal
         if len(self.selected) <= 1:
             self.selected = []
-        self.updateScreen()
+        self.update(project=False)
 
     def createTrap(self, position, update=True):
         trap = QTrap(r=position, parent=self)
@@ -173,7 +163,7 @@ class QTrappingPattern(QTrapGroup):
         # select group
         else:
             self.group.state = states.selected
-        self.updateScreen()
+        self.update(project=False)
 
     def rightPress(self, pos, modifiers):
         """Creation and destruction.
@@ -228,7 +218,7 @@ class QTrappingPattern(QTrapGroup):
         self.trap = None
         self.group = None
         self.selection.hide()
-        self.updateScreen()
+        self.update(project=False)
 
     @QtCore.pyqtSlot(QtGui.QWheelEvent)
     def wheel(self, event):
