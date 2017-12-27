@@ -6,7 +6,6 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 from QVideoItem import QVideoItem
-from PyQt4.QtCore import Qt
 
 
 class QFabScreen(pg.GraphicsLayoutWidget):
@@ -75,96 +74,3 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         Accepts keyword arguments for ScatterPlotItem
         '''
         self.traps.setData(**kwargs)
-
-
-class demopattern(object):
-    """Reference implementation of trapping pattern that creates
-    and destroys graphical representations of traps, and
-    allows them to be dragged.
-    """
-
-    def __init__(self, fabscreen):
-        self.fabscreen = fabscreen
-        # Connect to signals coming from fabscreen
-        self.fabscreen.sigMousePress.connect(self.mousePress)
-        self.fabscreen.sigMouseMove.connect(self.mouseMove)
-        self.fabscreen.sigMouseRelease.connect(self.mouseRelease)
-        # Graphics for traps
-        self.brush = {'normal': pg.mkBrush(100, 255, 100, 120),
-                      'selected': pg.mkBrush(255, 100, 100, 120)}
-        self.pen = pg.mkPen('k', width=0.5)
-        # Trap positions and index of selected trap
-        self.xy = []
-        self.index = None
-
-    def updateScreen(self):
-        """Draw traps on fabscreen
-        """
-        spots = []
-        for index, xy in enumerate(self.xy):
-            spots.append({'pos': xy,
-                          'size': 10,
-                          'pen': self.pen,
-                          'brush': self.brush['normal'],
-                          'symbol': 'o'})
-        if self.index is not None:
-            spots[self.index]['brush'] = self.brush['selected']
-        self.fabscreen.setData(spots=spots)
-
-    def mousePress(self, event):
-        position = self.fabscreen.traps.mapFromScene(event.pos())
-        button = event.button()
-        modifier = event.modifiers()
-        index = self.fabscreen.selectedPoint(position)
-        # Manipulate traps
-        if button == Qt.LeftButton:
-            # Add trap
-            if modifier == Qt.ShiftModifier:
-                self.index = len(self.xy)
-                xy = np.array([position.x(), position.y()])
-                self.xy.append(xy)
-            # Delete trap
-            elif modifier == Qt.ControlModifier:
-                if index >= 0:
-                    self.index = None
-                    self.xy.pop(index)
-            # Select trap
-            elif index >= 0:
-                self.index = index
-            # Not interacting with traps
-            else:
-                self.index = None
-        # Manipulate ROI?
-        elif button == Qt.RightButton:
-            pass
-        self.updateScreen()
-
-    def mouseMove(self, event):
-        """Move selected trap's graphic to new position
-        """
-        position = self.fabscreen.traps.mapFromScene(event.pos())
-        if self.index is not None:
-            self.xy[self.index] = np.array([position.x(), position.y()])
-            self.updateScreen()
-
-    def mouseRelease(self):
-        self.index = None
-        self.updateScreen()
-
-
-def main():
-    import sys
-    from pyqtgraph.Qt import QtGui
-
-    app = QtGui.QApplication(sys.argv)
-
-    fabscreen = QFabScreen(size=(640, 480), gray=True)
-    fabscreen.show()
-
-    demopattern(fabscreen)
-
-    sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()
