@@ -9,7 +9,7 @@ import json
 from time import time
 
 
-class CGH(object):
+class CGH(QtCore.QObject):
     """Base class for computing computer-generated holograms.
 
     For each trap, the coordinate r obtained from the fabscreen
@@ -24,9 +24,17 @@ class CGH(object):
     the Cartesian coordinates in the SLM plane.  These differ from
     each other because the SLM is likely to be tilted relative to the
     optical axis.
+
+    NOTE: Reducing latency in the GUI is a priority.
+    1. Calling QtCore.QCoreApplication.processEvents() or
+    QtGuiQApplication.processEvents() in compute()
+    does not keep screen updating during hologram calculation.  QTimer
+    events are not processed during compute()
+    2. subclass qobject and move CGH to separate thread.
     """
 
     def __init__(self, slm=None):
+        super(CGH, self).__init__()
         # Trap properties for current pattern
         self.traps = []
 
@@ -80,6 +88,8 @@ class CGH(object):
             r = self.m * trap.r
             amp = trap.amp * self.window(r)
             self.compute_one(amp, r)
+            # QtCore.QCoreApplication.processEvents()
+            # QtGui.QApplication.processEvents()
         self.slm.data = self.quantize()
         self.time = time() - start
 
