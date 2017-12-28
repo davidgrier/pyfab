@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtGui
+from pyqtgraph.Qt import QtGui
 from QFabWidget import QFabWidget
 from objects import fabconfig
 import sys
