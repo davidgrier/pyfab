@@ -60,15 +60,19 @@ class QTrap(QtCore.QObject):
     def isWithin(self, rect):
         """Return True if this trap lies within the specified rectangle.
         """
-        return rect.contains(self.r.toPointF())
+        return rect.contains(self.coords())
 
     def update(self):
         if self.active:
             self.parent.update()
 
     def update_spot(self):
-        self.spot['pos'] = self.r.toPointF()
+        self.spot['pos'] = self.coords()
         self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
+
+    def coords(self):
+        """In-plane position of trap for plotting."""
+        return self._r.toPointF()
 
     @property
     def r(self):
@@ -79,19 +83,7 @@ class QTrap(QtCore.QObject):
     def r(self, r):
         active = self.active
         self.active = False
-        if r is None:
-            self._r = QtGui.QVector(0, 0, 0)
-        elif isinstance(r, QtGui.QVector3D):
-            self._r = r
-        elif isinstance(r, QtCore.QPointF):
-            self._r = QtGui.QVector3D(r)
-        elif isinstance(r, (list, tuple)):
-            if len(r) == 3:
-                self._r = QtGui.QVector3D(r[0], r[1], r[2])
-            elif len(r) == 2:
-                self._r = QtGui.QVector3D(r[0], r[1], 0.)
-            else:
-                return
+        self._r = QtGui.QVector3D(r)
         self.update_spot()
         self.valueChanged.emit(self)
         self.active = active

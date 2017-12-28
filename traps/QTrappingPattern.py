@@ -153,9 +153,7 @@ class QTrappingPattern(QTrapGroup):
         trap is at the specified position.
         """
         coords = self.dataCoords(pos)
-        dr = QtGui.QVector3D(coords.x() - self.trap.r.x(),
-                             coords.y() - self.trap.r.y(),
-                             0.)
+        dr = QtGui.QVector3D(coords - self.trap.coords())
         self.group.moveBy(dr)
 
     # Dispatch low-level events to actions
