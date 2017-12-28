@@ -4,7 +4,7 @@
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt4 import QtCore, QtGui
+from pyqtgraph.Qt import QtCore, QtGui
 from enum import Enum
 
 
@@ -50,7 +50,7 @@ class QTrap(QtCore.QObject):
                      'symbol': 'o'}
         # physical properties
         self.r = r
-        self.a = a
+        self._a = a
         if phi is None:
             self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
@@ -113,10 +113,7 @@ class QTrap(QtCore.QObject):
         self.update()
 
     def updateAmp(self):
-        try:
-            self.amp = self.a * np.exp(1j * self.phi)
-        except AttributeError:
-            self.amp = 1. + 0j
+        self.amp = self.a * np.exp(1j * self.phi)
         self.update()
 
     def setA(self, a):
@@ -129,9 +126,8 @@ class QTrap(QtCore.QObject):
 
     @a.setter
     def a(self, a):
-        if a is not None:
-            self.setA(a)
-            self.valueChanged.emit(self)
+        self.setA(a)
+        self.valueChanged.emit(self)
 
     def setPhi(self, phi):
         self._phi = phi
@@ -143,9 +139,8 @@ class QTrap(QtCore.QObject):
 
     @phi.setter
     def phi(self, phi):
-        if phi is not None:
-            self.setPhi(phi)
-            self.valueChanged.emit(self)
+        self.setPhi(phi)
+        self.valueChanged.emit(self)
 
     @property
     def state(self):

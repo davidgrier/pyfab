@@ -2,8 +2,7 @@
 
 """QTrappingPattern.py: Interface between QFabScreen and QSLM."""
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from pyqtgraph.Qt import QtGui, QtCore
 from QTrap import QTrap, state
 from QTrapGroup import QTrapGroup
 
@@ -167,7 +166,7 @@ class QTrappingPattern(QTrapGroup):
             self.selection.setGeometry(rect)
             self.selection.show()
         # break selected group
-        elif modifiers == Qt.ControlModifier:
+        elif modifiers == QtCore.Qt.ControlModifier:
             self.breakGroup()
         # select group
         else:
@@ -178,10 +177,10 @@ class QTrappingPattern(QTrapGroup):
         """Creation and destruction.
         """
         # Shift-Right Click: Add trap
-        if modifiers == Qt.ShiftModifier:
+        if modifiers == QtCore.Qt.ShiftModifier:
             self.createTrap(pos)
         # Ctrl-Right Click: Delete trap
-        elif modifiers == Qt.ControlModifier:
+        elif modifiers == QtCore.Qt.ControlModifier:
             self.remove(self.clickedGroup(pos), delete=True)
             self.update()
 
@@ -193,9 +192,9 @@ class QTrappingPattern(QTrapGroup):
         button = event.button()
         pos = event.pos()
         modifiers = event.modifiers()
-        if button == Qt.LeftButton:
+        if button == QtCore.Qt.LeftButton:
             self.leftPress(pos, modifiers)
-        elif button == Qt.RightButton:
+        elif button == QtCore.Qt.RightButton:
             self.rightPress(pos, modifiers)
 
     @QtCore.pyqtSlot(QtGui.QMouseEvent)

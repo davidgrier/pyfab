@@ -2,7 +2,7 @@
 
 """QTrapGroup.py: Container for optical traps."""
 
-from PyQt4 import QtCore
+from pyqtgraph.Qt import QtCore
 from QTrap import QTrap
 
 
