@@ -14,11 +14,11 @@ class QTrappingPattern(QTrapGroup):
 
     trapAdded = QtCore.pyqtSignal(QTrap)
 
-    def __init__(self, fabscreen, parent=None):
+    def __init__(self, fabscreen, parent=None, pipeline=None):
         super(QTrappingPattern, self).__init__()
         self.fabscreen = fabscreen
         self.parent = parent
-        self.pipeline = None
+        self.pipeline = pipeline
         # Connect to signals coming from fabscreen (QFabGraphicsView)
         self.fabscreen.sigMousePress.connect(self.mousePress)
         self.fabscreen.sigMouseMove.connect(self.mouseMove)

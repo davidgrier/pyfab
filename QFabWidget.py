@@ -29,8 +29,8 @@ class QFabWidget(QJansenWidget):
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
         self.wcgh = objects.QCGH(self.cgh)
-        self.pattern = traps.QTrappingPattern(self.fabscreen)
-        self.pattern.pipeline = self.cgh
+        self.pattern = traps.QTrappingPattern(self.fabscreen,
+                                              pipeline=self.cgh)
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
