@@ -19,7 +19,7 @@ class QFabScreen(pg.GraphicsLayoutWidget):
     sigMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
+    sigMouseWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
 
     def __init__(self, parent=None, **kwargs):
         super(QFabScreen, self).__init__(parent)
@@ -40,10 +40,10 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         self.video.close()
 
     def selectedPoint(self, position):
-        index = None
         points = self.plot.pointsAt(position)
-        if len(points) > 0:
-            index = self.plot.points().tolist().index(points[0])
+        if len(points) <= 0:
+            return None
+        index = self.plot.points().tolist().index(points[0])
         return index
 
     def mousePressEvent(self, event):
@@ -59,7 +59,7 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         event.accept()
 
     def wheelEvent(self, event):
-        self.sigWheel.emit(event)
+        self.sigMouseWheel.emit(event)
         event.accept()
 
     def setData(self, **kwargs):

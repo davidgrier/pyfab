@@ -25,7 +25,7 @@ class QTrappingPattern(QTrapGroup):
         self.fabscreen.sigMousePress.connect(self.mousePress)
         self.fabscreen.sigMouseMove.connect(self.mouseMove)
         self.fabscreen.sigMouseRelease.connect(self.mouseRelease)
-        self.fabscreen.sigWheel.connect(self.wheel)
+        self.fabscreen.sigMouseWheel.connect(self.mouseWheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.fabscreen)
@@ -53,28 +53,33 @@ class QTrappingPattern(QTrapGroup):
     def dataCoords(self, coords):
         return self.fabscreen.plot.mapFromScene(coords)
 
-    def clickedTrap(self, position):
+    # Selecting traps and groups of traps
+    def clickedTrap(self, pos):
         """Return the trap at the specified position
         """
+        position = self.dataCoords(pos)
         index = self.fabscreen.selectedPoint(position)
         if index is None:
             return None
-        return self.flatten()[index]
+        traps = self.flatten()
+        self.trap = traps[index]
+        return self.trap
 
     def groupOf(self, child):
         """Return the highest-level group containing the specified object.
         """
-        if not isinstance(child, QTrap):
+        if child is None:
             return None
         while child.parent.parent is not None:
             child = child.parent
         return child
 
-    def clickedGroup(self, position):
+    def clickedGroup(self, pos):
         """Return the highest-level group containing the trap at
         the specified position.
         """
-        return self.groupOf(self.clickedTrap(position))
+        self.group = self.groupOf(self.clickedTrap(pos))
+        return self.group
 
     def selectedTraps(self, region):
         """Return a list of traps whose groups fall
@@ -91,7 +96,9 @@ class QTrappingPattern(QTrapGroup):
             self.selected = []
         self.update(project=False)
 
-    def createTrap(self, position, update=True):
+    # Creating and deleting traps
+    def createTrap(self, pos, update=True):
+        position = self.dataCoords(pos)
         trap = QTrap(r=position, parent=self)
         self.add(trap)
         self.trapAdded.emit(trap)
@@ -110,9 +117,20 @@ class QTrappingPattern(QTrapGroup):
         group.active = True
         self.update()
 
+    def clearTraps(self):
+        """Remove all traps from trapping pattern.
+        """
+        traps = self.flatten()
+        for trap in traps:
+            self.remove(trap, delete=True)
+        self.update()
+
+    # Creating, breaking and move groups of traps
     def createGroup(self):
         """Combine selected objects into new group.
         """
+        if len(self.selected) == 0:
+            return
         group = QTrapGroup()
         for trap in self.selected:
             trap.parent.remove(trap)
@@ -120,16 +138,6 @@ class QTrappingPattern(QTrapGroup):
         if group.count() > 0:
             self.add(group)
         self.selected = []
-
-    def moveGroup(self, pos):
-        """Move the selected group so that the selected
-        trap is at the specified position.
-        """
-        position = self.dataCoords(pos)
-        dr = QtGui.QVector3D(position.x() - self.trap.r.x(),
-                             position.y() - self.trap.r.y(),
-                             0.)
-        self.group.moveBy(dr)
 
     def breakGroup(self):
         """Break group into children and
@@ -141,12 +149,21 @@ class QTrappingPattern(QTrapGroup):
                 self.group.remove(child)
                 self.add(child)
 
+    def moveGroup(self, pos):
+        """Move the selected group so that the selected
+        trap is at the specified position.
+        """
+        position = self.dataCoords(pos)
+        dr = QtGui.QVector3D(position.x() - self.trap.r.x(),
+                             position.y() - self.trap.r.y(),
+                             0.)
+        self.group.moveBy(dr)
+
+    # Dispatch low-level events to actions
     def leftPress(self, pos, modifiers):
         """Selection and grouping.
         """
-        position = self.dataCoords(pos)
-        self.trap = self.clickedTrap(position)
-        self.group = self.groupOf(self.trap)
+        self.group = self.clickedGroup(pos)
         # update selection rectangle
         if self.group is None:
             self.origin = QtCore.QPoint(pos)
@@ -164,17 +181,17 @@ class QTrappingPattern(QTrapGroup):
     def rightPress(self, pos, modifiers):
         """Creation and destruction.
         """
-        position = self.dataCoords(pos)
         # Add trap
         if modifiers == Qt.ShiftModifier:
-            self.createTrap(position)
+            self.createTrap(pos)
         # Delete trap
         elif modifiers == Qt.ControlModifier:
-            self.remove(self.clickedGroup(position), delete=True)
+            self.remove(self.clickedGroup(pos), delete=True)
             self.update()
         else:
             pass
 
+    # Handlers for signals emitted by QFabScreen
     @QtCore.pyqtSlot(QtGui.QMouseEvent)
     def mousePress(self, event):
         """Event handler for mousePress events.
@@ -194,7 +211,6 @@ class QTrappingPattern(QTrapGroup):
         """Event handler for mouseMove events.
         """
         pos = event.pos()
-        # buttons = event.buttons()
         # Move traps
         if self.group is not None:
             self.moveGroup(pos)
@@ -217,22 +233,13 @@ class QTrappingPattern(QTrapGroup):
         self.update(project=False)
 
     @QtCore.pyqtSlot(QtGui.QWheelEvent)
-    def wheel(self, event):
+    def mouseWheel(self, event):
         """Event handler for mouse wheel events.
         """
         pos = event.pos()
-        position = self.dataCoords(pos)
-        self.trap = self.clickedTrap(position)
-        self.group = self.groupOf(self.trap)
-        if self.group is not None:
-            self.group.state = states.selected
+        group = self.clickedGroup(pos)
+        if group is not None:
             dr = QtGui.QVector3D(0., 0., event.delta() / 120.)
-            self.group.moveBy(dr)
-
-    def clearTraps(self):
-        """Remove all traps from trapping pattern.
-        """
-        traps = self.flatten()
-        for trap in traps:
-            self.remove(trap, delete=True)
-        self.update()
+            group.moveBy(dr)
+        self.trap = None
+        self.group = None
