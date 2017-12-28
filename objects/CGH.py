@@ -91,7 +91,8 @@ class CGH(QtCore.QObject):
             r = self.m * trap.r
             amp = trap.amp * self.window(r)
             self.compute_one(amp, r)
-            QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
+            # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
+            QtGui.qApp.processEvents()
         self.slm.data = self.quantize()
         self.time = time() - start
         self.sigComputing.emit(False)

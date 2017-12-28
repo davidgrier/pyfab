@@ -25,6 +25,7 @@ class QFabWidget(QJansenWidget):
         except (NameError, AttributeError):
             print('could not load cudaCGH')
             self.cgh = objects.CGH(slm=self.slm)
+        self.cgh.sigComputing.connect(self.fabscreen.pauseSignals)
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
