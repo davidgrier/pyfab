@@ -4,7 +4,6 @@
 
 from PyQt4 import QtCore
 from QTrap import QTrap
-from states import states
 
 
 class QTrapGroup(QtCore.QObject):
@@ -89,9 +88,8 @@ class QTrapGroup(QtCore.QObject):
 
     @state.setter
     def state(self, state):
-        if state in states:
-            for child in self.children:
-                child.state = state
+        for child in self.children:
+            child.state = state
 
     @property
     def active(self):

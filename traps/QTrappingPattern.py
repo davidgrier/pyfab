@@ -4,9 +4,8 @@
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
-from QTrap import QTrap
+from QTrap import QTrap, state
 from QTrapGroup import QTrapGroup
-from states import states
 
 
 class QTrappingPattern(QTrapGroup):
@@ -90,9 +89,9 @@ class QTrappingPattern(QTrapGroup):
         for child in self.children:
             if child.isWithin(rect):
                 self.selected.append(child)
-                child.state = states.grouping
+                child.state = state.grouping
             else:
-                child.state = states.normal
+                child.state = state.normal
         if len(self.selected) <= 1:
             self.selected = []
         self.update(project=False)
@@ -144,7 +143,7 @@ class QTrappingPattern(QTrapGroup):
         """
         if isinstance(self.group, QTrapGroup):
             for child in self.group.children:
-                child.state = states.grouping
+                child.state = state.grouping
                 self.group.remove(child)
                 self.add(child)
 
@@ -172,7 +171,7 @@ class QTrappingPattern(QTrapGroup):
             self.breakGroup()
         # select group
         else:
-            self.group.state = states.selected
+            self.group.state = state.selected
         self.update(project=False)
 
     def rightPress(self, pos, modifiers):
@@ -219,7 +218,7 @@ class QTrappingPattern(QTrapGroup):
         """
         self.createGroup()
         for child in self.children:
-            child.state = states.normal
+            child.state = state.normal
         self.group = None
         self.selection.hide()
         self.update(project=False)

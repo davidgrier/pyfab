@@ -5,7 +5,15 @@
 import numpy as np
 import pyqtgraph as pg
 from PyQt4 import QtCore, QtGui
-from states import states
+from enum import Enum
+
+
+class state(Enum):
+    static = 0
+    normal = 1
+    selected = 2
+    grouping = 3
+    inactive = 4
 
 
 class QTrap(QtCore.QObject):
@@ -22,7 +30,7 @@ class QTrap(QtCore.QObject):
                  a=1.,
                  phi=None,
                  psi=None,
-                 state=states.normal,
+                 state=state.normal,
                  active=True):
         super(QTrap, self).__init__()
         self.active = False
@@ -31,10 +39,10 @@ class QTrap(QtCore.QObject):
         # operational state
         self._state = state
         # appearance
-        self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
-                      states.selected: pg.mkBrush(255, 100, 100, 120),
-                      states.grouping: pg.mkBrush(255, 255, 100, 120),
-                      states.inactive: pg.mkBrush(0, 0, 255, 120)}
+        self.brush = {state.normal: pg.mkBrush(100, 255, 100, 120),
+                      state.selected: pg.mkBrush(255, 100, 100, 120),
+                      state.grouping: pg.mkBrush(255, 255, 100, 120),
+                      state.inactive: pg.mkBrush(0, 0, 255, 120)}
         self.spot = {'pos': QtCore.QPointF(),
                      'size': 10.,
                      'pen': pg.mkPen('k', width=0.5),
@@ -147,6 +155,6 @@ class QTrap(QtCore.QObject):
 
     @state.setter
     def state(self, state):
-        if self.state is not states.static:
+        if self.state is not state.static:
             self._state = state
             self.spot['brush'] = self.brush[state]
