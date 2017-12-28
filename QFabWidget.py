@@ -21,10 +21,10 @@ class QFabWidget(QJansenWidget):
         self.slm = objects.QSLM()
         # computation pipeline for the trapping pattern
         try:
-            self.cgh = objects.cudaCGH(self.slm)
+            self.cgh = objects.cudaCGH(slm=self.slm)
         except (NameError, AttributeError):
             print('could not load cudaCGH')
-            self.cgh = objects.CGH(self.slm)
+            self.cgh = objects.CGH(slm=self.slm)
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()

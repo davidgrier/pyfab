@@ -8,8 +8,8 @@ import numpy as np
 
 class cudaCGH(CGH):
 
-    def __init__(self, slm=None):
-        super(cudaCGH, self).__init__(slm=slm)
+    def __init__(self, **kwargs):
+        super(cudaCGH, self).__init__(**kwargs)
         self.init_cuda()
 
     def init_cuda(self):
