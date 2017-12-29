@@ -33,6 +33,8 @@ class CGH(QtCore.QObject):
     2. subclass qobject and move CGH to separate thread.
     """
 
+    sigComputing = QtCore.pyqtSignal(bool)
+    
     def __init__(self, slm=None):
         super(CGH, self).__init__()
         # Trap properties for current pattern
@@ -82,16 +84,18 @@ class CGH(QtCore.QObject):
     def compute(self):
         """Compute phase hologram for specified traps
         """
+        self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0. + 0j)
         for trap in self.traps:
             r = self.m * trap.r
             amp = trap.amp * self.window(r)
             self.compute_one(amp, r)
-            # QtCore.QCoreApplication.processEvents()
-            # QtGui.QApplication.processEvents()
+            # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
+            QtGui.qApp.processEvents()
         self.slm.data = self.quantize()
         self.time = time() - start
+        self.sigComputing.emit(False)
 
     def outertheta(self, x, y):
         return np.arctan2.outer(y, x)

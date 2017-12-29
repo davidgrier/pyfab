@@ -35,6 +35,7 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         vb.setRange(self.video.device.roi, padding=0, update=True)
         vb.addItem(self.video)
         vb.addItem(self.plot)
+        self.active = True
 
     def closeEvent(self, event):
         self.video.close()
@@ -47,19 +48,23 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         return index
 
     def mousePressEvent(self, event):
-        self.sigMousePress.emit(event)
+        if self.active:
+            self.sigMousePress.emit(event)
         event.accept()
 
     def mouseMoveEvent(self, event):
-        self.sigMouseMove.emit(event)
+        if self.active:
+            self.sigMouseMove.emit(event)
         event.accept()
 
     def mouseReleaseEvent(self, event):
-        self.sigMouseRelease.emit(event)
+        if self.active:
+            self.sigMouseRelease.emit(event)
         event.accept()
 
     def wheelEvent(self, event):
-        self.sigMouseWheel.emit(event)
+        if self.active:
+            self.sigMouseWheel.emit(event)
         event.accept()
 
     def setData(self, **kwargs):

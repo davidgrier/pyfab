@@ -14,16 +14,17 @@ class QTrappingPattern(QTrapGroup):
 
     trapAdded = QtCore.pyqtSignal(QTrap)
 
-    def __init__(self, fabscreen, parent=None):
+    def __init__(self, gui=None, parent=None, pipeline=None):
         super(QTrappingPattern, self).__init__()
-        self.fabscreen = fabscreen
+        self.fabscreen = gui
         self.parent = parent
-        self.pipeline = None
+        self.pipeline = pipeline
         # Connect to signals coming from fabscreen (QFabGraphicsView)
         self.fabscreen.sigMousePress.connect(self.mousePress)
         self.fabscreen.sigMouseMove.connect(self.mouseMove)
         self.fabscreen.sigMouseRelease.connect(self.mouseRelease)
         self.fabscreen.sigMouseWheel.connect(self.mouseWheel)
+        self.pipeline.sigComputing.connect(self.pauseSignals)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.fabscreen)
@@ -32,6 +33,9 @@ class QTrappingPattern(QTrapGroup):
         self.trap = None
         self.group = None
         self.selected = []
+
+    def pauseSignals(self, pause):
+        self.pipeline.active = not pause
 
     def update(self, project=True):
         """Provide a list of spots to screen for plotting
