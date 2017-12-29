@@ -47,9 +47,6 @@ class QFabScreen(pg.GraphicsLayoutWidget):
         index = self.plot.points().tolist().index(points[0])
         return index
 
-    def pauseSignals(self, pause):
-        self.active = not pause
-
     def mousePressEvent(self, event):
         if self.active:
             self.sigMousePress.emit(event)

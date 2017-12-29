@@ -25,12 +25,11 @@ class QFabWidget(QJansenWidget):
         except (NameError, AttributeError):
             print('could not load cudaCGH')
             self.cgh = objects.CGH(slm=self.slm)
-        self.cgh.sigComputing.connect(self.fabscreen.pauseSignals)
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
         self.wcgh = objects.QCGH(self.cgh)
-        self.pattern = traps.QTrappingPattern(self.fabscreen,
+        self.pattern = traps.QTrappingPattern(gui=self.fabscreen,
                                               pipeline=self.cgh)
 
     def init_ui(self):
