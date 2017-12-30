@@ -34,12 +34,10 @@ class CGH(QtCore.QObject):
     """
 
     sigComputing = QtCore.pyqtSignal(bool)
-    
+
     def __init__(self, slm=None):
         super(CGH, self).__init__()
-        # Trap properties for current pattern
         self.traps = []
-
         # SLM geometry
         self.slm = slm
         self.w = self.slm.width()
@@ -60,6 +58,7 @@ class CGH(QtCore.QObject):
         # Orientation of camera relative to SLM
         self._theta = 0.
         self.updateTransformationMatrix()
+        self.active = True
 
     @jit(parallel=True)
     def quantize(self):
@@ -67,13 +66,13 @@ class CGH(QtCore.QObject):
         return phi.T
 
     @jit(parallel=True)
-    def compute_one(self, amp, r):
+    def compute_one(self, amp, r, buffer):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
         ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
-        self._psi += np.outer(amp * ex, ey, self._delta)
+        np.outer(amp * ex, ey, buffer)
 
     def window(self, r):
         x = [r.x() / self.w, r.y() / self.h]
@@ -81,16 +80,24 @@ class CGH(QtCore.QObject):
         return np.min((fac * fac, 100.))
 
     @jit(parallel=True)
-    def compute(self):
+    def compute(self, all=False):
         """Compute phase hologram for specified traps
         """
+        if not self.active:
+            return
         self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0. + 0j)
         for trap in self.traps:
             r = self.m * trap.r
             amp = trap.amp * self.window(r)
-            self.compute_one(amp, r)
+            if ((all is True) or
+                    (trap.state == trap.state.selected) or
+                    (trap.psi is None)):
+                if trap.psi is None:
+                    trap.psi = self._psi.copy()
+                self.compute_one(amp, r, trap.psi)
+            self._psi += trap.psi
             # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
             QtGui.qApp.processEvents()
         self.slm.data = self.quantize()
@@ -106,7 +113,6 @@ class CGH(QtCore.QObject):
         """
         shape = (self.w, self.h)
         self._psi = np.zeros(shape, dtype=np.complex_)
-        self._delta = np.zeros(shape, dtype=np.complex_)
         qx = np.arange(self.w) - self.rs.x()
         qy = np.arange(self.h) - self.rs.y()
         qx = self.qpp * qx
@@ -128,7 +134,7 @@ class CGH(QtCore.QObject):
         else:
             self._rs = QtCore.QPointF(rs[0], rs[1])
         self.updateGeometry()
-        self.compute()
+        self.compute(all=True)
 
     @property
     def qpp(self):
@@ -138,7 +144,7 @@ class CGH(QtCore.QObject):
     def qpp(self, qpp):
         self._qpp = float(qpp)
         self.updateGeometry()
-        self.compute()
+        self.compute(all=True)
 
     @property
     def alpha(self):
@@ -148,7 +154,7 @@ class CGH(QtCore.QObject):
     def alpha(self, alpha):
         self._alpha = float(alpha)
         self.updateGeometry()
-        self.compute()
+        self.compute(all=True)
 
     def updateTransformationMatrix(self):
         self.m.setToIdentity()
@@ -166,7 +172,7 @@ class CGH(QtCore.QObject):
         else:
             self._rc = QtGui.QVector3D(rc[0], rc[1], rc[2])
         self.updateTransformationMatrix()
-        self.compute()
+        self.compute(all=True)
 
     @property
     def theta(self):
@@ -176,11 +182,7 @@ class CGH(QtCore.QObject):
     def theta(self, theta):
         self._theta = float(theta)
         self.updateTransformationMatrix()
-        self.compute()
-
-    def setData(self, traps):
-        self.traps = traps
-        self.compute()
+        self.compute(all=True)
 
     @property
     def calibration(self):

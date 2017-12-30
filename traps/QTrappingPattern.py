@@ -50,7 +50,8 @@ class QTrappingPattern(QTrapGroup):
         spots = [trap.spot for trap in traps]
         self.fabscreen.setData(spots=spots)
         if project and self.pipeline is not None:
-            self.pipeline.setData(traps)
+            self.pipeline.traps = traps
+            self.pipeline.compute()
 
     def dataCoords(self, pos):
         """Convert pixel position in fabscreen widget to

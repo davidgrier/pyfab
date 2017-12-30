@@ -60,7 +60,7 @@ class cudaCGH(CGH):
             bj = b[j];
             for(int i = threadIdx.x + blockDim.x * blockIdx.x; \
                 i < nx; i += blockDim.x * gridDim.x) {
-              out[i*ny + j] += a[i]*bj;
+              out[i*ny + j] = a[i]*bj;
             }
           }
         }
@@ -100,11 +100,11 @@ class cudaCGH(CGH):
         self._phi.get(self.phi)
         return self.phi.T
 
-    def compute_one(self, amp, r):
+    def compute_one(self, amp, r, buffer):
         cumath.exp(self.iqx * r.x() + self.iqxsq * r.z(), out=self._ex)
         cumath.exp(self.iqy * r.y() + self.iqysq * r.z(), out=self._ey)
         self._ex *= amp
-        self.outer(self._ex, self._ey, self._psi,
+        self.outer(self._ex, self._ey, buffer,
                    np.int32(self.w), np.int32(self.h),
                    block=self.block, grid=self.grid)
 
