@@ -35,7 +35,7 @@ class QTrappingPattern(QTrapGroup):
         self.selected = []
 
     def pauseSignals(self, pause):
-        self.pipeline.active = not pause
+        self.fabscreen.active = not pause
 
     def update(self, project=True):
         """Provide a list of spots to screen for plotting

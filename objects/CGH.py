@@ -58,7 +58,6 @@ class CGH(QtCore.QObject):
         # Orientation of camera relative to SLM
         self._theta = 0.
         self.updateTransformationMatrix()
-        self.active = True
 
     @jit(parallel=True)
     def quantize(self):
@@ -83,23 +82,21 @@ class CGH(QtCore.QObject):
     def compute(self, all=False):
         """Compute phase hologram for specified traps
         """
-        if not self.active:
-            return
         self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0. + 0j)
         for trap in self.traps:
-            r = self.m * trap.r
-            amp = trap.amp * self.window(r)
             if ((all is True) or
                     (trap.state == trap.state.selected) or
                     (trap.psi is None)):
+                r = self.m * trap.r
+                amp = trap.amp * self.window(r)
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
                 self.compute_one(amp, r, trap.psi)
             self._psi += trap.psi
-            # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
             QtGui.qApp.processEvents()
+            # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
         self.slm.data = self.quantize()
         self.time = time() - start
         self.sigComputing.emit(False)

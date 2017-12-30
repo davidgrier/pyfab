@@ -64,7 +64,7 @@ class cudaCGH(CGH):
             }
           }
         }
-
+                      
         __global__ void phase(pyComplex *psi, \
                               unsigned char *out, \
                               int nx, int ny)
