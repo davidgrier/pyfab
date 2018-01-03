@@ -234,6 +234,8 @@ class QTrappingPattern(QTrapGroup):
         pos = event.pos()
         group = self.clickedGroup(pos)
         if group is not None:
+            group.state = state.selected
             dr = QtGui.QVector3D(0., 0., event.delta() / 120.)
             group.moveBy(dr)
+            group.state = state.normal
         self.group = None
