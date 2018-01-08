@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Jansen is a video-capture GUI intended for holographic video microscopy"""
+
 from PyQt4 import QtGui
 from QJansenWidget import QJansenWidget
 import sys

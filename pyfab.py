@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""pyfab is a GUI for holographic optical trapping"""
 
 from pyqtgraph.Qt import QtGui
 from QFabWidget import QFabWidget
