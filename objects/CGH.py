@@ -25,12 +25,12 @@ class CGH(QtCore.QObject):
     each other because the SLM is likely to be tilted relative to the
     optical axis.
 
-    NOTE: Reducing latency in the GUI is a priority.
-    1. Calling QtCore.QCoreApplication.processEvents() or
-    QtGuiQApplication.processEvents() in compute()
-    does not keep screen updating during hologram calculation.  QTimer
-    events are not processed during compute()
-    2. subclass qobject and move CGH to separate thread.
+    NOTES:
+    This version calls QtGui.qApp.processEvents() after computing
+    each trap's holograms.  This keeps the GUI responsive, but is
+    ugly and slows the CGH computation.  It would be better to
+    move CGH into its own thread, or at least to push the computation
+    into its own thread.
     """
 
     sigComputing = QtCore.pyqtSignal(bool)
