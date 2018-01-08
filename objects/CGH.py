@@ -74,9 +74,9 @@ class CGH(QtCore.QObject):
         np.outer(amp * ex, ey, buffer)
 
     def window(self, r):
-        x = [r.x() / self.w, r.y() / self.h]
+        x = 2*self.qpp*np.array([r.x(), r.y()])
         fac = 1. / np.prod(np.sinc(x))
-        return np.min((fac * fac, 100.))
+        return np.min((np.abs(fac), 100.))
 
     @jit(parallel=True)
     def compute(self, all=False):
