@@ -81,7 +81,7 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('calibrate_rc'))
         calibrateMenu.addAction(rcAction)
 
-        cghAction = QtGui.QAction('Calibrate Aberrations', self)
+        cghAction = QtGui.QAction('Aberrations', self)
         cghAction.setStatusTip('NOT IMPLEMENTED YET')
         cghAction.triggered.connect(
             lambda: self.instrument.tasks.registerTask('calibrate_haar'))
