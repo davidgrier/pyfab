@@ -7,8 +7,7 @@ class calibrate_rc(maxtask):
     def __init__(self, **kwargs):
         super(calibrate_rc, self).__init__(**kwargs)
 
-    def setParent(self, parent):
-        self.parent = parent
+    def initialize(self):
         self.parent.pattern.clearTraps()
 
     def dotask(self):
@@ -16,3 +15,4 @@ class calibrate_rc(maxtask):
         self.parent.wcgh.xc = f['x']
         self.parent.wcgh.yc = f['y']
         print('calibrate_rc done')
+        

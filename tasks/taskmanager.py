@@ -17,6 +17,7 @@ class taskmanager(object):
             except IndexError:
                 self.source.sigNewFrame.disconnect(self.handleTask)
                 return
+            self.task.initialize()
         self.task.process(frame)
         if self.task.isDone():
             self.task = None
@@ -26,14 +27,11 @@ class taskmanager(object):
             try:
                 taskmodule = importlib.import_module('tasks.'+task)
                 taskclass = getattr(taskmodule, task)
-                task = taskclass(parent=self.parent)
+                task = taskclass()
             except ImportError:
                 print('could not import '+task)
                 return
-        else:
-            task.setParent(self.parent)
+        task.setParent(self.parent)
+        self.queue.append(task)
         if self.task is None:
-            self.task = task
             self.source.sigNewFrame.connect(self.handleTask)
-        else:
-            self.queue.append(task)

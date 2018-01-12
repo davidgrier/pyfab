@@ -15,6 +15,9 @@ class task(object):
     def setParent(self, parent):
         self.parent = parent
 
+    def initialize(self):
+        pass
+
     def doprocess(self, frame):
         pass
 
