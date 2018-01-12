@@ -22,12 +22,12 @@ class taskmanager(object):
         if self.task.isDone():
             self.task = None
 
-    def registerTask(self, task):
+    def registerTask(self, task, **kwargs):
         if isinstance(task, str):
             try:
                 taskmodule = importlib.import_module('tasks.'+task)
                 taskclass = getattr(taskmodule, task)
-                task = taskclass()
+                task = taskclass(**kwargs)
             except ImportError:
                 print('could not import '+task)
                 return
