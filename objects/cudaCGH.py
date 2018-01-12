@@ -93,8 +93,8 @@ class cudaCGH(CGH):
         self.grid = ((dx + (mx > 0)) * self.block[0],
                      (dy + (my > 0)) * self.block[1])
 
-    def quantize(self):
-        self.phase(self._psi, self._phi,
+    def quantize(self, psi):
+        self.phase(psi, self._phi,
                    np.int32(self.w), np.int32(self.h),
                    block=self.block, grid=self.grid)
         self._phi.get(self.phi)

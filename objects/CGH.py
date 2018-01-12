@@ -60,8 +60,8 @@ class CGH(QtCore.QObject):
         self.updateTransformationMatrix()
 
     @jit(parallel=True)
-    def quantize(self):
-        phi = ((128. / np.pi) * np.angle(self._psi) + 127.).astype(np.uint8)
+    def quantize(self, psi):
+        phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
         return phi.T
 
     @jit(parallel=True)
@@ -97,7 +97,7 @@ class CGH(QtCore.QObject):
             self._psi += trap.psi
             QtGui.qApp.processEvents()
             # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
-        self.slm.data = self.quantize()
+        self.slm.data = self.quantize(self._psi)
         self.time = time() - start
         self.sigComputing.emit(False)
 
