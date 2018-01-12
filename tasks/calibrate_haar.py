@@ -1,21 +1,23 @@
 from task import task
 from maxtask import maxtask
+from cleartraps import cleartraps
+from createtrap import createtrap
 from PyQt4.QtGui import QVector3D
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class haar_cleanup(task):
+class haar_summary(task):
 
     def __init__(self, **kwargs):
-        super(haar_cleanup, self).__init__(**kwargs)
+        super(haar_summary, self).__init__(**kwargs)
+        self.background = 0.
         self.data = []
 
     def initialize(self):
-        self.parent.pattern.clearTraps()
-        self.done = True
-
-    def addData(self, data):
+        print('summary')
+        
+    def append(self, data):
         print(data)
         self.data.append(data)
 
@@ -25,31 +27,40 @@ class haar_cleanup(task):
         plt.show()
         print('done')
 
+        
+class background(maxtask):
 
+    def __init__(self, roi, summary, **kwargs):
+        super(background, self).__init__(**kwargs)
+        self.roi = roi
+        self.summary = summary
+
+    def initialize(self):
+        print('background')
+
+    def dotask(self):
+        self.summary.background = np.sum(self.frame[self.roi]).astype(float)
+        print('background', self.summary.background)
+
+        
 class wavelet_response(maxtask):
 
-    def __init__(self, trap, cgh, slm, roi0, roi1, roi2,
-                 summary, val=128., **kwargs):
+    def __init__(self, roi, summary, val, **kwargs):
         super(wavelet_response, self).__init__(**kwargs)
-        self.trap = trap
-        self.cgh = cgh
-        self.slm = slm
-        self.roi0 = roi0
-        self.roi1 = roi1
-        self.roi2 = roi2
+        self.roi = roi
         self.summary = summary
         self.val = val
 
     def initialize(self):
-        psi = self.trap.psi
+        trap = self.parent.pattern.flatten()[0]
+        psi = trap.psi
         psi[0:psi.shape[0]/2,:] *= np.exp(1j * np.pi * self.val / 128.)
-        self.slm.data = self.cgh.quantize(psi)
+        self.parent.slm.data = self.parent.cgh.quantize(psi)
 
     def dotask(self):
-        v1 = np.sum(self.frame[self.roi1]).astype(float)
-        v0 = np.sum(self.frame[self.roi0]).astype(float)
-        bg = np.sum(self.frame[self.roi2]).astype(float)
-        self.summary.addData([self.val, (v1-bg)/(v0-bg)])
+        v = np.sum(self.frame[self.roi]).astype(float)
+        bg = self.summary.background
+        self.summary.append([self.val, v-bg])
 
 
 class calibrate_haar(task):
@@ -58,27 +69,17 @@ class calibrate_haar(task):
         super(calibrate_haar, self).__init__(**kwargs)
 
     def initialize(self):
-        self.parent.pattern.clearTraps()
-        cgh = self.parent.cgh
-        slm = self.parent.slm
         dim = 15
-        xc = np.round(self.parent.cgh.rc.x()).astype(int)
-        yc = np.round(self.parent.cgh.rc.y()).astype(int)
-        roi0 = np.ogrid[yc-dim:yc+dim+1, xc-dim:xc+dim+1]
         xc = 100
         yc = 100
-        pos = [QVector3D(xc, yc, 0)]
-        self.parent.pattern.createTraps(pos)
-        trap = self.parent.pattern.flatten()[0]
-        roi1 = np.ogrid[yc-dim:yc+dim+1, xc-dim:xc+dim+1]
-        xc += 100
-        roi2 = np.ogrid[yc-dim:yc+dim+1, xc-dim:xc+dim+1]
-        summary = haar_cleanup()
-        for val in range(0, 255, 2):
-            task = wavelet_response(trap, cgh, slm,
-                                    roi0, roi1, roi2,
-                                    summary, val=val,
-                                    delay=5, nframes=10)
-            self.parent.tasks.registerTask(task)
-        self.parent.tasks.registerTask(summary)
-        self.done = True
+        roi = np.ogrid[yc-dim:yc+dim+1, xc-dim:xc+dim+1]
+        summary = haar_summary()
+        register = self.parent.tasks.registerTask
+        register(cleartraps())
+        register(background(roi, summary, delay=5, nframes=60))
+        register(createtrap(xc, yc))
+        for val in range(0, 255, 5):
+            register(wavelet_response(roi, summary, val,
+                                      delay=5, nframes=60))
+        register(summary)
+        register(cleartraps())

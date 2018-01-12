@@ -35,7 +35,7 @@ class QCameraDevice(QtCore.QObject):
     """Low latency OpenCV camera intended to act as an image source
     for PyQt applications.
     """
-    _DEFAULT_FPS = 24
+    _DEFAULT_FPS = 29.97
 
     def __init__(self,
                  cameraId=0,
