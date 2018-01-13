@@ -11,6 +11,7 @@ from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
 from QFabFilter import QFabFilter
 from fabconfig import fabconfig
+from pyproscan import QProscan
 
 __all__ = ['QFabScreen',
            'QSLM',
@@ -20,4 +21,5 @@ __all__ = ['QFabScreen',
            'QFabDVR',
            'QFabVideo',
            'QFabFilter',
-           'fabconfig']
+           'fabconfig',
+           'QProscan']
