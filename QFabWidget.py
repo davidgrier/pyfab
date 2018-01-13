@@ -17,6 +17,8 @@ class QFabWidget(QJansenWidget):
 
     def init_hardware(self, size):
         super(QFabWidget, self).init_hardware(size)
+        # stage
+        self.wstage = objects.QProscan()
         # spatial light modulator
         self.slm = objects.QSLM()
         # computation pipeline for the trapping pattern
@@ -34,23 +36,33 @@ class QFabWidget(QJansenWidget):
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
+        self.tabs.addTab(self.hardwareTab(), 'Hardware')
         self.tabs.addTab(self.cghTab(), 'CGH')
         self.tabs.addTab(self.trapTab(), 'Traps')
 
-    def cghTab(self):
-        wcgh = QtGui.QWidget()
+    def tabLayout(self):
         layout = QtGui.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(1)
+        return layout
+        
+    def hardwareTab(self):
+        whard = QtGui.QWidget()
+        layout = self.tabLayout()
+        layout.addWidget(self.wstage)
+        whard.setLayout(layout)
+        return whard
+        
+    def cghTab(self):
+        wcgh = QtGui.QWidget()
+        layout = self.tabLayout()
         layout.addWidget(self.wcgh)
         wcgh.setLayout(layout)
         return wcgh
 
     def trapTab(self):
         wtraps = QtGui.QWidget()
-        layout = QtGui.QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setSpacing(1)
+        layout = self.tabLayout()
         layout.addWidget(traps.QTrapWidget(self.pattern))
         wtraps.setLayout(layout)
         return wtraps
