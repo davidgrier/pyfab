@@ -7,8 +7,7 @@ except ImportError:
     pass
 from CGH import CGH, QCGH
 from QFabDVR import QFabDVR
-from QFabVideo import QFabVideo
-from QFabFilter import QFabFilter
+from video import QFabVideo, QFabFilter
 from fabconfig import fabconfig
 from proscan import QProscan
 

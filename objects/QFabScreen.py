@@ -4,7 +4,7 @@
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
-from QVideoItem import QVideoItem
+from video import QVideoItem
 
 
 class QFabScreen(pg.GraphicsLayoutWidget):
