@@ -5,8 +5,7 @@ try:
 except ImportError:
     print('could not import cudaCGH')
     pass
-from CGH import CGH
-from QCGH import QCGH
+from CGH import CGH, QCGH
 from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
 from QFabFilter import QFabFilter
