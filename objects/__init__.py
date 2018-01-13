@@ -1,7 +1,7 @@
 from QFabScreen import QFabScreen
 from QSLM import QSLM
 try:
-    from cudaCGH import cudaCGH
+    from CGH import cudaCGH
 except ImportError:
     print('could not import cudaCGH')
     pass
@@ -10,7 +10,7 @@ from QFabDVR import QFabDVR
 from QFabVideo import QFabVideo
 from QFabFilter import QFabFilter
 from fabconfig import fabconfig
-from pyproscan import QProscan
+from proscan import QProscan
 
 __all__ = ['QFabScreen',
            'QSLM',
