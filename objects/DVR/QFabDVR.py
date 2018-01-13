@@ -1,7 +1,7 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
-from fabdvr import fabdvr
-from clickable import clickable
+from .fabdvr import fabdvr
+from ..clickable import clickable
 
 
 class QFabDVR(fabdvr, QtGui.QFrame):
