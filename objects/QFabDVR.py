@@ -14,21 +14,22 @@ class QFabDVR(fabdvr, QtGui.QFrame):
 
     def initUI(self):
         self.setFrameShape(QtGui.QFrame.Box)
+        # Create layout
         layout = QtGui.QGridLayout(self)
         layout.setMargin(1)
         layout.setHorizontalSpacing(6)
         layout.setVerticalSpacing(3)
+        # Widgets
         title = QtGui.QLabel('Video Recorder')
         self.brecord = QtGui.QPushButton('Record', self)
+        self.brecord.clicked.connect(self.handleRecord)
         self.bstop = QtGui.QPushButton('Stop', self)
-        self.wframe = QtGui.QLCDNumber(self)
-        self.wframe.setNumDigits(5)
+        self.bstop.clicked.connect(self.handleStop)
+        self.wframe = self.framecounter_widget()
         wfilelabel = QtGui.QLabel('file name')
         wfilelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.wfilename = QtGui.QLineEdit()
-        self.wfilename.setText(self.filename)
-        self.wfilename.setReadOnly(True)
-        clickable(self.wfilename).connect(self.getFilename)
+        self.wfilename = self.filename_widget()
+        # Place widgets in layout
         layout.addWidget(title, 1, 1, 1, 3)
         layout.addWidget(self.brecord, 2, 1)
         layout.addWidget(self.bstop, 2, 2)
@@ -36,9 +37,27 @@ class QFabDVR(fabdvr, QtGui.QFrame):
         layout.addWidget(wfilelabel, 3, 1)
         layout.addWidget(self.wfilename, 3, 2, 1, 2)
         self.setLayout(layout)
-        self.brecord.clicked.connect(self.handleRecord)
-        self.bstop.clicked.connect(self.handleStop)
 
+    # customized widgets
+    def framecounter_widget(self):
+        lcd = QtGui.QLCDNumber(self)
+        lcd.setNumDigits(5)
+        lcd.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        palette = lcd.palette()
+        palette.setColor(palette.WindowText, QtGui.QColor(0, 0, 0))
+        palette.setColor(palette.Background, QtGui.QColor(255, 255, 255))
+        lcd.setPalette(palette)
+        lcd.setAutoFillBackground(True)
+        return lcd
+
+    def filename_widget(self):
+        line = QtGui.QLineEdit()
+        line.setText(self.filename)
+        line.setReadOnly(True)
+        clickable(line).connect(self.getFilename)
+        return line
+
+    # core functionality
     def write(self, frame):
         super(QFabDVR, self).write(frame)
         self.wframe.display(self.framenumber)
