@@ -70,7 +70,9 @@ class ipglaser(object):
 
 def main():
     a = ipglaser()
+    b = ipglaser()
     print(a.power())
+    print(b.power())
 
 
 if __name__ == '__main__':
