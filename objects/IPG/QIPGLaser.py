@@ -68,7 +68,10 @@ class status_widget(QtGui.QWidget):
             self.led_emx.set(2)
         else:
             self.led_emx.set(bool(flags & ipg.flag['EMX']))
-        self.led_flt.set(bool(flags & ipg.flag['ERR']))
+        error = bool(flags & ipg.flag['ERR'])
+        self.led_flt.set(error)
+        # if error:
+        #    self.instrument.error(flags)
 
 
 class power_widget(QtGui.QWidget):

@@ -59,12 +59,12 @@ class ipglaser(SerialDevice):
         return float(self.command('RCT'))
 
     def keyswitch(self):
-        sta = int(self.command('STA'))
-        return not bool(sta & self.flag['KEY'])
+        flags = int(self.command('STA'))
+        return not bool(flags & self.flag['KEY'])
 
     def startup(self):
-        sta = int(self.command('STA'))
-        return bool(sta & self.flag['EMS'])
+        flags = int(self.command('STA'))
+        return bool(flags & self.flag['EMS'])
 
     def emission(self, state=None):
         if state is True:
@@ -73,16 +73,29 @@ class ipglaser(SerialDevice):
         if state is False:
             res = self.command('EMOFF')
             return 'ERR' not in res
-        sta = int(self.command('STA'))
-        return bool(sta & self.flag['EMX'])
+        flags = int(self.command('STA'))
+        return bool(flags & self.flag['EMX'])
 
     def aimingbeam(self, state=None):
         if state is True:
             self.command('ABN')
         elif state is False:
             self.command('ABF')
-        sta = int(self.command('STA'))
-        return bool(sta & self.flag['AIM'])
+        flags = int(self.command('STA'))
+        return bool(flags & self.flag['AIM'])
+
+    def error(self, flags):
+        if not bool(flags & self.flags['ERR']):
+            print 'No errors'
+            return
+        if bool(flags & self.flags['TMP']):
+            print 'ERROR: Over-temperature condition'
+        if bool(flags & self.flags['BKR']):
+            print 'ERROR: Excessive backreflection'
+        if bool(flags & self.flags['PWR']):
+            print 'ERROR: Power supply off'
+        if bool(flags & self.flags['UNX']):
+            print 'ERROR: Unexpected laser output'
 
 
 def main():
