@@ -3,23 +3,26 @@ from ..SerialDevice import SerialDevice
 
 class ipglaser(SerialDevice):
 
-    flag = {'TMP': 0x2,      # ERROR: over-temperature condition
-            'EMX': 0x4,      # laser emission
-            'BKR': 0x8,      # ERROR: excessive backreflection
-            'ACL': 0x10,     # analog control mode enabled
-            'MDC': 0x40,     # module communication disconnected
-            'MFL': 0x80,     # module(s) have failed
-            'AIM': 0x100,    # aiming beam on
-            'PWR': 0x800,    # ERROR: power supply off
-            'MOD': 0x1000,   # modulation enabled
-            'ENA': 0x4000,   # laser enable is asserted
-            'EMS': 0x8000,   # emission startup
-            'UNX': 0x20000,  # ERROR: unexpected emission detected
-            'KEY': 0x200000}  # keyswitch in REM position
-    flag['ERR'] = flag.TMP | flag.BKR | flag.PWR | flag.UNX
+    flag = {'TMP': 0x2,       # TMP: ERROR: over-temperature condition
+            'EMX': 0x4,       # EMX: laser emission
+            'BKR': 0x8,       # BKR: ERROR: excessive backreflection
+            'ACL': 0x10,      # ACL: analog control mode enabled
+            'MDC': 0x40,      # MDC: module communication disconnected
+            'MFL': 0x80,      # MFL: module(s) have failed
+            'AIM': 0x100,     # AIM: aiming beam on
+            'PWR': 0x800,     # PWR: ERROR: power supply off
+            'MOD': 0x1000,    # MOD: modulation enabled
+            'ENA': 0x4000,    # ENA: laser enable is asserted
+            'EMS': 0x8000,    # EMS: emission startup
+            'UNX': 0x20000,   # UNX: ERROR: unexpected emission detected
+            'KEY': 0x200000}  # KEY: keyswitch in REM position
 
     def __init__(self):
         super(ipglaser, self).__init__(baudrate=57600)
+        self.flag['ERR'] = (self.flag.TMP |
+                            self.flag.BKR |
+                            self.flag.PWR |
+                            self.flag.UNX)
 
     def identify(self):
         res = self.command('RFV')
