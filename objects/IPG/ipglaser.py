@@ -62,8 +62,6 @@ class ipglaser(object):
         return len(res) > 3
 
     def command(self, str):
-        if not self.isready:
-            return None
         cmd = unicode(str + self.eol)
         self.sio.write(cmd)
         res = self.sio.readline().decode().strip()
