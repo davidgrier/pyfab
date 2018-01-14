@@ -7,6 +7,7 @@ import fcntl
 class SerialDevice(object):
 
     def __init__(self):
+        self.eol = '\r'
         self.manufacturer = 'Prolific'
         self.baudrate = 9600
         self.bytesize = serial.EIGHTBITS
@@ -58,3 +59,12 @@ class SerialDevice(object):
 
         def identify(self):
             return False
+
+        def close(self):
+            self.ser.close()
+
+        def write(self, str):
+            self.sio.write(unicode(str + self.eol))
+
+        def readln(self):
+            return self.sio.readline().decode().strip()
