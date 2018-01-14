@@ -10,7 +10,7 @@ from DVR import QFabDVR
 from video import QFabVideo, QFabFilter
 from fabconfig import fabconfig
 from proscan import pyproscan, QProscan
-from IPG import ipglaser
+from IPG import ipglaser, QIPGLaser
 
 __all__ = ['QFabScreen',
            'QSLM',
@@ -22,4 +22,4 @@ __all__ = ['QFabScreen',
            'QFabFilter',
            'fabconfig',
            'pyproscan', 'QProscan',
-	   'ipglaser']
+           'ipglaser', 'QIPGLaser']

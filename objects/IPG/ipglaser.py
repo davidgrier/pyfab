@@ -3,7 +3,8 @@ from ..SerialDevice import SerialDevice
 
 class ipglaser(SerialDevice):
 
-    flag = {'TMP': 0x2,       # TMP: ERROR: over-temperature condition
+    flag = {'ERR': 0x1,
+            'TMP': 0x2,       # TMP: ERROR: over-temperature condition
             'EMX': 0x4,       # EMX: laser emission
             'BKR': 0x8,       # BKR: ERROR: excessive backreflection
             'ACL': 0x10,      # ACL: analog control mode enabled
