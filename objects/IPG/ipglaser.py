@@ -41,7 +41,8 @@ class ipglaser(object):
                         fcntl.flock(self.ser.fileno(),
                                     fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except IOError:
-                        print 'Port {0} is busy'.format(self.ser)
+                        print 'Port {0} is busy'.format(self.ser.port)
+                        continue
             except serial.SerialException as ex:
                 print('Port {0} is unavailable: {1}'.format(port, ex))
                 continue
