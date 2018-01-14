@@ -1,6 +1,7 @@
+import fcntl
 import serial
-from serial.tools.list_ports import comports
 import io
+from serial.tools.list_ports import comports
 
 
 class ipglaser(object):
@@ -28,13 +29,21 @@ class ipglaser(object):
                 continue
             if self.manufacturer not in port.manufacturer:
                 continue
-            self.ser = serial.Serial(port.device,
-                                     baudrate=self.baudrate,
-                                     bytesize=self.bytesize,
-                                     parity=self.parity,
-                                     stopbits=self.stopbits,
-                                     timeout=self.timeout)
-            if not self.ser.isOpen():
+            try:
+                self.ser = serial.Serial(port.device,
+                                         baudrate=self.baudrate,
+                                         bytesize=self.bytesize,
+                                         parity=self.parity,
+                                         stopbits=self.selftopbits,
+                                         timeout=self.timeout)
+                if self.ser.isOpen():
+                    try:
+                        fcntl.flock(self.ser.fileno(),
+                                    fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    except IOError:
+                        print 'Port {0} is busy'.format(self.ser)
+            except serial.SerialException as ex:
+                print('Port {0} is unavailable: {1}'.format(port, ex))
                 continue
             buffer = io.BufferedRWPair(self.ser, self.ser, 1)
             self.sio = io.TextIOWrapper(buffer, newline=self.eol,
@@ -62,7 +71,6 @@ class ipglaser(object):
 def main():
     a = ipglaser()
     print(a.power())
-    a.close()
 
 
 if __name__ == '__main__':
