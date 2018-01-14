@@ -19,10 +19,10 @@ class ipglaser(SerialDevice):
 
     def __init__(self):
         super(ipglaser, self).__init__(baudrate=57600)
-        self.flag['ERR'] = (self.flag.TMP |
-                            self.flag.BKR |
-                            self.flag.PWR |
-                            self.flag.UNX)
+        self.flag['ERR'] = (self.flag['TMP'] |
+                            self.flag['BKR'] |
+                            self.flag['PWR'] |
+                            self.flag['UNX'])
 
     def identify(self):
         res = self.command('RFV')
@@ -57,11 +57,11 @@ class ipglaser(SerialDevice):
 
     def keyswitch(self):
         sta = int(self.command('STA'))
-        return not bool(sta & self.flag.KEY)
+        return not bool(sta & self.flag['KEY'])
 
     def startup(self):
         sta = int(self.command('STA'))
-        return bool(sta & self.flag.EMS)
+        return bool(sta & self.flag['EMS'])
 
     def emission(self, state=None):
         if state is True:
@@ -71,7 +71,7 @@ class ipglaser(SerialDevice):
             res = self.command('EMOFF')
             return 'ERR' not in res
         sta = int(self.command('STA'))
-        return bool(sta & self.flag.EMX)
+        return bool(sta & self.flag['EMX'])
 
     def aimingbeam(self, state=None):
         if state is True:
@@ -79,7 +79,7 @@ class ipglaser(SerialDevice):
         elif state is False:
             self.command('ABF')
         sta = int(self.command('STA'))
-        return bool(sta & self.flag.AIM)
+        return bool(sta & self.flag['AIM'])
 
 
 def main():
