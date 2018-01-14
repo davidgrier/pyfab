@@ -54,17 +54,17 @@ class SerialDevice(object):
             if self.identify():
                 return True
             self.ser.close()
-            print('IPG Laser not found!')
-            return False
+        print('IPG Laser not found!')
+        return False
 
-        def identify(self):
-            return False
+    def identify(self):
+        return False
 
-        def close(self):
-            self.ser.close()
+    def close(self):
+        self.ser.close()
 
-        def write(self, str):
-            self.sio.write(unicode(str + self.eol))
+    def write(self, str):
+        self.sio.write(unicode(str + self.eol))
 
-        def readln(self):
-            return self.sio.readline().decode().strip()
+    def readln(self):
+        return self.sio.readline().decode().strip()
