@@ -34,6 +34,9 @@ class ipglaser(SerialDevice):
 	set = float(self.command('RCS'))
 	return cur, min, set
 
+    def temperature(self):
+	return float(self.command('RCT'))
+
     def status(self):
 	res = self.command('STA')
 	sta = np.uint32(res)
@@ -67,6 +70,16 @@ class ipglaser(SerialDevice):
 	res = self.command('STA')
 	sta = np.uint32(res)
 	return bool(sta & 4)
+
+    def aimingbeam(self, state=None):
+	if state is True:
+	    res = self.command('ABN')
+	elif state is False:
+	    res = self.command('ABF')
+	res = self.command('STA')
+	sta = np.uint32(res)
+	return bool(sta & 256)    
+
 
 
 
