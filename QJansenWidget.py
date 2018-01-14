@@ -36,8 +36,8 @@ class QJansenWidget(QtGui.QWidget):
         layout.addWidget(self.tabs)
         layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
         self.setLayout(layout)
-        self.show()
-        self.tabs.setFixedWidth(self.tabs.width())
+        # self.show()
+        # self.tabs.setFixedWidth(self.tabs.width())
 
     def videoTab(self):
         wvideo = QtGui.QWidget()

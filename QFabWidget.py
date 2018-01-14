@@ -17,8 +17,6 @@ class QFabWidget(QJansenWidget):
 
     def init_hardware(self, size):
         super(QFabWidget, self).init_hardware(size)
-        # stage
-        self.wstage = objects.QProscan()
         # spatial light modulator
         self.slm = objects.QSLM()
         # computation pipeline for the trapping pattern
@@ -45,14 +43,23 @@ class QFabWidget(QJansenWidget):
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(1)
         return layout
-        
+
     def hardwareTab(self):
         whard = QtGui.QWidget()
         layout = self.tabLayout()
-        layout.addWidget(self.wstage)
+        try:
+            self.wstage = objects.QProscan()
+            layout.addWidget(self.wstage)
+        except ValueError:
+            print('No stage, sorry')
+        try:
+            self.wtrappinglaser = objects.QIPGLaser()
+            layout.addWidget(self.wtrappinglaser)
+        except ValueError:
+            print('No laser, sorry')
         whard.setLayout(layout)
         return whard
-        
+
     def cghTab(self):
         wcgh = QtGui.QWidget()
         layout = self.tabLayout()

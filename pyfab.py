@@ -19,6 +19,8 @@ class pyfab(QtGui.QMainWindow):
         self.init_ui()
         self.setCentralWidget(self.instrument)
         self.show()
+        tabs = self.instrument.tabs
+        tabs.setFixedWidth(tabs.width())
 
     def init_ui(self):
         self.setWindowTitle('PyFab')

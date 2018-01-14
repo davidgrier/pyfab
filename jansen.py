@@ -14,6 +14,9 @@ class jansen(QtGui.QMainWindow):
         super(jansen, self).__init__()
         self.instrument = QJansenWidget()
         self.init_ui()
+        self.show()
+        tabs = self.instrument.tabs
+        tabs.setFixedWidth(tabs.width())
 
     def init_ui(self):
         self.setWindowTitle('Jansen')
@@ -30,7 +33,6 @@ class jansen(QtGui.QMainWindow):
         fileMenu.addAction(exitAction)
 
         self.setCentralWidget(self.instrument)
-        self.show()
 
 
 if __name__ == '__main__':
