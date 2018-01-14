@@ -25,6 +25,10 @@ class pyproscan(object):
             if manufacturer not in port.manufacturer:
                 continue
             self.ser = serial.Serial(port.device,
+                                     baudrate=9600,
+                                     bytesize=serial.EIGHTBITS,
+                                     parity=serial.PARITY_NONE,
+                                     stopbits=serial.STOPBITS_ONE,
                                      timeout=self.timeout)
             if not self.ser.isOpen():
                 continue
