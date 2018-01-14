@@ -14,13 +14,13 @@ class ipglaser(object):
         self.bytesize = serial.EIGHTBITS
         self.parity = serial.PARITY_NONE
         self.stopbits = serial.STOPBITS_ONE
-        if not self.find():
+        if not self.findDevice():
             raise ValueError('IPG Laser not found')
 
     def close(self):
         self.ser.close()
 
-    def find(self):
+    def findDevice(self):
         ports = list(comports())
         if len(ports) <= 0:
             print('No serial ports found')
@@ -75,7 +75,7 @@ class ipglaser(object):
 
 
 def main():
-    a = ipglaser.find()
+    a = ipglaser()
     print(a.power())
 
     b = ipglaser()
