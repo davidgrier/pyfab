@@ -34,7 +34,7 @@ class ipglaser(object):
                                          baudrate=self.baudrate,
                                          bytesize=self.bytesize,
                                          parity=self.parity,
-                                         stopbits=self.selftopbits,
+                                         stopbits=self.stopbits,
                                          timeout=self.timeout)
                 if self.ser.isOpen():
                     try:
