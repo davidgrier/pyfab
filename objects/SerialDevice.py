@@ -6,14 +6,21 @@ import fcntl
 
 class SerialDevice(object):
 
-    def __init__(self):
-        self.eol = '\r'
-        self.manufacturer = 'Prolific'
-        self.baudrate = 9600
-        self.bytesize = serial.EIGHTBITS
-        self.parity = serial.PARITY_NONE
-        self.stopbits = serial.STOPBITS_ONE
-        self.timeout = 0.1
+    def __init__(self,
+                 eol='\r',
+                 manufacturer='Prolific',
+                 baudrate=9600,
+                 bytesize=serial.EIGHTBITS,
+                 parity=serial.PARITY_NONE,
+                 stopbits=serial.STOPBITS_ONE,
+                 timeout=0.1):
+        self.eol = eol
+        self.manufacturer = manufacturer
+        self.baudrate = baudrate
+        self.bytesize = bytesize
+        self.parity = parity
+        self.stopbits = stopbits
+        self.timeout = timeout
         if not self.find():
             raise ValueError('Could not find device')
 
@@ -54,7 +61,6 @@ class SerialDevice(object):
             if self.identify():
                 return True
             self.ser.close()
-        print('IPG Laser not found!')
         return False
 
     def identify(self):

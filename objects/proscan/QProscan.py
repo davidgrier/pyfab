@@ -22,15 +22,20 @@ class QProscan(QtGui.QFrame):
 
     def initUI(self):
         self.setFrameShape(QtGui.QFrame.Box)
-        layout = QtGui.QHBoxLayout()
-        layout.setMargin(1)
-        layout.setSpacing(2)
         self.wx = self.counter_widget()
         self.wy = self.counter_widget()
         self.wz = self.counter_widget()
-        layout.addWidget(self.wx)
-        layout.addWidget(self.wy)
-        layout.addWidget(self.wz)
+        layout = QtGui.QGridLayout()
+        layout.setMargin(1)
+        layout.setHorizontalSpacing(1)
+        layout.setVerticalSpacing(1)
+        layout.addWidget(QtGui.QLabel('Stage'), 1, 1, 1, 3)
+        layout.addWidget(QtGui.QLabel('x'), 2, 1)
+        layout.addWidget(QtGui.QLabel('y'), 2, 2)
+        layout.addWidget(QtGui.QLabel('z'), 2, 3)
+        layout.addWidget(self.wx, 3, 1)
+        layout.addWidget(self.wy, 3, 2)
+        layout.addWidget(self.wz, 3, 3)
         self.setLayout(layout)
 
     def counter_widget(self):

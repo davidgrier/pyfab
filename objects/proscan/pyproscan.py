@@ -4,8 +4,6 @@ from ..SerialDevice import SerialDevice
 class pyproscan(SerialDevice):
 
     def __init__(self):
-        self.eol = '\r'
-        self.timeout = 0.1
         super(pyproscan, self).__init__()
 
     def identify(self):
