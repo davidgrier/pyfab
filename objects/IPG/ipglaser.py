@@ -25,8 +25,7 @@ class ipglaser(SerialDevice):
                             self.flag['UNX'])
 
     def identify(self):
-        res = self.command('RFV')
-        return len(res) > 3
+        return len(self.version()) > 3
 
     def command(self, str):
         self.write(str)
@@ -35,6 +34,9 @@ class ipglaser(SerialDevice):
             return str
         res = res.replace(str, '').replace(': ', '')
         return res
+
+    def version(self):
+        return self.command('RFV')
 
     def power(self):
         res = self.command('ROP')
