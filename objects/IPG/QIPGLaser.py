@@ -29,26 +29,31 @@ class indicator(QtGui.QWidget):
         self.led.setPixmap(self.states[state])
 
 
-class status_widget(QtGui.QWidget):
+class status_widget(QtGui.QFrame):
 
     def __init__(self):
         super(status_widget, self).__init__()
         self.dir = os.path.dirname(__file__)
+        self.led_size = 16
         self.init_ui()
+        self.status(ipg.flag['AIM'])  # FIXME -- display purposes
 
     def init_ui(self):
-        green_on = self.led_pixmap('green-led-on')
-        green_off = self.led_pixmap('green-led-off')
-        amber_on = self.led_pixmap('amber-led-on')
-        amber_off = self.led_pixmap('amber-led-off')
-        red_on = self.led_pixmap('red-led-on')
-        red_off = self.led_pixmap('red-led-off')
+        self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
+        green_on = self.led_pixmap('green-led-on').scaledToWidth(self.led_size)
+        green_off = self.led_pixmap(
+            'green-led-off').scaledToWidth(self.led_size)
+        amber_on = self.led_pixmap('amber-led-on').scaledToWidth(self.led_size)
+        amber_off = self.led_pixmap(
+            'amber-led-off').scaledToWidth(self.led_size)
+        red_on = self.led_pixmap('red-led-on').scaledToWidth(self.led_size)
+        red_off = self.led_pixmap('red-led-off').scaledToWidth(self.led_size)
         layout = QtGui.QHBoxLayout()
         self.led_key = indicator('keyswitch', [green_off, green_on])
         self.led_aim = indicator('  aiming ', [amber_off, amber_on])
         self.led_emx = indicator(' emission', [red_off, red_on, amber_on])
         self.led_flt = indicator('  fault  ', [amber_off, amber_on])
-        layout.setMargin(0)
+        layout.setMargin(2)
         layout.setSpacing(1)
         layout.addWidget(self.led_key)
         layout.addWidget(self.led_aim)
@@ -85,9 +90,11 @@ class power_widget(QtGui.QWidget):
 
     def init_ui(self):
         layout = QtGui.QVBoxLayout()
-        layout.setMargin(0)
+        layout.setMargin(2)
         layout.setSpacing(1)
-        layout.addWidget(QtGui.QLabel('power [W]'))
+        title = QtGui.QLabel('power [W]')
+        title.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(title)
         v = QtGui.QDoubleValidator(self.min, self.max, 4.)
         v.setNotation(QtGui.QDoubleValidator.StandardNotation)
         self.wvalue = QtGui.QLineEdit()
@@ -116,15 +123,24 @@ class QIPGLaser(QtGui.QFrame):
         self.init_ui()
 
     def init_ui(self):
-        self.wstatus = status_widget()
         self.setFrameShape(QtGui.QFrame.Box)
+        layout = QtGui.QVBoxLayout()
+        layout.setMargin(0)
+        layout.setSpacing(0)
+        layout.addWidget(QtGui.QLabel(' Trapping Laser'))
+        layout.addWidget(self.display_widget())
+        self.setLayout(layout)
+
+    def display_widget(self):
+        self.wstatus = status_widget()
+        self.wpower = power_widget()
+        w = QtGui.QWidget()
         layout = QtGui.QHBoxLayout()
-        layout.setMargin(1)
         layout.setSpacing(1)
         layout.addWidget(self.wstatus)
-        self.wpower = power_widget()
         layout.addWidget(self.wpower)
-        self.setLayout(layout)
+        w.setLayout(layout)
+        return w
 
 
 def main():
