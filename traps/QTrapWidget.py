@@ -1,4 +1,4 @@
-from PyQt4.QtGui import QFrame, QWidget, QVBoxLayout, QHBoxLayout
+from PyQt4.QtGui import QFrame, QWidget, QVBoxLayout, QHBoxLayout, QScrollArea
 from PyQt4.QtGui import QLineEdit, QDoubleValidator
 from PyQt4.QtCore import Qt, pyqtSignal, QString
 
@@ -70,17 +70,27 @@ class QTrapWidget(QFrame):
 
     def __init__(self, pattern=None):
         super(QTrapWidget, self).__init__()
-        self.setFrameShape(QFrame.Box)
         self.properties = dict()
         self.init_ui()
         if pattern is not None:
             pattern.trapAdded.connect(self.registerTrap)
 
     def init_ui(self):
-        self.layout = QVBoxLayout(self)
+        self.setFrameShape(QFrame.Box)
+        inner = QWidget()
+        self.layout = QVBoxLayout()
         self.layout.setSpacing(1)
         self.layout.setMargin(1)
         self.layout.setAlignment(Qt.AlignTop)
+        inner.setLayout(self.layout)
+        scroll = QScrollArea()
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(inner)
+        layout = QVBoxLayout(self)
+        layout.addWidget(scroll)
+        self.setLayout(layout)
 
     def registerTrap(self, trap):
         trapline = QTrapLine(trap)
