@@ -26,9 +26,13 @@ class indicator(QtGui.QWidget):
         layout = QtGui.QVBoxLayout()
         layout.setMargin(0)
         layout.setSpacing(1)
-        w = QtGui.QLabel(self.title)
-        w.setAlignment(QtCore.Qt.AlignCenter)
-        layout.addWidget(w)
+        if button:
+            self.button = QtGui.QPushButton(self.title, self)
+            layout.addWidget(self.button)
+        else:
+            w = QtGui.QLabel(self.title)
+            w.setAlignment(QtCore.Qt.AlignCenter)
+            layout.addWidget(w)
         self.led = QtGui.QLabel()
         self.led.setAlignment(QtCore.Qt.AlignCenter)
         self.led.setPixmap(self.states[0])
@@ -49,10 +53,14 @@ class status_widget(QtGui.QFrame):
         self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)        
         layout = QtGui.QHBoxLayout()
         self.led_key = indicator('keyswitch')
-        self.led_aim = indicator('  aiming ', [led('amber-led-off'), led('amber-led-on')])
-        self.led_emx = indicator(' emission', [led('red-led-off'),
-                                               led('red-led-on'),
-                                               led('amber-led-on')])
+        self.led_aim = indicator('  aiming ',
+                                 [led('amber-led-off'), led('amber-led-on')],
+                                 button=True)
+        self.led_emx = indicator(' emission',
+                                 [led('red-led-off'),
+                                  led('red-led-on'),
+                                  led('amber-led-on')],
+                                 button=True)
         self.led_flt = indicator('  fault  ', [led('amber-led-off'), led('amber-led-on')])
         layout.setMargin(2)
         layout.setSpacing(1)
@@ -141,7 +149,17 @@ class QIPGLaser(QtGui.QFrame):
         layout.addWidget(self.wstatus)
         layout.addWidget(self.wpower)
         w.setLayout(layout)
+        self.wstatus.led_aim.button.clicked.connect(self.toggleaim)
+        self.wstatus.led_emx.button.clicked.connect(self.toggleemission)
         return w
+
+    def toggleaim(self):
+        state = self.instrument.aimingbeam()
+        self.instrument.aimingbeam(state = not state)
+
+    def toggleemission(self):
+        state = self.instrument.emission()
+        self.instrument.emission(state = not state)
 
     def update(self):
         flags = self.instrument.flags()
