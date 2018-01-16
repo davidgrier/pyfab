@@ -4,16 +4,25 @@ import numpy as np
 from .ipglaser import ipglaser as ipg
 import atexit
 
-
+def led(name):
+    led_size = 24
+    dir = os.path.dirname(__file__)
+    filename = os.path.join(dir, 'icons/' + name + '.png')
+    return QtGui.QPixmap(filename).scaledToWidth(led_size)
+    
 class indicator(QtGui.QWidget):
 
-    def __init__(self, title, states, **kwargs):
+    def __init__(self, title, states=None, button=False, **kwargs):
         super(indicator, self).__init__(**kwargs)
+        
         self.title = title
+        self.led_size = 24
+        if states is None:
+            states = [led('green-led-off'), led('green-led-on')]
         self.states = states
-        self.init_ui()
+        self.init_ui(button)
 
-    def init_ui(self):
+    def init_ui(self, button):
         layout = QtGui.QVBoxLayout()
         layout.setMargin(0)
         layout.setSpacing(1)
@@ -25,7 +34,7 @@ class indicator(QtGui.QWidget):
         self.led.setPixmap(self.states[0])
         layout.addWidget(self.led)
         self.setLayout(layout)
-
+        
     def set(self, state):
         self.led.setPixmap(self.states[state])
 
@@ -34,26 +43,17 @@ class status_widget(QtGui.QFrame):
 
     def __init__(self):
         super(status_widget, self).__init__()
-        self.dir = os.path.dirname(__file__)
-        self.led_size = 16
         self.init_ui()
-        self.status(ipg.flag['AIM'])  # FIXME -- display purposes
 
     def init_ui(self):
-        self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
-        green_on = self.led_pixmap('green-led-on').scaledToWidth(self.led_size)
-        green_off = self.led_pixmap(
-            'green-led-off').scaledToWidth(self.led_size)
-        amber_on = self.led_pixmap('amber-led-on').scaledToWidth(self.led_size)
-        amber_off = self.led_pixmap(
-            'amber-led-off').scaledToWidth(self.led_size)
-        red_on = self.led_pixmap('red-led-on').scaledToWidth(self.led_size)
-        red_off = self.led_pixmap('red-led-off').scaledToWidth(self.led_size)
+        self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)        
         layout = QtGui.QHBoxLayout()
-        self.led_key = indicator('keyswitch', [green_off, green_on])
-        self.led_aim = indicator('  aiming ', [amber_off, amber_on])
-        self.led_emx = indicator(' emission', [red_off, red_on, amber_on])
-        self.led_flt = indicator('  fault  ', [amber_off, amber_on])
+        self.led_key = indicator('keyswitch')
+        self.led_aim = indicator('  aiming ', [led('amber-led-off'), led('amber-led-on')])
+        self.led_emx = indicator(' emission', [led('red-led-off'),
+                                               led('red-led-on'),
+                                               led('amber-led-on')])
+        self.led_flt = indicator('  fault  ', [led('amber-led-off'), led('amber-led-on')])
         layout.setMargin(2)
         layout.setSpacing(1)
         layout.addWidget(self.led_key)
@@ -62,16 +62,11 @@ class status_widget(QtGui.QFrame):
         layout.addWidget(self.led_flt)
         self.setLayout(layout)
 
-    def led_pixmap(self, name):
-        filename = os.path.join(self.dir, 'icons/' + name + '.png')
-        w = QtGui.QPixmap(filename)
-        return w
-
     def update(self, key, aim, emx, flt):
-        self.led.key.set(key)
-        self.led.aim.set(aim)
-        self.led.emx.set(emx)
-        self.led.flt.set(flt)
+        self.led_key.set(key)
+        self.led_aim.set(aim)
+        self.led_emx.set(emx)
+        self.led_flt.set(flt)
 
         
 class power_widget(QtGui.QWidget):
@@ -121,7 +116,7 @@ class QIPGLaser(QtGui.QFrame):
 
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.update)
-        self._timer.setInverval(1000)
+        self._timer.setInterval(1000)
         self._timer.start()
 
     def shutdown(self):
