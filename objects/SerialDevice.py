@@ -2,6 +2,7 @@ import serial
 from serial.tools.list_ports import comports
 import io
 import fcntl
+import logging
 
 
 class SerialDevice(object):
@@ -27,7 +28,7 @@ class SerialDevice(object):
     def find(self):
         ports = list(comports())
         if len(ports) <= 0:
-            print 'No serial ports found'
+            logging.warning('No serial ports identified')
             return
         for port in ports:
             if port.manufacturer is None:
@@ -46,14 +47,14 @@ class SerialDevice(object):
                         fcntl.flock(self.ser.fileno(),
                                     fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except IOError:
-                        print 'Port {0} is busy'.format(self.ser.port)
+                        logging.warning('Port %s is busy', self.ser.port)
                         self.ser.close()
                         continue
                 else:
-                    print 'Could not open {0}'.format(self.ser.port)
+                    logging.warning('Could not open %s', self.ser.port)
                     continue
             except serial.SerialException as ex:
-                print 'Port {0} is unavailable: {1}'.format(port, ex)
+                logging.warning('Port %s is unavailable: %s', port, ex)
                 continue
             buffer = io.BufferedRWPair(self.ser, self.ser, 1)
             self.sio = io.TextIOWrapper(buffer, newline=self.eol,
