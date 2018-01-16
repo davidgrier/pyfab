@@ -1,9 +1,10 @@
+import logging
 from QFabScreen import QFabScreen
 from QSLM import QSLM
 try:
     from CGH import cudaCGH
-except ImportError:
-    print('could not import cudaCGH')
+except ImportError as ex:
+    logging.warning('could not import cudaCGH: %s', ex)
     pass
 from CGH import CGH, QCGH
 from DVR import QFabDVR

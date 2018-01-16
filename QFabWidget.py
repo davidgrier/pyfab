@@ -7,6 +7,7 @@ from QJansenWidget import QJansenWidget
 import traps
 import objects
 import sys
+import logging
 
 
 class QFabWidget(QJansenWidget):
@@ -22,8 +23,8 @@ class QFabWidget(QJansenWidget):
         # computation pipeline for the trapping pattern
         try:
             self.cgh = objects.cudaCGH(slm=self.slm)
-        except (NameError, AttributeError):
-            print('could not load cudaCGH')
+        except (NameError, AttributeError) as ex:
+            logging.warning('could not load cudaCGH: %s', ex)
             self.cgh = objects.CGH(slm=self.slm)
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
@@ -50,13 +51,13 @@ class QFabWidget(QJansenWidget):
         try:
             self.wstage = objects.QProscan()
             layout.addWidget(self.wstage)
-        except ValueError:
-            print('No stage, sorry')
+        except ValueError as ex:
+            logging.warning('Could not install stage: %s', ex)
         try:
             self.wtrappinglaser = objects.QIPGLaser()
             layout.addWidget(self.wtrappinglaser)
-        except ValueError:
-            print('No laser, sorry')
+        except ValueError as ex:
+            logging.warning('Could not install laser: %s', ex)
         whard.setLayout(layout)
         return whard
 

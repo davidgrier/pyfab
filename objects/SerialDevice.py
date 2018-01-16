@@ -23,7 +23,7 @@ class SerialDevice(object):
         self.stopbits = stopbits
         self.timeout = timeout
         if not self.find():
-            raise ValueError('Could not find device')
+            raise ValueError('Could not find serial device')
 
     def find(self):
         ports = list(comports())
