@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-from pyproscan import pyproscan
+from .pyproscan import pyproscan
 import atexit
 
 

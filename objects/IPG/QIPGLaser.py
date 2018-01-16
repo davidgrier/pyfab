@@ -2,6 +2,7 @@ from PyQt4 import QtCore, QtGui
 import os
 import numpy as np
 from .ipglaser import ipglaser as ipg
+import atexit
 
 
 class indicator(QtGui.QWidget):
@@ -66,19 +67,13 @@ class status_widget(QtGui.QFrame):
         w = QtGui.QPixmap(filename)
         return w
 
-    def status(self, flags):
-        self.led_key.set(not bool(flags & ipg.flag['KEY']))
-        self.led_aim.set(bool(flags & ipg.flag['AIM']))
-        if (flags & ipg.flag['EMS']):
-            self.led_emx.set(2)
-        else:
-            self.led_emx.set(bool(flags & ipg.flag['EMX']))
-        error = bool(flags & ipg.flag['ERR'])
-        self.led_flt.set(error)
-        # if error:
-        #    self.instrument.error(flags)
+    def update(self, key, aim, emx, flt):
+        self.led.key.set(key)
+        self.led.aim.set(aim)
+        self.led.emx.set(emx)
+        self.led.flt.set(flt)
 
-
+        
 class power_widget(QtGui.QWidget):
 
     def __init__(self, **kwargs):
@@ -120,8 +115,19 @@ class QIPGLaser(QtGui.QFrame):
 
     def __init__(self):
         super(QIPGLaser, self).__init__()
+        self.instrument = ipg()
         self.init_ui()
+        atexit.register(self.shutdown)
 
+        self._timer = QtCore.QTimer(self)
+        self._timer.timeout.connect(self.update)
+        self._timer.setInverval(1000)
+        self._timer.start()
+
+    def shutdown(self):
+        self._timer.stop()
+        self.instrument.close()
+        
     def init_ui(self):
         self.setFrameShape(QtGui.QFrame.Box)
         layout = QtGui.QVBoxLayout()
@@ -141,6 +147,15 @@ class QIPGLaser(QtGui.QFrame):
         layout.addWidget(self.wpower)
         w.setLayout(layout)
         return w
+
+    def update(self):
+        flags = self.instrument.flags()
+        self.wstatus.update(self.instrument.keyswitch(flags),
+                            self.instrument.aimingbeam(flags),
+                            (self.instrument.startup(flags) +
+                             self.instrument.emission(flags)),
+                            self.instrument.error(flags))
+        self.wpower.value = self.instrument.power()
 
 
 def main():

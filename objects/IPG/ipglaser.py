@@ -1,4 +1,5 @@
 from ..SerialDevice import SerialDevice
+import logging
 
 
 class ipglaser(SerialDevice):
@@ -49,6 +50,14 @@ class ipglaser(SerialDevice):
             power = float(res)
         return power
 
+    def flags(self):
+        return int(self.command('STA'))
+
+    def flagSet(self, flagstr, flags=None):
+        if not isinstance(flags, int):
+            flags = self.flags()
+        return bool(self.flags() & self.flag[flagstr])
+        
     def current(self):
         cur = float(self.command('RDC'))
         min = float(self.command('RNC'))
@@ -58,44 +67,41 @@ class ipglaser(SerialDevice):
     def temperature(self):
         return float(self.command('RCT'))
 
-    def keyswitch(self):
-        flags = int(self.command('STA'))
-        return not bool(flags & self.flag['KEY'])
+    def keyswitch(self, flags=None):
+        return not self.flagSet('KEY', flags)
 
-    def startup(self):
-        flags = int(self.command('STA'))
-        return bool(flags & self.flag['EMS'])
+    def startup(self, flags=None):
+        return self.flagSet('EMS', flags)
 
-    def emission(self, state=None):
+    def emission(self, flags=flags, state=None):
         if state is True:
             res = self.command('EMON')
             return 'ERR' not in res
         if state is False:
             res = self.command('EMOFF')
             return 'ERR' not in res
-        flags = int(self.command('STA'))
-        return bool(flags & self.flag['EMX'])
+        return self.flagSet('EMX', flags)
 
     def aimingbeam(self, state=None):
         if state is True:
             self.command('ABN')
         elif state is False:
             self.command('ABF')
-        flags = int(self.command('STA'))
-        return bool(flags & self.flag['AIM'])
+        return self.flagSet('AIM')
 
-    def error(self, flags):
-        if not bool(flags & self.flags['ERR']):
-            print 'No errors'
-            return
-        if bool(flags & self.flags['TMP']):
-            print 'ERROR: Over-temperature condition'
-        if bool(flags & self.flags['BKR']):
-            print 'ERROR: Excessive backreflection'
-        if bool(flags & self.flags['PWR']):
-            print 'ERROR: Power supply off'
-        if bool(flags & self.flags['UNX']):
-            print 'ERROR: Unexpected laser output'
+    def error(self, flags=None):
+        if not self.flagSet('ERR', flags):
+            logging.info('No errors')
+            return False
+        if self.flagSet('TMP', flags):
+            logging.warning('ERROR: Over-temperature condition')
+        if self.flagSet('BKR', flags):
+            logging.warning('ERROR: Excessive backreflection')
+        if self.flagSet('PWR', flags):
+            logging.warning('ERROR: Power supply off')
+        if self.flagSet('UNX', flags):
+            logging.warning('ERROR: Unexpected laser output')
+        return True
 
 
 def main():
