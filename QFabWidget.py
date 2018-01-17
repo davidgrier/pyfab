@@ -29,7 +29,7 @@ class QFabWidget(QJansenWidget):
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
-        self.wcgh = objects.QCGH(self.cgh)
+        self.wcgh = objects.QCGH(self.cgh, self.fabscreen)
         self.pattern = traps.QTrappingPattern(gui=self.fabscreen,
                                               pipeline=self.cgh)
 

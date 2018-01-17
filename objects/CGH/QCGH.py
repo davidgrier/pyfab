@@ -4,16 +4,16 @@ from ..QPropertySheet import QPropertySheet
 
 class QCGH(QPropertySheet):
 
-    def __init__(self, cgh=None):
+    def __init__(self, cgh, camera):
         super(QCGH, self).__init__(title='CGH Pipeline')
         self.cgh = cgh
         self.wxs = self.registerProperty('xs', cgh.rs.x(), 0, cgh.slm.width())
         self.wys = self.registerProperty('ys', cgh.rs.y(), 0, cgh.slm.height())
         self.wqpp = self.registerProperty('qpp', cgh.qpp, 0., 1.)
         self.walpha = self.registerProperty('alpha', cgh.alpha, 0.1, 10.)
-        self.wxc = self.registerProperty('xc', cgh.rc.x(), 0, 512)
-        self.wyc = self.registerProperty('yc', cgh.rc.y(), 0, 512)
-        self.wzc = self.registerProperty('zc', cgh.rc.z(), 0, 512)
+        self.wxc = self.registerProperty('xc', cgh.rc.x(), 0, camera.width())
+        self.wyc = self.registerProperty('yc', cgh.rc.y(), 0, camera.height())
+        self.wzc = self.registerProperty('zc', cgh.rc.z(), -500, 500)
         self.wtheta = self.registerProperty('theta', cgh.theta, -180, 180)
         self.wxs.valueChanged.connect(self.updateXs)
         self.wys.valueChanged.connect(self.updateYs)
@@ -21,6 +21,7 @@ class QCGH(QPropertySheet):
         self.walpha.valueChanged.connect(self.updateAlpha)
         self.wxc.valueChanged.connect(self.updateXc)
         self.wyc.valueChanged.connect(self.updateYc)
+        self.wzc.valueChanged.connect(self.updateZc)
         self.wtheta.valueChanged.connect(self.updateTheta)
 
     @QtCore.pyqtSlot()
