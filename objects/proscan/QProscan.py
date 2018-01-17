@@ -53,7 +53,7 @@ class QProscan(QtGui.QFrame):
         position = self.instrument.position()
         self.wx.display(position[0])
         self.wy.display(position[1])
-        self.wz.display(position[2])
+        self.wz.display(-position[2])  # NOTE: Special sign
 
 
 def main():
