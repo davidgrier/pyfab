@@ -4,12 +4,14 @@ import numpy as np
 from .ipglaser import ipglaser as ipg
 import atexit
 
+
 def led(name):
     led_size = 24
     dir = os.path.dirname(__file__)
     filename = os.path.join(dir, 'icons/' + name + '.png')
     return QtGui.QPixmap(filename).scaledToWidth(led_size)
-    
+
+
 class indicator(QtGui.QWidget):
 
     def __init__(self, title, states=None, button=False, **kwargs):
@@ -38,7 +40,7 @@ class indicator(QtGui.QWidget):
         self.led.setPixmap(self.states[0])
         layout.addWidget(self.led)
         self.setLayout(layout)
-        
+
     def set(self, state):
         self.led.setPixmap(self.states[state])
 
@@ -50,18 +52,21 @@ class status_widget(QtGui.QFrame):
         self.init_ui()
 
     def init_ui(self):
-        self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)        
+        self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
         layout = QtGui.QHBoxLayout()
         self.led_key = indicator('keyswitch')
         self.led_aim = indicator('  aiming ',
                                  [led('amber-led-off'), led('amber-led-on')],
                                  button=True)
+        self.led_aim.button.setToolTip('Toggle aiming laser on/off')
         self.led_emx = indicator(' emission',
                                  [led('red-led-off'),
                                   led('red-led-on'),
                                   led('amber-led-on')],
                                  button=True)
-        self.led_flt = indicator('  fault  ', [led('amber-led-off'), led('amber-led-on')])
+        self.led_emx.button.setToolTip('Toggle laser emission on/off')
+        self.led_flt = indicator('  fault  ',
+                                 [led('amber-led-off'), led('amber-led-on')])
         layout.setMargin(2)
         layout.setSpacing(1)
         layout.addWidget(self.led_key)
