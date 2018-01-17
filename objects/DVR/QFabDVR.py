@@ -27,11 +27,13 @@ class QFabDVR(fabdvr, QtGui.QFrame):
         self.brecord.setIcon(
             self.style().standardIcon(QtGui.QStyle.SP_MediaPlay))
         self.brecord.setIconSize(iconsize)
+        self.brecord.setToolTip('Start recording video')
         self.bstop = QtGui.QPushButton('Stop', self)
         self.bstop.clicked.connect(self.handleStop)
         self.bstop.setIcon(self.style().standardIcon(
             QtGui.QStyle.SP_MediaStop))
         self.bstop.setIconSize(iconsize)
+        self.bstop.setToolTip('Stop recording video')
         self.wframe = self.framecounter_widget()
         wfilelabel = QtGui.QLabel('file name')
         wfilelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
