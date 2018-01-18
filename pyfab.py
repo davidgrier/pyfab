@@ -33,7 +33,7 @@ class pyfab(QtGui.QMainWindow):
         self.calibrationMenu(menubar)
 
     def fileMenu(self, parent):
-        menu = parent.addMenu('File')
+        menu = parent.addMenu('&File')
         icon = QtGui.QIcon.fromTheme('camera-photo')
         action = QtGui.QAction(icon, 'Save &Photo', self)
         action.setStatusTip('Save a snapshot')
@@ -60,7 +60,7 @@ class pyfab(QtGui.QMainWindow):
         menu.addAction(action)
 
     def taskMenu(self, parent):
-        menu = parent.addMenu('Tasks')
+        menu = parent.addMenu('&Tasks')
         action = QtGui.QAction('Clear traps', self)
         action.setStatusTip('Delete all traps')
         action.triggered.connect(self.instrument.pattern.clearTraps)
@@ -80,7 +80,7 @@ class pyfab(QtGui.QMainWindow):
         menu.addAction(action)
 
     def calibrationMenu(self, parent):
-        menu = parent.addMenu('Calibration')
+        menu = parent.addMenu('&Calibration')
         action = QtGui.QAction('Calibrate rc', self)
         action.setStatusTip('Find location of optical axis in field of view')
         action.triggered.connect(
