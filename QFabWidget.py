@@ -12,8 +12,8 @@ import logging
 
 class QFabWidget(QJansenWidget):
 
-    def __init__(self, size=(640, 480)):
-        super(QFabWidget, self).__init__(size=size)
+    def __init__(self, **kwargs):
+        super(QFabWidget, self).__init__(**kwargs)
         self.init_configuration()
 
     def init_hardware(self, size):

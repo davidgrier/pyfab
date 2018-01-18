@@ -13,7 +13,7 @@ class pyfab(QtGui.QMainWindow):
 
     def __init__(self):
         super(pyfab, self).__init__()
-        self.instrument = QFabWidget()
+        self.instrument = QFabWidget(size=(640, 480))
         self.config = fabconfig(self)
         self.config.restore(self.instrument.wcgh)
         self.init_ui()
