@@ -6,7 +6,32 @@ from pyqtgraph.Qt import QtGui, QtCore
 import objects
 import tasks
 import sys
+import numpy as np
+import pyqtgraph as pg
 
+class histogramTab(pg.PlotWidget):
+
+    def __init__(self, parent):
+        super(histogramTab, self).__init__(parent=parent)
+        self.title = 'Histogram'
+        self.index = -1
+        self.video = self.parent().fabscreen.video
+        self.parent().tabs.currentChanged.connect(self.expose)
+        self.setLabel('bottom', 'Intensity')
+        self.setLabel('left', 'Counts')
+        self.plot = self.plot()
+        self.plot.setPen((255, 255, 0))
+
+    def expose(self, index):
+        if index == self.index:
+            self.video.registerFilter(self.histogramFilter)
+        else:
+            self.video.unregisterFilter(self.histogramFilter)
+
+    def histogramFilter(self, frame):
+        y, x = np.histogram(frame, bins=256, range=[0, 255])
+        self.plot.setData(x=x[1:], y=y)
+        return frame
 
 class QJansenWidget(QtGui.QWidget):
 
@@ -33,6 +58,9 @@ class QJansenWidget(QtGui.QWidget):
         layout.addWidget(self.fabscreen)
         self.tabs = QtGui.QTabWidget()
         self.tabs.addTab(self.videoTab(), 'Video')
+        tab = histogramTab(self)
+        index = self.tabs.addTab(tab, 'Histogram')
+        tab.index = index
         layout.addWidget(self.tabs)
         layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
         self.setLayout(layout)
