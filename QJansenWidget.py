@@ -7,20 +7,29 @@ import objects
 import tasks
 import sys
 import numpy as np
+import cv2
 import pyqtgraph as pg
+
 
 class histogramTab(pg.PlotWidget):
 
     def __init__(self, parent):
-        super(histogramTab, self).__init__(parent=parent)
+        super(histogramTab, self).__init__(parent=parent,
+                                           background='w',
+                                           border=pg.mkPen('k'))
         self.title = 'Histogram'
         self.index = -1
         self.video = self.parent().fabscreen.video
         self.parent().tabs.currentChanged.connect(self.expose)
         self.setLabel('bottom', 'Intensity')
         self.setLabel('left', 'Counts')
-        self.plot = self.plot()
-        self.plot.setPen((255, 255, 0))
+        self.showGrid(x=True, y=True)
+        self.rplot = self.plot()
+        self.rplot.setPen('r', width=2)
+        self.gplot = self.plot()
+        self.gplot.setPen('g', width=2)
+        self.bplot = self.plot()
+        self.bplot.setPen('b', width=2)
 
     def expose(self, index):
         if index == self.index:
@@ -29,9 +38,19 @@ class histogramTab(pg.PlotWidget):
             self.video.unregisterFilter(self.histogramFilter)
 
     def histogramFilter(self, frame):
-        y, x = np.histogram(frame, bins=256, range=[0, 255])
-        self.plot.setData(x=x[1:], y=y)
+        if self.video.gray:
+            y, x = np.histogram(frame, bins=256, range=[0, 255])
+            self.rplot.setData(x=x[:-1], y=y)
+        else:
+            b, g, r = cv2.split(frame)
+            y, x = np.histogram(r, bins=256, range=[0, 255])
+            self.rplot.setData(x=x[:-1], y=y)
+            y, x = np.histogram(g, bins=256, range=[0, 255])
+            self.gplot.setData(x=x[:-1], y=y)
+            y, x = np.histogram(b, bins=256, range=[0, 255])
+            self.bplot.setData(x=x[:-1], y=y)
         return frame
+
 
 class QJansenWidget(QtGui.QWidget):
 
