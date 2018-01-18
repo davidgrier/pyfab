@@ -20,13 +20,15 @@ class pyproscan(SerialDevice):
     def halt(self):
         return self.command('K')
 
-    @property
     def position(self):
         return [int(x) for x in self.command('P').split(',')]
 
-    @position.setter
-    def position(self, x=None, y=None, z=None):
+    def setPosition(self, x=None, y=None, z=None):
         if x is not None:
+            if len(x) == 3:
+                y = x[1]
+                z = x[2]
+                x = x[0]
             self.command('PX,%d' % x)
         if y is not None:
             self.command('PY,%d' % y)
