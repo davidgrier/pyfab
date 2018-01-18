@@ -83,6 +83,29 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('calibrate_rc'))
         calibrateMenu.addAction(rcAction)
 
+        stageMenu = QtGui.QMenu('Stage')
+        xoAction = QtGui.QAction('Set X origin', self)
+        xoAction.setStatusTip(
+            'Define current position to be stage origin in X')
+        xoAction.triggered.connect(
+            lambda: self.instrument.stage.position(x=0))
+        stageMenu.addAction(xoAction)
+
+        yoAction = QtGui.QAction('Set Y origin', self)
+        yoAction.setStatusTip(
+            'Define current position to be stage origin in Y')
+        yoAction.triggered.connect(
+            lambda: self.instrument.stage.position(y=0))
+        stageMenu.addAction(yoAction)
+
+        zoAction = QtGui.QAction('Set Z origin', self)
+        zoAction.setStatusTip(
+            'Define current position to be stage origin in Z')
+        zoAction.triggered.connect(
+            lambda: self.instrument.stage.position(z=0))
+        stageMenu.addAction(zoAction)
+        calibrateMenu.addMenu(stageMenu)
+
         cghAction = QtGui.QAction('Aberrations', self)
         cghAction.setStatusTip('NOT IMPLEMENTED YET')
         cghAction.triggered.connect(
