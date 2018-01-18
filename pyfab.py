@@ -25,88 +25,96 @@ class pyfab(QtGui.QMainWindow):
     def init_ui(self):
         self.setWindowTitle('PyFab')
         self.statusBar().showMessage('Ready')
-
+        
         menubar = self.menuBar()
         menubar.setNativeMenuBar(False)
-        fileMenu = menubar.addMenu('&File')
-        taskMenu = menubar.addMenu('&Tasks')
-        calibrateMenu = menubar.addMenu('&Calibrate')
+        self.fileMenu(menubar)
+        self.taskMenu(menubar)
+        self.calibrationMenu(menubar)
 
-        # FILE MENU
-        snapIcon = QtGui.QIcon.fromTheme('camera-photo')
-        snapAction = QtGui.QAction(snapIcon, 'Save &Photo', self)
-        snapAction.setStatusTip('Save a snapshot')
-        snapAction.triggered.connect(self.savePhoto)
-        fileMenu.addAction(snapAction)
+    def fileMenu(self, parent):
+        menu = parent.addMenu('File')
+        icon = QtGui.QIcon.fromTheme('camera-photo')
+        action = QtGui.QAction(icon, 'Save &Photo', self)
+        action.setStatusTip('Save a snapshot')
+        action.triggered.connect(self.savePhoto)
+        menu.addAction(action)
 
-        snapasIcon = QtGui.QIcon.fromTheme('camera-photo')
-        snapasAction = QtGui.QAction(snapasIcon, 'Save Photo As ...', self)
-        snapasAction.setStatusTip('Save a snapshot')
-        snapasAction.triggered.connect(lambda: self.savePhoto(True))
-        fileMenu.addAction(snapasAction)
+        icon = QtGui.QIcon.fromTheme('camera-photo')
+        action = QtGui.QAction(icon, 'Save Photo As ...', self)
+        action.setStatusTip('Save a snapshot')
+        action.triggered.connect(lambda: self.savePhoto(True))
+        menu.addAction(action)
 
-        saveIcon = QtGui.QIcon.fromTheme('document-save')
-        saveAction = QtGui.QAction(saveIcon, '&Save Settings', self)
-        saveAction.setStatusTip('Save current settings')
-        saveAction.triggered.connect(self.saveSettings)
-        fileMenu.addAction(saveAction)
+        icon = QtGui.QIcon.fromTheme('document-save')
+        action = QtGui.QAction(icon, '&Save Settings', self)
+        action.setStatusTip('Save current settings')
+        action.triggered.connect(self.saveSettings)
+        menu.addAction(action)
 
-        exitIcon = QtGui.QIcon.fromTheme('application-exit')
-        exitAction = QtGui.QAction(exitIcon, '&Exit', self)
-        exitAction.setShortcut('Ctrl-Q')
-        exitAction.setStatusTip('Exit PyFab')
-        exitAction.triggered.connect(self.close)
-        fileMenu.addAction(exitAction)
+        icon = QtGui.QIcon.fromTheme('application-exit')
+        action = QtGui.QAction(icon, '&Exit', self)
+        action.setShortcut('Ctrl-Q')
+        action.setStatusTip('Exit PyFab')
+        action.triggered.connect(self.close)
+        menu.addAction(action)
 
-        # TASK MENU
-        clearAction = QtGui.QAction('Clear traps', self)
-        clearAction.setStatusTip('Delete all traps')
-        clearAction.triggered.connect(self.instrument.pattern.clearTraps)
-        taskMenu.addAction(clearAction)
+    def taskMenu(self, parent):
+        menu = parent.addMenu('Tasks')
+        action = QtGui.QAction('Clear traps', self)
+        action.setStatusTip('Delete all traps')
+        action.triggered.connect(self.instrument.pattern.clearTraps)
+        menu.addAction(action)
 
-        textAction = QtGui.QAction('Render text', self)
-        textAction.setStatusTip('Render text as a pattern of traps')
-        textAction.triggered.connect(
+        action = QtGui.QAction('Render text', self)
+        action.setStatusTip('Render text as a pattern of traps')
+        action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('rendertext'))
-        taskMenu.addAction(textAction)
+        menu.addAction(action)
 
-        textasAction = QtGui.QAction('Render text ...', self)
-        textasAction.setStatusTip('Render text as a pattern of traps')
-        textasAction.triggered.connect(
+        action = QtGui.QAction('Render text ...', self)
+        tip = 'Render specified text as a pattern of traps'
+        action.setStatusTip(tip)
+        action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('rendertextas'))
-        taskMenu.addAction(textasAction)
+        menu.addAction(action)
 
-        # CALIBRATION MENU
-        rcAction = QtGui.QAction('Calibrate rc', self)
-        rcAction.setStatusTip('Find location of optical axis in field of view')
-        rcAction.triggered.connect(
+    def calibrationMenu(self, parent):
+        menu = parent.addMenu('Calibration')
+        action = QtGui.QAction('Calibrate rc', self)
+        action.setStatusTip('Find location of optical axis in field of view')
+        action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('calibrate_rc'))
-        calibrateMenu.addAction(rcAction)
+        menu.addAction(action)
 
-        stageMenu = calibrateMenu.addMenu('Stage')
-        xoAction = QtGui.QAction('Set X origin', self)
-        xoAction.setStatusTip(
-            'Define current position to be stage origin in X')
-        # xoAction.triggered.connect(self.instrument.wstage.setXOrigin)
-        stageMenu.addAction(xoAction)
+        self.stageMenu(menu)
 
-        yoAction = QtGui.QAction('Set Y origin', self)
-        yoAction.setStatusTip(
-            'Define current position to be stage origin in Y')
-        # yoAction.triggered.connect(self.instrument.wstage.setYOrigin)
-        stageMenu.addAction(yoAction)
-
-        zoAction = QtGui.QAction('Set Z origin', self)
-        zoAction.setStatusTip(
-            'Define current position to be stage origin in Z')
-        # zoAction.triggered.connect(self.instrument.wstage.setZOrigin)
-        stageMenu.addAction(zoAction)
-
-        cghAction = QtGui.QAction('Aberrations', self)
-        cghAction.setStatusTip('NOT IMPLEMENTED YET')
-        cghAction.triggered.connect(
+        action = QtGui.QAction('Aberrations', self)
+        action.setStatusTip('NOT IMPLEMENTED YET')
+        action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('calibrate_haar'))
-        calibrateMenu.addAction(cghAction)
+        menu.addAction(action)
+
+    def stageMenu(self, parent):
+        if self.instrument.wstage is None:
+            return
+        menu = parent.addMenu('Stage')
+        tip = 'Define current position to be stage origin in %s'
+
+        action = QtGui.QAction('Set X origin', self)
+        action.setStatusTip(tip % 'X')
+        action.triggered.connect(self.instrument.wstage.setXOrigin)
+        menu.addAction(action)
+
+        action = QtGui.QAction('Set Y origin', self)
+        action.setStatusTip(tip % 'Y')
+        action.triggered.connect(self.instrument.wstage.setYOrigin)
+        menu.addAction(action)
+
+        action = QtGui.QAction('Set Z origin', self)
+        action.setStatusTip(tip % 'Z')
+        action.triggered.connect(self.instrument.wstage.setZOrigin)
+        menu.addAction(action)
 
     def savePhoto(self, select=False):
         filename = self.config.filename(suffix='.png')
