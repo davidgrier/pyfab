@@ -52,11 +52,13 @@ class QFabWidget(QJansenWidget):
             self.wstage = objects.QProscan()
             layout.addWidget(self.wstage)
         except ValueError as ex:
+            self.wstage = None
             logging.warning('Could not install stage: %s', ex)
         try:
             self.wtrappinglaser = objects.QIPGLaser()
             layout.addWidget(self.wtrappinglaser)
         except ValueError as ex:
+            self.wtrappinglaser = None
             logging.warning('Could not install laser: %s', ex)
         whard.setLayout(layout)
         return whard

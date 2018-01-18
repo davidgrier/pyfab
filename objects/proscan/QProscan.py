@@ -55,6 +55,15 @@ class QProscan(QtGui.QFrame):
         self.wy.display(position[1])
         self.wz.display(-position[2])  # NOTE: Special sign
 
+    def setXOrigin(self):
+        self.instrument.setPosition(x=0)
+
+    def setYOrigin(self):
+        self.instrument.setPosition(y=0)
+
+    def setZOrigin(self):
+        self.instrument.setPosition(z=0)
+
 
 def main():
     import sys
