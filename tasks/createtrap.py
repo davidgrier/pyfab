@@ -12,6 +12,6 @@ class createtrap(task):
 
     def initialize(self):
         print('createtrap')
-        pos = [QVector3D(self.x, self.y, self.z)]
+        pos = QVector3D(self.x, self.y, self.z)
         self.parent.pattern.createTraps(pos)
         self.done = True

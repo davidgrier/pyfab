@@ -129,7 +129,7 @@ class QTrappingPattern(QTrapGroup):
             self.remove(trap, delete=True)
         self.update()
 
-    # Creating, breaking and move groups of traps
+    # Creating, breaking and moving groups of traps
     def createGroup(self):
         """Combine selected objects into new group.
         """
