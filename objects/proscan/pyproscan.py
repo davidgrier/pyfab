@@ -150,6 +150,16 @@ class pyproscan(SerialDevice):
         '''
         self.command('SCZ,%d' % scurve)
 
+    def reset(self):
+        '''Reset motion controls to starting values
+        '''
+        self.setMaxSpeed(self.vmax)
+        self.setMaxZSpeed(self.vzmax)
+        self.setAcceleration(self.a)
+        self.setZAcceleration(self.az)
+        self.setSCurve(self.s)
+        self.setZSCurve(self.sz)
+
 
 def main():
     a = pyproscan()
