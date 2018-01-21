@@ -126,6 +126,14 @@ class QJansenWidget(QtGui.QWidget):
         wvideo.setLayout(layout)
         return wvideo
 
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_R:
+            if self.dvr.isrecording():
+                self.dvr.bstop.animateClick(100)
+            else:
+                self.dvr.brecord.animateClick(100)
+            event.accept()
+
     def handleRecording(self, recording):
         self.video.enabled = not recording
 
