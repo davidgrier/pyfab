@@ -19,7 +19,7 @@ class QTrappingPattern(QTrapGroup):
         self.fabscreen = gui
         self.parent = parent
         self.pipeline = pipeline
-        # Connect to signals coming from fabscreen (QFabGraphicsView)
+        # Connect to signals coming from fabscreen
         self.fabscreen.sigMousePress.connect(self.mousePress)
         self.fabscreen.sigMouseMove.connect(self.mouseMove)
         self.fabscreen.sigMouseRelease.connect(self.mouseRelease)
@@ -109,12 +109,13 @@ class QTrappingPattern(QTrapGroup):
             self.update()
 
     def createTraps(self, coordinates):
-        if len(coordinates) < 1:
+        coords = list(coordinates)
+        if len(coords) < 1:
             return
         group = QTrapGroup(active=False)
         self.add(group)
-        for coords in coordinates:
-            trap = QTrap(r=coords, parent=group, active=False)
+        for r in coords:
+            trap = QTrap(r=r, parent=group, active=False)
             group.add(trap)
             self.trapAdded.emit(trap)
         group.active = True
