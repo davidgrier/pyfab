@@ -38,6 +38,8 @@ class fabdvr(object):
             self._fourcc = cv2.VideoWriter_fourcc(*codec)
 
     def record(self, nframes=100):
+        if self.isrecording():
+            return
         if (nframes > 0):
             self._nframes = nframes
             self.start()
