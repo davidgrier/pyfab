@@ -68,6 +68,21 @@ class pyproscan(SerialDevice):
         '''
         return [int(x) for x in self.command('P').split(',')]
 
+    def x(self):
+        '''Return x-position of stage [um]
+        '''
+        return self.command('PX')
+
+    def y(self):
+        '''Return y-position of stage [um]
+        '''
+        return self.command('PY')
+
+    def z(self):
+        '''Return z-position of stage [um]
+        '''
+        return self.command('PZ')
+
     def setPosition(self, x=None, y=None, z=None):
         '''Define coordinates for current stage position
         '''
