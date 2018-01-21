@@ -1,5 +1,6 @@
 from task import task
 
+
 class cleartraps(task):
 
     def __init__(self, **kwargs):
@@ -8,4 +9,3 @@ class cleartraps(task):
     def initialize(self):
         print('cleartraps')
         self.parent.pattern.clearTraps()
-        self.done = True
