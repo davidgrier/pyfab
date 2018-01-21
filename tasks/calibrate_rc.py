@@ -14,5 +14,3 @@ class calibrate_rc(maxtask):
         f = tp.locate(self.frame, 11, topn=1, characterize=False)
         self.parent.wcgh.xc = f['x']
         self.parent.wcgh.yc = f['y']
-        print('calibrate_rc done')
-        

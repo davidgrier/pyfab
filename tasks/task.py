@@ -32,4 +32,5 @@ class task(object):
             self.nframes -= 1
         else:
             self.dotask()
+            print('TASK: ' + self.__class__.__name__ + ' done')
             self.done = True

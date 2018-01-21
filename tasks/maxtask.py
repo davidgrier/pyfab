@@ -18,4 +18,3 @@ class maxtask(task):
     def dotask(self):
         fn = self.parent.config.filename(prefix='maxtask', suffix='.png')
         cv2.imwrite(fn, self.frame)
-        print('maxtask complete')
