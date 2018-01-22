@@ -67,16 +67,18 @@ class histogramTab(QtGui.QWidget):
         if self.video.gray:
             y, x = np.histogram(frame, bins=256, range=[0, 255])
             self.rplot.setData(y=y)
+            self.gplot.setData(y=[0, 0])
+            self.bplot.setData(y=[0, 0])
             self.xplot.setData(y=np.mean(frame, 0))
             self.yplot.setData(y=np.mean(frame, 1))
         else:
             b, g, r = cv2.split(frame)
             y, x = np.histogram(r, bins=256, range=[0, 255])
-            self.rplot.setData(x=x[:-1], y=y)
+            self.rplot.setData(y=y)
             y, x = np.histogram(g, bins=256, range=[0, 255])
-            self.gplot.setData(x=x[:-1], y=y)
+            self.gplot.setData(y=y)
             y, x = np.histogram(b, bins=256, range=[0, 255])
-            self.bplot.setData(x=x[:-1], y=y)
+            self.bplot.setData(y=y)
             self.xplot.setData(y=np.mean(r, 0))
             self.yplot.setData(y=np.mean(r, 1))
         return frame
