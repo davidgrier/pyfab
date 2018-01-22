@@ -132,7 +132,9 @@ class QJansenWidget(QtGui.QWidget):
                 self.dvr.bstop.animateClick(100)
             else:
                 self.dvr.brecord.animateClick(100)
-            event.accept()
+        elif event.key() == QtCore.Qt.Key_S:
+            self.dvr.bstop.animateClick(100)
+        event.accept()
 
     def handleRecording(self, recording):
         self.video.enabled = not recording

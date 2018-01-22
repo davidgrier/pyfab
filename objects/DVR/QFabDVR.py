@@ -83,7 +83,7 @@ class QFabDVR(fabdvr, QtGui.QFrame):
 
     @QtCore.pyqtSlot()
     def handleRecord(self):
-        super(QFabDVR, self).record(1000)
+        super(QFabDVR, self).record(10000)
         self.recording.emit(True)
 
     @QtCore.pyqtSlot()
