@@ -79,6 +79,11 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('rendertextas'))
         menu.addAction(action)
 
+        action = QtGui.QAction('Cyclic motion', self)
+        action.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('stagego'))
+        menu.addAction(action)
+        
     def calibrationMenu(self, parent):
         menu = parent.addMenu('&Calibration')
         action = QtGui.QAction('Calibrate rc', self)

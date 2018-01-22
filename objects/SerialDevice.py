@@ -75,3 +75,6 @@ class SerialDevice(object):
 
     def readln(self):
         return self.sio.readline().decode().strip()
+
+    def available(self):
+        return self.ser.in_waiting

@@ -4,22 +4,24 @@ from task import task
 class stagesinusoid(task):
 
     def __init__(self,
-                 amplitude=10.,
-                 speed=10.,
+                 amplitude=10,
+                 speed=10,
                  cycles=1,
                  **kwargs):
         super(stagesinusoid, self).__init__(**kwargs)
-        self.stage = self.parent.wstage.instrument
-        self.position = self.stage.position()
         self.amplitude = amplitude
+        self.speed = speed
         self.cycles = cycles
-        acceleration = speed**2/(6.*amplitude)
-        scurve = acceleration**2/(2.*speed)
-        self.stage.setMaxSpeed(1.5*speed)
-        self.stage.setAcceleration(acceleration)
-        self.stage.setSCurve(scurve)
+        
 
     def initialize(self):
+        self.stage = self.parent.wstage.instrument
+        self.position = self.stage.position()
+        acceleration = self.speed**2/(6.*self.amplitude)
+        scurve = acceleration**2/(2.*self.speed)
+        self.stage.setMaxSpeed(1.5*self.speed)
+        self.stage.setAcceleration(acceleration)
+        self.stage.setSCurve(scurve)
         x0 = self.position[0]
         self.goals = [x0 + self.amplitude]
         for n in range(self.cycles):

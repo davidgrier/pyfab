@@ -4,6 +4,7 @@ from ..SerialDevice import SerialDevice
 class pyproscan(SerialDevice):
 
     def __init__(self):
+        self.expected = list()
         super(pyproscan, self).__init__()
         self.vmax = self.maxSpeed()
         self.vzmax = self.maxZSpeed()
@@ -16,10 +17,30 @@ class pyproscan(SerialDevice):
         res = self.command('VERSION')
         return len(res) == 3
 
-    def command(self, str):
+    def command(self, str, expect=None):
+        self.checkExpected()
         self.write(str)
-        return self.readln()
+        if expect is not None:
+            self.expected.extend(expect)
+            return None
+        else:
+            return self.readln()
 
+    def checkExpected(self):
+        if len(self.expected) < 1:
+            return
+        while self.available():
+            res = self.readln()
+            exp = self.expected.pop(0)
+            if res != exp:
+                print('expected', exp, 'got', res)
+                return False
+            print('OK got', res)
+        return True
+
+    def processing(self):
+        return len(self.expected) > 0
+    
     # Stage motion controls
     def stop(self):
         '''Stop all motion
@@ -50,8 +71,8 @@ class pyproscan(SerialDevice):
     def moveX(self, x):
         '''Move stage along x axis to specified position [um]
         '''
-        self.command('GX,%d' % x)
-
+        self.command('GX,%d' % x, expect='R')
+        
     def moveY(self, y):
         '''Move stage along y axis to specified position [um]
         '''
@@ -87,7 +108,7 @@ class pyproscan(SerialDevice):
         '''Define coordinates for current stage position
         '''
         if x is not None:
-            if len(x) == 3:
+            if isinstance(x, list):
                 y = x[1]
                 z = x[2]
                 x = x[0]
