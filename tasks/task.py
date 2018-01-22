@@ -25,7 +25,6 @@ class task(object):
         pass
         
     def process(self, frame):
-        print('task frames', self.nframes)
         if self.delay > 0:
             self.delay -= 1
         elif self.nframes > 0:

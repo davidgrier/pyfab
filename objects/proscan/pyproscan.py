@@ -4,8 +4,8 @@ from ..SerialDevice import SerialDevice
 class pyproscan(SerialDevice):
 
     def __init__(self):
-        self.expected = list()
         super(pyproscan, self).__init__()
+        self.compatibilityMode(False)
         self.vmax = self.maxSpeed()
         self.vzmax = self.maxZSpeed()
         self.a = self.acceleration()
@@ -13,34 +13,23 @@ class pyproscan(SerialDevice):
         self.s = self.scurve()
         self.sz = self.zScurve()
 
+    def command(self, str):
+        self.write(str)
+        return self.readln()
+
+    # Status commands
     def identify(self):
         res = self.command('VERSION')
         return len(res) == 3
 
-    def command(self, str, expect=None):
-        self.checkExpected()
-        self.write(str)
-        if expect is not None:
-            self.expected.extend(expect)
-            return None
-        else:
-            return self.readln()
+    def compatibilityMode(self, mode=None):
+        if mode is not None:
+            self.command('COMP,%d' % bool(mode))
+        return bool(self.command('COMP'))
 
-    def checkExpected(self):
-        if len(self.expected) < 1:
-            return
-        while self.available():
-            res = self.readln()
-            exp = self.expected.pop(0)
-            if res != exp:
-                print('expected', exp, 'got', res)
-                return False
-            print('OK got', res)
-        return True
+    def stageMoving(self):
+        return (int(self.command('$,S')) != 0)
 
-    def processing(self):
-        return len(self.expected) > 0
-    
     # Stage motion controls
     def stop(self):
         '''Stop all motion
@@ -71,7 +60,7 @@ class pyproscan(SerialDevice):
     def moveX(self, x):
         '''Move stage along x axis to specified position [um]
         '''
-        self.command('GX,%d' % x, expect='R')
+        self.command('GX,%d' % x)
         
     def moveY(self, y):
         '''Move stage along y axis to specified position [um]
