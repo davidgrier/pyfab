@@ -50,17 +50,17 @@ class pyproscan(SerialDevice):
     def moveX(self, x):
         '''Move stage along x axis to specified position [um]
         '''
-        self.command('GX,%d', x)
+        self.command('GX,%d' % x)
 
     def moveY(self, y):
         '''Move stage along y axis to specified position [um]
         '''
-        self.command('GY,%d', y)
+        self.command('GY,%d' % y)
 
     def moveZ(self, z):
         '''Move stage along z axis to specified position [um]
         '''
-        self.command('GZ,%d', z)
+        self.command('GZ,%d' % z)
 
     # Properties of motion controller
     def position(self):
@@ -71,17 +71,17 @@ class pyproscan(SerialDevice):
     def x(self):
         '''Return x-position of stage [um]
         '''
-        return self.command('PX')
+        return int(self.command('PX'))
 
     def y(self):
         '''Return y-position of stage [um]
         '''
-        return self.command('PY')
+        return int(self.command('PY'))
 
     def z(self):
         '''Return z-position of stage [um]
         '''
-        return self.command('PZ')
+        return int(self.command('PZ'))
 
     def setPosition(self, x=None, y=None, z=None):
         '''Define coordinates for current stage position
@@ -100,15 +100,15 @@ class pyproscan(SerialDevice):
     def resolution(self):
         '''Return resolution of stage motion [um]
         '''
-        rx = self.command('RES,x')
-        ry = self.command('RES,y')
-        rz = self.command('RES,z')
+        rx = float(self.command('RES,x'))
+        ry = float(self.command('RES,y'))
+        rz = float(self.command('RES,z'))
         return(rx, ry, rz)
 
     def maxSpeed(self):
         '''Return maximum speed of in-plane motions [um/s]
         '''
-        return self.command('SMS')
+        return int(self.command('SMS'))
 
     def setMaxSpeed(self, speed):
         '''Set maximum in-plane speed [um/s]
@@ -118,7 +118,7 @@ class pyproscan(SerialDevice):
     def maxZSpeed(self):
         '''Return maximum axial speed [um/s]
         '''
-        return self.command('SMZ')
+        return int(self.command('SMZ'))
 
     def setMaxZSpeed(self, speed):
         '''Set maximum axial speed [um/s]
@@ -128,7 +128,7 @@ class pyproscan(SerialDevice):
     def acceleration(self):
         '''Return in-plane acceleration [um/s^2]
         '''
-        return self.command('SAS')
+        return int(self.command('SAS'))
 
     def setAcceleration(self, acceleration):
         '''Set in-plane acceleration [um/s^2]
@@ -138,7 +138,7 @@ class pyproscan(SerialDevice):
     def zAcceleration(self):
         '''Return axial acceleration [um/s^2]
         '''
-        return self.command('SAZ')
+        return int(self.command('SAZ'))
 
     def setZAcceleration(self, acceleration):
         '''Set axial acceleration [um/s^2]
@@ -148,7 +148,7 @@ class pyproscan(SerialDevice):
     def scurve(self):
         '''Return in-plane s-curve value [um/s^3]
         '''
-        return self.command('SCS')
+        return int(self.command('SCS'))
 
     def setSCurve(self, scurve):
         '''Set in-plane s-curve value [um/s^3]
@@ -158,7 +158,7 @@ class pyproscan(SerialDevice):
     def zScurve(self):
         '''Return axial s-curve value [um/s^3]
         '''
-        return self.command('SCZ')
+        return int(self.command('SCZ'))
 
     def setZSCurve(self, scurve):
         '''Set axial s-curve value [um/s^3]
