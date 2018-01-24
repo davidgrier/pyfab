@@ -61,9 +61,10 @@ class QProscan(QtGui.QFrame):
 
     def update(self):
         position = self.instrument.position()
-        self.wx.display(position[0])
-        self.wy.display(position[1])
-        self.wz.display(-position[2])  # NOTE: Special sign
+        if position is not None:
+            self.wx.display(position[0])
+            self.wy.display(position[1])
+            self.wz.display(-position[2])  # NOTE: Special sign
 
     def setXOrigin(self):
         self.instrument.setPosition(x=0)
