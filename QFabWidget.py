@@ -9,6 +9,42 @@ import objects
 import sys
 import logging
 
+def tabLayout():
+    layout = QtGui.QVBoxLayout()
+    layout.setAlignment(QtCore.Qt.AlignTop)
+    layout.setSpacing(1)
+    return layout
+    
+class hardwareTab(QtGui.QWidget):
+
+    def __init__(self, parent):
+        super(hardwareTab, self).__init__(parent=parent)
+        self.title = 'Hardware'
+        self.index = -1
+
+        layout = tabLayout()
+        try:
+            self.wstage = objects.QProscan()
+            layout.addWidget(self.wstage)            
+        except ValueError as ex:
+            self.wstage = None
+            logging.warning('Could not install stage: %s', ex)
+        try:
+            self.wlaser = objects.QIPGLaser()
+            layout.addWidget(self.wlaser)
+        except ValueError as ex:
+            self.wlaser = None
+            logging.warning('Could not install laser: %s', ex)
+        self.setLayout(layout)
+        self.parent().tabs.currentChanged.connect(self.expose)
+
+    def expose(self, index):
+        if index == self.index:
+            if self.wstage is not None: self.wstage.start()
+            if self.wlaser is not None: self.wlaser.start()
+        else:
+            if self.wstage is not None: self.wstage.stop()
+            if self.wlaser is not None: self.wstage.stop()
 
 class QFabWidget(QJansenWidget):
 
@@ -35,44 +71,23 @@ class QFabWidget(QJansenWidget):
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
-        self.tabs.addTab(self.hardwareTab(), 'Hardware')
+        tab = hardwareTab(self)
+        index = self.tabs.addTab(tab, 'Hardware')
+        tab.index = index
+        self.wstage = tab.wstage
         self.tabs.addTab(self.cghTab(), 'CGH')
         self.tabs.addTab(self.trapTab(), 'Traps')
 
-    def tabLayout(self):
-        layout = QtGui.QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setSpacing(1)
-        return layout
-
-    def hardwareTab(self):
-        whard = QtGui.QWidget()
-        layout = self.tabLayout()
-        try:
-            self.wstage = objects.QProscan()
-            layout.addWidget(self.wstage)
-        except ValueError as ex:
-            self.wstage = None
-            logging.warning('Could not install stage: %s', ex)
-        try:
-            self.wtrappinglaser = objects.QIPGLaser()
-            layout.addWidget(self.wtrappinglaser)
-        except ValueError as ex:
-            self.wtrappinglaser = None
-            logging.warning('Could not install laser: %s', ex)
-        whard.setLayout(layout)
-        return whard
-
     def cghTab(self):
         wcgh = QtGui.QWidget()
-        layout = self.tabLayout()
+        layout = tabLayout()
         layout.addWidget(self.wcgh)
         wcgh.setLayout(layout)
         return wcgh
 
     def trapTab(self):
         wtraps = QtGui.QWidget()
-        layout = self.tabLayout()
+        layout = tabLayout()
         layout.addWidget(traps.QTrapWidget(self.pattern))
         wtraps.setLayout(layout)
         return wtraps
