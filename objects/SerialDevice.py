@@ -47,14 +47,14 @@ class SerialDevice(object):
                         fcntl.flock(self.ser.fileno(),
                                     fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except IOError:
-                        logging.warning('Port %s is busy', self.ser.port)
+                        logging.warning('%s is busy', self.ser.port)
                         self.ser.close()
                         continue
                 else:
                     logging.warning('Could not open %s', self.ser.port)
                     continue
             except serial.SerialException as ex:
-                logging.warning('Port %s is unavailable: %s', port, ex)
+                logging.warning('%s is unavailable: %s', port, ex)
                 continue
             buffer = io.BufferedRWPair(self.ser, self.ser, 1)
             self.sio = io.TextIOWrapper(buffer, newline=self.eol,
