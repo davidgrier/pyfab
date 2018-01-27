@@ -81,7 +81,7 @@ class pyfab(QtGui.QMainWindow):
 
         action = QtGui.QAction('Cyclic motion', self)
         action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('stagego'))
+            lambda: self.instrument.tasks.registerTask('stagemacro'))
         menu.addAction(action)
         
     def calibrationMenu(self, parent):

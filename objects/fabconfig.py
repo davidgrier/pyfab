@@ -3,6 +3,7 @@ import os
 import io
 from datetime import datetime
 from PyQt4 import QtGui
+import logging
 
 
 class fabconfig(object):
@@ -11,6 +12,12 @@ class fabconfig(object):
         self.datadir = os.path.expanduser('~/data/')
         self.configdir = os.path.expanduser('~/.pyfab/')
         self.configfile = os.path.join(self.configdir, 'pyfab.json')
+        if not os.path.exists(self.datadir):
+            logging.info('Creating data directory: '+self.datadir)
+            os.makedirs(self.datadir)
+        if not os.path.exists(self.configdir):
+            logging.info('Creating configuration directory: '+self.configdir)
+            os.makedirs(self.configdir)
 
     def timestamp(self):
         return datetime.now().strftime('_%Y%b%d_%H%M%S')
@@ -31,8 +38,11 @@ class fabconfig(object):
         try:
             config = json.load(io.open(self.configfile))
             object.calibration = config
-        except IOError:
-            print('could not open '+self.configfile)
+        except IOError as ex:
+            msg = ('Could not read configuration file:\n\t' +
+                   str(ex) +
+                   '\n\tUsing default configuration.')
+            logging.warning(msg)
 
     def query_save(self, object):
         query = 'Save current configuration?'

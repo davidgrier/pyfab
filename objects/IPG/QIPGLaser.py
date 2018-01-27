@@ -132,8 +132,15 @@ class QIPGLaser(QtGui.QFrame):
         self._timer.setInterval(1000)
         self._timer.start()
 
-    def shutdown(self):
+    def stop(self):
         self._timer.stop()
+
+    def start(self):
+        self._timer.start()
+        return self
+
+    def shutdown(self):
+        self.stop()
         self.instrument.close()
         
     def init_ui(self):

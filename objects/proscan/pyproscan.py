@@ -12,10 +12,21 @@ class pyproscan(SerialDevice):
         self.az = self.zAcceleration()
         self.s = self.scurve()
         self.sz = self.zScurve()
+        self.cycle = 0
 
-    def command(self, str):
+    def command(self, str, expect=None):
         self.write(str)
-        return self.readln()
+        response = self.readln()
+        if expect is None or response is None or expect in response:
+            return response
+        if 'PASS' in response:
+            print(response)
+            self.cycle = response  # FIXME get number
+        response = self.readln()
+        if expect is None or response is None or expect in response:
+            return response
+        print('##### unexpected:', response)
+        return None
 
     # Status commands
     def identify(self):
@@ -76,7 +87,8 @@ class pyproscan(SerialDevice):
     def position(self):
         '''Return current position of stage [um]
         '''
-        return [int(x) for x in self.command('P').split(',')]
+        pos = self.command('P', expect=',')
+        return [int(x) for x in pos.split(',')]
 
     def x(self):
         '''Return x-position of stage [um]
