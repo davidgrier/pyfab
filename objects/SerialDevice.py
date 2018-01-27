@@ -56,8 +56,8 @@ class SerialDevice(object):
             except serial.SerialException as ex:
                 logging.warning('%s is unavailable: %s', port, ex)
                 continue
-            # buffer = io.BufferedRWPair(self.ser, self.ser, 1)
-            buffer = io.BufferedRandom(self.ser, 1)
+            buffer = io.BufferedRWPair(self.ser, self.ser, 1)
+            # buffer = io.BufferedRandom(self.ser, 1)
             self.sio = io.TextIOWrapper(buffer, newline=self.eol,
                                         line_buffering=True)
             if self.identify():
