@@ -2,19 +2,14 @@
 
 """QFabWidget.py: GUI for holographic optical trapping."""
 
-import logging
 from pyqtgraph.Qt import QtGui, QtCore
 from jansenlib.QJansenWidget import QJansenWidget
 import traps
 from proscan.QProscan import QProscan
 from IPG.QIPGLaser import QIPGLaser
 from QSLM import QSLM
-try:
-    from CGH.cudaCGH import cudaCGH as CGH
-except ImportError:
-    logging.warning('Could not load CUDA CGH pipeline')
-    from CGH.CGH import CGH
-from CGH.QCGH import QCGH
+from CGH import CGH, QCGH
+import logging
 import sys
 
 
@@ -35,7 +30,7 @@ class hardwareTab(QtGui.QWidget):
         layout = tabLayout()
         try:
             self.wstage = QProscan()
-            layout.addWidget(self.wstage)            
+            layout.addWidget(self.wstage)
         except ValueError as ex:
             self.wstage = None
             logging.warning('Could not install stage: %s', ex)
@@ -50,13 +45,17 @@ class hardwareTab(QtGui.QWidget):
 
     def expose(self, index):
         if index == self.index:
-            if self.wstage is not None: self.wstage.start()
-            if self.wlaser is not None: self.wlaser.start()
+            if self.wstage is not None:
+                self.wstage.start()
+            if self.wlaser is not None:
+                self.wlaser.start()
         else:
-            if self.wstage is not None: self.wstage.stop()
-            if self.wlaser is not None: self.wstage.stop()
+            if self.wstage is not None:
+                self.wstage.stop()
+            if self.wlaser is not None:
+                self.wstage.stop()
 
-            
+
 class QFabWidget(QJansenWidget):
 
     def __init__(self, **kwargs):
