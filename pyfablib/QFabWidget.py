@@ -2,19 +2,29 @@
 
 """QFabWidget.py: GUI for holographic optical trapping."""
 
-from pyqtgraph.Qt import QtGui, QtCore
-from QJansenWidget import QJansenWidget
-import traps
-import objects
-import sys
 import logging
+from pyqtgraph.Qt import QtGui, QtCore
+from jansenlib.QJansenWidget import QJansenWidget
+import traps
+from proscan.QProscan import QProscan
+from IPG.QIPGLaser import QIPGLaser
+from QSLM import QSLM
+try:
+    from CGH.cudaCGH import cudaCGH as CGH
+except ImportError:
+    logging.warning('Could not load CUDA CGH pipeline')
+    from CGH.CGH import CGH
+from CGH.QCGH import QCGH
+import sys
+
 
 def tabLayout():
     layout = QtGui.QVBoxLayout()
     layout.setAlignment(QtCore.Qt.AlignTop)
     layout.setSpacing(1)
     return layout
-    
+
+
 class hardwareTab(QtGui.QWidget):
 
     def __init__(self, parent):
@@ -24,13 +34,13 @@ class hardwareTab(QtGui.QWidget):
 
         layout = tabLayout()
         try:
-            self.wstage = objects.QProscan()
+            self.wstage = QProscan()
             layout.addWidget(self.wstage)            
         except ValueError as ex:
             self.wstage = None
             logging.warning('Could not install stage: %s', ex)
         try:
-            self.wlaser = objects.QIPGLaser()
+            self.wlaser = QIPGLaser()
             layout.addWidget(self.wlaser)
         except ValueError as ex:
             self.wlaser = None
@@ -46,6 +56,7 @@ class hardwareTab(QtGui.QWidget):
             if self.wstage is not None: self.wstage.stop()
             if self.wlaser is not None: self.wstage.stop()
 
+            
 class QFabWidget(QJansenWidget):
 
     def __init__(self, **kwargs):
@@ -55,17 +66,13 @@ class QFabWidget(QJansenWidget):
     def init_hardware(self, size):
         super(QFabWidget, self).init_hardware(size)
         # spatial light modulator
-        self.slm = objects.QSLM()
+        self.slm = QSLM()
         # computation pipeline for the trapping pattern
-        try:
-            self.cgh = objects.cudaCGH(slm=self.slm)
-        except (NameError, AttributeError) as ex:
-            logging.warning('could not load cudaCGH: %s', ex)
-            self.cgh = objects.CGH(slm=self.slm)
+        self.cgh = CGH(slm=self.slm)
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
-        self.wcgh = objects.QCGH(self.cgh, self.fabscreen)
+        self.wcgh = QCGH(self.cgh, self.fabscreen)
         self.pattern = traps.QTrappingPattern(gui=self.fabscreen,
                                               pipeline=self.cgh)
 

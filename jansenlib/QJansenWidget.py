@@ -3,8 +3,11 @@
 """QJansenWidget.py: GUI for holographic video microscopy."""
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
-import objects
-import tasks
+from QFabScreen import QFabScreen
+import video
+import DVR
+from tasks.taskmanager import taskmanager
+from common.fabconfig import fabconfig
 import sys
 import numpy as np
 import cv2
@@ -93,13 +96,13 @@ class QJansenWidget(QtGui.QWidget):
 
     def init_hardware(self, size):
         # video screen
-        self.fabscreen = objects.QFabScreen(size=size, gray=True)
-        self.video = objects.QFabVideo(self.fabscreen.video)
-        self.filters = objects.QFabFilter(self.fabscreen.video)
-        self.config = objects.fabconfig(self)
-        self.tasks = tasks.taskmanager(parent=self)
+        self.fabscreen = QFabScreen(size=size, gray=True)
+        self.video = video.QFabVideo(self.fabscreen.video)
+        self.filters = video.QFabFilter(self.fabscreen.video)
+        self.config = fabconfig(self)
+        self.tasks = taskmanager(parent=self)
         # DVR
-        self.dvr = objects.QFabDVR(source=self.fabscreen.video)
+        self.dvr = DVR.QFabDVR(source=self.fabscreen.video)
         self.dvr.recording.connect(self.handleRecording)
 
     def init_ui(self):

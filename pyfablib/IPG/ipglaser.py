@@ -1,4 +1,4 @@
-from ..SerialDevice import SerialDevice
+from common.SerialDevice import SerialDevice
 import logging
 
 

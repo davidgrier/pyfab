@@ -1,5 +1,5 @@
 from PyQt4 import QtCore
-from ..QPropertySheet import QPropertySheet
+from common.QPropertySheet import QPropertySheet
 
 
 class QCGH(QPropertySheet):

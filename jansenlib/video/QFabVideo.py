@@ -1,4 +1,4 @@
-from ..QPropertySheet import QPropertySheet
+from common.QPropertySheet import QPropertySheet
 
 
 class QFabVideo(QPropertySheet):

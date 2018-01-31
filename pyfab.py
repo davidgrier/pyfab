@@ -4,8 +4,8 @@
 """pyfab is a GUI for holographic optical trapping"""
 
 from pyqtgraph.Qt import QtGui
-from QFabWidget import QFabWidget
-from objects import fabconfig
+from pyfablib.QFabWidget import QFabWidget
+from common.fabconfig import fabconfig
 import sys
 
 
