@@ -3,14 +3,20 @@
 """QJansenWidget.py: GUI for holographic video microscopy."""
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
-from QFabScreen import QFabScreen
+from QJansenScreen import QJansenScreen
 import video
 import DVR
 from tasks.taskmanager import taskmanager
-from common.fabconfig import fabconfig
 import sys
 import numpy as np
 import cv2
+
+
+def tabLayout():
+    layout = QtGui.QVBoxLayout()
+    layout.setAlignment(QtCore.Qt.AlignTop)
+    layout.setSpacing(1)
+    return layout
 
 
 class histogramTab(QtGui.QWidget):
@@ -20,12 +26,10 @@ class histogramTab(QtGui.QWidget):
 
         self.title = 'Histogram'
         self.index = -1
-        self.video = self.parent().fabscreen.video
+        self.video = self.parent().screen.video
         self.parent().tabs.currentChanged.connect(self.expose)
-        
-        layout = QtGui.QVBoxLayout()
-        layout.setSpacing(1)
-        layout.setAlignment(QtCore.Qt.AlignTop)
+
+        layout = tabLayout()
         self.setLayout(layout)
 
         histo = pg.PlotWidget(background='w')
@@ -96,20 +100,19 @@ class QJansenWidget(QtGui.QWidget):
 
     def init_hardware(self, size):
         # video screen
-        self.fabscreen = QFabScreen(size=size, gray=True)
-        self.video = video.QFabVideo(self.fabscreen.video)
-        self.filters = video.QFabFilter(self.fabscreen.video)
-        self.config = fabconfig(self)
+        self.screen = QJansenScreen(size=size, gray=True)
+        self.video = video.QFabVideo(self.screen.video)
+        self.filters = video.QFabFilter(self.screen.video)
         self.tasks = taskmanager(parent=self)
         # DVR
-        self.dvr = DVR.QFabDVR(source=self.fabscreen.video)
+        self.dvr = DVR.QFabDVR(source=self.screen.video)
         self.dvr.recording.connect(self.handleRecording)
 
     def init_ui(self):
         layout = QtGui.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
-        layout.addWidget(self.fabscreen)
+        layout.addWidget(self.screen)
         self.tabs = QtGui.QTabWidget()
         self.tabs.setMaximumWidth(400)
         self.tabs.addTab(self.videoTab(), 'Video')
@@ -122,9 +125,7 @@ class QJansenWidget(QtGui.QWidget):
 
     def videoTab(self):
         wvideo = QtGui.QWidget()
-        layout = QtGui.QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setSpacing(1)
+        layout = tabLayout()
         layout.addWidget(self.dvr)
         layout.addWidget(self.video)
         layout.addWidget(self.filters)
@@ -148,5 +149,4 @@ class QJansenWidget(QtGui.QWidget):
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     instrument = QJansenWidget()
-    instrument.tasks.registerTask(tasks.maxtask())
     sys.exit(app.exec_())

@@ -70,9 +70,9 @@ class QTrap(QtCore.QObject):
         """
         return rect.contains(self.coords())
 
-    def update(self):
+    def _update(self):
         if self.active:
-            self.parent.update()
+            self.parent._update()
 
     def update_spot(self):
         self.spot['pos'] = self.coords()
@@ -95,26 +95,26 @@ class QTrap(QtCore.QObject):
         self.update_spot()
         self.valueChanged.emit(self)
         self.active = active
-        self.update()
+        self._update()
 
     def setX(self, x):
         self._r.setX(x)
         self.update_spot()
-        self.update()
+        self._update()
 
     def setY(self, y):
         self._r.setY(y)
         self.update_spot()
-        self.update()
+        self._update()
 
     def setZ(self, z):
         self._r.setZ(z)
         self.update_spot()
-        self.update()
+        self._update()
 
     def updateAmp(self):
         self.amp = self.a * np.exp(1j * self.phi)
-        self.update()
+        self._update()
 
     def setA(self, a):
         self._a = a

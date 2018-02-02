@@ -1,43 +1,46 @@
 #!/usr/bin/env python
 
-"""QTrappingPattern.py: Interface between QFabScreen and QSLM."""
+"""QTrappingPattern.py: Interface between QJansenScreen and QSLM."""
 
+import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 from QTrap import QTrap, state
 from QTrapGroup import QTrapGroup
 
 
-class QTrappingPattern(QTrapGroup):
-    """Interface between fabscreen GUI and CGH pipeline.
+class QTrappingPattern(pg.ScatterPlotItem):
+    """Interface between QJansenScreen GUI and CGH pipeline.
     Implements logic for manipulating traps.
     """
 
     trapAdded = QtCore.pyqtSignal(QTrap)
 
-    def __init__(self, gui=None, parent=None, pipeline=None):
+    def __init__(self, parent=None, pipeline=None):
         super(QTrappingPattern, self).__init__()
-        self.fabscreen = gui
         self.parent = parent
         self.pipeline = pipeline
-        # Connect to signals coming from fabscreen
-        self.fabscreen.sigMousePress.connect(self.mousePress)
-        self.fabscreen.sigMouseMove.connect(self.mouseMove)
-        self.fabscreen.sigMouseRelease.connect(self.mouseRelease)
-        self.fabscreen.sigMouseWheel.connect(self.mouseWheel)
+        self.pattern = QTrapGroup(parent=self)
+        self.parent.addOverlay(self)
+
+        # Connect to signals coming from screen
+        self.parent.sigMousePress.connect(self.mousePress)
+        self.parent.sigMouseMove.connect(self.mouseMove)
+        self.parent.sigMouseRelease.connect(self.mouseRelease)
+        self.parent.sigMouseWheel.connect(self.mouseWheel)
         self.pipeline.sigComputing.connect(self.pauseSignals)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
-            QtGui.QRubberBand.Rectangle, self.fabscreen)
+            QtGui.QRubberBand.Rectangle, self.parent)
         self.origin = QtCore.QPoint()
-        # selected trap and group
+        # traps, selected trap and active group
         self.trap = None
         self.group = None
         self.selected = []
 
     def pauseSignals(self, pause):
-        self.fabscreen.active = not pause
+        self.parent.emitSignals = not pause
 
-    def update(self, project=True):
+    def _update(self, project=True):
         """Provide a list of spots to screen for plotting
         and optionally send trap data to CGH pipeline.
 
@@ -46,35 +49,42 @@ class QTrappingPattern(QTrapGroup):
         property widgets, or by direct programmatic control of traps
         or groups.
         """
-        traps = self.flatten()
+        traps = self.pattern.flatten()
         spots = [trap.spot for trap in traps]
-        self.fabscreen.setData(spots=spots)
+        self.setData(spots=spots)
         if project and self.pipeline is not None:
             self.pipeline.traps = traps
             self.pipeline.compute()
 
     def dataCoords(self, pos):
-        """Convert pixel position in fabscreen widget to
+        """Convert pixel position in screen widget to
         image coordinates.
         """
-        return self.fabscreen.plot.mapFromScene(pos)
+        return self.mapFromScene(pos)
+
+    def selectedPoint(self, position):
+        points = self.pointsAt(position)
+        if len(points) <= 0:
+            return None
+        index = self.points().tolist().index(points[0])
+        return index
 
     # Selecting traps and groups of traps
     def clickedTrap(self, pos):
         """Return the trap at the specified position
         """
         coords = self.dataCoords(pos)
-        index = self.fabscreen.selectedPoint(coords)
+        index = self.selectedPoint(coords)
         if index is None:
             return None
-        return self.flatten()[index]
+        return self.pattern.flatten()[index]
 
     def groupOf(self, obj):
         """Return the highest-level group containing the specified object.
         """
         if obj is None:
             return None
-        while obj.parent.parent is not None:
+        while obj.parent is not self.pattern:
             obj = obj.parent
         return obj
 
@@ -90,7 +100,7 @@ class QTrappingPattern(QTrapGroup):
         entirely within the selection region.
         """
         rect = self.dataCoords(QtCore.QRectF(region)).boundingRect()
-        for child in self.children:
+        for child in self.pattern.children:
             if child.isWithin(rect):
                 self.selected.append(child)
                 child.state = state.grouping
@@ -98,36 +108,36 @@ class QTrappingPattern(QTrapGroup):
                 child.state = state.normal
         if len(self.selected) <= 1:
             self.selected = []
-        self.update(project=False)
+        self._update(project=False)
 
     # Creating and deleting traps
     def createTrap(self, pos, update=True):
         trap = QTrap(r=self.dataCoords(pos), parent=self)
-        self.add(trap)
+        self.pattern.add(trap)
         self.trapAdded.emit(trap)
         if update:
-            self.update()
+            self._update()
 
     def createTraps(self, coordinates):
         coords = list(coordinates)
         if len(coords) < 1:
             return
         group = QTrapGroup(active=False)
-        self.add(group)
+        self.pattern.add(group)
         for r in coords:
             trap = QTrap(r=r, parent=group, active=False)
             group.add(trap)
             self.trapAdded.emit(trap)
         group.active = True
-        self.update()
+        self._update()
 
     def clearTraps(self):
         """Remove all traps from trapping pattern.
         """
-        traps = self.flatten()
+        traps = self.pattern.flatten()
         for trap in traps:
-            self.remove(trap, delete=True)
-        self.update()
+            self.pattern.remove(trap, delete=True)
+        self._update()
 
     # Creating, breaking and moving groups of traps
     def createGroup(self):
@@ -137,9 +147,10 @@ class QTrappingPattern(QTrapGroup):
             return
         group = QTrapGroup()
         for trap in self.selected:
-            trap.parent.remove(trap)
+            if trap.parent is not self:
+                trap.parent.remove(trap)
             group.add(trap)
-        self.add(group)
+        self.pattern.add(group)
         self.selected = []
 
     def breakGroup(self):
@@ -150,7 +161,7 @@ class QTrappingPattern(QTrapGroup):
             for child in self.group.children:
                 child.state = state.grouping
                 self.group.remove(child)
-                self.add(child)
+                self.pattern.add(child)
 
     def moveGroup(self, pos):
         """Move the selected group so that the selected
@@ -177,7 +188,7 @@ class QTrappingPattern(QTrapGroup):
         # select group
         else:
             self.group.state = state.selected
-        self.update(project=False)
+        self._update(project=False)
 
     def rightPress(self, pos, modifiers):
         """Creation and destruction.
@@ -187,10 +198,10 @@ class QTrappingPattern(QTrapGroup):
             self.createTrap(pos)
         # Ctrl-Right Click: Delete trap
         elif modifiers == QtCore.Qt.ControlModifier:
-            self.remove(self.clickedGroup(pos), delete=True)
-            self.update()
+            self.pattern.remove(self.clickedGroup(pos), delete=True)
+            self._update()
 
-    # Handlers for signals emitted by QFabScreen
+    # Handlers for signals emitted by QJansenScreen
     @QtCore.pyqtSlot(QtGui.QMouseEvent)
     def mousePress(self, event):
         """Event handler for mousePress events.
@@ -222,11 +233,11 @@ class QTrappingPattern(QTrapGroup):
         """Event handler for mouseRelease events.
         """
         self.createGroup()
-        for child in self.children:
+        for child in self.pattern.children:
             child.state = state.normal
         self.group = None
         self.selection.hide()
-        self.update(project=False)
+        self._update(project=False)
 
     @QtCore.pyqtSlot(QtGui.QWheelEvent)
     def mouseWheel(self, event):

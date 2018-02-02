@@ -2,8 +2,8 @@
 
 """QFabWidget.py: GUI for holographic optical trapping."""
 
-from pyqtgraph.Qt import QtGui, QtCore
-from jansenlib.QJansenWidget import QJansenWidget
+from pyqtgraph.Qt import QtGui
+from jansenlib.QJansenWidget import QJansenWidget, tabLayout
 import traps
 from proscan.QProscan import QProscan
 from IPG.QIPGLaser import QIPGLaser
@@ -11,13 +11,6 @@ from QSLM import QSLM
 from CGH import CGH, QCGH
 import logging
 import sys
-
-
-def tabLayout():
-    layout = QtGui.QVBoxLayout()
-    layout.setAlignment(QtCore.Qt.AlignTop)
-    layout.setSpacing(1)
-    return layout
 
 
 class hardwareTab(QtGui.QWidget):
@@ -71,8 +64,8 @@ class QFabWidget(QJansenWidget):
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
-        self.wcgh = QCGH(self.cgh, self.fabscreen)
-        self.pattern = traps.QTrappingPattern(gui=self.fabscreen,
+        self.wcgh = QCGH(self.cgh, self.screen)
+        self.pattern = traps.QTrappingPattern(parent=self.screen,
                                               pipeline=self.cgh)
 
     def init_ui(self):
@@ -99,7 +92,7 @@ class QFabWidget(QJansenWidget):
         return wtraps
 
     def init_configuration(self):
-        sz = self.fabscreen.video.device.size
+        sz = self.screen.video.device.size
         self.wcgh.xc = sz.width() / 2
         self.wcgh.yc = sz.height() / 2
         self.wcgh.zc = 0.

@@ -43,7 +43,7 @@ class QTrapGroup(QtCore.QObject):
             for child in self.children:
                 if isinstance(child, QTrapGroup):
                     child.remove(thischild, delete=delete)
-        if (len(self.children) == 0) and (self.parent is not None):
+        if ((len(self.children) == 0) and isinstance(self.parent, QTrapGroup)):
             self.parent.remove(self)
 
     def deleteLater(self):
@@ -51,9 +51,9 @@ class QTrapGroup(QtCore.QObject):
             child.deleteLater()
         super(QTrapGroup, self).deleteLater()
 
-    def update(self):
+    def _update(self):
         if self.active:
-            self.parent.update()
+            self.parent._update()
 
     def count(self):
         """Return the number of items in the group.
@@ -108,4 +108,4 @@ class QTrapGroup(QtCore.QObject):
         for child in self.children:
             child.moveBy(dr)
         self.active = True
-        self.update()
+        self._update()

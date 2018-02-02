@@ -6,7 +6,7 @@ class taskmanager(object):
 
     def __init__(self, parent):
         self.parent = parent
-        self.source = parent.fabscreen.video
+        self.source = parent.screen.video
         self.task = None
         self.queue = deque()
 
