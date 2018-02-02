@@ -13,7 +13,7 @@ class QProscan(QtGui.QFrame):
 
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.update)
-        self._timer.setInterval(100)
+        self._timer.setInterval(200)
         self._timer.start()
 
     def stop(self):
