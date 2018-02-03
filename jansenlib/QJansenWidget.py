@@ -5,8 +5,8 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 from QJansenScreen import QJansenScreen
 import video
-import DVR
 from tasks.taskmanager import taskmanager
+import DVR
 import sys
 import numpy as np
 import cv2
@@ -101,8 +101,9 @@ class QJansenWidget(QtGui.QWidget):
     def init_hardware(self, size):
         # video screen
         self.screen = QJansenScreen(size=size, gray=True)
-        self.video = video.QFabVideo(self.screen.video)
+        self.wvideo = video.QFabVideo(self.screen.video)
         self.filters = video.QFabFilter(self.screen.video)
+        # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)
         # DVR
         self.dvr = DVR.QFabDVR(source=self.screen.video)
@@ -127,7 +128,7 @@ class QJansenWidget(QtGui.QWidget):
         wvideo = QtGui.QWidget()
         layout = tabLayout()
         layout.addWidget(self.dvr)
-        layout.addWidget(self.video)
+        layout.addWidget(self.wvideo)
         layout.addWidget(self.filters)
         wvideo.setLayout(layout)
         return wvideo
@@ -143,7 +144,7 @@ class QJansenWidget(QtGui.QWidget):
         event.accept()
 
     def handleRecording(self, recording):
-        self.video.enabled = not recording
+        self.wvideo.enabled = not recording
 
 
 if __name__ == '__main__':

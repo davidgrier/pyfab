@@ -60,11 +60,13 @@ class QFabWidget(QJansenWidget):
         # spatial light modulator
         self.slm = QSLM()
         # computation pipeline for the trapping pattern
-        self.cgh = CGH(slm=self.slm)
         # self.computethread = QtCore.QThread()
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
+        self.cgh = CGH(slm=self.slm)
         self.wcgh = QCGH(self.cgh, self.screen)
+        # trapping pattern is an interactive overlay
+        # that translates user actions into hologram computations
         self.pattern = traps.QTrappingPattern(parent=self.screen,
                                               pipeline=self.cgh)
 
