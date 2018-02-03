@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""QTrappingPattern.py: Interface between QJansenScreen and QSLM."""
+"""QTrappingPattern.py: Interactive overlay for manipulating optical traps."""
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore

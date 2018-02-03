@@ -27,21 +27,26 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
         # VideoItem displays video feed
         self.video = QVideoItem(**kwargs)
-        # Graphical representations of traps
-        # self.plot = pg.ScatterPlotItem()
-        # ViewBox presents video and plot of trap positions
+        # ViewBox presents video and contains overlays
         self.viewbox = self.addViewBox(enableMenu=False,
                                        enableMouse=False,
                                        lockAspect=1.)
-        self.viewbox.setRange(self.video.device.roi, padding=0,
-                              update=True)
+        self.viewbox.setRange(self.video.device.roi,
+                              padding=0, update=True)
         self.viewbox.addItem(self.video)
-        # self.viewbox.addItem(self.plot)
         self.emitSignals = True
+
+    def addOverlay(self, graphicsItem):
+        """Convenience routine for placing overlays over video."""
+        self.viewbox.addItem(graphicsItem)
+
+    def removeOverlay(self, graphicsItem):
+        """Convenience routine for removing overlays."""
+        self.viewbox.removeItem(graphicsItem)
 
     def closeEvent(self, event):
         self.video.close()
-    
+
     def mousePressEvent(self, event):
         if self.emitSignals:
             self.sigMousePress.emit(event)
@@ -61,19 +66,3 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         if self.emitSignals:
             self.sigMouseWheel.emit(event)
         event.accept()
-
-    def addOverlay(self, graphicsItem):
-        self.viewbox.addItem(graphicsItem)
-
-    # def selectedPoint(self, position):
-    #    points = self.plot.pointsAt(position)
-    #    if len(points) <= 0:
-    #        return None
-    #    index = self.plot.points().tolist().index(points[0])
-    #    return index
-
-    # def setData(self, **kwargs):
-    #    '''
-    #    Accepts keyword arguments for ScatterPlotItem
-    #    '''
-    #    self.plot.setData(**kwargs)
