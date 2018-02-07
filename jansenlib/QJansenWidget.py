@@ -137,7 +137,10 @@ class QJansenWidget(QtGui.QWidget):
     def helpTab(self):
         whelp = QtGui.QWidget()
         self.browser = QHelpBrowser('jansen')
+        bback = QtGui.QPushButton('Back')
+        bback.clicked.connect(self.browser.back)
         layout = tabLayout()
+        layout.addWidget(bback)
         layout.addWidget(self.browser)
         whelp.setLayout(layout)
         return whelp
