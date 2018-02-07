@@ -5,8 +5,9 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 from QJansenScreen import QJansenScreen
 import video
-from tasks.taskmanager import taskmanager
 import DVR
+from tasks.taskmanager import taskmanager
+from help.QHelpBrowser import QHelpBrowser
 import sys
 import numpy as np
 import cv2
@@ -118,8 +119,8 @@ class QJansenWidget(QtGui.QWidget):
         self.tabs.setMaximumWidth(400)
         self.tabs.addTab(self.videoTab(), 'Video')
         tab = histogramTab(self)
-        index = self.tabs.addTab(tab, 'Histogram')
-        tab.index = index
+        tab.index = self.tabs.addTab(tab, 'Histogram')
+        self.tabs.addTab(self.helpTab(), 'Help')
         layout.addWidget(self.tabs)
         layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
         self.setLayout(layout)
@@ -132,6 +133,14 @@ class QJansenWidget(QtGui.QWidget):
         layout.addWidget(self.filters)
         wvideo.setLayout(layout)
         return wvideo
+
+    def helpTab(self):
+        whelp = QtGui.QWidget()
+        self.browser = QHelpBrowser('jansen')
+        layout = tabLayout()
+        layout.addWidget(self.browser)
+        whelp.setLayout(layout)
+        return whelp
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_R:

@@ -72,12 +72,20 @@ class QFabWidget(QJansenWidget):
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
-        tab = hardwareTab(self)
-        index = self.tabs.addTab(tab, 'Hardware')
-        tab.index = index
-        self.wstage = tab.wstage
+        # Help tab is at last index
+        help_index = self.tabs.count() - 1
+        # add new tabs
+        hwTab = hardwareTab(self)
+        self.tabs.addTab(hwTab, 'Hardware')
         self.tabs.addTab(self.cghTab(), 'CGH')
         self.tabs.addTab(self.trapTab(), 'Traps')
+        # move Help to end
+        self.tabs.tabBar().moveTab(help_index, self.tabs.count() - 1)
+        # set current index of hardware tab for expose events
+        hwTab.index = self.tabs.indexOf(hwTab)
+        # populate help browser
+        self.browser.load('pyfab')
+        self.wstage = hwTab.wstage
 
     def cghTab(self):
         wcgh = QtGui.QWidget()
