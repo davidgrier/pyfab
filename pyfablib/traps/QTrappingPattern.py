@@ -23,8 +23,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.parent.addOverlay(self)
 
         # Connect to signals coming from screen
+        self.parent.scene().sigMouseMoved.connect(self.mouseMove)
         self.parent.sigMousePress.connect(self.mousePress)
-        self.parent.sigMouseMove.connect(self.mouseMove)
         self.parent.sigMouseRelease.connect(self.mouseRelease)
         self.parent.sigMouseWheel.connect(self.mouseWheel)
         self.pipeline.sigComputing.connect(self.pauseSignals)
@@ -214,11 +214,10 @@ class QTrappingPattern(pg.ScatterPlotItem):
         elif button == QtCore.Qt.RightButton:
             self.rightPress(pos, modifiers)
 
-    @QtCore.pyqtSlot(QtGui.QMouseEvent)
-    def mouseMove(self, event):
+    @QtCore.pyqtSlot(QtCore.QPointF)
+    def mouseMove(self, pos):
         """Event handler for mouseMove events.
         """
-        pos = event.pos()
         # Move traps
         if self.group is not None:
             self.moveGroup(pos)

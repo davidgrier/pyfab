@@ -18,7 +18,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     the graphics display accordingly.
     """
     sigMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
 
@@ -50,11 +49,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     def mousePressEvent(self, event):
         if self.emitSignals:
             self.sigMousePress.emit(event)
-        event.accept()
-
-    def mouseMoveEvent(self, event):
-        if self.emitSignals:
-            self.sigMouseMove.emit(event)
         event.accept()
 
     def mouseReleaseEvent(self, event):
