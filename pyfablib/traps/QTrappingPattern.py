@@ -23,10 +23,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.parent.addOverlay(self)
 
         # Connect to signals coming from screen
-        self.parent.scene().sigMouseMoved.connect(self.mouseMove)
-        self.parent.sigMousePress.connect(self.mousePress)
-        self.parent.sigMouseRelease.connect(self.mouseRelease)
-        self.parent.sigMouseWheel.connect(self.mouseWheel)
+        self.connectSignals()
         self.pipeline.sigComputing.connect(self.pauseSignals)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
@@ -37,8 +34,23 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.group = None
         self.selected = []
 
+    def connectSignals(self):
+        self.parent.sigMousePress.connect(self.mousePress)
+        self.parent.sigMouseRelease.connect(self.mouseRelease)
+        self.parent.sigMouseMove.connect(self.mouseMove)
+        self.parent.sigMouseWheel.connect(self.mouseWheel)
+
+    def disconnectSignals(self):
+        self.parent.sigMousePress.disconnect(self.mousePress)
+        self.parent.sigMouseRelease.disconnect(self.mouseRelease)
+        self.parent.sigMouseMove.disconnect(self.mouseMove)
+        self.parent.sigMouseWheel.disconnect(self.mouseWheel)
+
     def pauseSignals(self, pause):
-        self.parent.emitSignals = not pause
+        if pause:
+            self.disconnectSignals()
+        else:
+            self.connectSignals()
 
     def _update(self, project=True):
         """Provide a list of spots to screen for plotting
@@ -214,10 +226,11 @@ class QTrappingPattern(pg.ScatterPlotItem):
         elif button == QtCore.Qt.RightButton:
             self.rightPress(pos, modifiers)
 
-    @QtCore.pyqtSlot(QtCore.QPointF)
-    def mouseMove(self, pos):
+    @QtCore.pyqtSlot(QtGui.QMouseEvent)
+    def mouseMove(self, event):
         """Event handler for mouseMove events.
         """
+        pos = event.pos()
         # Move traps
         if self.group is not None:
             self.moveGroup(pos)
