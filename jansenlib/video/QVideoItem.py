@@ -29,7 +29,10 @@ class QVideoItem(pg.ImageItem):
 
         self.device = QCameraDevice(**kwargs)
         self.device.sigNewFrame.connect(self.updateImage)
-        self.device.start()
+        self.thread = QtCore.QThread()
+        self.thread.started.connect(self.device.start)
+        self.device.moveToThread(self.thread)
+        self.thread.start()
 
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
@@ -40,14 +43,12 @@ class QVideoItem(pg.ImageItem):
         self.time = QtCore.QTime.currentTime()
         self.fps = 0.
 
-        self.destroyed.connect(self.stop)
-
-    def stop(self):
-        self.device.stop()
+        self.destroyed.connect(self.close)
 
     def close(self):
-        self.stop()
+        self.thread.quit()
         self.device.close()
+        self.thread.wait()
 
     @QtCore.pyqtSlot(np.ndarray)
     def updateImage(self, image):

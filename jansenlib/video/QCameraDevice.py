@@ -11,10 +11,8 @@ def is_cv2():
     return cv2.__version__.startswith("2.")
 
 
-class QCameraDevice(QtCore.QThread):
-    """Grab frames as fast as possible in a separate thread
-    to minimize latency for frame acquisition.
-    """
+class QCameraDevice(QtCore.QObject):
+    """OpenCV camera"""
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
@@ -23,24 +21,29 @@ class QCameraDevice(QtCore.QThread):
         self.camera = cv2.VideoCapture(cameraId)
         self.size = size
         _, self.frame = self.camera.read()
-        self.running = True
 
     def __del__(self):
         self.close()
 
-    def run(self):
+    def loop(self):
         while self.running:
             ready, self.frame = self.camera.read()
             if ready:
                 self.sigNewFrame.emit(self.frame)
 
+    @QtCore.pyqtSlot()
+    def start(self):
+        self.running = True
+        self.loop()
+
+    @QtCore.pyqtSlot()
     def stop(self):
         self.running = False
 
+    @QtCore.pyqtSlot()
     def close(self):
         self.stop()
         self.camera.release()
-        self.wait()
 
     @property
     def size(self):
