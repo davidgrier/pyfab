@@ -72,6 +72,7 @@ class QTrap(QtCore.QObject):
 
     def _update(self):
         if self.active:
+            self.state = state.selected
             self.parent._update()
 
     def update_spot(self):

@@ -15,6 +15,7 @@ class QCGH(QPropertySheet):
         self.wyc = self.registerProperty('yc', cgh.rc.y(), 0, camera.height())
         self.wzc = self.registerProperty('zc', cgh.rc.z(), -500, 500)
         self.wtheta = self.registerProperty('theta', cgh.theta, -180, 180)
+        self.wz0 = self.registerProperty('z0', cgh.z0, 10, 1000)
         self.wxs.valueChanged.connect(self.updateXs)
         self.wys.valueChanged.connect(self.updateYs)
         self.wqpp.valueChanged.connect(self.updateQpp)
@@ -23,6 +24,7 @@ class QCGH(QPropertySheet):
         self.wyc.valueChanged.connect(self.updateYc)
         self.wzc.valueChanged.connect(self.updateZc)
         self.wtheta.valueChanged.connect(self.updateTheta)
+        self.wz0.valueChanged.connect(self.updateZ0)
 
     @QtCore.pyqtSlot()
     def updateXs(self):
@@ -128,7 +130,7 @@ class QCGH(QPropertySheet):
     @QtCore.pyqtSlot()
     def updateTheta(self):
         self.cgh.theta = self.wtheta.value
-        
+
     @property
     def theta(self):
         return self.cgh.theta
@@ -137,6 +139,19 @@ class QCGH(QPropertySheet):
     def theta(self, theta):
         self.wtheta.value = theta
         self.updateTheta()
+
+    @QtCore.pyqtSlot()
+    def updateZ0(self):
+        self.cgh.z0 = self.wz0.value
+
+    @property
+    def z0(self):
+        return self.cgh.z0
+
+    @z0.setter
+    def z0(self, z0):
+        self.wz0.value = z0
+        self.updateZ0()
 
     @property
     def calibration(self):
@@ -147,7 +162,8 @@ class QCGH(QPropertySheet):
                 'ys': self.ys,
                 'qpp': self.qpp,
                 'alpha': self.alpha,
-                'theta': self.theta}
+                'theta': self.theta,
+                'z0': self.z0}
 
     @calibration.setter
     def calibration(self, values):

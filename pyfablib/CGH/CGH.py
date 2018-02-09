@@ -58,6 +58,8 @@ class CGH(QtCore.QObject):
         # Orientation of camera relative to SLM
         self._theta = 0.
         self.updateTransformationMatrix()
+        # Center of splay
+        self._z0 = 100.
 
     @jit(parallel=True)
     def quantize(self, psi):
@@ -90,6 +92,9 @@ class CGH(QtCore.QObject):
                     (trap.state == trap.state.selected) or
                     (trap.psi is None)):
                 r = self.m * trap.r
+                # experimental splay calculation
+                fac = 1./(1. + r.z()/self.z0)
+                r *= QtGui.QVector3D(fac, fac, 1.)
                 amp = trap.amp * self.window(r)
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
@@ -182,12 +187,22 @@ class CGH(QtCore.QObject):
         self.compute(all=True)
 
     @property
+    def z0(self):
+        return self._z0
+
+    @z0.setter
+    def z0(self, z0):
+        self._z0 = float(z0)
+        self.compute(all=True)
+
+    @property
     def calibration(self):
         return {'qpp': self.qpp,
                 'alpha': self.alpha,
                 'rs': (self.rs.x(), self.rs.y()),
                 'rc': (self.rc.x(), self.rc.y(), self.rc.z()),
-                'theta': self.theta}
+                'theta': self.theta,
+                'z0': self.z0}
 
     @calibration.setter
     def calibration(self, values):
