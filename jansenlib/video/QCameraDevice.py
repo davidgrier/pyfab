@@ -23,9 +23,6 @@ class QCameraDevice(QtCore.QObject):
         _, self.frame = self.camera.read()
         self.running = False
 
-    def __del__(self):
-        self.close()
-
     def loop(self):
         while self.running:
             ready, self.frame = self.camera.read()
@@ -52,7 +49,7 @@ class QCameraDevice(QtCore.QObject):
     @QtCore.pyqtSlot()
     def close(self):
         self.stop()
-        self.camera.release()
+        # self.camera.release() # triggers V4L2 error
 
     @property
     def size(self):
