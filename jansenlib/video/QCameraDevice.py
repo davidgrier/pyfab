@@ -4,78 +4,43 @@
 
 import cv2
 from pyqtgraph.Qt import QtCore
+import numpy as np
 
 
 def is_cv2():
     return cv2.__version__.startswith("2.")
 
 
-class QCameraThread(QtCore.QThread):
+class QCameraDevice(QtCore.QThread):
     """Grab frames as fast as possible in a separate thread
     to minimize latency for frame acquisition.
     """
 
-    def __init__(self, camera):
-        super(QCameraThread, self).__init__()
-        self.camera = camera
-        self.keepGrabbing = True
+    sigNewFrame = QtCore.pyqtSignal(np.ndarray)
+
+    def __init__(self, cameraId=0, size=None, **kwargs):
+        super(QCameraDevice, self).__init__(**kwargs)
+        self.camera = cv2.VideoCapture(cameraId)
+        self.size = size
+        _, self.frame = self.camera.read()
+        self.running = True
 
     def __del__(self):
-        self.wait()
+        self.close()
 
     def run(self):
-        while self.keepGrabbing:
-            self.camera.grab()
+        while self.running:
+            ready, self.frame = self.camera.read()
+            if ready:
+                self.sigNewFrame.emit(self.frame)
 
     def stop(self):
-        self.keepGrabbing = False
-
-
-class QCameraDevice(QtCore.QObject):
-    """Low latency OpenCV camera intended to act as an image source
-    for PyQt applications.
-    """
-    _DEFAULT_FPS = 29.97
-
-    def __init__(self,
-                 cameraId=0,
-                 size=None,
-                 parent=None):
-        super(QCameraDevice, self).__init__(parent)
-
-        self.camera = cv2.VideoCapture(cameraId)
-        self.thread = QCameraThread(self.camera)
-
-        self.size = size
-
-        #try:
-        #    if is_cv2():
-        #        self.fps = int(self.camera.get(cv2.cv.CV_CAP_PROP_FPS))
-        #    else:
-        #        self.fps = int(self.camera.get(cv2.CAP_PROP_FPS))
-        #except:
-        #    print('got error')
-        self.fps = self._DEFAULT_FPS
-
-    # Reduce latency by continuously grabbing frames in a background thread
-    def start(self):
-        self.thread.start()
-        return self
-
-    def stop(self):
-        self.thread.stop()
+        self.running = False
 
     def close(self):
         self.stop()
         self.camera.release()
-
-    # Read requests return the most recently grabbed frame
-    def read(self):
-        if self.thread.isRunning():
-            ready, frame = self.camera.retrieve()
-        else:
-            ready, frame = False, None
-        return ready, frame
+        self.wait()
 
     @property
     def size(self):
@@ -97,17 +62,6 @@ class QCameraDevice(QtCore.QObject):
         else:
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, size[1])
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, size[0])
-
-    @property
-    def fps(self):
-        return self._fps
-
-    @fps.setter
-    def fps(self, fps):
-        if (fps > 0):
-            self._fps = float(fps)
-        else:
-            self._fps = self._DEFAULT_FPS
 
     @property
     def roi(self):

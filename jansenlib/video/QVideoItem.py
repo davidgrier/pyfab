@@ -6,11 +6,7 @@ import cv2
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
-from QCameraDevice import QCameraDevice
-
-
-def is_cv2():
-    return cv2.__version__.startswith("2.")
+from QCameraDevice import QCameraDevice, is_cv2
 
 
 class QVideoItem(pg.ImageItem):
@@ -21,7 +17,8 @@ class QVideoItem(pg.ImageItem):
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, device=None, parent=None,
+    def __init__(self,
+                 parent=None,
                  mirrored=False,
                  flipped=True,
                  transposed=False,
@@ -30,10 +27,9 @@ class QVideoItem(pg.ImageItem):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(parent)
 
-        if device is None:
-            self.device = QCameraDevice(**kwargs).start()
-        else:
-            self.device = device.start()
+        self.device = QCameraDevice(**kwargs)
+        self.device.sigNewFrame.connect(self.updateImage)
+        self.device.start()
 
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
@@ -41,50 +37,47 @@ class QVideoItem(pg.ImageItem):
         self.gray = bool(gray)
         self._filters = list()
 
-        self.updateImage()
+        self.time = QtCore.QTime.currentTime()
+        self.fps = 0.
 
-        self._timer = QtCore.QTimer(self)
-        self._timer.timeout.connect(self.updateImage)
-        self._timer.setInterval(1000 / self.device.fps)
-        self._timer.start()
         self.destroyed.connect(self.stop)
 
     def stop(self):
-        self._timer.stop()
         self.device.stop()
 
     def close(self):
         self.stop()
         self.device.close()
 
-    @QtCore.pyqtSlot()
-    def updateImage(self):
-        ready, image = self.device.read()
-        if ready:
-            if image.ndim == 3:
-                image = cv2.cvtColor(image, self._conversion)
-            if self.transposed:
-                image = cv2.transpose(image)
-            if self.flipped or self.mirrored:
-                image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
-            for filter in self._filters:
-                image = filter(image)
-            self.setImage(image, autoLevels=False)
-            self.sigNewFrame.emit(image)
+    @QtCore.pyqtSlot(np.ndarray)
+    def updateImage(self, image):
+        if image.ndim == 3:
+            image = cv2.cvtColor(image, self._conversion)
+        if self.transposed:
+            image = cv2.transpose(image)
+        if self.flipped or self.mirrored:
+            image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
+        for filter in self._filters:
+            image = filter(image)
+        self.setImage(image, autoLevels=False)
+        self.sigNewFrame.emit(image)
+        now = QtCore.QTime.currentTime()
+        try:
+            self.fps = 1000. / (self.time.msecsTo(now))
+        except ZeroDivisionError:
+            self.fps = 0.
+        self.time = now
 
-    def shape(self):
-        return QtCore.QRectF(0, 0, self.width(), self.height())
+    # @property
+    # def paused(self):
+    #    return not self._timer.isActive()
 
-    @property
-    def paused(self):
-        return not self._timer.isActive()
-
-    @paused.setter
-    def paused(self, p):
-        if p:
-            self._timer.stop()
-        else:
-            self._timer.start()
+    # @paused.setter
+    # def paused(self, p):
+    #     if p:
+    #        self._timer.stop()
+    #    else:
+    #        self._timer.start()
 
     @property
     def gray(self):

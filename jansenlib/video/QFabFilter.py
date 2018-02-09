@@ -14,8 +14,7 @@ class QFabFilter(QtGui.QFrame):
         self.init_ui()
 
     def init_filters(self):
-        shape = self.video.image.shape
-        self.median = vmedian(order=3, shape=shape)
+        self.median = vmedian(order=3)
 
     def init_ui(self):
         self.setFrameShape(QtGui.QFrame.Box)
