@@ -50,7 +50,7 @@ class fabdvr(object):
         self.framenumber = 0
         self._writer = cv2.VideoWriter(self.filename,
                                        self._fourcc,
-                                       self.source.device.fps,
+                                       self.source.fps,
                                        self.size(),
                                        not self.source.gray)
         self.source.sigNewFrame.connect(self.write)
