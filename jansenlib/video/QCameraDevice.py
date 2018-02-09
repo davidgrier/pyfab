@@ -21,6 +21,7 @@ class QCameraDevice(QtCore.QObject):
         self.camera = cv2.VideoCapture(cameraId)
         self.size = size
         _, self.frame = self.camera.read()
+        self.running = False
 
     def __del__(self):
         self.close()
@@ -33,12 +34,20 @@ class QCameraDevice(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def start(self):
-        self.running = True
-        self.loop()
+        if not self.running:
+            self.running = True
+            self.loop()
 
     @QtCore.pyqtSlot()
     def stop(self):
         self.running = False
+
+    @QtCore.pyqtSlot(bool)
+    def pause(self, state):
+        if state:
+            self.stop()
+        else:
+            self.start()
 
     @QtCore.pyqtSlot()
     def close(self):

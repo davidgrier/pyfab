@@ -16,6 +16,7 @@ class QVideoItem(pg.ImageItem):
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
+    sigPause = QtCore.pyqtSignal(bool)
 
     def __init__(self,
                  parent=None,
@@ -29,6 +30,7 @@ class QVideoItem(pg.ImageItem):
 
         self.device = QCameraDevice(**kwargs)
         self.device.sigNewFrame.connect(self.updateImage)
+        self.sigPause.connect(self.device.pause)
         self.thread = QtCore.QThread()
         self.thread.started.connect(self.device.start)
         self.device.moveToThread(self.thread)
@@ -69,16 +71,8 @@ class QVideoItem(pg.ImageItem):
             self.fps = 0.
         self.time = now
 
-    # @property
-    # def paused(self):
-    #    return not self._timer.isActive()
-
-    # @paused.setter
-    # def paused(self, p):
-    #     if p:
-    #        self._timer.stop()
-    #    else:
-    #        self._timer.start()
+    def pause(self, state):
+        self.emit.sigPause(state)
 
     @property
     def gray(self):
