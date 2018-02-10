@@ -7,21 +7,25 @@ from pyqtgraph.Qt import QtCore
 import numpy as np
 
 
-def is_cv2():
-    return cv2.__version__.startswith("2.")
-
-
 class QCameraDevice(QtCore.QObject):
     """OpenCV camera"""
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, cameraId=0, size=None, **kwargs):
-        super(QCameraDevice, self).__init__(**kwargs)
+    def __init__(self, cameraId=0, size=None):
+        super(QCameraDevice, self).__init__()
         self.camera = cv2.VideoCapture(cameraId)
+
+        if cv2.__version__.startswith('2.'):
+            self._WIDTH = cv2.cv.CV_CAP_PROP_FRAME_WIDTH
+            self._HEIGHT = cv2.cv.CV_CAP_PROP_FRAME_HEIGHT
+        else:
+            self._WIDTH = cv2.CAP_PROP_FRAME_WIDTH
+            self._HEIGHT = cv2.CAP_PROP_FRAME_HEIGHT
         self.size = size
-        _, self.frame = self.camera.read()
+
         self.running = False
+        _, self.frame = self.camera.read()
 
     def loop(self):
         while self.running:
@@ -52,26 +56,32 @@ class QCameraDevice(QtCore.QObject):
         # self.camera.release() # triggers V4L2 error
 
     @property
+    def width(self):
+        return int(self.camera.get(self._WIDTH))
+
+    @width.setter
+    def width(self, width):
+        self.camera.set(self._WIDTH, width)
+
+    @property
+    def height(self):
+        return int(self.camera.get(self._HEIGHT))
+
+    @height.setter
+    def height(self, height):
+        self.camera.set(self._HEIGHT, height)
+
+    @property
     def size(self):
-        if is_cv2():
-            h = int(self.camera.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
-            w = int(self.camera.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
-        else:
-            h = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            w = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
-        return QtCore.QSize(w, h)
+        return QtCore.QSize(self.width, self.height)
 
     @size.setter
     def size(self, size):
         if size is None:
             return
-        if is_cv2():
-            self.camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, size[1])
-            self.camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, size[0])
-        else:
-            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, size[1])
-            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, size[0])
+        self.width = size[0]
+        self.height = size[1]
 
     @property
     def roi(self):
-        return QtCore.QRectF(0., 0., self.size.width(), self.size.height())
+        return QtCore.QRectF(0., 0., self.width, self.height)
