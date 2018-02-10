@@ -6,6 +6,6 @@ except ImportError:
         'Could not load CUDA CGH pipeline.\n' +
         '\tFalling back to CPU pipeline.')
     from CGH import CGH
-from QCGH import QCGH
+from QCGHPropertyWidget import QCGHPropertyWidget
 
-__all__ = ['CGH', 'QCGH']
+__all__ = ['CGH', 'QCGHPropertyWidget']
