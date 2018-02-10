@@ -4,50 +4,12 @@
 
 from pyqtgraph.Qt import QtGui
 from jansenlib.QJansenWidget import QJansenWidget
+from QHardwareTab import QHardwareTab
 from common.tabLayout import tabLayout
 import traps
-from proscan.QProscan import QProscan
-from IPG.QIPGLaser import QIPGLaser
 from QSLM import QSLM
 from CGH import CGH, QCGH
-import logging
 import sys
-
-
-class hardwareTab(QtGui.QWidget):
-
-    def __init__(self, parent):
-        super(hardwareTab, self).__init__(parent=parent)
-        self.title = 'Hardware'
-        self.index = -1
-
-        layout = tabLayout()
-        try:
-            self.wstage = QProscan()
-            layout.addWidget(self.wstage)
-        except ValueError as ex:
-            self.wstage = None
-            logging.warning('Could not install stage: %s', ex)
-        try:
-            self.wlaser = QIPGLaser()
-            layout.addWidget(self.wlaser)
-        except ValueError as ex:
-            self.wlaser = None
-            logging.warning('Could not install laser: %s', ex)
-        self.setLayout(layout)
-        self.parent().tabs.currentChanged.connect(self.expose)
-
-    def expose(self, index):
-        if index == self.index:
-            if self.wstage is not None:
-                self.wstage.start()
-            if self.wlaser is not None:
-                self.wlaser.start()
-        else:
-            if self.wstage is not None:
-                self.wstage.stop()
-            if self.wlaser is not None:
-                self.wstage.stop()
 
 
 class QFabWidget(QJansenWidget):
@@ -77,17 +39,18 @@ class QFabWidget(QJansenWidget):
         # Help tab is at last index
         help_index = self.tabs.count() - 1
         # add new tabs
-        hwTab = hardwareTab(self)
-        self.tabs.addTab(hwTab, 'Hardware')
+        hw_tab = QHardwareTab()
+        self.tabs.addTab(hw_tab, 'Hardware')
         self.tabs.addTab(self.cghTab(), 'CGH')
         self.tabs.addTab(self.trapTab(), 'Traps')
         # move Help to end
         self.tabs.tabBar().moveTab(help_index, self.tabs.count() - 1)
         # set current index of hardware tab for expose events
-        hwTab.index = self.tabs.indexOf(hwTab)
+        hw_tab.index = self.tabs.indexOf(hw_tab)
+        self.tabs.currentChanged.connect(hw_tab.expose)
         # populate help browser
         self.browser.load('pyfab')
-        self.wstage = hwTab.wstage
+        self.wstage = hw_tab.wstage
 
     def cghTab(self):
         wcgh = QtGui.QWidget()
