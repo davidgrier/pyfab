@@ -5,9 +5,9 @@
 from pyqtgraph.Qt import QtGui, QtCore
 from QJansenScreen import QJansenScreen
 from QHistogramTab import QHistogramTab
+from QDVRWidget import QDVRWidget
 from common.tabLayout import tabLayout
 import video
-import DVR
 from tasks.taskmanager import taskmanager
 from help.QHelpBrowser import QHelpBrowser
 import sys
@@ -29,7 +29,7 @@ class QJansenWidget(QtGui.QWidget):
         # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)
         # DVR
-        self.dvr = DVR.QFabDVR(source=self.screen.video)
+        self.dvr = QDVRWidget(source=self.screen.video)
         self.dvr.recording.connect(self.handleRecording)
 
     def handleRecording(self, recording):
@@ -72,16 +72,18 @@ class QJansenWidget(QtGui.QWidget):
         return whelp
 
     def keyPressEvent(self, event):
-        print(event.modifiers())
-        if event.key() == QtCore.Qt.Key_R:
+        key = event.text()
+        if key == 'r':
             if self.dvr.isrecording():
                 self.dvr.bstop.animateClick(100)
             else:
                 self.dvr.brecord.animateClick(100)
-        elif event.key() == QtCore.Qt.Key_S:
+        elif key == 's':
             self.dvr.bstop.animateClick(100)
-        elif event.key() == QtCore.Qt.Key_F:
+        elif key == 'R':
+            self.dvr.bstop.animateClick(100)
             self.dvr.getFilename()
+            self.dvr.bstart.animateClick(100)
         event.accept()
 
 
