@@ -41,7 +41,7 @@ class QCameraDevice(QtCore.QObject):
 
     @QtCore.pyqtSlot(bool)
     def pause(self, state):
-        if state == True:
+        if state is True:
             self.stop()
         else:
             self.start()
