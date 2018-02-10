@@ -12,7 +12,8 @@ from QCameraDevice import QCameraDevice, is_cv2
 class QVideoItem(pg.ImageItem):
     """Video source for pyqtgraph applications.
     Acts like a pyqtgraph ImageItem whose images are updated
-    by a video source.
+    by a video source.  Optionally applies filters to modify
+    images obtained from source.
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
@@ -62,6 +63,7 @@ class QVideoItem(pg.ImageItem):
         self._thread.wait()
 
     def updateFPS(self):
+        """Calculate frames per second."""
         now = QtCore.QTime.currentTime()
         self.fps = 1000. / (self._time.msecsTo(now))
         self._time = now
@@ -81,6 +83,8 @@ class QVideoItem(pg.ImageItem):
         self.updateFPS()
 
     def pause(self, state):
+        """sigPause can be caught by video source to pause
+        image stream."""
         self.emit.sigPause(state)
 
     @property
