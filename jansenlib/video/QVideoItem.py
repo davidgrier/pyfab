@@ -11,8 +11,8 @@ from QCameraDevice import QCameraDevice, is_cv2
 
 class QVideoItem(pg.ImageItem):
     """Video source for pyqtgraph applications.
-    Acts like an ImageItem that periodically polls
-    a camera for updated video frames.
+    Acts like a pyqtgraph ImageItem whose images are updated
+    by a video source.
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
@@ -28,29 +28,43 @@ class QVideoItem(pg.ImageItem):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(parent)
 
+        # run video source in thread to reduce latency
+        self.fps = 0.
+        self._time = QtCore.QTime.currentTime()
         self.device = QCameraDevice(**kwargs)
         self.device.sigNewFrame.connect(self.updateImage)
         self.sigPause.connect(self.device.pause)
-        self.thread = QtCore.QThread()
-        self.thread.started.connect(self.device.start)
-        self.device.moveToThread(self.thread)
-        self.thread.start()
+        self._thread = QtCore.QThread()
+        self._thread.started.connect(self.device.start)
+        self.device.moveToThread(self._thread)
+        self._thread.start()
 
+        # image conversions
+        self._conversion = None
+        if is_cv2():
+            self._toRGB = cv2.cv.CV_BGR2RGB
+            self._toGRAY = cv2.cv.CV_BGR2GRAY
+        else:
+            self._toRGB = cv2.COLOR_BGR2RGB
+            self._toGRAY = cv2.COLOR_BGR2GRAY
+        self.gray = bool(gray)
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
         self.transposed = bool(transposed)
-        self.gray = bool(gray)
         self._filters = list()
 
-        self.time = QtCore.QTime.currentTime()
-        self.fps = 0.
-
+        # clean up video source on shutdown
         self.destroyed.connect(self.close)
 
     def close(self):
-        self.thread.quit()
+        self._thread.quit()
         self.device.close()
-        self.thread.wait()
+        self._thread.wait()
+
+    def updateFPS(self):
+        now = QtCore.QTime.currentTime()
+        self.fps = 1000. / (self._time.msecsTo(now))
+        self._time = now
 
     @QtCore.pyqtSlot(np.ndarray)
     def updateImage(self, image):
@@ -64,34 +78,18 @@ class QVideoItem(pg.ImageItem):
             image = filter(image)
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)
-        now = QtCore.QTime.currentTime()
-        try:
-            self.fps = 1000. / (self.time.msecsTo(now))
-        except ZeroDivisionError:
-            self.fps = 0.
-        self.time = now
+        self.updateFPS()
 
     def pause(self, state):
         self.emit.sigPause(state)
 
     @property
     def gray(self):
-        if is_cv2():
-            return (self._conversion == cv2.cv.CV_BGR2GRAY)
-        return (self._conversion == cv2.COLOR_BGR2GRAY)
+        return (self._conversion == self._toGRAY)
 
     @gray.setter
     def gray(self, gray):
-        if is_cv2():
-            if bool(gray):
-                self._conversion = cv2.cv.CV_BGR2GRAY
-            else:
-                self._conversion = cv2.cv.CV_BGR2RGB
-        else:
-            if bool(gray):
-                self._conversion = cv2.COLOR_BGR2GRAY
-            else:
-                self._conversion = cv2.COLOR_BGR2RGB
+        self._conversion = self._toGRAY if gray else self._toRGB
 
     def registerFilter(self, filter):
         self._filters.append(filter)
