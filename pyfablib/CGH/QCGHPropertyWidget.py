@@ -2,10 +2,10 @@ from PyQt4 import QtCore
 from common.QPropertySheet import QPropertySheet
 
 
-class QCGH(QPropertySheet):
+class QCGHPropertyWidget(QPropertySheet):
 
     def __init__(self, cgh, camera):
-        super(QCGH, self).__init__(title='CGH Pipeline')
+        super(QCGHPropertyWidget, self).__init__(title='CGH Pipeline')
         self.cgh = cgh
         self.wxs = self.registerProperty('xs', cgh.rs.x(), 0, cgh.slm.width())
         self.wys = self.registerProperty('ys', cgh.rs.y(), 0, cgh.slm.height())
@@ -174,22 +174,3 @@ class QCGH(QPropertySheet):
                 setattr(self, attribute, value)
             except AttributeError:
                 print('unknown attribute:', attribute)
-
-
-def main():
-    from PyQt4 import QtGui
-    from QSLM import QSLM
-    from CGH import CGH
-    import sys
-
-    app = QtGui.QApplication(sys.argv)
-    slm = QSLM()
-    cgh = CGH(slm=slm)
-    wcgh = QCGH(cgh=cgh)
-    wcgh.show()
-    wcgh.xc = -10
-    sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()

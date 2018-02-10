@@ -8,7 +8,7 @@ from QHardwareTab import QHardwareTab
 from common.tabLayout import tabLayout
 import traps
 from QSLM import QSLM
-from CGH import CGH, QCGH
+from CGH import CGH, QCGHPropertyWidget
 import sys
 
 
@@ -28,7 +28,7 @@ class QFabWidget(QJansenWidget):
         # self.cgh.moveToThread(self.computethread)
         # self.computethread.start()
         self.cgh = CGH(slm=self.slm)
-        self.wcgh = QCGH(self.cgh, self.screen)
+        self.wcgh = QCGHPropertyWidget(self.cgh, self.screen)
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
         self.pattern = traps.QTrappingPattern(parent=self.screen,
