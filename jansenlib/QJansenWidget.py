@@ -146,6 +146,7 @@ class QJansenWidget(QtGui.QWidget):
         return whelp
 
     def keyPressEvent(self, event):
+        print(event.modifiers())
         if event.key() == QtCore.Qt.Key_R:
             if self.dvr.isrecording():
                 self.dvr.bstop.animateClick(100)
@@ -153,6 +154,8 @@ class QJansenWidget(QtGui.QWidget):
                 self.dvr.brecord.animateClick(100)
         elif event.key() == QtCore.Qt.Key_S:
             self.dvr.bstop.animateClick(100)
+        elif event.key() == QtCore.Qt.Key_F:
+            self.dvr.getFilename()
         event.accept()
 
     def handleRecording(self, recording):

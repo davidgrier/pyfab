@@ -6,7 +6,7 @@ import cv2
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
-from QCameraDevice import QCameraDevice, is_cv2
+from QCameraDevice import QCameraDevice
 
 
 class QVideoItem(pg.ImageItem):
@@ -42,7 +42,7 @@ class QVideoItem(pg.ImageItem):
 
         # image conversions
         self._conversion = None
-        if is_cv2():
+        if cv2.__version__.startswith('2.'):
             self._toRGB = cv2.cv.CV_BGR2RGB
             self._toGRAY = cv2.cv.CV_BGR2GRAY
         else:
@@ -65,7 +65,10 @@ class QVideoItem(pg.ImageItem):
     def updateFPS(self):
         """Calculate frames per second."""
         now = QtCore.QTime.currentTime()
-        self.fps = 1000. / (self._time.msecsTo(now))
+        try:
+            self.fps = 1000. / (self._time.msecsTo(now))
+        except ZeroDivisionError:
+            self.fps = 24.
         self._time = now
 
     @QtCore.pyqtSlot(np.ndarray)
