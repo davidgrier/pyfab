@@ -7,12 +7,12 @@ import cv2
 
 class QHistogramTab(QtGui.QWidget):
 
-    def __init__(self, video, **kwargs):
-        super(QHistogramTab, self).__init__(**kwargs)
+    def __init__(self, video_source):
+        super(QHistogramTab, self).__init__()
 
         self.title = 'Histogram'
         self.index = -1
-        self.video = video
+        self.video = video_source
 
         layout = tabLayout()
         self.setLayout(layout)
