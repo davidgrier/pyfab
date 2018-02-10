@@ -102,8 +102,8 @@ class QJansenWidget(QtGui.QWidget):
     def init_hardware(self, size):
         # video screen
         self.screen = QJansenScreen(size=size, gray=True)
-        self.wvideo = video.QFabVideo(self.screen.video)
-        self.filters = video.QFabFilter(self.screen.video)
+        self.wvideo = video.QVideoPropertyWidget(self.screen.video)
+        self.filters = video.QVideoFilterWidget(self.screen.video)
         # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)
         # DVR

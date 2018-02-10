@@ -9,15 +9,15 @@ class fabdvr(object):
     def __init__(self,
                  source=None,
                  filename='~/data/fabdvr.avi',
-                 codec='HFYU', **kwds):
+                 codec='HFYU'):
         """Record digital video stream with lossless compression
 
         :param camera: object reference to QCameraItem
         :param filename: video file name.  Extension determines container.
         ;    Not all containers work with all codecs.
         :param codec: FOURCC descriptor for video codec
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
         ;
         ;Note on codecs:
         ;    On macs, FFV1 appears to work with avi containers
@@ -26,13 +26,13 @@ class fabdvr(object):
         ;        LAGS does not work (not found)
 
         """
-        super(fabdvr, self).__init__(**kwds)
+        super(fabdvr, self).__init__()
         self._writer = None
         self.source = source
         self.filename = filename
         self._framenumber = 0
         self._nframes = 0
-        if cv2.__version__.startswith('2'):
+        if cv2.__version__.startswith('2.'):
             self._fourcc = cv2.cv.CV_FOURCC(*codec)
         else:
             self._fourcc = cv2.VideoWriter_fourcc(*codec)

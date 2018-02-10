@@ -1,5 +1,5 @@
-from QFabVideo import QFabVideo
-from QFabFilter import QFabFilter
+from QVideoPropertyWidget import QVideoPropertyWidget
+from QVideoFilterWidget import QVideoFilterWidget
 
-__all__ = ['QFabVideo',
-           'QFabFilter']
+__all__ = ['QVideoPropertyWidget',
+           'QVideoFilterWidget']

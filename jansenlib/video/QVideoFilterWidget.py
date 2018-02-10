@@ -5,10 +5,10 @@ import cv2
 from matplotlib.pylab import cm
 
 
-class QFabFilter(QtGui.QFrame):
+class QVideoFilterWidget(QtGui.QFrame):
 
     def __init__(self, video):
-        super(QFabFilter, self).__init__()
+        super(QVideoFilterWidget, self).__init__()
         self.video = video
         self.init_filters()
         self.init_ui()
