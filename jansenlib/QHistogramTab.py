@@ -5,10 +5,10 @@ import numpy as np
 import cv2
 
 
-class histogramTab(QtGui.QWidget):
+class QHistogramTab(QtGui.QWidget):
 
     def __init__(self, video, **kwargs):
-        super(histogramTab, self).__init__(**kwargs)
+        super(QHistogramTab, self).__init__(**kwargs)
 
         self.title = 'Histogram'
         self.index = -1
