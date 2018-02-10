@@ -22,13 +22,12 @@ def tabLayout():
 
 class histogramTab(QtGui.QWidget):
 
-    def __init__(self, parent):
-        super(histogramTab, self).__init__(parent=parent)
+    def __init__(self, video, **kwargs):
+        super(histogramTab, self).__init__(**kwargs)
 
         self.title = 'Histogram'
         self.index = -1
-        self.video = self.parent().screen.video
-        self.parent().tabs.currentChanged.connect(self.expose)
+        self.video = video
 
         layout = tabLayout()
         self.setLayout(layout)
@@ -96,10 +95,6 @@ class QJansenWidget(QtGui.QWidget):
 
     def __init__(self, size=(640, 480)):
         super(QJansenWidget, self).__init__()
-        self.init_hardware(size)
-        self.init_ui()
-
-    def init_hardware(self, size):
         # video screen
         self.screen = QJansenScreen(size=size, gray=True)
         self.wvideo = video.QVideoPropertyWidget(self.screen.video)
@@ -109,6 +104,10 @@ class QJansenWidget(QtGui.QWidget):
         # DVR
         self.dvr = DVR.QFabDVR(source=self.screen.video)
         self.dvr.recording.connect(self.handleRecording)
+        self.init_ui()
+
+    def handleRecording(self, recording):
+        self.wvideo.enabled = not recording
 
     def init_ui(self):
         layout = QtGui.QHBoxLayout()
@@ -118,8 +117,9 @@ class QJansenWidget(QtGui.QWidget):
         self.tabs = QtGui.QTabWidget()
         self.tabs.setMaximumWidth(400)
         self.tabs.addTab(self.videoTab(), 'Video')
-        tab = histogramTab(self)
+        tab = histogramTab(self.screen.video)
         tab.index = self.tabs.addTab(tab, 'Histogram')
+        self.tabs.currentChanged.connect(tab.expose)
         self.tabs.addTab(self.helpTab(), 'Help')
         layout.addWidget(self.tabs)
         layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
@@ -157,9 +157,6 @@ class QJansenWidget(QtGui.QWidget):
         elif event.key() == QtCore.Qt.Key_F:
             self.dvr.getFilename()
         event.accept()
-
-    def handleRecording(self, recording):
-        self.wvideo.enabled = not recording
 
 
 if __name__ == '__main__':
