@@ -4,6 +4,7 @@
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 from QJansenScreen import QJansenScreen
+from common.tabLayout import tabLayout
 import video
 import DVR
 from tasks.taskmanager import taskmanager
@@ -11,13 +12,6 @@ from help.QHelpBrowser import QHelpBrowser
 import sys
 import numpy as np
 import cv2
-
-
-def tabLayout():
-    layout = QtGui.QVBoxLayout()
-    layout.setAlignment(QtCore.Qt.AlignTop)
-    layout.setSpacing(1)
-    return layout
 
 
 class histogramTab(QtGui.QWidget):
@@ -95,8 +89,13 @@ class QJansenWidget(QtGui.QWidget):
 
     def __init__(self, size=(640, 480)):
         super(QJansenWidget, self).__init__()
+        self.size = size
+        self.init_components()
+        self.init_ui()
+
+    def init_components(self):
         # video screen
-        self.screen = QJansenScreen(size=size, gray=True)
+        self.screen = QJansenScreen(size=self.size, gray=True)
         self.wvideo = video.QVideoPropertyWidget(self.screen.video)
         self.filters = video.QVideoFilterWidget(self.screen.video)
         # tasks are processes that are synchronized with video frames
@@ -104,7 +103,6 @@ class QJansenWidget(QtGui.QWidget):
         # DVR
         self.dvr = DVR.QFabDVR(source=self.screen.video)
         self.dvr.recording.connect(self.handleRecording)
-        self.init_ui()
 
     def handleRecording(self, recording):
         self.wvideo.enabled = not recording

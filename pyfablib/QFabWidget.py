@@ -3,7 +3,8 @@
 """QFabWidget.py: GUI for holographic optical trapping."""
 
 from pyqtgraph.Qt import QtGui
-from jansenlib.QJansenWidget import QJansenWidget, tabLayout
+from jansenlib.QJansenWidget import QJansenWidget
+from common.tabLayout import tabLayout
 import traps
 from proscan.QProscan import QProscan
 from IPG.QIPGLaser import QIPGLaser
@@ -53,10 +54,11 @@ class QFabWidget(QJansenWidget):
 
     def __init__(self, **kwargs):
         super(QFabWidget, self).__init__(**kwargs)
+
         self.init_configuration()
 
-    def init_hardware(self, size):
-        super(QFabWidget, self).init_hardware(size)
+    def init_components(self):
+        super(QFabWidget, self).init_components()
         # spatial light modulator
         self.slm = QSLM()
         # computation pipeline for the trapping pattern
