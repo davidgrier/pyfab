@@ -4,11 +4,12 @@ import numpy as np
 
 class QNumericProperty(QtGui.QLineEdit):
 
-    valueChanged = QtCore.pyqtSignal()
+    valueChanged = QtCore.pyqtSignal(str, object)
 
     def __init__(self, name, value, min, max):
         super(QNumericProperty, self).__init__()
         self.setAlignment(QtCore.Qt.AlignRight)
+        self.name = name
         self.type = type(value)
         if self.type is int:
             v = QtGui.QIntValidator(int(min), int(max))
@@ -26,7 +27,7 @@ class QNumericProperty(QtGui.QLineEdit):
     @QtCore.pyqtSlot()
     def updateValue(self):
         self._value = self.type(str(self.text()))
-        self.valueChanged.emit()
+        self.valueChanged.emit(self.name, self._value)
 
     @property
     def value(self):
@@ -41,16 +42,17 @@ class QNumericProperty(QtGui.QLineEdit):
 
 class QBooleanProperty(QtGui.QCheckBox):
 
-    valueChanged = QtCore.pyqtSignal()
+    valueChanged = QtCore.pyqtSignal(str, bool)
 
     def __init__(self, name, value):
         super(QBooleanProperty, self).__init__()
+        self.name = name
         self.value = bool(value)
         self.stateChanged.connect(self.updateValue)
 
     def updateValue(self, state):
         self._value = (state == QtCore.Qt.Checked)
-        self.valueChanged.emit()
+        self.valueChanged.emit(self.name, self._value)
 
     @property
     def value(self):
