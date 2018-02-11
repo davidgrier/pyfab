@@ -36,23 +36,15 @@ class QDVRWidget(QtGui.QFrame):
         layout.setHorizontalSpacing(6)
         layout.setVerticalSpacing(3)
         # Widgets
-        iconsize = QtCore.QSize(24, 24)
-        stdIcon = self.style().standardIcon
+        self.iconSize = QtCore.QSize(24, 24)
+        self.stdIcon = self.style().standardIcon
         title = QtGui.QLabel('Video Recorder')
-        self.brecord = QtGui.QPushButton('Record', self)
-        self.brecord.clicked.connect(self.record)
-        self.brecord.setIcon(stdIcon(QtGui.QStyle.SP_MediaPlay))
-        self.brecord.setIconSize(iconsize)
-        self.brecord.setToolTip('Start recording video')
-        self.bstop = QtGui.QPushButton('Stop', self)
-        self.bstop.clicked.connect(self.stop)
-        self.bstop.setIcon(stdIcon(QtGui.QStyle.SP_MediaStop))
-        self.bstop.setIconSize(iconsize)
-        self.bstop.setToolTip('Stop recording video')
-        self.wframe = self.framecounter_widget()
+        self.brecord = self.recordButton()
+        self.bstop = self.stopButton()
+        self.wframe = self.framecounterWidget()
         wfilelabel = QtGui.QLabel('file name')
         wfilelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.wfilename = self.filename_widget()
+        self.wfilename = self.filenameWidget()
         # Place widgets in layout
         layout.addWidget(title, 1, 1, 1, 3)
         layout.addWidget(self.brecord, 2, 1)
@@ -62,8 +54,23 @@ class QDVRWidget(QtGui.QFrame):
         layout.addWidget(self.wfilename, 3, 2, 1, 2)
         self.setLayout(layout)
 
-    # customized widgets
-    def framecounter_widget(self):
+    def recordButton(self):
+        b = QtGui.QPushButton('Record', self)
+        b.clicked.connect(self.record)
+        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPlay))
+        b.setIconSize(self.iconSize)
+        b.setToolTip('Start recording video')
+        return b
+
+    def stopButton(self):
+        b = QtGui.QPushButton('Stop', self)
+        b.clicked.connect(self.stop)
+        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaStop))
+        b.setIconSize(self.iconSize)
+        b.setToolTip('Stop recording video')
+        return b
+
+    def framecounterWidget(self):
         lcd = QtGui.QLCDNumber(self)
         lcd.setNumDigits(5)
         lcd.setSegmentStyle(QtGui.QLCDNumber.Flat)
@@ -74,7 +81,7 @@ class QDVRWidget(QtGui.QFrame):
         lcd.setAutoFillBackground(True)
         return lcd
 
-    def filename_widget(self):
+    def filenameWidget(self):
         line = QtGui.QLineEdit()
         line.setText(self.filename)
         line.setReadOnly(True)
