@@ -89,32 +89,26 @@ class QDVRWidget(QtGui.QFrame):
         return line
 
     def getFilename(self):
-        if self.isrecording():
+        if self.is_recording():
             return
         filename = QtGui.QFileDialog.getSaveFileName(
-            self, 'Video File Name', self.dvr.filename, 'Video files (*.avi)')
+            self, 'Video File Name', self.filename, 'Video files (*.avi)')
         if filename:
             self._filename = str(filename)
             self.wfilename.setText(self._filename)
 
     @QtCore.pyqtSlot()
     def record(self, nframes=10000):
-        if self.is_recording():
-            return
-        if self.source is None:
-            return
-        if (nframes <= 0):
+        if (self.is_recording() or (self.source is None) or
+                (nframes <= 0)):
             return
         self._nframes = nframes
         self._framenumber = 0
         w = self.source.device.width
         h = self.source.device.height
         color = not self.source.gray
-        self._writer = cv2.VideoWriter(self.filename,
-                                       self._fourcc,
-                                       self.source.fps,
-                                       (w, h),
-                                       color)
+        self._writer = cv2.VideoWriter(self.filename, self._fourcc,
+                                       self.source.fps, (w, h), color)
         self.source.sigNewFrame.connect(self.write)
         self.recording.emit(True)
 

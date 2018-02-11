@@ -10,7 +10,6 @@ from common.tabLayout import tabLayout
 import video
 from tasks.taskmanager import taskmanager
 from help.QHelpBrowser import QHelpBrowser
-import sys
 
 
 class QJansenWidget(QtGui.QWidget):
@@ -74,7 +73,7 @@ class QJansenWidget(QtGui.QWidget):
     def keyPressEvent(self, event):
         key = event.text()
         if key == 'r':
-            if self.dvr.isrecording():
+            if self.dvr.is_recording():
                 self.dvr.bstop.animateClick(100)
             else:
                 self.dvr.brecord.animateClick(100)
@@ -85,9 +84,3 @@ class QJansenWidget(QtGui.QWidget):
             self.dvr.getFilename()
             self.dvr.bstart.animateClick(100)
         event.accept()
-
-
-if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
-    instrument = QJansenWidget()
-    sys.exit(app.exec_())
