@@ -34,5 +34,5 @@ class QCGHPropertyWidget(QPropertySheet):
         for property, value in properties.iteritems():
             try:
                 self.__dict__['w'+property].value = value
-            except AttributeError:
+            except KeyError:
                 print('unknown attribute:', property)

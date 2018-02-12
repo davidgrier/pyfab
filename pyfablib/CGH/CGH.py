@@ -104,7 +104,7 @@ class CGH(QtCore.QObject):
                     (trap.psi is None)):
                 r = self.m * trap.r
                 # experimental splay calculation
-                fac = 1. / (1. + self.k0 * r.z())
+                fac = 1./(1. + self.k0 * (r.z() - self.rc.z()))
                 r *= QtGui.QVector3D(fac, fac, 1.)
                 amp = trap.amp * self.window(r)
                 if trap.psi is None:
@@ -264,7 +264,8 @@ class CGH(QtCore.QObject):
                 'rs': (self.rs.x(), self.rs.y()),
                 'rc': (self.rc.x(), self.rc.y(), self.rc.z()),
                 'theta': self.theta,
-                'k0': self.k0}
+                'kx0': self.kx0,
+                'ky0': self.ky0}
 
     @calibration.setter
     def calibration(self, values):
