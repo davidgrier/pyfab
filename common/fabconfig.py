@@ -27,7 +27,7 @@ class fabconfig(object):
                             prefix + self.timestamp() + suffix)
 
     def save(self, object):
-        configuration = json.dumps(object.calibration,
+        configuration = json.dumps(object.configuration(),
                                    indent=2,
                                    separators=(',', ': '),
                                    ensure_ascii=False)
@@ -37,7 +37,7 @@ class fabconfig(object):
     def restore(self, object):
         try:
             config = json.load(io.open(self.configfile))
-            object.calibration = config
+            object.setConfiguration(config)
         except IOError as ex:
             msg = ('Could not read configuration file:\n\t' +
                    str(ex) +

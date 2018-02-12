@@ -271,6 +271,7 @@ class CGH(QtCore.QObject):
         if not isinstance(values, dict):
             return
         for attribute, value in values.iteritems():
+            print(attribute, value)
             try:
                 setattr(self, attribute, value)
             except AttributeError:

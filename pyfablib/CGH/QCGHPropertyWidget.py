@@ -19,24 +19,20 @@ class QCGHPropertyWidget(QPropertySheet):
         self.wtheta = register('theta', cgh.theta, -180, 180, setter)
         self.wz0 = register('z0', cgh.z0, 10, 1000, setter)
 
-    @property
-    def calibration(self):
-        return {'xc': self.xc,
-                'yc': self.yc,
-                'zc': self.zc,
-                'xs': self.xs,
-                'ys': self.ys,
-                'qpp': self.qpp,
-                'alpha': self.alpha,
-                'theta': self.theta,
-                'z0': self.z0}
+    def configuration(self):
+        return {'xs': self.wxs.value,
+                'ys': self.wys.value,
+                'qpp': self.wqpp.value,
+                'alpha': self.walpha.value,
+                'xc': self.wxc.value,
+                'yc': self.wyc.value,
+                'zc': self.wzc.value,
+                'theta': self.wtheta.value,
+                'z0': self.wz0.value}
 
-    @calibration.setter
-    def calibration(self, values):
-        if not isinstance(values, dict):
-            return
-        for attribute, value in values.iteritems():
+    def setConfiguration(self, properties):
+        for property, value in properties.iteritems():
             try:
-                setattr(self, attribute, value)
+                self.__dict__['w'+property].value = value
             except AttributeError:
-                print('unknown attribute:', attribute)
+                print('unknown attribute:', property)
