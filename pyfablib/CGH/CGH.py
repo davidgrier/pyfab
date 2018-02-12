@@ -61,6 +61,11 @@ class CGH(QtCore.QObject):
         # Center of splay
         self._z0 = 100.
 
+    @QtCore.pyqtSlot(object, object)
+    def setter(self, name, value):
+        print(name, value)
+        setattr(self, name, value)
+
     @jit(parallel=True)
     def quantize(self, psi):
         phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
@@ -93,7 +98,7 @@ class CGH(QtCore.QObject):
                     (trap.psi is None)):
                 r = self.m * trap.r
                 # experimental splay calculation
-                fac = 1./(1. + r.z()/self.z0)
+                fac = 1. / (1. + r.z() / self.z0)
                 r *= QtGui.QVector3D(fac, fac, 1.)
                 amp = trap.amp * self.window(r)
                 if trap.psi is None:

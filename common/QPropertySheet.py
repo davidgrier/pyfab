@@ -4,7 +4,7 @@ import numpy as np
 
 class QNumericProperty(QtGui.QLineEdit):
 
-    valueChanged = QtCore.pyqtSignal(str, object)
+    valueChanged = QtCore.pyqtSignal(object, object)
 
     def __init__(self, name, value, min, max):
         super(QNumericProperty, self).__init__()
