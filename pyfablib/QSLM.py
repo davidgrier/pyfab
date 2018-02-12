@@ -30,7 +30,7 @@ class QSLM(QtGui.QLabel):
         self.show()
 
     @QtCore.pyqtSlot(np.ndarray)
-    def setHologram(self, data):
+    def setData(self, data):
         self.data = data
 
     @property

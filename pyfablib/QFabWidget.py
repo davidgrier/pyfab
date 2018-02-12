@@ -34,7 +34,7 @@ class QFabWidget(QJansenWidget):
         self.pattern = traps.QTrappingPattern(parent=self.screen)
         self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.cgh.sigComputing.connect(self.pattern.pauseSignals)
-        self.cgh.sigHologramReady.connect(self.slm.setHologram)
+        self.cgh.sigHologramReady.connect(self.slm.setData)
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
