@@ -17,7 +17,7 @@ class QCGHPropertyWidget(QPropertySheet):
         self.wyc = register('yc', cgh.rc.y(), 0, cam.height(), setter)
         self.wzc = register('zc', cgh.rc.z(), -500, 500, setter)
         self.wtheta = register('theta', cgh.theta, -180, 180, setter)
-        self.wz0 = register('z0', cgh.z0, 10, 1000, setter)
+        self.wk0 = register('k0', cgh.k0, -10, 10, setter)
 
     def configuration(self):
         return {'xs': self.wxs.value,
@@ -28,7 +28,7 @@ class QCGHPropertyWidget(QPropertySheet):
                 'yc': self.wyc.value,
                 'zc': self.wzc.value,
                 'theta': self.wtheta.value,
-                'z0': self.wz0.value}
+                'k0': self.wk0.value}
 
     def setConfiguration(self, properties):
         for property, value in properties.iteritems():

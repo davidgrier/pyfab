@@ -24,9 +24,6 @@ class QFabWidget(QJansenWidget):
         # spatial light modulator
         self.slm = QSLM()
         # computation pipeline for the trapping pattern
-        # self.computethread = QtCore.QThread()
-        # self.cgh.moveToThread(self.computethread)
-        # self.computethread.start()
         self.cgh = CGH(slm=self.slm)
         self.wcgh = QCGHPropertyWidget(self.cgh, self.screen)
         # trapping pattern is an interactive overlay
@@ -35,6 +32,9 @@ class QFabWidget(QJansenWidget):
         self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.cgh.sigComputing.connect(self.pattern.pauseSignals)
         self.cgh.sigHologramReady.connect(self.slm.setData)
+        self.thread = QtCore.QThread()
+        self.cgh.moveToThread(self.thread)
+        self.thread.start()
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()

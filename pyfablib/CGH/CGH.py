@@ -59,8 +59,8 @@ class CGH(QtCore.QObject):
         # Orientation of camera relative to SLM
         self._theta = 0.
         self.updateTransformationMatrix()
-        # Center of splay
-        self._z0 = 100.
+        # Splay wavenumber
+        self._k0 = 0.01
 
     @QtCore.pyqtSlot(object, object)
     def setProperty(self, name, value):
@@ -104,7 +104,7 @@ class CGH(QtCore.QObject):
                     (trap.psi is None)):
                 r = self.m * trap.r
                 # experimental splay calculation
-                fac = 1. / (1. + r.z() / self.z0)
+                fac = 1. / (1. + self.k0 * r.z())
                 r *= QtGui.QVector3D(fac, fac, 1.)
                 amp = trap.amp * self.window(r)
                 if trap.psi is None:
