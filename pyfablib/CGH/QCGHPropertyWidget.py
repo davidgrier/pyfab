@@ -8,7 +8,7 @@ class QCGHPropertyWidget(QPropertySheet):
         self.cgh = cgh
         slm = cgh.slm
         register = self.registerProperty
-        setter = self.cgh.setter
+        setter = self.cgh.setProperty
         self.wxs = register('xs', cgh.rs.x(), 0, slm.width(), setter)
         self.wys = register('ys', cgh.rs.y(), 0, slm.height(), setter)
         self.wqpp = register('qpp', cgh.qpp, 0., 1., setter)
