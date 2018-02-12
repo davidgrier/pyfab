@@ -14,17 +14,19 @@ class QTrappingPattern(pg.ScatterPlotItem):
     """
 
     trapAdded = QtCore.pyqtSignal(QTrap)
+    sigCompute = QtCore.pyqtSignal(object)
 
-    def __init__(self, parent=None, pipeline=None):
+    def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.parent = parent
-        self.pipeline = pipeline
         self.pattern = QTrapGroup(parent=self)
         self.parent.addOverlay(self)
 
         # Connect to signals coming from screen
-        self.connectSignals()
-        self.pipeline.sigComputing.connect(self.pauseSignals)
+        self.parent.sigMousePress.connect(self.mousePress)
+        self.parent.sigMouseRelease.connect(self.mouseRelease)
+        self.parent.sigMouseMove.connect(self.mouseMove)
+        self.parent.sigMouseWheel.connect(self.mouseWheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.parent)
@@ -35,14 +37,10 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.selected = []
 
     def connectSignals(self):
-        self.parent.sigMousePress.connect(self.mousePress)
-        self.parent.sigMouseRelease.connect(self.mouseRelease)
         self.parent.sigMouseMove.connect(self.mouseMove)
         self.parent.sigMouseWheel.connect(self.mouseWheel)
 
     def disconnectSignals(self):
-        self.parent.sigMousePress.disconnect(self.mousePress)
-        self.parent.sigMouseRelease.disconnect(self.mouseRelease)
         self.parent.sigMouseMove.disconnect(self.mouseMove)
         self.parent.sigMouseWheel.disconnect(self.mouseWheel)
 
@@ -64,9 +62,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
         traps = self.pattern.flatten()
         spots = [trap.spot for trap in traps]
         self.setData(spots=spots)
-        if project and self.pipeline is not None:
-            self.pipeline.traps = traps
-            self.pipeline.compute()
+        if project:
+            self.sigCompute.emit(traps)
 
     def dataCoords(self, pos):
         """Convert pixel position in screen widget to

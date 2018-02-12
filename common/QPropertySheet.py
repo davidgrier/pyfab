@@ -94,8 +94,7 @@ class QPropertySheet(QtGui.QFrame):
             self.layout.addWidget(QtGui.QLabel('max'), self.row, 4)
             self.row += 1
 
-    def registerProperty(self, name, value,
-                         min=None, max=None,
+    def registerProperty(self, name, value, min=None, max=None,
                          callback=None):
         wname = QtGui.QLabel(QtCore.QString(name))
         wname.setAlignment(QtCore.Qt.AlignRight)

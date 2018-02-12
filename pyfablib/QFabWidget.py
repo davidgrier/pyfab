@@ -31,8 +31,10 @@ class QFabWidget(QJansenWidget):
         self.wcgh = QCGHPropertyWidget(self.cgh, self.screen)
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
-        self.pattern = traps.QTrappingPattern(parent=self.screen,
-                                              pipeline=self.cgh)
+        self.pattern = traps.QTrappingPattern(parent=self.screen)
+        self.pattern.sigCompute.connect(self.cgh.setTraps)
+        self.cgh.sigComputing.connect(self.pattern.pauseSignals)
+        self.cgh.sigHologramReady.connect(self.slm.setHologram)
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()

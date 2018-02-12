@@ -34,6 +34,7 @@ class CGH(QtCore.QObject):
     """
 
     sigComputing = QtCore.pyqtSignal(bool)
+    sigHologramReady = QtCore.pyqtSignal(np.ndarray)
 
     def __init__(self, slm=None):
         super(CGH, self).__init__()
@@ -65,6 +66,11 @@ class CGH(QtCore.QObject):
     def setter(self, name, value):
         print(name, value)
         setattr(self, name, value)
+
+    @QtCore.pyqtSlot(object)
+    def setTraps(self, traps):
+        self.traps = traps
+        self.compute()
 
     @jit(parallel=True)
     def quantize(self, psi):
@@ -105,9 +111,10 @@ class CGH(QtCore.QObject):
                     trap.psi = self._psi.copy()
                 self.compute_one(amp, r, trap.psi)
             self._psi += trap.psi
-            QtGui.qApp.processEvents()
+            # QtGui.qApp.processEvents()
             # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
-        self.slm.data = self.quantize(self._psi)
+        # self.slm.data = self.quantize(self._psi)
+        self.sigHologramReady.emit(self.quantize(self._psi))
         self.time = time() - start
         self.sigComputing.emit(False)
 

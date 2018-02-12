@@ -29,6 +29,10 @@ class QSLM(QtGui.QLabel):
         self.data = phi
         self.show()
 
+    @QtCore.pyqtSlot(np.ndarray)
+    def setHologram(self, data):
+        self.data = data
+
     @property
     def data(self):
         return self._data
@@ -39,7 +43,7 @@ class QSLM(QtGui.QLabel):
         img = QtGui.QImage(ImageQt(Image.fromarray(d)))
         pix = QtGui.QPixmap.fromImage(img)
         self.setPixmap(pix)
-        
+
     def height(self):
         return self._height
 
