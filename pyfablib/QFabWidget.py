@@ -2,7 +2,7 @@
 
 """QFabWidget.py: GUI for holographic optical trapping."""
 
-from pyqtgraph.Qt import QtGui
+from pyqtgraph.Qt import QtGui, QtCore
 from jansenlib.QJansenWidget import QJansenWidget
 from QHardwareTab import QHardwareTab
 from common.tabLayout import tabLayout

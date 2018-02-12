@@ -249,12 +249,12 @@ class CGH(QtCore.QObject):
         self.compute(all=True)
 
     @property
-    def z0(self):
-        return self._z0
+    def k0(self):
+        return self._k0
 
-    @z0.setter
-    def z0(self, z0):
-        self._z0 = float(z0)
+    @k0.setter
+    def k0(self, k0):
+        self._k0 = float(k0)
         self.compute(all=True)
 
     @property
@@ -264,7 +264,7 @@ class CGH(QtCore.QObject):
                 'rs': (self.rs.x(), self.rs.y()),
                 'rc': (self.rc.x(), self.rc.y(), self.rc.z()),
                 'theta': self.theta,
-                'z0': self.z0}
+                'k0': self.k0}
 
     @calibration.setter
     def calibration(self, values):
