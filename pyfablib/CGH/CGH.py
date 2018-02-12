@@ -138,6 +138,22 @@ class CGH(QtCore.QObject):
         self.itheta = 1j * self.outertheta(qx, qy)
 
     @property
+    def xs(self):
+        return self.rs.x()
+
+    @xs.setter
+    def xs(self, xs):
+        self._rs.setX(xs)
+
+    @property
+    def ys(self):
+        return self.rs.y()
+
+    @ys.setter
+    def ys(self, ys):
+        self._rs.setY(ys)
+
+    @property
     def rs(self):
         return self._rs
 
@@ -174,6 +190,30 @@ class CGH(QtCore.QObject):
         self.m.setToIdentity()
         self.m.rotate(self.theta, 0., 0., 1.)
         self.m.translate(-self.rc)
+
+    @property
+    def xc(self):
+        return self.rc.x()
+
+    @xc.setter
+    def xc(self, xc):
+        self._rc.setX(xc)
+
+    @property
+    def yc(self):
+        return self.rc.y()
+
+    @yc.setter
+    def yc(self, yc):
+        self._rc.setY(yc)
+
+    @property
+    def zc(self):
+        return self.rc.z()
+
+    @zc.setter
+    def zc(self, zc):
+        self._rc.setZ(zc)
 
     @property
     def rc(self):
