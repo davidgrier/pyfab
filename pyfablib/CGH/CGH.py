@@ -143,7 +143,9 @@ class CGH(QtCore.QObject):
 
     @xs.setter
     def xs(self, xs):
-        self._rs.setX(xs)
+        rs = self.rs
+        rs.setX(xs)
+        self.rs = rs
 
     @property
     def ys(self):
@@ -151,7 +153,9 @@ class CGH(QtCore.QObject):
 
     @ys.setter
     def ys(self, ys):
-        self._rs.setY(ys)
+        rs = self.rs
+        rs.setY(ys)
+        self.rs = rs
 
     @property
     def rs(self):
@@ -197,7 +201,9 @@ class CGH(QtCore.QObject):
 
     @xc.setter
     def xc(self, xc):
-        self._rc.setX(xc)
+        rc = self.rc
+        rc.setX(xc)
+        self.rc = rc
 
     @property
     def yc(self):
@@ -205,7 +211,9 @@ class CGH(QtCore.QObject):
 
     @yc.setter
     def yc(self, yc):
-        self._rc.setY(yc)
+        rc = self.rc
+        rc.setY(yc)
+        self.rc = rc
 
     @property
     def zc(self):
@@ -213,7 +221,9 @@ class CGH(QtCore.QObject):
 
     @zc.setter
     def zc(self, zc):
-        self._rc.setZ(zc)
+        rc = self.rc
+        rc.setZ(zc)
+        self.rc = rc
 
     @property
     def rc(self):
