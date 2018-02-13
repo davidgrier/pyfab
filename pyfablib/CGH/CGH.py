@@ -64,7 +64,6 @@ class CGH(QtCore.QObject):
 
     @QtCore.pyqtSlot(object, object)
     def setProperty(self, name, value):
-        print(name, value)
         setattr(self, name, value)
 
     @QtCore.pyqtSlot(object)
