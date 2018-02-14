@@ -258,5 +258,5 @@ class QTrappingPattern(pg.ScatterPlotItem):
             group.state = state.selected
             dr = QtGui.QVector3D(0., 0., event.delta() / 120.)
             group.moveBy(dr)
-            group.state = state.normal
+            # group.state = state.normal
         self.group = None

@@ -128,8 +128,8 @@ class CGH(QtCore.QObject):
         self._psi = np.zeros(shape, dtype=np.complex_)
         qx = np.arange(self.w) - self.rs.x()
         qy = np.arange(self.h) - self.rs.y()
-        qx = self.qpp * qx
-        qy = self.alpha * self.qpp * qy
+        qx = self._qpp * qx
+        qy = self._alpha * self._qpp * qy
         self.iqx = 1j * qx
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
@@ -171,7 +171,7 @@ class CGH(QtCore.QObject):
 
     @property
     def qpp(self):
-        return 1000. * self._qpp
+        return self._qpp * 1000.
 
     @qpp.setter
     def qpp(self, qpp):
