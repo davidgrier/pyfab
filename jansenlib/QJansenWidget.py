@@ -82,5 +82,5 @@ class QJansenWidget(QtGui.QWidget):
         elif key == 'R':
             self.dvr.bstop.animateClick(100)
             self.dvr.getFilename()
-            self.dvr.bstart.animateClick(100)
+            self.dvr.brecord.animateClick(100)
         event.accept()
