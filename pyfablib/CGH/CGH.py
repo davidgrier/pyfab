@@ -103,7 +103,7 @@ class CGH(QtCore.QObject):
                     (trap.psi is None)):
                 r = self.m * trap.r
                 # experimental splay calculation
-                fac = 1./(1. + self.k0 * (r.z() - self.rc.z()))
+                fac = 1. / (1. + self.k0 * (r.z() - self.rc.z()))
                 r *= QtGui.QVector3D(fac, fac, 1.)
                 amp = trap.amp * self.window(r)
                 if trap.psi is None:
@@ -171,11 +171,11 @@ class CGH(QtCore.QObject):
 
     @property
     def qpp(self):
-        return self._qpp
+        return 1000. * self._qpp
 
     @qpp.setter
     def qpp(self, qpp):
-        self._qpp = float(qpp)
+        self._qpp = float(qpp) / 1000.
         self.updateGeometry()
         self.compute(all=True)
 
