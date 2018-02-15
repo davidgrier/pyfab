@@ -25,12 +25,10 @@ class CGH(QtCore.QObject):
     each other because the SLM is likely to be tilted relative to the
     optical axis.
 
-    NOTES:
-    This version calls QtGui.qApp.processEvents() after computing
-    each trap's holograms.  This keeps the GUI responsive, but is
-    ugly and slows the CGH computation.  It would be better to
-    move CGH into its own thread, or at least to push the computation
-    into its own thread.
+    NOTE: This version has thread-safe slots for setting parameters
+    (setProperty) and for triggering computations (setTraps).
+    It emits a thread-safe signal (sigHologramReady) to transfer
+    computed holograms.
     """
 
     sigComputing = QtCore.pyqtSignal(bool)
