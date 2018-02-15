@@ -5,7 +5,6 @@
 import numpy as np
 from PyQt4 import QtGui, QtCore
 from numba import jit
-import json
 from time import time
 
 
@@ -253,34 +252,3 @@ class CGH(QtCore.QObject):
     def k0(self, k0):
         self._k0 = float(k0)
         self.compute(all=True)
-
-    @property
-    def calibration(self):
-        return {'qpp': self.qpp,
-                'alpha': self.alpha,
-                'rs': (self.rs.x(), self.rs.y()),
-                'rc': (self.rc.x(), self.rc.y(), self.rc.z()),
-                'theta': self.theta,
-                'kx0': self.kx0,
-                'ky0': self.ky0}
-
-    @calibration.setter
-    def calibration(self, values):
-        if not isinstance(values, dict):
-            return
-        for attribute, value in values.iteritems():
-            print(attribute, value)
-            try:
-                setattr(self, attribute, value)
-            except AttributeError:
-                print('unknown attribute:', attribute)
-
-    def serialize(self):
-        return json.dumps(self.calibration,
-                          indent=2,
-                          separators=(',', ': '),
-                          ensure_ascii=False)
-
-    def deserialize(self, s):
-        values = json.loads(s)
-        self.calibration = values
