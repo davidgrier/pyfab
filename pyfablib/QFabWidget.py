@@ -16,7 +16,6 @@ class QFabWidget(QJansenWidget):
 
     def __init__(self, **kwargs):
         super(QFabWidget, self).__init__(**kwargs)
-
         self.init_configuration()
 
     def init_components(self):
@@ -25,17 +24,18 @@ class QFabWidget(QJansenWidget):
         self.slm = QSLM()
         # computation pipeline for the trapping pattern
         self.cgh = CGH(slm=self.slm)
+        self.cgh.sigHologramReady.connect(self.slm.setData)
         self.wcgh = QCGHPropertyWidget(self.cgh, self.screen)
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
         self.pattern = traps.QTrappingPattern(parent=self.screen)
         self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.cgh.sigComputing.connect(self.pattern.pauseSignals)
-        self.cgh.sigHologramReady.connect(self.slm.setData)
+
         self.thread = QtCore.QThread()
         self.cgh.moveToThread(self.thread)
         self.thread.start()
-
+    
     def init_ui(self):
         super(QFabWidget, self).init_ui()
         # Help tab is at last index
@@ -80,6 +80,12 @@ class QFabWidget(QJansenWidget):
     def close(self):
         self.pattern.clearTraps()
         self.slm.close()
+        self.slm = None
+        self.cgh.deleteLater()
+        self.cgh = None
+        self.thread.quit()
+        self.thread.wait()
+        self.thread = None
 
     def closeEvent(self, event):
         self.close()

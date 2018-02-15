@@ -14,8 +14,8 @@ from help.QHelpBrowser import QHelpBrowser
 
 class QJansenWidget(QtGui.QWidget):
 
-    def __init__(self, size=(640, 480)):
-        super(QJansenWidget, self).__init__()
+    def __init__(self, size=(640, 480), **kwargs):
+        super(QJansenWidget, self).__init__(**kwargs)
         self.size = size
         self.init_components()
         self.init_ui()
