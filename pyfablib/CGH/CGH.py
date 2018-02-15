@@ -98,18 +98,17 @@ class CGH(QtCore.QObject):
             if ((all is True) or
                     (trap.state == trap.state.selected) or
                     (trap.psi is None)):
+                # map coordinates into trap space
                 r = self.m * trap.r
-                # experimental splay calculation
+                # axial splay
                 fac = 1. / (1. + self.k0 * (r.z() - self.rc.z()))
                 r *= QtGui.QVector3D(fac, fac, 1.)
+                # windowing
                 amp = trap.amp * self.window(r)
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
                 self.compute_one(amp, r, trap.psi)
             self._psi += trap.psi
-            # QtGui.qApp.processEvents()
-            # QtGui.qApp.processEvents(QtCore.QEventLoop.ExcludeUserInputEvents)
-        # self.slm.data = self.quantize(self._psi)
         self.sigHologramReady.emit(self.quantize(self._psi))
         self.time = time() - start
         self.sigComputing.emit(False)
