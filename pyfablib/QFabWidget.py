@@ -33,6 +33,7 @@ class QFabWidget(QJansenWidget):
         self.cgh.sigComputing.connect(self.pattern.pauseSignals)
 
         self.thread = QtCore.QThread()
+        self.thread.started.connect(self.cgh.start)
         self.cgh.moveToThread(self.thread)
         self.thread.start()
     

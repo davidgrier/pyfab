@@ -47,7 +47,6 @@ class CGH(QtCore.QObject):
         self._alpha = 1.
         # Location of optical axis in SLM coordinates
         self._rs = QtCore.QPointF(self.w / 2., self.h / 2.)
-        self.updateGeometry()
 
         # Coordinate transformation matrix for trap locations
         self.m = QtGui.QMatrix4x4()
@@ -55,9 +54,13 @@ class CGH(QtCore.QObject):
         self._rc = QtGui.QVector3D(320., 240., 0.)
         # Orientation of camera relative to SLM
         self._theta = 0.
-        self.updateTransformationMatrix()
         # Splay wavenumber
         self._k0 = 0.01
+
+    @QtCore.pyqtSlot()
+    def start(self):
+        self.updateGeometry()
+        self.updateTransformationMatrix()
 
     @QtCore.pyqtSlot(object, object)
     def setProperty(self, name, value):
