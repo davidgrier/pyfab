@@ -35,10 +35,11 @@ class QVideoItem(pg.ImageItem):
         self.device = QCameraDevice(**kwargs)
         self.device.sigNewFrame.connect(self.updateImage)
         self.sigPause.connect(self.device.pause)
-        self._thread = QtCore.QThread()
-        self._thread.started.connect(self.device.start)
-        self.device.moveToThread(self._thread)
-        self._thread.start()
+        self.camThread = QtCore.QThread()
+        self.camThread.start()
+        self.device.moveToThread(self.camThread)
+        self.camThread.started.connect(self.device.start)
+        self.camThread.finished.connect(self.device.stop)
 
         # image conversions
         self._conversion = None
@@ -54,13 +55,13 @@ class QVideoItem(pg.ImageItem):
         self.transposed = bool(transposed)
         self._filters = list()
 
-        # clean up video source on shutdown
-        self.destroyed.connect(self.close)
-
     def close(self):
-        self._thread.quit()
-        self.device.close()
-        self._thread.wait()
+        self.camThread.quit()
+        self.camThread.wait()
+        self.camThread = None
+
+    def closeEvent(self):
+        self.close()
 
     def updateFPS(self):
         """Calculate frames per second."""
