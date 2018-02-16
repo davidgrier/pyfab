@@ -1,18 +1,28 @@
+from PyQt4 import QtCore
 from CGH import CGH
+import numpy as np
+
+import pycuda.driver as cuda
+from pycuda.tools import make_default_context
 import pycuda.gpuarray as gpuarray
-import pycuda.autoinit
 import pycuda.cumath as cumath
 from pycuda.compiler import SourceModule
-import numpy as np
+import atexit
+
+cuda.init()
 
 
 class cudaCGH(CGH):
 
     def __init__(self, **kwargs):
         super(cudaCGH, self).__init__(**kwargs)
-        self.init_cuda()
+        atexit.register(self.stop)
 
-    def init_cuda(self):
+    @QtCore.pyqtSlot()
+    def start(self):
+        self.context = make_default_context()
+        self.device = self.context.get_device()
+
         mod = SourceModule("""
         #include <pycuda-complex.hpp>
         typedef pycuda::complex<float> pyComplex;
@@ -36,7 +46,7 @@ class cudaCGH(CGH):
           else
             return(angle);
         }
-        
+
         __global__ void outertheta(float *x, \
                                    float *y, \
                                    float *out, \
@@ -64,7 +74,7 @@ class cudaCGH(CGH):
             }
           }
         }
-                      
+
         __global__ void phase(pyComplex *psi, \
                               unsigned char *out, \
                               int nx, int ny)
@@ -92,6 +102,12 @@ class cudaCGH(CGH):
         dy, my = divmod(self.h, self.block[1])
         self.grid = ((dx + (mx > 0)) * self.block[0],
                      (dy + (my > 0)) * self.block[1])
+        super(cudaCGH, self).start()
+
+    @QtCore.pyqtSlot()
+    def stop(self):
+        self.context.pop()
+        self.context = None
 
     def quantize(self, psi):
         self.phase(psi, self._phi,
@@ -117,8 +133,8 @@ class cudaCGH(CGH):
         self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
         qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
         qy = gpuarray.arange(self.h, dtype=np.float32).astype(np.complex64)
-        qx = self.qpp * (qx - self.rs.x())
-        qy = self.alpha * self.qpp * (qy - self.rs.y())
+        qx = self._qpp * (qx - self.xs)
+        qy = self._alpha * self._qpp * (qy - self.ys)
         self.iqx = 1j * qx
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
