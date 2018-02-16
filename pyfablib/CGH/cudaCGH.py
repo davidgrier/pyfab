@@ -105,8 +105,8 @@ class cudaCGH(CGH):
     @QtCore.pyqtSlot()
     def stop(self):
         super(cudaCGH, self).stop()
-        # self.context.pop()
-        # self.context.detach()
+        self.context.pop()
+        self.context = None
         tools.clear_context_caches()
 
     def quantize(self, psi):

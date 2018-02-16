@@ -16,7 +16,6 @@ class QFabWidget(QJansenWidget):
 
     def __init__(self, **kwargs):
         super(QFabWidget, self).__init__(**kwargs)
-        self.init_configuration()
 
     def init_components(self):
         super(QFabWidget, self).init_components()
@@ -33,9 +32,10 @@ class QFabWidget(QJansenWidget):
         self.cgh.sigComputing.connect(self.pattern.pauseSignals)
 
         self.thread = QtCore.QThread()
-        self.thread.started.connect(self.cgh.start)
-        self.cgh.moveToThread(self.thread)
         self.thread.start()
+        self.cgh.moveToThread(self.thread)
+        self.thread.started.connect(self.cgh.start)
+        self.thread.finished.connect(self.cgh.stop)
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
@@ -69,21 +69,10 @@ class QFabWidget(QJansenWidget):
         wtraps.setLayout(layout)
         return wtraps
 
-    def init_configuration(self):
-        sz = self.screen.video.device.size
-        self.wcgh.xc = sz.width() / 2
-        self.wcgh.yc = sz.height() / 2
-        self.wcgh.zc = 0.
-        sz = self.slm.size()
-        self.wcgh.xs = sz.width() / 2
-        self.wcgh.ys = sz.height() / 2
-
     def close(self):
         self.pattern.clearTraps()
         self.slm.close()
         self.slm = None
-        self.cgh.stop()
-        self.cgh = None
         self.thread.quit()
         self.thread.wait()
         self.thread = None
