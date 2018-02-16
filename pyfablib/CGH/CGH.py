@@ -4,8 +4,9 @@
 
 import numpy as np
 from PyQt4 import QtGui, QtCore
-#from numba import jit
+from numba import jit
 from time import time
+import logging
 
 
 class CGH(QtCore.QObject):
@@ -60,13 +61,13 @@ class CGH(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def start(self):
-        print('starting')
+        logging.info('starting CGH pipeline')
         self.updateGeometry()
         self.updateTransformationMatrix()
 
     @QtCore.pyqtSlot()
     def stop(self):
-        print('stopping')
+        logging.info('stopping CGH pipeline')
 
     @QtCore.pyqtSlot(object, object)
     def setProperty(self, name, value):
@@ -77,12 +78,12 @@ class CGH(QtCore.QObject):
         self.traps = traps
         self.compute()
 
- #   @jit(parallel=True)
+    @jit(parallel=True)
     def quantize(self, psi):
         phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
         return phi.T
 
- #   @jit(parallel=True)
+    @jit(parallel=True)
     def compute_one(self, amp, r, buffer):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
@@ -96,7 +97,7 @@ class CGH(QtCore.QObject):
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
- #   @jit(parallel=True)
+    @jit(parallel=True)
     def compute(self, all=False):
         """Compute phase hologram for specified traps
         """
