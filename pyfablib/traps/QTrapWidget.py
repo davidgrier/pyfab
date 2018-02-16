@@ -1,20 +1,18 @@
-from PyQt4.QtGui import QFrame, QWidget, QVBoxLayout, QHBoxLayout, QScrollArea
-from PyQt4.QtGui import QLineEdit, QDoubleValidator
-from PyQt4.QtCore import Qt, pyqtSignal, QString
+from PyQt4 import QtGui, QtCore
 
 
-class QTrapProperty(QLineEdit):
+class QTrapProperty(QtGui.QLineEdit):
 
-    valueChanged = pyqtSignal(float)
+    valueChanged = QtCore.pyqtSignal(float)
 
     def __init__(self, value, decimals=1):
         super(QTrapProperty, self).__init__()
-        self.setAlignment(Qt.AlignRight)
+        self.setAlignment(QtCore.Qt.AlignRight)
         self.setMaximumWidth(50)
-        self.setMaxLength(7)
+        self.setMaxLength(8)
         self.fmt = '%' + '.%df' % decimals
-        v = QDoubleValidator(decimals=decimals)
-        v.setNotation(QDoubleValidator.StandardNotation)
+        v = QtGui.QDoubleValidator(decimals=decimals)
+        v.setNotation(QtGui.QDoubleValidator.StandardNotation)
         self.setValidator(v)
         self.value = value
         self.returnPressed.connect(self.updateValue)
@@ -29,16 +27,16 @@ class QTrapProperty(QLineEdit):
 
     @value.setter
     def value(self, value):
-        self.setText(QString(self.fmt % value))
+        self.setText(QtCore.QString(self.fmt % value))
         self.updateValue()
 
 
-class QTrapLine(QWidget):
+class QTrapLine(QtGui.QWidget):
 
     def __init__(self, trap):
         super(QTrapLine, self).__init__()
-        layout = QHBoxLayout()
-        layout.setSpacing(1)
+        layout = QtGui.QHBoxLayout()
+        layout.setSpacing(0)
         layout.setMargin(0)
         self.wx = QTrapProperty(trap.r.x())
         self.wy = QTrapProperty(trap.r.y())
@@ -66,7 +64,7 @@ class QTrapLine(QWidget):
         self.wp.value = trap.phi
 
 
-class QTrapWidget(QFrame):
+class QTrapWidget(QtGui.QFrame):
 
     def __init__(self, pattern=None):
         super(QTrapWidget, self).__init__()
@@ -76,21 +74,41 @@ class QTrapWidget(QFrame):
             pattern.trapAdded.connect(self.registerTrap)
 
     def init_ui(self):
-        self.setFrameShape(QFrame.Box)
-        inner = QWidget()
-        self.layout = QVBoxLayout()
-        self.layout.setSpacing(1)
-        self.layout.setMargin(1)
-        self.layout.setAlignment(Qt.AlignTop)
+        self.setFrameShape(QtGui.QFrame.Box)
+        inner = QtGui.QWidget()
+        self.layout = QtGui.QVBoxLayout()
+        self.layout.setSpacing(0)
+        self.layout.setMargin(0)
+        self.layout.setAlignment(QtCore.Qt.AlignTop)
         inner.setLayout(self.layout)
-        scroll = QScrollArea()
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll = QtGui.QScrollArea()
+        scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         scroll.setWidgetResizable(True)
         scroll.setWidget(inner)
-        layout = QVBoxLayout(self)
+        layout = QtGui.QVBoxLayout(self)
         layout.addWidget(scroll)
         self.setLayout(layout)
+        self.layout.addWidget(self.labelLine())
+
+    def labelItem(self, name):
+        label = QtGui.QLabel(name)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setMaximumWidth(50)
+        return label
+
+    def labelLine(self):
+        widget = QtGui.QWidget()
+        layout = QtGui.QHBoxLayout()
+        layout.setSpacing(0)
+        layout.setMargin(0)
+        layout.addWidget(self.labelItem('x'))
+        layout.addWidget(self.labelItem('y'))
+        layout.addWidget(self.labelItem('z'))
+        layout.addWidget(self.labelItem('alpha'))
+        layout.addWidget(self.labelItem('phi'))
+        widget.setLayout(layout)
+        return widget
 
     def registerTrap(self, trap):
         trapline = QTrapLine(trap)
