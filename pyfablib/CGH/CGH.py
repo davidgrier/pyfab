@@ -62,6 +62,10 @@ class CGH(QtCore.QObject):
         self.updateGeometry()
         self.updateTransformationMatrix()
 
+    @QtCore.pyqtSlot()
+    def stop(self):
+        print('CGH stopping')
+
     @QtCore.pyqtSlot(object, object)
     def setProperty(self, name, value):
         setattr(self, name, value)
@@ -90,7 +94,7 @@ class CGH(QtCore.QObject):
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
-    @jit(parallel=True)
+    #@jit(parallel=True)
     def compute(self, all=False):
         """Compute phase hologram for specified traps
         """

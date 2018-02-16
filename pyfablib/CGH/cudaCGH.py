@@ -3,11 +3,10 @@ from CGH import CGH
 import numpy as np
 
 import pycuda.driver as cuda
-from pycuda.tools import make_default_context
+import pycuda.tools as tools
 import pycuda.gpuarray as gpuarray
 import pycuda.cumath as cumath
 from pycuda.compiler import SourceModule
-import atexit
 
 cuda.init()
 
@@ -16,12 +15,11 @@ class cudaCGH(CGH):
 
     def __init__(self, **kwargs):
         super(cudaCGH, self).__init__(**kwargs)
-        atexit.register(self.stop)
 
     @QtCore.pyqtSlot()
     def start(self):
-        self.context = make_default_context()
-        self.device = self.context.get_device()
+        self.device = cuda.Device(0)
+        self.context = self.device.make_context()
 
         mod = SourceModule("""
         #include <pycuda-complex.hpp>
@@ -106,8 +104,10 @@ class cudaCGH(CGH):
 
     @QtCore.pyqtSlot()
     def stop(self):
-        self.context.pop()
-        self.context = None
+        super(cudaCGH, self).stop()
+        # self.context.pop()
+        # self.context.detach()
+        tools.clear_context_caches()
 
     def quantize(self, psi):
         self.phase(psi, self._phi,

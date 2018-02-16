@@ -36,7 +36,7 @@ class QFabWidget(QJansenWidget):
         self.thread.started.connect(self.cgh.start)
         self.cgh.moveToThread(self.thread)
         self.thread.start()
-    
+
     def init_ui(self):
         super(QFabWidget, self).init_ui()
         # Help tab is at last index
@@ -82,7 +82,7 @@ class QFabWidget(QJansenWidget):
         self.pattern.clearTraps()
         self.slm.close()
         self.slm = None
-        self.cgh.deleteLater()
+        self.cgh.stop()
         self.cgh = None
         self.thread.quit()
         self.thread.wait()
