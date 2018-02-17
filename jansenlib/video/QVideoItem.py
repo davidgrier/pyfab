@@ -26,17 +26,17 @@ class QVideoItem(pg.ImageItem):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(**kwargs)
 
-        # run video source in thread to reduce latency
-        self.fps = 0.
-        self._time = QtCore.QTime.currentTime()
-        self.device = QCameraDevice(**kwargs)
-        self.device.sigNewFrame.connect(self.updateImage)
-        self.sigPause.connect(self.device.pause)
-        self.camThread = QtCore.QThread()
-        self.camThread.start()
-        self.device.moveToThread(self.camThread)
-        self.camThread.started.connect(self.device.start)
-        self.camThread.finished.connect(self.device.stop)
+        # image source
+        self.source = QCameraDevice(**kwargs)
+        self.source.sigNewFrame.connect(self.updateImage)
+        self.sigPause.connect(self.source.pause)
+
+        # run source in thread to reduce latency
+        self.thread = QtCore.QThread()
+        self.thread.start()
+        self.source.moveToThread(self.thread)
+        self.thread.started.connect(self.source.start)
+        self.thread.finished.connect(self.source.stop)
 
         # image conversions
         self._conversion = None
@@ -52,10 +52,14 @@ class QVideoItem(pg.ImageItem):
         self.transposed = bool(transposed)
         self._filters = list()
 
+        # performance metrics
+        self.fps = 0.
+        self._time = QtCore.QTime.currentTime()
+
     def close(self):
-        self.camThread.quit()
-        self.camThread.wait()
-        self.camThread = None
+        self.thread.quit()
+        self.thread.wait()
+        self.thread = None
 
     def closeEvent(self):
         self.close()
