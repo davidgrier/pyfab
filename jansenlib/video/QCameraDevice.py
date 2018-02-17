@@ -55,7 +55,7 @@ class QCameraDevice(QtCore.QObject):
     @QtCore.pyqtSlot()
     def close(self):
         self.stop()
-        # self.camera.release() # triggers V4L2 error
+        # self.camera.release()
 
     @property
     def width(self):

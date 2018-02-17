@@ -36,7 +36,7 @@ class QVideoItem(pg.ImageItem):
         self.thread.start()
         self.source.moveToThread(self.thread)
         self.thread.started.connect(self.source.start)
-        self.thread.finished.connect(self.source.stop)
+        self.thread.finished.connect(self.source.close)
 
         # image conversions
         self._conversion = None
@@ -57,6 +57,7 @@ class QVideoItem(pg.ImageItem):
         self._time = QtCore.QTime.currentTime()
 
     def close(self):
+        self.source.close()
         self.thread.quit()
         self.thread.wait()
         self.thread = None

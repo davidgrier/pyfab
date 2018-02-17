@@ -41,6 +41,9 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         """Convenience routine for removing overlays."""
         self.viewbox.removeItem(graphicsItem)
 
+    def close(self):
+        self.video.close()
+
     def mousePressEvent(self, event):
         self.sigMousePress.emit(event)
         event.accept()

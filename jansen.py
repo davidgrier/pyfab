@@ -29,10 +29,17 @@ class jansen(QtGui.QMainWindow):
         exitAction = QtGui.QAction(exitIcon, '&Exit', self)
         exitAction.setShortcut('Ctrl-Q')
         exitAction.setStatusTip('Exit PyFab')
-        exitAction.triggered.connect(QtGui.qApp.quit)
+        exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
         self.setCentralWidget(self.instrument)
+
+    def close(self):
+        self.instrument.close()
+        QtGui.qApp.quit()
+
+    def closeEvent(self, event):
+        self.close()
 
 
 if __name__ == '__main__':

@@ -81,3 +81,9 @@ class QJansenWidget(QtGui.QWidget):
             self.dvr.getFilename()
             self.dvr.brecord.animateClick(100)
         event.accept()
+
+    def close(self):
+        self.screen.close()
+
+    def closeEvent(self, evevnt):
+        self.close()

@@ -68,15 +68,13 @@ class QFabWidget(QJansenWidget):
         return wtraps
 
     def close(self):
+        super(QFabWidget, self).close()
         self.pattern.clearTraps()
         self.slm.close()
         self.slm = None
         self.thread.quit()
         self.thread.wait()
         self.thread = None
-
-    def closeEvent(self, event):
-        self.close()
 
 
 if __name__ == '__main__':
