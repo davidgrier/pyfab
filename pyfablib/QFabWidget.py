@@ -43,14 +43,16 @@ class QFabWidget(QJansenWidget):
         help_index = self.tabs.count() - 1
         # add new tabs
         hw_tab = QHardwareTab()
-        self.tabs.addTab(hw_tab, 'Hardware')
+        if hw_tab.has_content():
+            self.tabs.addTab(hw_tab, 'Hardware')
         self.tabs.addTab(self.cghTab(), 'CGH')
         self.tabs.addTab(self.trapTab(), 'Traps')
         # move Help to end
         self.tabs.tabBar().moveTab(help_index, self.tabs.count() - 1)
         # set current index of hardware tab for expose events
-        hw_tab.index = self.tabs.indexOf(hw_tab)
-        self.tabs.currentChanged.connect(hw_tab.expose)
+        if hw_tab.has_content():
+            hw_tab.index = self.tabs.indexOf(hw_tab)
+            self.tabs.currentChanged.connect(hw_tab.expose)
         # populate help browser
         self.browser.load('pyfab')
         self.wstage = hw_tab.wstage

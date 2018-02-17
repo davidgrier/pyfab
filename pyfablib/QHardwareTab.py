@@ -11,17 +11,20 @@ class QHardwareTab(QtGui.QWidget):
         super(QHardwareTab, self).__init__()
         self.title = 'Hardware'
         self.index = -1
+        self._has_content = False
 
         layout = tabLayout(self)
         try:
             self.wstage = QProscan()
             layout.addWidget(self.wstage)
+            self._has_content = True
         except ValueError as ex:
             self.wstage = None
             logging.warning('Could not install stage: %s', ex)
         try:
             self.wlaser = QIPGLaser()
             layout.addWidget(self.wlaser)
+            self._has_content = False
         except ValueError as ex:
             self.wlaser = None
             logging.warning('Could not install laser: %s', ex)
@@ -37,3 +40,6 @@ class QHardwareTab(QtGui.QWidget):
                 self.wstage.stop()
             if self.wlaser is not None:
                 self.wstage.stop()
+
+    def has_content(self):
+        return self._has_content

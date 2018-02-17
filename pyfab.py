@@ -15,7 +15,7 @@ class pyfab(QtGui.QMainWindow):
         super(pyfab, self).__init__()
         self.instrument = QFabWidget()
         self.init_ui()
-        
+
         self.config = fabconfig(self)
         self.config.restore(self.instrument.wcgh)
         self.show()
