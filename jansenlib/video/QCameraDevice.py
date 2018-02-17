@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """QCameraDevice.py: pyqtgraph module for OpenCV video camera."""
 
 import cv2
@@ -8,7 +6,11 @@ import numpy as np
 
 
 class QCameraDevice(QtCore.QObject):
-    """OpenCV camera"""
+    """OpenCV camera
+
+    Continuously captures frames from a video camera,
+    emitting sigNewFrame when each frame becomes available.
+    """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
@@ -27,7 +29,7 @@ class QCameraDevice(QtCore.QObject):
         self.running = False
         _, self.frame = self.camera.read()
 
-    def loop(self):
+    def run(self):
         while self.running:
             ready, self.frame = self.camera.read()
             if ready:
@@ -37,7 +39,7 @@ class QCameraDevice(QtCore.QObject):
     def start(self):
         if not self.running:
             self.running = True
-            self.loop()
+            self.run()
 
     @QtCore.pyqtSlot()
     def stop(self):
