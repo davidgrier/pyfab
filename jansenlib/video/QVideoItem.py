@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """QVideoItem.py: pyqtgraph module for OpenCV video camera."""
 
 import cv2
@@ -12,7 +10,7 @@ from QCameraDevice import QCameraDevice
 class QVideoItem(pg.ImageItem):
     """Video source for pyqtgraph applications.
     Acts like a pyqtgraph ImageItem whose images are updated
-    by a video source.  Optionally applies filters to modify
+    automatically.  Optionally applies filters to modify
     images obtained from source.
     """
 
@@ -20,14 +18,13 @@ class QVideoItem(pg.ImageItem):
     sigPause = QtCore.pyqtSignal(bool)
 
     def __init__(self,
-                 parent=None,
                  mirrored=False,
                  flipped=True,
                  transposed=False,
                  gray=False,
                  **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
-        super(QVideoItem, self).__init__(parent)
+        super(QVideoItem, self).__init__(**kwargs)
 
         # run video source in thread to reduce latency
         self.fps = 0.
