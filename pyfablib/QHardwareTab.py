@@ -12,7 +12,7 @@ class QHardwareTab(QtGui.QWidget):
         self.title = 'Hardware'
         self.index = -1
 
-        layout = tabLayout()
+        layout = tabLayout(self)
         try:
             self.wstage = QProscan()
             layout.addWidget(self.wstage)
@@ -25,7 +25,6 @@ class QHardwareTab(QtGui.QWidget):
         except ValueError as ex:
             self.wlaser = None
             logging.warning('Could not install laser: %s', ex)
-        self.setLayout(layout)
 
     def expose(self, index):
         if index == self.index:

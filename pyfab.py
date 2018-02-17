@@ -13,12 +13,13 @@ class pyfab(QtGui.QMainWindow):
 
     def __init__(self):
         super(pyfab, self).__init__()
-        self.instrument = QFabWidget(parent=self)
+        self.instrument = QFabWidget()
+        self.init_ui()
+        
         self.config = fabconfig(self)
         self.config.restore(self.instrument.wcgh)
-        self.init_ui()
-        self.setCentralWidget(self.instrument)
         self.show()
+
         tabs = self.instrument.tabs
         tabs.setFixedWidth(tabs.width())
 
@@ -31,6 +32,8 @@ class pyfab(QtGui.QMainWindow):
         self.fileMenu(menubar)
         self.taskMenu(menubar)
         self.calibrationMenu(menubar)
+
+        self.setCentralWidget(self.instrument)
 
     def fileMenu(self, parent):
         menu = parent.addMenu('&File')
@@ -83,7 +86,7 @@ class pyfab(QtGui.QMainWindow):
         action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('stagemacro'))
         menu.addAction(action)
-        
+
     def calibrationMenu(self, parent):
         menu = parent.addMenu('&Calibration')
         action = QtGui.QAction('Calibrate rc', self)

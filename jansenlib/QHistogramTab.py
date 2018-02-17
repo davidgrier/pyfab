@@ -15,7 +15,6 @@ class QHistogramTab(QtGui.QWidget):
         self.video = video_source
 
         layout = tabLayout(self)
-        self.setLayout(layout)
 
         histo = pg.PlotWidget(background='w')
         histo.setMaximumHeight(250)

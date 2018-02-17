@@ -57,16 +57,14 @@ class QFabWidget(QJansenWidget):
 
     def cghTab(self):
         wcgh = QtGui.QWidget()
-        layout = tabLayout()
+        layout = tabLayout(wcgh)
         layout.addWidget(self.wcgh)
-        wcgh.setLayout(layout)
         return wcgh
 
     def trapTab(self):
         wtraps = QtGui.QWidget()
-        layout = tabLayout()
+        layout = tabLayout(wtraps)
         layout.addWidget(traps.QTrapWidget(self.pattern))
-        wtraps.setLayout(layout)
         return wtraps
 
     def close(self):
