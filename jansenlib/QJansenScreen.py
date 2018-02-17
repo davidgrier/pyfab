@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """QJansenScreen.py: PyQt GUI for live video with graphical overlay."""
 
 import pyqtgraph as pg
@@ -34,7 +32,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.viewbox.setRange(self.video.source.roi,
                               padding=0, update=True)
         self.viewbox.addItem(self.video)
-   
+
     def addOverlay(self, graphicsItem):
         """Convenience routine for placing overlays over video."""
         self.viewbox.addItem(graphicsItem)
@@ -42,9 +40,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     def removeOverlay(self, graphicsItem):
         """Convenience routine for removing overlays."""
         self.viewbox.removeItem(graphicsItem)
-
-    def closeEvent(self, event):
-        self.video.close()
 
     def mousePressEvent(self, event):
         self.sigMousePress.emit(event)
