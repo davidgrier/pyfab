@@ -35,7 +35,7 @@ class QJansenWidget(QtGui.QWidget):
         self.wvideo.enabled = not recording
 
     def init_ui(self):
-        layout = QtGui.QHBoxLayout()
+        layout = QtGui.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
         layout.addWidget(self.screen)
@@ -48,15 +48,13 @@ class QJansenWidget(QtGui.QWidget):
         self.tabs.addTab(self.helpTab(), 'Help')
         layout.addWidget(self.tabs)
         layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
-        self.setLayout(layout)
 
     def videoTab(self):
         wvideo = QtGui.QWidget()
-        layout = tabLayout()
+        layout = tabLayout(wvideo)
         layout.addWidget(self.dvr)
         layout.addWidget(self.wvideo)
         layout.addWidget(self.filters)
-        wvideo.setLayout(layout)
         return wvideo
 
     def helpTab(self):
@@ -64,10 +62,9 @@ class QJansenWidget(QtGui.QWidget):
         self.browser = QHelpBrowser('jansen')
         bback = QtGui.QPushButton('Back')
         bback.clicked.connect(self.browser.back)
-        layout = tabLayout()
+        layout = tabLayout(whelp)
         layout.addWidget(bback)
         layout.addWidget(self.browser)
-        whelp.setLayout(layout)
         return whelp
 
     def keyPressEvent(self, event):
