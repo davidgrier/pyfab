@@ -31,7 +31,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.viewbox = self.addViewBox(enableMenu=False,
                                        enableMouse=False,
                                        lockAspect=1.)
-        self.viewbox.setRange(self.video.device.roi,
+        self.viewbox.setRange(self.video.source.roi,
                               padding=0, update=True)
         self.viewbox.addItem(self.video)
    
