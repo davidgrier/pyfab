@@ -79,6 +79,7 @@ class QDVRWidget(QtGui.QFrame):
         palette.setColor(palette.Background, QtGui.QColor(255, 255, 255))
         lcd.setPalette(palette)
         lcd.setAutoFillBackground(True)
+        lcd.setToolTip('Frame counter')
         return lcd
 
     def filenameWidget(self):
@@ -86,6 +87,7 @@ class QDVRWidget(QtGui.QFrame):
         line.setText(self.filename)
         line.setReadOnly(True)
         clickable(line).connect(self.getFilename)
+        line.setToolTip('Click to change file name')
         return line
 
     def getFilename(self):
