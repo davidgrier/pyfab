@@ -5,6 +5,28 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
 from QCameraDevice import QCameraDevice
+from collections import deque
+
+
+class QFPS(QtCore.QObject):
+
+    def __init__(self, depth=24):
+        super(QFPS, self).__init__()
+        self.fifo = deque()
+        self.depth = depth
+        self._fps = 24.
+
+    @QtCore.pyqtSlot(np.ndarray)
+    def update(self, image):
+        now = QtCore.QTime.currentTime()
+        self.fifo.appendleft(now)
+        if len(self.fifo) <= self.depth:
+            return
+        then = self.fifo.pop()
+        self._fps = 1000. * self.depth / then.msecsTo(now)
+
+    def value(self):
+        return self._fps
 
 
 class QVideoItem(pg.ImageItem):
@@ -30,6 +52,8 @@ class QVideoItem(pg.ImageItem):
         self.source = QCameraDevice(**kwargs)
         self.source.sigNewFrame.connect(self.updateImage)
         self.sigPause.connect(self.source.pause)
+        self._width = self.source.width
+        self._height = self.source.height
 
         # run source in thread to reduce latency
         self.thread = QtCore.QThread()
@@ -53,8 +77,9 @@ class QVideoItem(pg.ImageItem):
         self._filters = list()
 
         # performance metrics
-        self.fps = 0.
-        self._time = QtCore.QTime.currentTime()
+        self._fps = QFPS()
+        self.sigNewFrame.connect(self._fps.update)
+        self.fps = self._fps.value
 
     def close(self):
         self.source.close()
@@ -64,15 +89,6 @@ class QVideoItem(pg.ImageItem):
 
     def closeEvent(self):
         self.close()
-
-    def updateFPS(self):
-        """Calculate frames per second."""
-        now = QtCore.QTime.currentTime()
-        try:
-            self.fps = 1000. / (self._time.msecsTo(now))
-        except ZeroDivisionError:
-            self.fps = 24.
-        self._time = now
 
     @QtCore.pyqtSlot(np.ndarray)
     def updateImage(self, image):
@@ -86,12 +102,17 @@ class QVideoItem(pg.ImageItem):
             image = filter(image)
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)
-        self.updateFPS()
 
     def pause(self, state):
         """sigPause can be caught by video source to pause
         image stream."""
         self.emit.sigPause(state)
+
+    def width(self):
+        return self._width
+
+    def height(self):
+        return self._height
 
     @property
     def gray(self):
