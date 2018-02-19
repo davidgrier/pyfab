@@ -18,6 +18,19 @@ class QCGHPropertyWidget(QPropertySheet):
         self.wxs = register('xs', cgh.rs.x(), 0, slm.width(), setter)
         self.wys = register('ys', cgh.rs.y(), 0, slm.height(), setter)
         self.wk0 = register('k0', cgh.k0, -10, 10, setter)
+        self.addToolTips()
+
+    def addToolTips(self):
+        self.wqpp.setToolTip('Overall scale factor [mrad/pixel]')
+        self.walpha.setToolTip('x-y anisotropy')
+        self.wxc.setToolTip('x position of optical axis on camera [pixel]')
+        self.wyc.setToolTip('y position of optical axis on camera [pixel]')
+        self.wzc.setToolTip('axial position of zeroth-order plane [pixel]')
+        self.wtheta.setToolTip(
+            'orientation of camera relative to SLM [degrees]')
+        self.wxs.setToolTip('x position of optical axis on SLM [pixel]')
+        self.wys.setToolTip('y position of optical axis on SLM [pixel]')
+        self.wk0.setToolTip('Axial splay factor [radian/pixel]')
 
     def configuration(self):
         return {'xs': self.wxs.value,
