@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Trap Tab</title>
+</head>
+
+<body>
+<h2>Trap Tab</h2>
+<p>The trap tab presents real-time information on the optical
+traps in the current trapping pattern.  For each trap, the
+interface presents the following information:</p>
+<dl>
+  <dt>x, y, z</dt>
+  <dd>Current position of the trap in image coordinates [pixel].</dd>
+
+  <dt>alpha</dt>
+  <dd>The amplitude of the trap relative to other traps in the pattern
+    (Default: 1).</dd>
+
+  <dt>phi</dt>
+  <dd>The phase of the trap relative to the incident beam [radians].
+    (Default: random)</dd>
+</dl>
+
+<p>Entries for traps appear when traps are created and disappear when
+traps are destroyed.  Changing any value changes the associated
+property of the particular trap in real time.  The graphical
+representation of the trap also updates to reflect the change.</p>
+
+<hr>
+</body> </html>
