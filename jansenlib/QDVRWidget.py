@@ -106,11 +106,11 @@ class QDVRWidget(QtGui.QFrame):
             return
         self._nframes = nframes
         self._framenumber = 0
-        w = self.source.device.width
-        h = self.source.device.height
+        w = self.source.width()
+        h = self.source.height()
         color = not self.source.gray
         self._writer = cv2.VideoWriter(self.filename, self._fourcc,
-                                       self.source.fps, (w, h), color)
+                                       self.source.fps(), (w, h), color)
         self.source.sigNewFrame.connect(self.write)
         self.recording.emit(True)
 
