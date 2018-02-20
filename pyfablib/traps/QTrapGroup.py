@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-
 """QTrapGroup.py: Container for optical traps."""
 
-from pyqtgraph.Qt import QtCore
+from pyqtgraph.Qt import QtCore, QtGui
 from QTrap import QTrap
 
 
@@ -14,6 +12,7 @@ class QTrapGroup(QtCore.QObject):
         self.children = []
         self.name = name
         self.active = active
+        self._r = QtGui.QVector3D()
         # self.psi = None
 
     def add(self, child):
@@ -52,6 +51,7 @@ class QTrapGroup(QtCore.QObject):
         super(QTrapGroup, self).deleteLater()
 
     def _update(self):
+        self.updatePosition()
         if self.active:
             self.parent._update()
 
@@ -101,6 +101,17 @@ class QTrapGroup(QtCore.QObject):
             child.active = active
         self._active = active
 
+    @property
+    def r(self):
+        return self._r
+
+    def updatePosition(self):
+        self._r *= 0.
+        traps = self.flatten()
+        for trap in traps:
+            self._r += trap.r
+        self._r /= len(traps)
+
     def moveBy(self, dr):
         """Translate traps in the group.
         """
@@ -109,3 +120,8 @@ class QTrapGroup(QtCore.QObject):
             child.moveBy(dr)
         self.active = True
         self._update()
+
+    def rotateTo(self, xy):
+        """Rotate group of traps about its center.
+        """
+        pass
