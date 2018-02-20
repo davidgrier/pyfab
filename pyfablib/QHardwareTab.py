@@ -24,7 +24,7 @@ class QHardwareTab(QtGui.QWidget):
         try:
             self.wlaser = QIPGLaser()
             layout.addWidget(self.wlaser)
-            self._has_content = False
+            self._has_content = True
         except ValueError as ex:
             self.wlaser = None
             logging.warning('Could not install laser: %s', ex)
