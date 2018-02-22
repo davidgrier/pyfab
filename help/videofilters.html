@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Video Filters</title>
+</head>
+
+<body>
+<h2>Video Filters</h2>
+<p>A video filter performs an operation on each frame coming
+from the video camera and then passes along the transformed
+frame for further filtering or for display.
+Filters are applied sequentially in the order they are selected.
+Some "filters" may not change an image, but instead might extract
+information.</p>
+
+<p>Select a filter by clicking on its check box</p>
+
+<h3>Filters</h3>
+<dl>
+  <dt>Median</dt>
+  <dd>Performs a running median filter on the image stream.  Moving
+    objects disappear and the stationary background remains.
+  </dd>
+
+  <dt>Normalize</dt>
+  <dd>Divide (normalize) each frame with a running median.  This
+    emphasizes moving foreground features and suppresses the
+    static background.
+  </dd>
+
+  <dt>Sample and Hold</dt>
+  <dd>Estimate the background with a running median filter and then
+    use that estimate to normalize subsequent frames.
+  </dd>
+</dl>
+
+
+<hr>
+</body> </html>
