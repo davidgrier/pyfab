@@ -7,13 +7,11 @@ from video.QVideoItem import QVideoItem
 
 class QJansenScreen(pg.GraphicsLayoutWidget):
     """Interactive display for pyfab system.
-    QJansenScreen ncorporates a QVideoItem to display live video.
+    QJansenScreen incorporates a QVideoItem to display live video.
     Additional GraphicsItems can be added to the viewbox
     as overlays over the video stream.
     Interaction with graphical items is facilitated
-    by emitting custom signals corresponding to mouse events.
-    A separate module must interpret these signals and update
-    the graphics display accordingly.
+    by custom signals that correspond to mouse events.
     """
     sigMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)

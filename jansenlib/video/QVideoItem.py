@@ -15,6 +15,7 @@ class QFPS(QtCore.QObject):
         self.fifo = deque()
         self.depth = depth
         self._fps = 24.
+        self._pause = False
 
     @QtCore.pyqtSlot(np.ndarray)
     def update(self, image):
@@ -104,9 +105,14 @@ class QVideoItem(pg.ImageItem):
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)
 
-    def pause(self, state):
+    @QtCore.pyqtSlot()
+    def pause(self, paused=None):
         """sigPause can be caught by video source to pause
         image stream."""
+        if paused is None:
+            state = not self._pause
+        else:
+            state = bool(paused)
         self.emit.sigPause(state)
 
     def width(self):
