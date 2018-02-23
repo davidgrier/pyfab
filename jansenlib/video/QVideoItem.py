@@ -82,9 +82,10 @@ class QVideoItem(pg.ImageItem):
         self.fps = self._fps.value
 
     def close(self):
-        self.thread.finished.emit()
+        self.source.stop()
         self.thread.quit()
         self.thread.wait()
+        self.source = None
         self.thread = None
 
     def closeEvent(self):
