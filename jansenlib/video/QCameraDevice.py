@@ -35,6 +35,7 @@ class QCameraDevice(QtCore.QObject):
             ready, self.frame = self.camera.read()
             if ready and self.emitting:
                 self.sigNewFrame.emit(self.frame)
+        self.camera.release()
 
     @QtCore.pyqtSlot()
     def start(self):
@@ -44,15 +45,7 @@ class QCameraDevice(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def stop(self):
-        """This slot stops the acquisition loop.  If this object
-        has been moved into a separate QThread, the thread will
-        emit finished().  This signal can be connected to self.close()
-        to clean up the camera."""
         self.running = False
-
-    @QtCore.pyqtSlot()
-    def close(self):
-        self.camera.release()
 
     @QtCore.pyqtSlot(bool)
     def pause(self, paused):

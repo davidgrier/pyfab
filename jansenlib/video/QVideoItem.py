@@ -61,7 +61,7 @@ class QVideoItem(pg.ImageItem):
         self.thread.start()
         self.source.moveToThread(self.thread)
         self.thread.started.connect(self.source.start)
-        self.thread.finished.connect(self.source.close)
+        self.thread.finished.connect(self.cleanup)
 
         # image conversions
         self._conversion = None
@@ -83,11 +83,15 @@ class QVideoItem(pg.ImageItem):
         self.fps = self._fps.value
 
     def close(self):
+        """Stopping the video source causes the thread to
+        emit its finished() signal, which triggers cleanup()."""
         self.source.stop()
+
+    def cleanup(self):
         self.thread.quit()
         self.thread.wait()
-        self.source = None
         self.thread = None
+        self.source = None
 
     def closeEvent(self):
         self.close()
