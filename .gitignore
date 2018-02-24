@@ -1,4 +1,5 @@
 *.py[cod]
 *test*
 *.bak
+*.DS_Store
 *~
