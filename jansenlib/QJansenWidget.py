@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """QJansenWidget.py: GUI for holographic video microscopy."""
 

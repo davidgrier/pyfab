@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Efficient approximation to a running median filter."""
+
 import numpy as np
 
 
@@ -8,8 +12,8 @@ class vmedian(object):
 
         :param order: depth of median filter: 3^(order + 1) images
         :param dimensions: (width, height) of images
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         self.child = None
@@ -37,8 +41,8 @@ class vmedian(object):
         """include a new image in the median calculation
 
         :param data: image data
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         if data.shape != self.shape:

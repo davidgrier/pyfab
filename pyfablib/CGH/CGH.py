@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """CGH.py: compute phase-only holograms for optical traps."""
 

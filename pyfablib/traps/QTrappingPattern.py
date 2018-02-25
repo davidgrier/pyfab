@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """QTrappingPattern.py: Interactive overlay for manipulating optical traps."""
 

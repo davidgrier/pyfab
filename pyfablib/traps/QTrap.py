@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 
 """QTrap.py: Base class for an optical trap."""
 

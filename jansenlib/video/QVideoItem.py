@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """QVideoItem.py: pyqtgraph module for OpenCV video camera."""
 
 import cv2

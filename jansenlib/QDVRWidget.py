@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for DVR functionality."""
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 import cv2

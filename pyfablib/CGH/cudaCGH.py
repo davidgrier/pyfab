@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""CUDA-accelerated CGH computation pipeline"""
+
 from PyQt4 import QtCore
 from CGH import CGH
 import numpy as np
@@ -139,14 +143,3 @@ class cudaCGH(CGH):
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
         self.iqysq = 1j * qy * qy
-
-
-if __name__ == '__main__':
-    from PyQt4.QtGui import QApplication
-    import sys
-    from QSLM import QSLM
-
-    app = QApplication(sys.argv)
-    slm = QSLM()
-    cgh = cudaCGH(slm)
-    sys.exit(app.exec_())

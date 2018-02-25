@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """QJansenScreen.py: PyQt GUI for live video with graphical overlay."""
 
 import pyqtgraph as pg

@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for video properties."""
+
 from common.QPropertySheet import QPropertySheet
 
 

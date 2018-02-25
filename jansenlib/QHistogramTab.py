@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Visualization of image histograms."""
+
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from common.tabLayout import tabLayout

@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for an IPG fiber laser."""
+
 from PyQt4 import QtCore, QtGui
 import os
 import numpy as np
@@ -16,7 +20,7 @@ class indicator(QtGui.QWidget):
 
     def __init__(self, title, states=None, button=False, **kwargs):
         super(indicator, self).__init__(**kwargs)
-        
+
         self.title = title
         self.led_size = 24
         if states is None:
@@ -81,7 +85,7 @@ class status_widget(QtGui.QFrame):
         self.led_emx.set(emx)
         self.led_flt.set(flt)
 
-        
+
 class power_widget(QtGui.QWidget):
 
     def __init__(self, **kwargs):
@@ -142,7 +146,7 @@ class QIPGLaser(QtGui.QFrame):
     def shutdown(self):
         self.stop()
         self.instrument.close()
-        
+
     def init_ui(self):
         self.setFrameShape(QtGui.QFrame.Box)
         layout = QtGui.QVBoxLayout()
@@ -167,11 +171,11 @@ class QIPGLaser(QtGui.QFrame):
 
     def toggleaim(self):
         state = self.instrument.aimingbeam()
-        self.instrument.aimingbeam(state = not state)
+        self.instrument.aimingbeam(state=not state)
 
     def toggleemission(self):
         state = self.instrument.emission()
-        self.instrument.emission(state = not state)
+        self.instrument.emission(state=not state)
 
     def update(self):
         flags = self.instrument.flags()
