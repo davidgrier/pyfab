@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """QFabWidget.py: GUI for holographic optical trapping."""
 

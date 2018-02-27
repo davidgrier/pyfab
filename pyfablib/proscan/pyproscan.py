@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Abstraction of a Prior Proscan stage controller."""
+
 from common.SerialDevice import SerialDevice
 
 

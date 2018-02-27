@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for configuring hologram calculation."""
+
 from common.QPropertySheet import QPropertySheet
 
 

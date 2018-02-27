@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """QTrapGroup.py: Container for optical traps."""
 
 from pyqtgraph.Qt import QtCore, QtGui

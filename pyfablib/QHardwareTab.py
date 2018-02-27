@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for holographic trapping hardware"""
+
 from pyqtgraph.Qt import QtGui
 from proscan.QProscan import QProscan
 from IPG.QIPGLaser import QIPGLaser

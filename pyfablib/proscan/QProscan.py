@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for Prior Proscan stage controller."""
+
 from PyQt4 import QtGui, QtCore
 from .pyproscan import pyproscan
 import atexit
@@ -22,7 +26,7 @@ class QProscan(QtGui.QFrame):
     def start(self):
         self._timer.start()
         return self
-    
+
     def shutdown(self):
         self.stop()
         self.instrument.close()

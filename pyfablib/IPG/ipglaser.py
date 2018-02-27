@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Abstraction of an IPG fiber laser."""
+
 from common.SerialDevice import SerialDevice
 import logging
 
@@ -57,7 +61,7 @@ class ipglaser(SerialDevice):
         if not isinstance(flags, int):
             flags = self.flags()
         return bool(self.flags() & self.flag[flagstr])
-        
+
     def current(self):
         cur = float(self.command('RDC'))
         min = float(self.command('RNC'))

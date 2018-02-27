@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """QSLM.py: PyQt abstraction for a Spatial Light Modulator (SLM)."""
 

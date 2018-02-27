@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for trap properties."""
+
 from PyQt4 import QtGui, QtCore
 
 
 class QTrapProperty(QtGui.QLineEdit):
+    """Control for one property of one trap."""
 
     valueChanged = QtCore.pyqtSignal(float)
 
@@ -32,7 +37,8 @@ class QTrapProperty(QtGui.QLineEdit):
 
 
 class QTrapLine(QtGui.QWidget):
-
+    """Control for properties of one trap."""
+    
     def __init__(self, trap):
         super(QTrapLine, self).__init__()
         layout = QtGui.QHBoxLayout()
@@ -65,7 +71,8 @@ class QTrapLine(QtGui.QWidget):
 
 
 class QTrapWidget(QtGui.QFrame):
-
+    """Controls for all traps."""
+    
     def __init__(self, pattern=None):
         super(QTrapWidget, self).__init__()
         self.properties = dict()

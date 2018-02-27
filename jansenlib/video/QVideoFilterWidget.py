@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Control panel for standard video filters."""
+
 from PyQt4 import QtGui, QtCore
 from vmedian import vmedian
 import numpy as np
