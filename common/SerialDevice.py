@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import serial
 from serial.tools.list_ports import comports
 import io

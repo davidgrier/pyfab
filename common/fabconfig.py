@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 import os
 import io
@@ -7,13 +9,14 @@ import logging
 
 
 class fabconfig(object):
+
     def __init__(self, parent):
         self.parent = parent
         self.datadir = os.path.expanduser('~/data/')
         self.configdir = os.path.expanduser('~/.pyfab/')
         self.configfile = os.path.join(self.configdir, 'pyfab.json')
         if not os.path.exists(self.datadir):
-            logging.info('Creating data directory: '+self.datadir)
+            logging.info('Creating data directory: ' + self.datadir)
             os.makedirs(self.datadir)
         if not os.path.exists(self.configdir):
             logging.info('Creating configuration directory: '+self.configdir)

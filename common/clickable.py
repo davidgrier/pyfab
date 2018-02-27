@@ -1,7 +1,11 @@
+# -*- coding: utf-8 -*-
+
 from PyQt4 import QtCore
 
 
 def clickable(widget):
+    """Adds a clicked signal to a widget such as QLineEdit that
+    ordinarily does not provide notifications of clicks."""
 
     class Filter(QtCore.QObject):
 

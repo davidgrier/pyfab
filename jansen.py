@@ -43,9 +43,9 @@ class jansen(QtGui.QMainWindow):
         fileMenu = menubar.addMenu('&File')
 
         exitIcon = QtGui.QIcon.fromTheme('exit')
-        exitAction = QtGui.QAction(exitIcon, '&Exit', self)
+        exitAction = QtGui.QAction(exitIcon, '&Quit', self)
         exitAction.setShortcut('Ctrl-Q')
-        exitAction.setStatusTip('Exit PyFab')
+        exitAction.setStatusTip('Quit PyFab')
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
