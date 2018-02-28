@@ -40,6 +40,8 @@ class QVideoPlayer(QtCore.QObject):
         ready, self.frame = self.capture.read()
         if ready:
             self.sigNewFrame.emit(self.frame)
+            self.framenumber += 1
+            print(self.framenumber)
 
     def open(self, filename):
         self.filename = filename
@@ -53,6 +55,7 @@ class QVideoPlayer(QtCore.QObject):
         self._timer.timeout.connect(self.emit)
         self._timer.start(1000. / self.fps)
         self.paused = False
+        self.framenumber = 0
 
     @QtCore.pyqtSlot()
     def stop(self):
@@ -94,7 +97,11 @@ class QVideoPlayer(QtCore.QObject):
 
 
 if __name__ == '__main__':
+    import sys
+    from PyQt4 import QtGui
+
+    app = QtGui.QApplication(sys.argv)
     fn = '/Users/grier/data/fabdvr.avi'
     a = QVideoPlayer(fn)
-    print(a.length(), a.fps())
-    a.capture.release()
+    a.start()
+    sys.exit(app.exec_())
