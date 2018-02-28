@@ -84,6 +84,11 @@ class QVideoItem(pg.ImageItem):
         self.sigNewFrame.connect(self._fps.update)
         self.fps = self._fps.value
 
+    def connectSource(self, source):
+        """provide means to change video sources, including
+        alternative cameras and video files."""
+        pass
+
     def close(self):
         """Stopping the video source causes the thread to
         emit its finished() signal, which triggers cleanup()."""
