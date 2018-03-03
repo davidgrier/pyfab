@@ -46,16 +46,27 @@ class QDVRWidget(QtGui.QFrame):
         self.brecord = self.recordButton()
         self.bstop = self.stopButton()
         self.wframe = self.framecounterWidget()
-        wfilelabel = QtGui.QLabel('file name')
-        wfilelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.wfilename = self.filenameWidget()
+        wsavelabel = QtGui.QLabel('Save As')
+        wsavelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.wsavename = self.saveFilenameWidget()
+        self.brewind = self.rewindButton()
+        self.bpause = self.pauseButton()
+        self.bplay = self.playButton()
+        wplaylabel = QtGui.QLabel('Play')
+        wplaylabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.wplayname = self.playFilenameWidget()
         # Place widgets in layout
         layout.addWidget(title, 1, 1, 1, 3)
         layout.addWidget(self.brecord, 2, 1)
         layout.addWidget(self.bstop, 2, 2)
         layout.addWidget(self.wframe, 2, 3)
-        layout.addWidget(wfilelabel, 3, 1)
-        layout.addWidget(self.wfilename, 3, 2, 1, 2)
+        layout.addWidget(wsavelabel, 3, 1)
+        layout.addWidget(self.wsavename, 3, 2, 1, 2)
+        layout.addWidget(self.brewind, 4, 1)
+        layout.addWidget(self.bpause, 4, 2)
+        layout.addWidget(self.bplay, 4, 3)
+        layout.addWidget(wplaylabel, 5, 1)
+        layout.addWidget(self.wplayname, 5, 2, 1, 2)
         self.setLayout(layout)
 
     def recordButton(self):
@@ -86,22 +97,64 @@ class QDVRWidget(QtGui.QFrame):
         lcd.setToolTip('Frame counter')
         return lcd
 
-    def filenameWidget(self):
+    def saveFilenameWidget(self):
         line = QtGui.QLineEdit()
         line.setText(self.filename)
         line.setReadOnly(True)
-        clickable(line).connect(self.getFilename)
+        clickable(line).connect(self.getSaveFilename)
         line.setToolTip('Click to change file name')
         return line
 
-    def getFilename(self):
+    def getSaveFilename(self):
         if self.is_recording():
             return
         filename = QtGui.QFileDialog.getSaveFileName(
             self, 'Video File Name', self.filename, 'Video files (*.avi)')
         if filename:
-            self._filename = str(filename)
-            self.wfilename.setText(self._filename)
+            self.filename = str(filename)
+            self.wsavename.setText(self.filename)
+            self.wplayname.setText(self.filename)
+
+    def rewindButton(self):
+        b = QtGui.QPushButton('Rewind', self)
+        b.clicked.connect(self.stop)  # FIXME
+        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaSkipBackward))
+        b.setIconSize(self.iconSize)
+        b.setToolTip('Pause video')
+        return b
+
+    def playButton(self):
+        b = QtGui.QPushButton('Play', self)
+        b.clicked.connect(self.stop)  # FIXME
+        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPlay))
+        b.setIconSize(self.iconSize)
+        b.setToolTip('Play video')
+        return b
+
+    def pauseButton(self):
+        b = QtGui.QPushButton('Pause', self)
+        b.clicked.connect(self.stop)  # FIXME
+        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPause))
+        b.setIconSize(self.iconSize)
+        b.setToolTip('Pause video')
+        return b
+
+    def playFilenameWidget(self):
+        line = QtGui.QLineEdit()
+        line.setText(self.filename)
+        line.setReadOnly(True)
+        clickable(line).connect(self.getPlayFilename)
+        line.setToolTip('Click to change file name')
+        return line
+
+    def getPlayFilename(self):
+        if self.is_recording():
+            return
+        filename = QtGui.QFileDialog.getOpenFileName(
+            self, 'Video File Name', self.filename, 'Video files (*.avi)')
+        if filename:
+            self._playname = str(filename)
+            self.wplayname.setText(self._playname)
 
     @QtCore.pyqtSlot()
     def record(self, nframes=10000):
@@ -147,6 +200,7 @@ class QDVRWidget(QtGui.QFrame):
     def filename(self, filename):
         if not self.is_recording():
             self._filename = os.path.expanduser(filename)
+            self._playname = self._filename
 
     def is_recording(self):
         return (self._writer is not None)
