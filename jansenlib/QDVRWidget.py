@@ -4,6 +4,7 @@
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+from video.QVideoPlayer import QVideoPlayer
 import cv2
 import os
 from common.clickable import clickable
@@ -20,14 +21,16 @@ class QDVRWidget(QtGui.QFrame):
                  **kwargs):
         super(QDVRWidget, self).__init__(**kwargs)
 
-        self.source = source
         self._writer = None
-        self._framenumber = 0
-        self._nframes = 0
+        self._player = None
         if cv2.__version__.startswith('2.'):
             self._fourcc = cv2.cv.CV_FOURCC(*codec)
         else:
             self._fourcc = cv2.VideoWriter_fourcc(*codec)
+        self._framenumber = 0
+        self._nframes = 0
+
+        self.source = source
         self.filename = filename
 
         self.initUI()
@@ -125,7 +128,7 @@ class QDVRWidget(QtGui.QFrame):
 
     def playButton(self):
         b = QtGui.QPushButton('Play', self)
-        b.clicked.connect(self.stop)  # FIXME
+        b.clicked.connect(self.play)  # FIXME
         b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPlay))
         b.setIconSize(self.iconSize)
         b.setToolTip('Play video')
@@ -141,7 +144,7 @@ class QDVRWidget(QtGui.QFrame):
 
     def playFilenameWidget(self):
         line = QtGui.QLineEdit()
-        line.setText(self.filename)
+        line.setText(self.playname)
         line.setReadOnly(True)
         clickable(line).connect(self.getPlayFilename)
         line.setToolTip('Click to change file name')
@@ -154,11 +157,15 @@ class QDVRWidget(QtGui.QFrame):
             self, 'Video File Name', self.filename, 'Video files (*.avi)')
         if filename:
             self._playname = str(filename)
-            self.wplayname.setText(self._playname)
+            self.wplayname.setText(self.playname)
+
+    # Recording functionality
 
     @QtCore.pyqtSlot()
     def record(self, nframes=10000):
-        if (self.is_recording() or (self.source is None) or
+        if (self.is_recording() or
+                self.is_playing() or
+                (self.source is None) or
                 (nframes <= 0)):
             return
         self._nframes = nframes
@@ -176,6 +183,10 @@ class QDVRWidget(QtGui.QFrame):
         if self.is_recording():
             self.source.sigNewFrame.disconnect(self.write)
             self._writer.release()
+        if self.is_playing():
+            # FIXME disconnect player from screen
+            self._player.stop()
+            print('stopped playing')
         self._nframes = 0
         self._writer = None
         self.recording.emit(False)
@@ -187,23 +198,56 @@ class QDVRWidget(QtGui.QFrame):
             frame = cv2.flip(frame, 0)
         self._writer.write(frame)
         self._framenumber += 1
-        self.wframe.display(self._framenumber)
+        self.wframe.display(self.framenumber)
         if (self._framenumber == self._nframes):
             self.stop()
 
+    # Playback functionality
+
+    @QtCore.pyqtSlot()
+    def play(self):
+        if self.is_recording():
+            return
+        # FIXME open player and connect to screen
+        self._framenumber = 0
+        self._player = QVideoPlayer(self.playname)
+        print('playing')
+
+    @QtCore.pyqtSlot()
+    def rewind(self):
+        self.stop()
+        self.play()
+
+    @QtCore.pyqtSlot()
+    def pause(self):
+        pass  # FIXME
+
     # Core capabilities
+
     @property
     def filename(self):
         return self._filename
 
     @filename.setter
     def filename(self, filename):
-        if not self.is_recording():
+        if not (self.is_recording() or self.is_playing()):
             self._filename = os.path.expanduser(filename)
             self._playname = self._filename
 
+    @property
+    def playname(self):
+        return self._playname
+
+    @playname.setter
+    def playname(self, filename):
+        if not (self.is_playing()):
+            self._playname = os.path.expanduser(filename)
+
     def is_recording(self):
         return (self._writer is not None)
+
+    def is_playing(self):
+        return (self._player is not None)
 
     def framenumber(self):
         return self._framenumber

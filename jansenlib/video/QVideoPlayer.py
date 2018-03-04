@@ -46,13 +46,13 @@ class QVideoPlayer(QtCore.QObject):
     def open(self, filename):
         self.filename = filename
         self.capture = cv2.VideoCapture(self.filename)
+        self._timer = QtCore.QTimer()
+        self._timer.timeout.connect(self.emit)
 
     @QtCore.pyqtSlot()
     def start(self):
         if self.capture is None:
             return
-        self._timer = QtCore.QTimer()
-        self._timer.timeout.connect(self.emit)
         self._timer.start(1000. / self.fps)
         self.paused = False
         self.framenumber = 0
