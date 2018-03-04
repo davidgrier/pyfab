@@ -5,6 +5,7 @@
 import cv2
 from pyqtgraph.Qt import QtCore
 import numpy as np
+import time
 
 
 class QVideoPlayer(QtCore.QObject):
@@ -20,6 +21,9 @@ class QVideoPlayer(QtCore.QObject):
                  filename=None):
         super(QVideoPlayer, self).__init__()
 
+        self.filename = filename
+        self.capture = cv2.VideoCapture(self.filename)
+
         if cv2.__version__.startswith('2.'):
             self._WIDTH = cv2.cv.CV_CAP_PROP_FRAME_WIDTH
             self._HEIGHT = cv2.cv.CV_CAP_PROP_FRAME_HEIGHT
@@ -31,45 +35,43 @@ class QVideoPlayer(QtCore.QObject):
             self._LENGTH = cv2.CAP_PROP_FRAME_COUNT
             self._FPS = cv2.CAP_PROP_FPS
 
-        self.paused = False
-        self.open(filename)
+        self.delay = 1. / self.fps
+        self.running = False
+        self.emitting = True
+        self.rewinding = False
 
-    def emit(self):
-        if self.paused:
-            return
-        ready, self.frame = self.capture.read()
-        if ready:
-            self.sigNewFrame.emit(self.frame)
-            self.framenumber += 1
-            print(self.framenumber)
-
-    def open(self, filename):
-        self.filename = filename
-        self.capture = cv2.VideoCapture(self.filename)
-        self._timer = QtCore.QTimer()
-        self._timer.timeout.connect(self.emit)
+    def run(self):
+        while self.running:
+            if self.rewinding:
+                self.capture.release()
+                self.capture = cv2.VideoCapture(self.filename)
+                self.rewinding = False
+            ready, self.frame = self.capture.read()
+            if ready and self.emitting:
+                self.sigNewFrame.emit(self.frame)
+                self.framenumber += 1
+                print(self.framenumber)
+            time.sleep(self.delay)
+        self.capture.release()
 
     @QtCore.pyqtSlot()
     def start(self):
-        if self.capture is None:
-            return
-        self._timer.start(1000. / self.fps)
-        self.paused = False
-        self.framenumber = 0
+        if not self.running:
+            self.running = True
+            self.framenumber = 0
+            self.run()
 
     @QtCore.pyqtSlot()
     def stop(self):
-        self._timer.stop()
-        self.capture.release()
+        self.running = False
 
     @QtCore.pyqtSlot(bool)
     def pause(self, paused):
-        self.paused = paused
+        self.emitting = not paused
 
     @QtCore.pyqtSlot()
     def rewind(self):
-        self.capture.release()
-        self.open(self.filename)
+        self.rewinding = True
 
     @property
     def width(self):
