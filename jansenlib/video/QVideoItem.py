@@ -41,6 +41,7 @@ class QVideoItem(pg.ImageItem):
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
     sigPause = QtCore.pyqtSignal(bool)
+    sigStop = QtCore.pyqtSignal()
 
     def __init__(self,
                  mirrored=False,
@@ -55,6 +56,7 @@ class QVideoItem(pg.ImageItem):
         self.source = QCameraDevice(**kwargs)
         self.source.sigNewFrame.connect(self.updateImage)
         self.sigPause.connect(self.source.pause)
+        self.sigStop.connect(self.source.stop)
         self._width = self.source.width
         self._height = self.source.height
 
@@ -87,15 +89,21 @@ class QVideoItem(pg.ImageItem):
     def connectSource(self, source):
         """provide means to change video sources, including
         alternative cameras and video files."""
-        self.source.sigNewFrame.connect(self.udpateImage)
+        source.sigNewFrame.connect(self.udpateImage)
         self.sigPause.connect(self.source.pause)
         self._width = self.source.width
         self._height = self.source.height
 
+        self.thread = QtCore.QThread()
+        self.thread.start()
+        source.moveToThread(self.thread)
+        self.thread.started.connect(source.start)
+        self.thread.finished.connect(self.cleanup)
+
     def close(self):
         """Stopping the video source causes the thread to
         emit its finished() signal, which triggers cleanup()."""
-        self.source.stop()
+        self.sigStop.emit()
 
     def cleanup(self):
         self.thread.quit()
