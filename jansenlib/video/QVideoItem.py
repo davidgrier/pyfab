@@ -44,6 +44,7 @@ class QVideoItem(pg.ImageItem):
     sigStop = QtCore.pyqtSignal()
 
     def __init__(self,
+                 source=None,
                  mirrored=False,
                  flipped=True,
                  transposed=False,
@@ -51,21 +52,6 @@ class QVideoItem(pg.ImageItem):
                  **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(**kwargs)
-
-        # image source
-        self.source = QCameraDevice(**kwargs)
-        self.source.sigNewFrame.connect(self.updateImage)
-        self.sigPause.connect(self.source.pause)
-        self.sigStop.connect(self.source.stop)
-        self._width = self.source.width
-        self._height = self.source.height
-
-        # run source in thread to reduce latency
-        self.thread = QtCore.QThread()
-        self.thread.start()
-        self.source.moveToThread(self.thread)
-        self.thread.started.connect(self.source.start)
-        self.thread.finished.connect(self.cleanup)
 
         # image conversions
         self._conversion = None
@@ -86,19 +72,35 @@ class QVideoItem(pg.ImageItem):
         self.sigNewFrame.connect(self._fps.update)
         self.fps = self._fps.value
 
-    def connectSource(self, source):
+        self.source = QCameraDevice(**kwargs)
+
+    @property
+    def source(self):
+        return self._source
+
+    @source.setter
+    def source(self, source):
         """provide means to change video sources, including
         alternative cameras and video files."""
-        source.sigNewFrame.connect(self.udpateImage)
-        self.sigPause.connect(self.source.pause)
-        self._width = self.source.width
-        self._height = self.source.height
 
+        # disconnect any existing source
+        self.sigStop.emit()
+
+        # connect signals for new source
+        source.sigNewFrame.connect(self.updateImage)
+        self.sigPause.connect(source.pause)
+        self.sigStop.connect(source.stop)
+        self._width = source.width
+        self._height = source.height
+
+        # move source to background thread to reduce latency
         self.thread = QtCore.QThread()
         self.thread.start()
         source.moveToThread(self.thread)
         self.thread.started.connect(source.start)
         self.thread.finished.connect(self.cleanup)
+
+        self._source = source
 
     def close(self):
         """Stopping the video source causes the thread to
