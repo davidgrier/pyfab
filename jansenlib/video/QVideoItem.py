@@ -87,7 +87,10 @@ class QVideoItem(pg.ImageItem):
     def connectSource(self, source):
         """provide means to change video sources, including
         alternative cameras and video files."""
-        pass
+        self.source.sigNewFrame.connect(self.udpateImage)
+        self.sigPause.connect(self.source.pause)
+        self._width = self.source.width
+        self._height = self.source.height
 
     def close(self):
         """Stopping the video source causes the thread to
