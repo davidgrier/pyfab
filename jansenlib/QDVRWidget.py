@@ -15,7 +15,7 @@ class QDVRWidget(QtGui.QFrame):
     recording = QtCore.pyqtSignal(bool)
 
     def __init__(self,
-                 source=None,
+                 stream=None,
                  filename='~/data/fabdvr.avi',
                  codec='HFYU',
                  **kwargs):
@@ -30,7 +30,8 @@ class QDVRWidget(QtGui.QFrame):
         self._framenumber = 0
         self._nframes = 0
 
-        self.source = source
+        self.stream = stream
+        self.camera = self.stream.source
         self.filename = filename
 
         self.initUI()
@@ -165,23 +166,23 @@ class QDVRWidget(QtGui.QFrame):
     def record(self, nframes=10000):
         if (self.is_recording() or
                 self.is_playing() or
-                (self.source is None) or
+                (self.stream is None) or
                 (nframes <= 0)):
             return
         self._nframes = nframes
         self._framenumber = 0
-        w = self.source.width()
-        h = self.source.height()
-        color = not self.source.gray
+        w = self.stream.width()
+        h = self.stream.height()
+        color = not self.stream.gray
         self._writer = cv2.VideoWriter(self.filename, self._fourcc,
-                                       self.source.fps(), (w, h), color)
-        self.source.sigNewFrame.connect(self.write)
+                                       self.stream.fps(), (w, h), color)
+        self.stream.sigNewFrame.connect(self.write)
         self.recording.emit(True)
 
     @QtCore.pyqtSlot()
     def stop(self):
         if self.is_recording():
-            self.source.sigNewFrame.disconnect(self.write)
+            self.stream.sigNewFrame.disconnect(self.write)
             self._writer.release()
         if self.is_playing():
             # FIXME disconnect player from screen
@@ -192,13 +193,13 @@ class QDVRWidget(QtGui.QFrame):
         self.recording.emit(False)
 
     def write(self, frame):
-        if self.source.transposed:
+        if self.stream.transposed:
             frame = cv2.transpose(frame)
-        if self.source.flipped:
+        if self.stream.flipped:
             frame = cv2.flip(frame, 0)
         self._writer.write(frame)
         self._framenumber += 1
-        self.wframe.display(self.framenumber)
+        self.wframe.display(self._framenumber)
         if (self._framenumber == self._nframes):
             self.stop()
 
