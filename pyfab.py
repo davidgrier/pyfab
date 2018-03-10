@@ -149,7 +149,7 @@ class pyfab(QtGui.QMainWindow):
                 directory=filename,
                 filter='Image files (*.png)')
         if filename:
-            qimage = self.instrument.fabscreen.video.qimage
+            qimage = self.instrument.screen.video.qimage
             qimage.mirrored(vertical=True).save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
