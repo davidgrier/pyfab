@@ -185,9 +185,8 @@ class QDVRWidget(QtGui.QFrame):
             self.stream.sigNewFrame.disconnect(self.write)
             self._writer.release()
         if self.is_playing():
-            # FIXME disconnect player from screen
             self._player.stop()
-            print('stopped playing')
+            self.stream.source = self.stream.defaultSource()
         self._nframes = 0
         self._writer = None
         self.recording.emit(False)
@@ -209,15 +208,14 @@ class QDVRWidget(QtGui.QFrame):
     def play(self):
         if self.is_recording():
             return
-        # FIXME open player and connect to screen
         self._framenumber = 0
         self._player = QVideoPlayer(self.playname)
-        print('playing')
+        self._player.start()
+        self.stream.source = self._player
 
     @QtCore.pyqtSlot()
     def rewind(self):
-        self.stop()
-        self.play()
+        self._player.rewind()
 
     @QtCore.pyqtSlot()
     def pause(self):

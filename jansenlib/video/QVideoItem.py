@@ -72,7 +72,12 @@ class QVideoItem(pg.ImageItem):
         self.sigNewFrame.connect(self._fps.update)
         self.fps = self._fps.value
 
-        self.source = QCameraDevice(**kwargs)
+        self.kwargs = kwargs
+        self.source = self.defaultSource()
+
+    def defaultSource(self):
+        kwargs = self.kwargs
+        return QCameraDevice(**kwargs)
 
     @property
     def source(self):
@@ -83,8 +88,14 @@ class QVideoItem(pg.ImageItem):
         """provide means to change video sources, including
         alternative cameras and video files."""
 
-        # disconnect any existing source
+        # stop existing sources
         self.sigStop.emit()
+
+        # disconnect existing source
+        try:
+            self._source.sigNewFrame.disconnect(self.updateImage)
+        except AttributeError:
+            pass
 
         # connect signals for new source
         source.sigNewFrame.connect(self.updateImage)
