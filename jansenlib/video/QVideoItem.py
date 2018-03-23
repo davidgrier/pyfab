@@ -43,7 +43,7 @@ class QVideoItem(pg.ImageItem):
     sigPause = QtCore.pyqtSignal(bool)
     sigStop = QtCore.pyqtSignal()
 
-    def __init__(self,
+    def __init__(self, parent=None, 
                  source=None,
                  mirrored=False,
                  flipped=True,
@@ -52,7 +52,7 @@ class QVideoItem(pg.ImageItem):
                  **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(**kwargs)
-
+	self.parent = parent
         # image conversions
         self._conversion = None
         if cv2.__version__.startswith('2.'):

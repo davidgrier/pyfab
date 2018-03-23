@@ -24,7 +24,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         super(QJansenScreen, self).__init__(parent)
 
         # VideoItem displays video feed
-        self.video = QVideoItem(**kwargs)
+        self.video = QVideoItem(parent=self, **kwargs)
         # ViewBox presents video and contains overlays
         self.viewbox = self.addViewBox(enableMenu=False,
                                        enableMouse=False,
