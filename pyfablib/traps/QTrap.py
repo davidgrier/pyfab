@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 """QTrap.py: Base class for an optical trap."""
 
@@ -26,7 +26,7 @@ class QTrap(QtCore.QObject):
 
     def __init__(self,
                  parent=None,
-                 r=None,
+                 r=QtGui.QVector3D(),
                  a=1.,
                  phi=None,
                  psi=None,

@@ -30,17 +30,23 @@ class fabconfig(object):
         return os.path.join(self.datadir,
                             prefix + self.timestamp() + suffix)
 
+    def configname(self, object):
+        classname = object.__class__.__name__
+        return os.path.join(self.configdir, classname + '.json')
+
     def save(self, object):
         configuration = json.dumps(object.configuration(),
                                    indent=2,
                                    separators=(',', ': '),
                                    ensure_ascii=False)
-        with io.open(self.configfile, 'w', encoding='utf8') as configfile:
+        filename = self.configname(object)
+        with io.open(filename, 'w', encoding='utf8') as configfile:
             configfile.write(unicode(configuration))
 
     def restore(self, object):
         try:
-            config = json.load(io.open(self.configfile))
+            filename = self.configname(object)
+            config = json.load(io.open(filename))
             object.setConfiguration(config)
         except IOError as ex:
             msg = ('Could not read configuration file:\n\t' +
