@@ -9,6 +9,7 @@ import logging
 
 
 class fabconfig(object):
+    """Save and restore configuration of objects for pyfab/jansen."""
 
     def __init__(self, parent):
         self.parent = parent
@@ -19,12 +20,12 @@ class fabconfig(object):
             logging.info('Creating data directory: ' + self.datadir)
             os.makedirs(self.datadir)
         if not os.path.exists(self.configdir):
-            logging.info('Creating configuration directory: '+self.configdir)
+            logging.info('Creating configuration directory: ' + self.configdir)
             os.makedirs(self.configdir)
 
     def timestamp(self):
         return datetime.now().strftime('_%Y%b%d_%H%M%S')
-    
+
     def filename(self, prefix='pyfab', suffix=None):
         return os.path.join(self.datadir,
                             prefix + self.timestamp() + suffix)
