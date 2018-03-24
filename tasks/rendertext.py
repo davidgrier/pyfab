@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from numpy.random import normal
@@ -7,6 +9,7 @@ import os
 
 
 class rendertext(task):
+    """Project a pattern of traps that spells out a word."""
 
     def __init__(self,
                  text='hello',

@@ -12,14 +12,13 @@ class stagesinusoid(task):
         self.amplitude = amplitude
         self.speed = speed
         self.cycles = cycles
-        
 
-    def initialize(self):
+    def initialize(self, frame):
         self.stage = self.parent.wstage.instrument
         self.position = self.stage.position()
-        acceleration = self.speed**2/(6.*self.amplitude)
-        scurve = acceleration**2/(2.*self.speed)
-        self.stage.setMaxSpeed(1.5*self.speed)
+        acceleration = self.speed**2 / (6. * self.amplitude)
+        scurve = acceleration**2 / (2. * self.speed)
+        self.stage.setMaxSpeed(1.5 * self.speed)
         self.stage.setAcceleration(acceleration)
         self.stage.setSCurve(scurve)
         x0 = self.position[0]

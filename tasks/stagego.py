@@ -4,7 +4,7 @@ from task import task
 class stagego(task):
 
     def __init__(self,
-                 dx = -100,
+                 dx=-100,
                  speed=1,
                  **kwargs):
         super(stagego, self).__init__(**kwargs)
@@ -12,7 +12,7 @@ class stagego(task):
         self.speed = speed
         self.nframes = 10
 
-    def initialize(self):
+    def initialize(self, frame):
         self.wstage = self.parent.wstage
         self.stage = self.wstage.instrument
         self.position = self.stage.position()

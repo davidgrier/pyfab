@@ -4,7 +4,7 @@ from task import task
 class stagemacro(task):
 
     def __init__(self,
-                 macro = None,
+                 macro=None,
                  **kwargs):
         super(stagemacro, self).__init__(**kwargs)
         self.macro = ['SOAK',
@@ -15,7 +15,7 @@ class stagemacro(task):
                       'SOAK']
         self.target = 5
 
-    def initialize(self):
+    def initialize(self, frame):
         self.wstage = self.parent.wstage
         self.stage = self.wstage.instrument
         self.target = self.stage.position()

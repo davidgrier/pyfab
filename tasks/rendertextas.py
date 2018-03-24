@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
+
 from rendertext import rendertext
 from PyQt4.QtGui import QInputDialog
 
 
 class rendertextas(rendertext):
+    """Projects a pattern of traps that spells a word that
+    the user inputs with a pop-up dialog.
+    """
+
     def __init__(self, **kwargs):
         super(rendertextas, self).__init__(**kwargs)
         qtext, ok = QInputDialog.getText(self.parent,

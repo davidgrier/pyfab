@@ -7,8 +7,7 @@ class calibrate_cgh(maxtask):
     def __init__(self, **kwargs):
         super(calibrate_cgh, self).__init__(**kwargs)
 
-    def setParent(self, parent):
-        self.parent = parent
+    def initialize(self, frame):
         self.parent.pattern.clearTraps()
         rc = self.parent.cgh.rc
         r1 = rc + QVector3D(100, 0, 0)
