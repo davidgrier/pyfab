@@ -9,7 +9,10 @@ import logging
 
 
 class fabconfig(object):
-    """Save and restore configuration of objects for pyfab/jansen."""
+    """Save and restore configuration of objects for pyfab/jansen.
+
+    The configuration object also includes utility functions for
+    standard timestamps and standard file names."""
 
     def __init__(self, parent):
         self.parent = parent
@@ -30,10 +33,12 @@ class fabconfig(object):
                             prefix + self.timestamp() + suffix)
 
     def configname(self, object):
+        """Configuration file is named for the class of the object."""
         classname = object.__class__.__name__
         return os.path.join(self.configdir, classname + '.json')
 
     def save(self, object):
+        """Save configuration of object as json file."""
         configuration = json.dumps(object.configuration(),
                                    indent=2,
                                    separators=(',', ': '),
@@ -43,6 +48,7 @@ class fabconfig(object):
             configfile.write(unicode(configuration))
 
     def restore(self, object):
+        """Restore object's configuration from json file."""
         try:
             filename = self.configname(object)
             config = json.load(io.open(filename))
