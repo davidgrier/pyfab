@@ -16,9 +16,10 @@ class QCameraDevice(QtCore.QObject):
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, cameraId=0, size=None):
+    def __init__(self, cameraID=0, size=None):
         super(QCameraDevice, self).__init__()
-        self.camera = cv2.VideoCapture(cameraId)
+
+        self.camera = cv2.VideoCapture(cameraID)
 
         if cv2.__version__.startswith('2.'):
             self._WIDTH = cv2.cv.CV_CAP_PROP_FRAME_WIDTH

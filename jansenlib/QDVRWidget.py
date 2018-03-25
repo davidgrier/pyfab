@@ -121,7 +121,7 @@ class QDVRWidget(QtGui.QFrame):
 
     def rewindButton(self):
         b = QtGui.QPushButton('Rewind', self)
-        b.clicked.connect(self.stop)  # FIXME
+        b.clicked.connect(self.rewind)
         b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaSkipBackward))
         b.setIconSize(self.iconSize)
         b.setToolTip('Pause video')
@@ -137,7 +137,7 @@ class QDVRWidget(QtGui.QFrame):
 
     def pauseButton(self):
         b = QtGui.QPushButton('Pause', self)
-        b.clicked.connect(self.stop)  # FIXME
+        b.clicked.connect(self.pause)
         b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPause))
         b.setIconSize(self.iconSize)
         b.setToolTip('Pause video')
@@ -215,11 +215,13 @@ class QDVRWidget(QtGui.QFrame):
 
     @QtCore.pyqtSlot()
     def rewind(self):
-        self._player.rewind()
+        if self.is_playing():
+            self._player.rewind()
 
     @QtCore.pyqtSlot()
     def pause(self):
-        pass  # FIXME
+        if self.is_playing():
+            self._player.pause(True)
 
     # Core capabilities
 

@@ -9,6 +9,7 @@ from video.QVideoItem import QVideoItem
 
 class QJansenScreen(pg.GraphicsLayoutWidget):
     """Interactive display for pyfab system.
+
     QJansenScreen incorporates a QVideoItem to display live video.
     Additional GraphicsItems can be added to the viewbox
     as overlays over the video stream.

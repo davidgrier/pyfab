@@ -15,27 +15,29 @@ class QVideoPlayer(QtCore.QObject):
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
-    finished = QtCore.pyqtSignal()
+    # finished = QtCore.pyqtSignal()
 
     def __init__(self,
                  filename=None):
         super(QVideoPlayer, self).__init__()
 
         self.filename = filename
+        self.running = False
 
         if cv2.__version__.startswith('2.'):
+            self._SEEK = cv2.cv.CV_CAP_PROP_POS_FRAMES
             self._WIDTH = cv2.cv.CV_CAP_PROP_FRAME_WIDTH
             self._HEIGHT = cv2.cv.CV_CAP_PROP_FRAME_HEIGHT
             self._LENGTH = cv2.cv.CV_CAP_PROP_FRAME_COUNT
             self._FPS = cv2.cv.CV_CAP_PROP_FPS
         else:
+            self._SEEK = cv2.CAP_PROP_POS_FRAMES
             self._WIDTH = cv2.CAP_PROP_FRAME_WIDTH
             self._HEIGHT = cv2.CAP_PROP_FRAME_HEIGHT
             self._LENGTH = cv2.CAP_PROP_FRAME_COUNT
             self._FPS = cv2.CAP_PROP_FPS
 
-        self.running = False
-        self.emitting = True
+        self.open()
 
     def open(self):
         self.capture = cv2.VideoCapture(self.filename)
@@ -46,38 +48,47 @@ class QVideoPlayer(QtCore.QObject):
     def close(self):
         self.capture.release()
 
+    def seek(self, frame):
+        self.capture.set(self._SEEK, frame)
+
     @QtCore.pyqtSlot()
     def emit(self):
         if not self.running:
+            self.close()
+            # self.finished.emit()
             return
-        ready, self.frame = self.capture.read()
-        if ready:
-            self.sigNewFrame.emit(self.frame)
-            QtCore.QTimer.singleShot(self.delay, self.emit)
-        else:
-            self.finished.emit()
-            print('eof')
-
-    @QtCore.pyqtSlot()
-    def rewind(self):
-        self.stop()
-        self.start()
+        if self.rewinding:
+            self.seek(0)
+            self.rewinding = False
+        if self.emitting:
+            ready, self.frame = self.capture.read()
+            if ready:
+                self.sigNewFrame.emit(self.frame)
+            else:
+                print('eof')
+        QtCore.QTimer.singleShot(self.delay, self.emit)
 
     @QtCore.pyqtSlot()
     def start(self):
-        if not self.running:
-            self.open()
-            self.running = True
-            self.emit()
+        if self.running:
+            return
+        self.running = True
+        self.emitting = True
+        self.rewinding = False
+        self.emit()
 
     @QtCore.pyqtSlot()
     def stop(self):
         self.running = False
-        self.close()
+
+    @QtCore.pyqtSlot()
+    def rewind(self):
+        self.rewinding = True
 
     @QtCore.pyqtSlot(bool)
     def pause(self, paused):
         self.emitting = not paused
+        print('emitting:', self.emitting)
 
     @property
     def size(self):
