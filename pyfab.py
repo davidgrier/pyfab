@@ -29,6 +29,7 @@ import sys
 class pyfab(QtGui.QMainWindow):
 
     def __init__(self):
+        self.app = QtGui.QApplication(sys.argv)
         super(pyfab, self).__init__()
         self.instrument = QFabWidget()
         self.init_ui()
@@ -170,6 +171,5 @@ class pyfab(QtGui.QMainWindow):
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
     instrument = pyfab()
-    sys.exit(app.exec_())
+    sys.exit(instrument.app.exec_())
