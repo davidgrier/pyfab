@@ -23,8 +23,9 @@ class rendertext(task):
         self.spacing = spacing
         self.fuzz = fuzz
         self.text = text
+        self.traps = None
 
-    def dotask(self):
+    def initialize(self, frame):
         sz = self.font.getsize(self.text)
         img = Image.new('L', sz, 0)
         draw = ImageDraw.Draw(img)
@@ -38,4 +39,4 @@ class rendertext(task):
         x = x * self.spacing + sz.width() / 2
         y = y * self.spacing + sz.height() / 2
         p = list(map(lambda x, y: QVector3D(x, y, 0), x, y))
-        self.parent.pattern.createTraps(p)
+        self.traps = self.parent.pattern.createTraps(p)
