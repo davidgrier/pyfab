@@ -126,6 +126,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.trapAdded.emit(trap)
         if update:
             self._update()
+        return trap
 
     def createTraps(self, coordinates):
         coords = list(coordinates)
@@ -139,6 +140,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             self.trapAdded.emit(trap)
         group.active = True
         self._update()
+        return group
 
     def clearTraps(self):
         """Remove all traps from trapping pattern.
