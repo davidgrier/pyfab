@@ -118,8 +118,14 @@ class QTrapGroup(QtCore.QObject):
         """Translate traps in the group.
         """
         self.active = False
-        for child in self.children:
-            child.moveBy(dr)
+        # same displacement for all traps
+        if isinstance(dr, QtGui.QVector3D):
+            for child in self.children:
+                child.moveBy(dr)
+        # specified displacement for each trap
+        else:
+            for n, child in enumerate(self.children):
+                child.moveBy(dr[n])
         self.active = True
         self._update()
 
