@@ -4,7 +4,7 @@
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
-from QTrap import QTrap, state
+from QTrap import QTrap, states
 from QTrapGroup import QTrapGroup
 
 
@@ -112,9 +112,9 @@ class QTrappingPattern(pg.ScatterPlotItem):
         for child in self.pattern.children:
             if child.isWithin(rect):
                 self.selected.append(child)
-                child.state = state.grouping
+                child.state = states.grouping
             else:
-                child.state = state.normal
+                child.state = states.normal
         if len(self.selected) <= 1:
             self.selected = []
         self._update(project=False)
@@ -170,7 +170,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         if isinstance(self.group, QTrapGroup):
             for child in self.group.children:
-                child.state = state.grouping
+                child.state = states.grouping
                 self.group.remove(child)
                 self.pattern.add(child)
 
@@ -198,7 +198,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             self.breakGroup()
         # select group
         else:
-            self.group.state = state.selected
+            self.group.state = states.selected
         self._update(project=False)
 
     def rightPress(self, pos, modifiers):
@@ -245,7 +245,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         self.createGroup()
         for child in self.pattern.children:
-            child.state = state.normal
+            child.state = states.normal
         self.group = None
         self.selection.hide()
         self._update(project=False)
@@ -257,8 +257,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
         pos = event.pos()
         group = self.clickedGroup(pos)
         if group is not None:
-            group.state = state.selected
+            group.state = states.selected
             dr = QtGui.QVector3D(0., 0., event.delta() / 120.)
             group.moveBy(dr)
-            # group.state = state.normal
+            # group.state = states.normal
         self.group = None

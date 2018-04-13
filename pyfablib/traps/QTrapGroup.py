@@ -3,7 +3,7 @@
 """QTrapGroup.py: Container for optical traps."""
 
 from pyqtgraph.Qt import QtCore, QtGui
-from QTrap import QTrap
+from QTrap import QTrap, states
 
 
 class QTrapGroup(QtCore.QObject):
@@ -92,6 +92,12 @@ class QTrapGroup(QtCore.QObject):
     def state(self, state):
         for child in self.children:
             child.state = state
+
+    def select(self, state=True):
+        if state:
+            self.state = states.selected
+        else:
+            self.state = states.normal
 
     @property
     def active(self):

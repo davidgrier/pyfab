@@ -100,6 +100,13 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('rendertextas'))
         menu.addAction(action)
 
+        action = QtGui.QAction('Render move', self)
+        tip = 'Render specified text as a pattern of traps'
+        action.setStatusTip(tip)
+        action.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('rendermove'))
+        menu.addAction(action)
+
         action = QtGui.QAction('Cyclic motion', self)
         action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('stagemacro'))
