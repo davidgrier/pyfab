@@ -22,8 +22,8 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
 
     def __init__(self, parent=None, **kwargs):
-        super(QJansenScreen, self).__init__(parent)
-
+        super(QJansenScreen, self).__init__()
+	self.parent = parent
         # VideoItem displays video feed
         self.video = QVideoItem(parent=self, **kwargs)
         # ViewBox presents video and contains overlays
