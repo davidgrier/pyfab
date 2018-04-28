@@ -78,8 +78,12 @@ class QCameraDevice(QtCore.QObject):
     def size(self, size):
         if size is None:
             return
-        self.width = size[0]
-        self.height = size[1]
+        if isinstance(size, QtCore.QSize):
+            self.width = size.width
+            self.height = size.height
+        else:
+            self.width = size[0]
+            self.height = size[1]
 
     @property
     def roi(self):
