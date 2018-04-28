@@ -72,12 +72,7 @@ class QVideoItem(pg.ImageItem):
         self.sigNewFrame.connect(self._fps.update)
         self.fps = self._fps.value
 
-        self.kwargs = kwargs
-        self.source = self.defaultSource()
-
-    def defaultSource(self):
-        kwargs = self.kwargs
-        return QCameraDevice(**kwargs)
+        self.source = QCameraDevice(**kwargs)
 
     @property
     def source(self):
