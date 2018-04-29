@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-"""Control panel for video properties."""
+"""Control panel for camera properties."""
 
 from common.QPropertySheet import QPropertySheet
 
 
-class QVideoPropertyWidget(QPropertySheet):
+class QCameraPropertyWidget(QPropertySheet):
 
     def __init__(self, camera=None):
-        super(QVideoPropertyWidget, self).__init__(title='Video Camera',
-                                                   header=False)
+        super(QCameraPropertyWidget, self).__init__(title='Video Camera',
+                                                    header=False)
         self.camera = camera
         self.wmirrored = self.registerProperty('mirrored', self.mirrored)
         self.wflipped = self.registerProperty('flipped', self.flipped)

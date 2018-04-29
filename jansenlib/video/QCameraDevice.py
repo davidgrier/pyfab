@@ -16,7 +16,13 @@ class QCameraDevice(QtCore.QObject):
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, cameraID=0, size=None):
+    def __init__(self,
+                 cameraID=0,
+                 size=None,
+                 mirrored=False,
+                 flipped=True,
+                 transposed=False,
+                 gray=False):
         super(QCameraDevice, self).__init__()
 
         self.camera = cv2.VideoCapture(cameraID)
@@ -24,14 +30,29 @@ class QCameraDevice(QtCore.QObject):
         if cv2.__version__.startswith('2.'):
             self._WIDTH = cv2.cv.CV_CAP_PROP_FRAME_WIDTH
             self._HEIGHT = cv2.cv.CV_CAP_PROP_FRAME_HEIGHT
+            self._toRGB = cv2.cv.CV_BGR2RGB
+            self._toGRAY = cv2.cv.CV_BGR2GRAY
         else:
             self._WIDTH = cv2.CAP_PROP_FRAME_WIDTH
             self._HEIGHT = cv2.CAP_PROP_FRAME_HEIGHT
+            self._toRGB = cv2.COLOR_BGR2RGB
+            self._toGRAY = cv2.COLOR_BGR2GRAY
+
+        # camera properties
         self.size = size
+        self.mirrored = bool(mirrored)
+        self.flipped = bool(flipped)
+        self.transposed = bool(transposed)
+        self.gray = bool(gray)
 
         self.running = False
-        self.emitting = True
-        _, self.frame = self.camera.read()
+        self.emitting = False
+
+        while True:
+            ready, image = self.camera.read()
+            if ready:
+                break
+        self.frame = image
 
     def run(self):
         while self.running:
@@ -44,6 +65,7 @@ class QCameraDevice(QtCore.QObject):
     def start(self):
         if not self.running:
             self.running = True
+            self.emitting = True
             self.run()
 
     @QtCore.pyqtSlot()
@@ -53,6 +75,20 @@ class QCameraDevice(QtCore.QObject):
     @QtCore.pyqtSlot(bool)
     def pause(self, paused):
         self.emitting = not paused
+
+    @property
+    def frame(self):
+        return self._frame
+
+    @frame.setter
+    def frame(self, image):
+        if image.ndim == 3:
+            image = cv2.cvtColor(image, self._conversion)
+        if self.transposed:
+            image = cv2.transpose(image)
+        if self.flipped or self.mirrored:
+            image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
+        self._frame = image
 
     @property
     def width(self):
@@ -88,3 +124,11 @@ class QCameraDevice(QtCore.QObject):
     @property
     def roi(self):
         return QtCore.QRectF(0., 0., self.width, self.height)
+
+    @property
+    def gray(self):
+        return (self._conversion == self._toGRAY)
+
+    @gray.setter
+    def gray(self, gray):
+        self._conversion = self._toGRAY if gray else self._toRGB

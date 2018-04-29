@@ -24,8 +24,8 @@ class QJansenWidget(QtGui.QWidget):
     def init_components(self):
         # video screen
         self.screen = QJansenScreen(size=self.size, gray=True, parent=self)
-        self.wvideo = video.QVideoPropertyWidget(self.screen.video)
-	self.detector = QDetector(parent=self.screen)
+        self.wcamera = video.QCameraPropertyWidget(self.screen.video.source)
+        self.detector = QDetector(parent=self.screen)
         self.filters = video.QVideoFilterWidget(self.screen.video)
         # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)
@@ -34,7 +34,7 @@ class QJansenWidget(QtGui.QWidget):
         self.dvr.recording.connect(self.handleRecording)
 
     def handleRecording(self, recording):
-        self.wvideo.enabled = not recording
+        self.wcamera.enabled = not recording
 
     def init_ui(self):
         layout = QtGui.QHBoxLayout(self)
@@ -55,7 +55,7 @@ class QJansenWidget(QtGui.QWidget):
         wvideo = QtGui.QWidget()
         layout = tabLayout(wvideo)
         layout.addWidget(self.dvr)
-        layout.addWidget(self.wvideo)
+        layout.addWidget(self.wcamera)
         layout.addWidget(self.filters)
         return wvideo
 

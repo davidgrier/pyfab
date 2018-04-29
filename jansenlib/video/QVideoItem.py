@@ -2,7 +2,6 @@
 
 """QVideoItem.py: pyqtgraph module for OpenCV video camera."""
 
-import cv2
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
@@ -45,26 +44,10 @@ class QVideoItem(pg.ImageItem):
 
     def __init__(self, parent=None,
                  source=None,
-                 mirrored=False,
-                 flipped=True,
-                 transposed=False,
-                 gray=False,
                  **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(**kwargs)
         self.parent = parent
-        # image conversions
-        self._conversion = None
-        if cv2.__version__.startswith('2.'):
-            self._toRGB = cv2.cv.CV_BGR2RGB
-            self._toGRAY = cv2.cv.CV_BGR2GRAY
-        else:
-            self._toRGB = cv2.COLOR_BGR2RGB
-            self._toGRAY = cv2.COLOR_BGR2GRAY
-        self.gray = bool(gray)
-        self.mirrored = bool(mirrored)
-        self.flipped = bool(flipped)
-        self.transposed = bool(transposed)
         self._filters = list()
 
         # performance metrics
@@ -96,8 +79,6 @@ class QVideoItem(pg.ImageItem):
         source.sigNewFrame.connect(self.updateImage)
         self.sigPause.connect(source.pause)
         self.sigStop.connect(source.stop)
-        self._width = source.width
-        self._height = source.height
 
         # move source to background thread to reduce latency
         self.thread = QtCore.QThread()
@@ -124,12 +105,6 @@ class QVideoItem(pg.ImageItem):
 
     @QtCore.pyqtSlot(np.ndarray)
     def updateImage(self, image):
-        if image.ndim == 3:
-            image = cv2.cvtColor(image, self._conversion)
-        if self.transposed:
-            image = cv2.transpose(image)
-        if self.flipped or self.mirrored:
-            image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
         for filter in self._filters:
             image = filter(image)
         self.setImage(image, autoLevels=False)
@@ -144,20 +119,6 @@ class QVideoItem(pg.ImageItem):
         else:
             state = bool(paused)
         self.emit.sigPause(state)
-
-    def width(self):
-        return self._width
-
-    def height(self):
-        return self._height
-
-    @property
-    def gray(self):
-        return (self._conversion == self._toGRAY)
-
-    @gray.setter
-    def gray(self, gray):
-        self._conversion = self._toGRAY if gray else self._toRGB
 
     def registerFilter(self, filter):
         self._filters.append(filter)

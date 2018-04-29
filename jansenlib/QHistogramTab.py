@@ -59,7 +59,7 @@ class QHistogramTab(QtGui.QWidget):
             self.video.unregisterFilter(self.histogramFilter)
 
     def histogramFilter(self, frame):
-        if self.video.gray:
+        if self.video.source.gray:
             y, x = np.histogram(frame, bins=256, range=[0, 255])
             self.rplot.setData(y=y)
             self.gplot.setData(y=[0, 0])
