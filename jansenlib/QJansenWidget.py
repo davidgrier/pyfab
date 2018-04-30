@@ -27,6 +27,7 @@ class QJansenWidget(QtGui.QWidget):
         self.wcamera = video.QCameraPropertyWidget(self.screen.video.source)
         self.detector = QDetector(parent=self.screen)
         self.filters = video.QVideoFilterWidget(self.screen.video)
+
         # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)
         # DVR

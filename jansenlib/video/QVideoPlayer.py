@@ -65,7 +65,7 @@ class QVideoPlayer(QtCore.QObject):
             if ready:
                 self.sigNewFrame.emit(self.frame)
             else:
-                print('eof')
+                self.emitting = False
         QtCore.QTimer.singleShot(self.delay, self.emit)
 
     @QtCore.pyqtSlot()
@@ -88,7 +88,6 @@ class QVideoPlayer(QtCore.QObject):
     @QtCore.pyqtSlot(bool)
     def pause(self, paused):
         self.emitting = not paused
-        print('emitting:', self.emitting)
 
     @property
     def size(self):

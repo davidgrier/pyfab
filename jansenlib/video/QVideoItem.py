@@ -39,7 +39,6 @@ class QVideoItem(pg.ImageItem):
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
-    sigPause = QtCore.pyqtSignal(bool)
     sigStop = QtCore.pyqtSignal()
 
     def __init__(self, parent=None,
@@ -55,7 +54,16 @@ class QVideoItem(pg.ImageItem):
         self.sigNewFrame.connect(self._fps.update)
         self.fps = self._fps.value
 
-        self.source = QCameraDevice(**kwargs)
+        # default source is a camera
+        self.defaultSource = QCameraDevice(**kwargs)
+        self.sigStop.connect(self.defaultSource.stop)
+        # move camera to background thread to reduce latency
+        self.thread = QtCore.QThread()
+        self.defaultSource.moveToThread(self.thread)
+        self.thread.started.connect(self.defaultSource.start)
+        self.thread.finished.connect(self.cleanup)
+        self.thread.start()
+        self.source = self.defaultSource
 
     @property
     def source(self):
@@ -63,45 +71,30 @@ class QVideoItem(pg.ImageItem):
 
     @source.setter
     def source(self, source):
-        """provide means to change video sources, including
-        alternative cameras and video files."""
-
-        # stop existing sources
-        self.sigStop.emit()
-
-        # disconnect existing source
         try:
-            self._source.sigNewFrame.disconnect(self.updateImage)
+            self.source.sigNewFrame.disconnect(self.updateImage)
         except AttributeError:
             pass
-
-        # connect signals for new source
+        if source is None:
+            source = self.camera
         source.sigNewFrame.connect(self.updateImage)
-        self.sigPause.connect(source.pause)
-        self.sigStop.connect(source.stop)
-
-        # move source to background thread to reduce latency
-        self.thread = QtCore.QThread()
-        self.thread.start()
-        source.moveToThread(self.thread)
-        self.thread.started.connect(source.start)
-        self.thread.finished.connect(self.cleanup)
-
         self._source = source
+
+    def gray(self):
+        return self.source.gray
 
     def close(self):
         """Stopping the video source causes the thread to
         emit its finished() signal, which triggers cleanup()."""
         self.sigStop.emit()
 
+    def closeEvent(self):
+        self.close()
+
+    @QtCore.pyqtSlot()
     def cleanup(self):
         self.thread.quit()
         self.thread.wait()
-        self.thread = None
-        self.source = None
-
-    def closeEvent(self):
-        self.close()
 
     @QtCore.pyqtSlot(np.ndarray)
     def updateImage(self, image):
@@ -109,16 +102,6 @@ class QVideoItem(pg.ImageItem):
             image = filter(image)
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)
-
-    @QtCore.pyqtSlot()
-    def pause(self, paused=None):
-        """sigPause can be caught by video source to pause
-        image stream."""
-        if paused is None:
-            state = not self._pause
-        else:
-            state = bool(paused)
-        self.emit.sigPause(state)
 
     def registerFilter(self, filter):
         self._filters.append(filter)

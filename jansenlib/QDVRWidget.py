@@ -17,7 +17,7 @@ class QDVRWidget(QtGui.QFrame):
     def __init__(self,
                  stream=None,
                  filename='~/data/fabdvr.avi',
-                 codec='HFYU',
+                 codec='X264',  # 'H264', 'HFYU',
                  **kwargs):
         super(QDVRWidget, self).__init__(**kwargs)
 
@@ -47,30 +47,47 @@ class QDVRWidget(QtGui.QFrame):
         self.iconSize = QtCore.QSize(24, 24)
         self.stdIcon = self.style().standardIcon
         title = QtGui.QLabel('Video Recorder')
+        # video source selection
+        self.bcamera = QtGui.QRadioButton('camera')
+        self.bvideo = QtGui.QRadioButton('video')
+        self.bscreen = QtGui.QRadioButton('screen')
+        self.bcamera.setChecked(True)
+        self.gsource = QtGui.QButtonGroup()
+        self.gsource.addButton(self.bcamera, 1)
+        self.gsource.addButton(self.bvideo, 2)
+        self.gsource.addButton(self.bscreen, 3)
+        self.gsource.buttonClicked[int].connect(self.setSource)
+        # record stop frame_counter
         self.brecord = self.recordButton()
         self.bstop = self.stopButton()
         self.wframe = self.framecounterWidget()
+        # recording filename
         wsavelabel = QtGui.QLabel('Save As')
         wsavelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.wsavename = self.saveFilenameWidget()
+        # rewind pause play
         self.brewind = self.rewindButton()
         self.bpause = self.pauseButton()
         self.bplay = self.playButton()
         wplaylabel = QtGui.QLabel('Play')
+        # playing filename
         wplaylabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.wplayname = self.playFilenameWidget()
         # Place widgets in layout
         layout.addWidget(title, 1, 1, 1, 3)
-        layout.addWidget(self.brecord, 2, 1)
-        layout.addWidget(self.bstop, 2, 2)
-        layout.addWidget(self.wframe, 2, 3)
-        layout.addWidget(wsavelabel, 3, 1)
-        layout.addWidget(self.wsavename, 3, 2, 1, 2)
-        layout.addWidget(self.brewind, 4, 1)
-        layout.addWidget(self.bpause, 4, 2)
-        layout.addWidget(self.bplay, 4, 3)
-        layout.addWidget(wplaylabel, 5, 1)
-        layout.addWidget(self.wplayname, 5, 2, 1, 2)
+        layout.addWidget(self.bcamera, 2, 1)
+        layout.addWidget(self.bvideo, 2, 2)
+        layout.addWidget(self.bscreen, 2, 3)
+        layout.addWidget(self.brecord, 3, 1)
+        layout.addWidget(self.bstop, 3, 2)
+        layout.addWidget(self.wframe, 3, 3)
+        layout.addWidget(wsavelabel, 4, 1)
+        layout.addWidget(self.wsavename, 4, 2, 1, 2)
+        layout.addWidget(self.brewind, 5, 1)
+        layout.addWidget(self.bpause, 5, 2)
+        layout.addWidget(self.bplay, 5, 3)
+        layout.addWidget(wplaylabel, 6, 1)
+        layout.addWidget(self.wplayname, 6, 2, 1, 2)
         self.setLayout(layout)
 
     def recordButton(self):
@@ -162,6 +179,10 @@ class QDVRWidget(QtGui.QFrame):
 
     # Recording functionality
 
+    @QtCore.pyqtSlot(int)
+    def setSource(self, button):
+        print(button)
+
     @QtCore.pyqtSlot()
     def record(self, nframes=10000):
         if (self.is_recording() or
@@ -173,7 +194,7 @@ class QDVRWidget(QtGui.QFrame):
         self._framenumber = 0
         w = self.stream.width()
         h = self.stream.height()
-        color = not self.stream.gray
+        color = not self.stream.gray()
         self._writer = cv2.VideoWriter(self.filename, self._fourcc,
                                        self.stream.fps(), (w, h), color)
         self.stream.sigNewFrame.connect(self.write)
@@ -186,20 +207,16 @@ class QDVRWidget(QtGui.QFrame):
             self._writer.release()
         if self.is_playing():
             self._player.stop()
-            self.stream.source = self.stream.defaultSource()
+            self.stream.source = self.stream.defaultSource
+        self.framenumber = 0
         self._nframes = 0
         self._writer = None
         self.recording.emit(False)
 
     def write(self, frame):
-        if self.stream.transposed:
-            frame = cv2.transpose(frame)
-        if self.stream.flipped:
-            frame = cv2.flip(frame, 0)
         self._writer.write(frame)
-        self._framenumber += 1
-        self.wframe.display(self._framenumber)
-        if (self._framenumber == self._nframes):
+        self.framenumber += 1
+        if (self.framenumber == self._nframes):
             self.stop()
 
     # Playback functionality
@@ -208,8 +225,8 @@ class QDVRWidget(QtGui.QFrame):
     def play(self):
         if self.is_recording():
             return
-        self._framenumber = 0
         self._player = QVideoPlayer(self.playname)
+        self._player.sigNewFrame.connect(self.stepFramenumber)
         self._player.start()
         self.stream.source = self._player
 
@@ -217,6 +234,7 @@ class QDVRWidget(QtGui.QFrame):
     def rewind(self):
         if self.is_playing():
             self._player.rewind()
+            self.framenumber = 0
 
     @QtCore.pyqtSlot()
     def pause(self):
@@ -250,5 +268,15 @@ class QDVRWidget(QtGui.QFrame):
     def is_playing(self):
         return (self._player is not None)
 
+    @property
     def framenumber(self):
         return self._framenumber
+
+    @framenumber.setter
+    def framenumber(self, number):
+        self._framenumber = number
+        self.wframe.display(self._framenumber)
+
+    @QtCore.pyqtSlot()
+    def stepFramenumber(self):
+        self.framenumber += 1
