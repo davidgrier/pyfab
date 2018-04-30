@@ -7,6 +7,7 @@ from PyQt4.QtCore import Qt
 from video.QVideoPlayer import QVideoPlayer
 import cv2
 import os
+import platform
 from common.clickable import clickable
 
 
@@ -17,12 +18,17 @@ class QDVRWidget(QtGui.QFrame):
     def __init__(self,
                  screen=None,
                  filename='~/data/fabdvr.avi',
-                 codec='X264',  # 'H264', 'HFYU',
+                 codec=None,
                  **kwargs):
         super(QDVRWidget, self).__init__(**kwargs)
 
         self._writer = None
         self._player = None
+        if codec is None:
+            if platform.system() == 'Linux':
+                codec = 'HFYU'
+            else:
+                codec = 'X264'
         if cv2.__version__.startswith('2.'):
             self._fourcc = cv2.cv.CV_FOURCC(*codec)
         else:
