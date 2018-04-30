@@ -80,9 +80,6 @@ class QVideoItem(pg.ImageItem):
         source.sigNewFrame.connect(self.updateImage)
         self._source = source
 
-    def gray(self):
-        return self.source.gray
-
     def close(self):
         """Stopping the video source causes the thread to
         emit its finished() signal, which triggers cleanup()."""

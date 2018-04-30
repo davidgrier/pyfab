@@ -15,7 +15,7 @@ class QDVRWidget(QtGui.QFrame):
     recording = QtCore.pyqtSignal(bool)
 
     def __init__(self,
-                 stream=None,
+                 screen=None,
                  filename='~/data/fabdvr.avi',
                  codec='X264',  # 'H264', 'HFYU',
                  **kwargs):
@@ -30,8 +30,11 @@ class QDVRWidget(QtGui.QFrame):
         self._framenumber = 0
         self._nframes = 0
 
-        self.stream = stream
-        self.camera = self.stream.source
+        self.screen = screen
+        self.video = self.screen.video
+        self.camera = self.screen.video.source
+        self.stream = self.camera
+
         self.filename = filename
 
         self.initUI()
@@ -181,22 +184,23 @@ class QDVRWidget(QtGui.QFrame):
 
     @QtCore.pyqtSlot(int)
     def setSource(self, button):
-        print(button)
+        if button == 1:
+            self.stream = self.camera
+        elif button == 2:
+            self.stream = self.video
 
     @QtCore.pyqtSlot()
     def record(self, nframes=10000):
-        if (self.is_recording() or
-                self.is_playing() or
-                (self.stream is None) or
+        if (self.is_recording() or self.is_playing() or
                 (nframes <= 0)):
             return
         self._nframes = nframes
-        self._framenumber = 0
-        w = self.stream.width()
-        h = self.stream.height()
-        color = not self.stream.gray()
+        self.framenumber = 0
+        fps = self.video.fps()
+        size = (self.camera.width, self.camera.height)
+        color = not self.camera.gray
         self._writer = cv2.VideoWriter(self.filename, self._fourcc,
-                                       self.stream.fps(), (w, h), color)
+                                       fps, size, color)
         self.stream.sigNewFrame.connect(self.write)
         self.recording.emit(True)
 
@@ -205,9 +209,11 @@ class QDVRWidget(QtGui.QFrame):
         if self.is_recording():
             self.stream.sigNewFrame.disconnect(self.write)
             self._writer.release()
+            self._writer = None
         if self.is_playing():
             self._player.stop()
-            self.stream.source = self.stream.defaultSource
+            self._player = None
+            self.video.source = self.video.defaultSource
         self.framenumber = 0
         self._nframes = 0
         self._writer = None
@@ -228,7 +234,7 @@ class QDVRWidget(QtGui.QFrame):
         self._player = QVideoPlayer(self.playname)
         self._player.sigNewFrame.connect(self.stepFramenumber)
         self._player.start()
-        self.stream.source = self._player
+        self.video.source = self._player
 
     @QtCore.pyqtSlot()
     def rewind(self):

@@ -31,7 +31,7 @@ class QJansenWidget(QtGui.QWidget):
         # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)
         # DVR
-        self.dvr = QDVRWidget(stream=self.screen.video)
+        self.dvr = QDVRWidget(screen=self.screen)
         self.dvr.recording.connect(self.handleRecording)
 
     def handleRecording(self, recording):
