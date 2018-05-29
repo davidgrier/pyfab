@@ -117,6 +117,11 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('autotrap'))
         menu.addAction(action)
 
+        action = QtGui.QAction('Move off', self)
+        action.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('moveoff'))
+        menu.addAction(action)
+
     def calibrationMenu(self, parent):
         menu = parent.addMenu('&Calibration')
         action = QtGui.QAction('Calibrate rc', self)
