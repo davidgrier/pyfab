@@ -1,21 +1,29 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-from task import task
+'''Demonstration of autotrapping then iteratively delaying, recording video, and translating traps in the z direction.'''
+
 from autotrap import autotrap
 from pyqtgraph.Qt import QtGui
 
-class translateZ(autotrap):
-    '''Demonstration of translating traps in the z direction by subclassing autotrap.'''
-    def __init__(self, **kwargs):
-        super(translateZ, self).__init__(nframes=75, delay=100, **kwargs)
-        self.dr = QtGui.QVector3D(0, 0, 1)
 
-    def doprocess(self, frame):
+class moverecordz(autotrap):
+    
+    def __init__(self, **kwargs):
+        super(moveRecordZ, self).__init__(**kwargs)
+
+    def dotask(self):
         if self.traps is not None:
-            self.traps.select(True)
-            self.traps.moveBy(self.dr)
-            self.traps.select(False)
-        else:
-            self.delay = 0
-            self.nframes = 0
+            dz = 1
+            dr = QtGui.QVector3D(0, 0, dz)
+            register = self.parent.tasks.registerTask
+            z = self.traps.r.z()
+            #wstage = self.parent.wstage
+            #if wstage is not None:
+            #    z = wstage.instrument.z()
+            for n in range(1, 5):
+                register('delay')
+                register('record', fn='~/data/moveRecordZ' + str(z + n*dz) + '.avi')
+                self.traps.select(True)
+                self.traps.moveBy(dr)
+                self.traps.select(False)
+
