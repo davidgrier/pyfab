@@ -9,7 +9,7 @@ from pyqtgraph.Qt import QtGui
 class moverecordz(autotrap):
     
     def __init__(self, **kwargs):
-        super(moveRecordZ, self).__init__(**kwargs)
+        super(moverecordz, self).__init__(**kwargs)
 
     def dotask(self):
         if self.traps is not None:
