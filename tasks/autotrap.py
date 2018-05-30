@@ -8,6 +8,7 @@ class autotrap(task):
 
     def __init__(self, **kwargs):
         super(autotrap, self).__init__(**kwargs)
+        self.traps = None
 
     def initialize(self, frame):
 	rectangles = self.parent.detector.grab(frame)

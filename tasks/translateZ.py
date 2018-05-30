@@ -12,6 +12,10 @@ class translateZ(autotrap):
         self.dr = QtGui.QVector3D(0, 0, 1)
 
     def doprocess(self, frame):
-        self.traps.select(True)
-        self.traps.moveBy(self.dr)
-        self.traps.select(False)
+        if self.traps is not None:
+            self.traps.select(True)
+            self.traps.moveBy(self.dr)
+            self.traps.select(False)
+        else:
+            self.delay = 0
+            self.nframes = 0
