@@ -117,9 +117,9 @@ class pyfab(QtGui.QMainWindow):
             lambda: self.instrument.tasks.registerTask('autotrap'))
         menu.addAction(action)
 
-        action = QtGui.QAction('Move off', self)
+        action = QtGui.QAction('Translate Z', self)
         action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('moveoff'))
+            lambda: self.instrument.tasks.registerTask('translateZ'))
         menu.addAction(action)
 
     def calibrationMenu(self, parent):
