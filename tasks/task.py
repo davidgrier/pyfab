@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import copy
 
 class task(object):
     """task is a base class for operations on images in pyfab/jansen
@@ -27,7 +26,6 @@ class task(object):
         self.setParent(parent)
         self.done = False
         self.delay = delay
-        self.delayOriginal = delay
         self.nframes = nframes
 
     def isDone(self):
@@ -52,7 +50,6 @@ class task(object):
         if self.delay > 0:
             self.delay -= 1
         elif self.nframes > 0:
-            self.delay = copy.deepcopy(self.delayOriginal)
             self.doprocess(frame)
             self.nframes -= 1
         else:
