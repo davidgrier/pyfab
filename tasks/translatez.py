@@ -8,14 +8,13 @@ from pyqtgraph.Qt import QtGui
 
 class translatez(task):
 
-    def __init__(self, traps=None, **kwargs):
+    def __init__(self, traps=None, dr=QtGui.QVector3D(0, 0, 0), **kwargs):
         super(translatez, self).__init__(**kwargs)
         self.traps = traps
+	self.dr = dr
 
     def initialize(self, frame):
         if self.traps is not None:
-            dz = 1
-            dr = QtGui.QVector3D(0, 0, dz)
-            self.traps.select(True)
-            self.traps.moveBy(dr)
-            self.traps.select(False)
+            self.traps.select(state=True)
+            self.traps.moveBy(self.dr)
+            self.traps.select(state=False)

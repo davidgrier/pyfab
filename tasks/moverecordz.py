@@ -4,6 +4,7 @@
  and translating traps in the z direction.'''
 
 from autotrap import autotrap
+from pyqtgraph.Qt import QtGui
 
 
 class moverecordz(autotrap):
@@ -17,12 +18,14 @@ class moverecordz(autotrap):
             fn = self.parent.dvr.filename
             fn = fn[0:-4]
             z = self.traps.r.z()
+	    dz = 1
+	    dr = QtGui.QVector3D(0, 0, dz)
             #wstage = self.parent.wstage
             #if wstage is not None:
             #    z = wstage.instrument.z()
-            for n in range(1, 5):
+            for n in range(0, 5):
                 register('delay')
                 register('record', fn=fn + str(z + n) + '.avi')
-                register('translatez', traps=self.traps)
+                register('translatez', traps=self.traps, dr=dr)
 
 
