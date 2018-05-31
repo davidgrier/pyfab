@@ -8,7 +8,7 @@ from task import task
 class record(task):
 
     def __init__(self, fn=None, **kwargs):
-        super(record, self).__init__(nframes=100, **kwargs)
+        super(record, self).__init__(nframes=72, **kwargs)
         self.fn = fn
         
     def initialize(self, frame):
