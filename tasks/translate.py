@@ -6,7 +6,7 @@ from task import task
 from pyqtgraph.Qt import QtGui
 
 
-class translatez(task):
+class translate(task):
 
     def __init__(self, traps=None, dr=QtGui.QVector3D(0, 0, 0), **kwargs):
         super(translatez, self).__init__(**kwargs)

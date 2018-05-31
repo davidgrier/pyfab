@@ -26,6 +26,6 @@ class moverecordz(autotrap):
             for n in range(0, 5):
                 register('delay')
                 register('record', fn=fn + str(z + n) + '.avi')
-                register('translatez', traps=self.traps, dr=dr)
+                register('translate', traps=self.traps, dr=dr)
 
 
