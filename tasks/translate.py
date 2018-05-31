@@ -13,8 +13,8 @@ class translate(task):
         self.traps = traps
         self.dr = dr
 
-        def initialize(self, frame):
-            if self.traps is not None:
-                self.traps.select(state=True)
-                self.traps.moveBy(self.dr)
-                self.traps.select(state=False)
+    def initialize(self, frame):
+        if self.traps is not None:
+            self.traps.select(True)
+            self.traps.moveBy(self.dr)
+            self.traps.select(False)

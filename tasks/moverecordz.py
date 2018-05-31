@@ -18,14 +18,11 @@ class moverecordz(autotrap):
             fn = self.parent.dvr.filename
             fn = fn[0:-4]
             z = self.traps.r.z()
-	    dz = 1
-	    dr = QtGui.QVector3D(0, 0, dz)
-            #wstage = self.parent.wstage
-            #if wstage is not None:
-            #    z = wstage.instrument.z()
+            dz = 1
+            dr = QtGui.QVector3D(0, 0, dz)
             for n in range(0, 5):
-                register('delay')
-                register('record', fn=fn + str(z + n) + '.avi')
+                register('delay', delay=50)
+                register('record', nframes=100, fn=fn + str(z + n) + '.avi')
                 register('translate', traps=self.traps, dr=dr)
 
 

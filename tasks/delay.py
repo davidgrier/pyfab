@@ -4,7 +4,9 @@
 
 from task import task
 
+
 class delay(task):
 
     def __init__(self, **kwargs):
-        super(delay, self).__init__(delay=48, **kwargs)
+        #pass in delay as keyword
+        super(delay, self).__init__(**kwargs)
