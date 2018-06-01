@@ -17,4 +17,3 @@ class translate(task):
         if self.traps is not None:
             self.traps.select(True)
             self.traps.moveBy(self.dr)
-            self.traps.select(False)
