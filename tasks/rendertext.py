@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# MENU: Render text
 
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
@@ -9,7 +10,7 @@ import os
 
 
 class rendertext(task):
-    """Project a pattern of traps that spells out a word."""
+    """Render text as a pattern of traps"""
 
     def __init__(self,
                  text='hello',

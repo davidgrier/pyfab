@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# MENU: Clear traps
 
 from task import task
 
