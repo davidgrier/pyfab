@@ -81,47 +81,40 @@ class pyfab(QtGui.QMainWindow):
         menu.addAction(action)
 
     def taskMenu(self, parent):
+        register = self.instrument.tasks.registerTask
         menu = parent.addMenu('&Tasks')
         action = QtGui.QAction('Clear traps', self)
         action.setStatusTip('Delete all traps')
-        #action.triggered.connect(self.instrument.pattern.clearTraps)
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('cleartraps'))
+        action.triggered.connect(lambda: register('cleartraps'))
         menu.addAction(action)
 
         action = QtGui.QAction('Render text', self)
         action.setStatusTip('Render text as a pattern of traps')
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('rendertext'))
+        action.triggered.connect(lambda: register('rendertext'))
         menu.addAction(action)
 
         action = QtGui.QAction('Render text ...', self)
         tip = 'Render specified text as a pattern of traps'
         action.setStatusTip(tip)
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('rendertextas'))
+        action.triggered.connect(lambda: register('rendertextas'))
         menu.addAction(action)
 
         action = QtGui.QAction('Render move', self)
         tip = 'Render specified text as a pattern of traps'
         action.setStatusTip(tip)
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('rendermove'))
+        action.triggered.connect(lambda: register('rendermove'))
         menu.addAction(action)
 
         action = QtGui.QAction('Cyclic motion', self)
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('stagemacro'))
+        action.triggered.connect(lambda: register('stagemacro'))
         menu.addAction(action)
 
         action = QtGui.QAction('Auto-trap', self)
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('autotrap'))
+        action.triggered.connect(lambda: register('autotrap'))
         menu.addAction(action)
 
         action = QtGui.QAction('Move Record Z', self)
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('moverecordz'))
+        action.triggered.connect(lambda: register('moverecordz'))
         menu.addAction(action)
 
     def calibrationMenu(self, parent):
