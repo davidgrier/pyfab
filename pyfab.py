@@ -84,7 +84,9 @@ class pyfab(QtGui.QMainWindow):
         menu = parent.addMenu('&Tasks')
         action = QtGui.QAction('Clear traps', self)
         action.setStatusTip('Delete all traps')
-        action.triggered.connect(self.instrument.pattern.clearTraps)
+        #action.triggered.connect(self.instrument.pattern.clearTraps)
+        action.triggered.connect(
+            lambda: self.instrument.tasks.registerTask('cleartraps'))
         menu.addAction(action)
 
         action = QtGui.QAction('Render text', self)
