@@ -16,10 +16,12 @@ class QDetector(QtCore.QObject):
         self.detector = Detector(cascade_fn='cascade_example.xml')
         self.parent = parent
         self.rois = []
+        self.min_neighbors = 45
+        self.scale_factor = 1.1
 
     def addRects(self, rectangles):
         for (x,y,w,h) in rectangles:
-            rect = pg.RectROI([x+w, y+h], [w, h], pen=(3,1))
+            rect = pg.RectROI([x, y], [w, h], pen=(3,1))
             self.rois.append(rect)
             self.parent.addOverlay(rect)
     
@@ -30,9 +32,9 @@ class QDetector(QtCore.QObject):
 
     def detect(self, frame):
         self.removeRects()
-        rectangles = self.detector.detect(bytscl(frame*1.2), min_neighbors=45, scale_factor=1.1)
+        rectangles = self.detector.detect(bytscl(frame*1.2), min_neighbors=self.min_neighbors, scale_factor=self.scale_factor)
         self.addRects(rectangles)
         return frame
 
     def grab(self, frame):
-        return self.detector.detect(bytscl(frame*1.2), min_neighbors=45, scale_factor=1.1)
+        return self.detector.detect(bytscl(frame*1.2), min_neighbors=self.min_neighbors, scale_factor=self.scale_factor)
