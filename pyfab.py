@@ -23,6 +23,7 @@
 from pyqtgraph.Qt import QtGui
 from pyfablib.QFabWidget import QFabWidget
 from common.fabconfig import fabconfig
+from tasks.taskmenu import taskMenu
 import sys
 
 
@@ -48,7 +49,7 @@ class pyfab(QtGui.QMainWindow):
         menubar = self.menuBar()
         menubar.setNativeMenuBar(False)
         self.fileMenu(menubar)
-        self.taskMenu(menubar)
+        taskMenu(self)
         self.calibrationMenu(menubar)
 
         self.setCentralWidget(self.instrument)
@@ -80,42 +81,42 @@ class pyfab(QtGui.QMainWindow):
         action.triggered.connect(self.close)
         menu.addAction(action)
 
-    def taskMenu(self, parent):
-        register = self.instrument.tasks.registerTask
-        menu = parent.addMenu('&Tasks')
-        action = QtGui.QAction('Clear traps', self)
-        action.setStatusTip('Delete all traps')
-        action.triggered.connect(lambda: register('cleartraps'))
-        menu.addAction(action)
+    # def taskMenu(self, parent):
+    #     register = self.instrument.tasks.registerTask
+    #     menu = parent.addMenu('&Tasks')
+    #     action = QtGui.QAction('Clear traps', self)
+    #     action.setStatusTip('Delete all traps')
+    #     action.triggered.connect(lambda: register('cleartraps'))
+    #     menu.addAction(action)
 
-        action = QtGui.QAction('Render text', self)
-        action.setStatusTip('Render text as a pattern of traps')
-        action.triggered.connect(lambda: register('rendertext'))
-        menu.addAction(action)
+    #     action = QtGui.QAction('Render text', self)
+    #     action.setStatusTip('Render text as a pattern of traps')
+    #     action.triggered.connect(lambda: register('rendertext'))
+    #     menu.addAction(action)
 
-        action = QtGui.QAction('Render text ...', self)
-        tip = 'Render specified text as a pattern of traps'
-        action.setStatusTip(tip)
-        action.triggered.connect(lambda: register('rendertextas'))
-        menu.addAction(action)
+    #     action = QtGui.QAction('Render text ...', self)
+    #     tip = 'Render specified text as a pattern of traps'
+    #     action.setStatusTip(tip)
+    #     action.triggered.connect(lambda: register('rendertextas'))
+    #     menu.addAction(action)
 
-        action = QtGui.QAction('Render move', self)
-        tip = 'Render specified text as a pattern of traps'
-        action.setStatusTip(tip)
-        action.triggered.connect(lambda: register('rendermove'))
-        menu.addAction(action)
+    #     action = QtGui.QAction('Render move', self)
+    #     tip = 'Render specified text as a pattern of traps'
+    #     action.setStatusTip(tip)
+    #     action.triggered.connect(lambda: register('rendermove'))
+    #     menu.addAction(action)
 
-        action = QtGui.QAction('Cyclic motion', self)
-        action.triggered.connect(lambda: register('stagemacro'))
-        menu.addAction(action)
+    #     action = QtGui.QAction('Cyclic motion', self)
+    #     action.triggered.connect(lambda: register('stagemacro'))
+    #     menu.addAction(action)
 
-        action = QtGui.QAction('Auto-trap', self)
-        action.triggered.connect(lambda: register('autotrap'))
-        menu.addAction(action)
+    #     action = QtGui.QAction('Auto-trap', self)
+    #     action.triggered.connect(lambda: register('autotrap'))
+    #     menu.addAction(action)
 
-        action = QtGui.QAction('Move Record Z', self)
-        action.triggered.connect(lambda: register('moverecordz'))
-        menu.addAction(action)
+    #     action = QtGui.QAction('Move Record Z', self)
+    #     action.triggered.connect(lambda: register('moverecordz'))
+    #     menu.addAction(action)
 
     def calibrationMenu(self, parent):
         menu = parent.addMenu('&Calibration')
