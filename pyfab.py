@@ -46,16 +46,15 @@ class pyfab(QtGui.QMainWindow):
         self.setWindowTitle('PyFab')
         self.statusBar().showMessage('Ready')
 
-        menubar = self.menuBar()
-        menubar.setNativeMenuBar(False)
-        self.fileMenu(menubar)
+        self.menuBar().setNativeMenuBar(False)
+        self.fileMenu()
         taskMenu(self)
-        self.calibrationMenu(menubar)
+        self.calibrationMenu()
 
         self.setCentralWidget(self.instrument)
 
-    def fileMenu(self, parent):
-        menu = parent.addMenu('&File')
+    def fileMenu(self):
+        menu = self.menuBar().addMenu('&File')
         icon = QtGui.QIcon.fromTheme('camera-photo')
         action = QtGui.QAction(icon, 'Save &Photo', self)
         action.setStatusTip('Save a snapshot')
@@ -81,45 +80,8 @@ class pyfab(QtGui.QMainWindow):
         action.triggered.connect(self.close)
         menu.addAction(action)
 
-    # def taskMenu(self, parent):
-    #     register = self.instrument.tasks.registerTask
-    #     menu = parent.addMenu('&Tasks')
-    #     action = QtGui.QAction('Clear traps', self)
-    #     action.setStatusTip('Delete all traps')
-    #     action.triggered.connect(lambda: register('cleartraps'))
-    #     menu.addAction(action)
-
-    #     action = QtGui.QAction('Render text', self)
-    #     action.setStatusTip('Render text as a pattern of traps')
-    #     action.triggered.connect(lambda: register('rendertext'))
-    #     menu.addAction(action)
-
-    #     action = QtGui.QAction('Render text ...', self)
-    #     tip = 'Render specified text as a pattern of traps'
-    #     action.setStatusTip(tip)
-    #     action.triggered.connect(lambda: register('rendertextas'))
-    #     menu.addAction(action)
-
-    #     action = QtGui.QAction('Render move', self)
-    #     tip = 'Render specified text as a pattern of traps'
-    #     action.setStatusTip(tip)
-    #     action.triggered.connect(lambda: register('rendermove'))
-    #     menu.addAction(action)
-
-    #     action = QtGui.QAction('Cyclic motion', self)
-    #     action.triggered.connect(lambda: register('stagemacro'))
-    #     menu.addAction(action)
-
-    #     action = QtGui.QAction('Auto-trap', self)
-    #     action.triggered.connect(lambda: register('autotrap'))
-    #     menu.addAction(action)
-
-    #     action = QtGui.QAction('Move Record Z', self)
-    #     action.triggered.connect(lambda: register('moverecordz'))
-    #     menu.addAction(action)
-
-    def calibrationMenu(self, parent):
-        menu = parent.addMenu('&Calibration')
+    def calibrationMenu(self):
+        menu = self.menuBar().addMenu('&Calibration')
         action = QtGui.QAction('Calibrate rc', self)
         action.setStatusTip('Find location of optical axis in field of view')
         action.triggered.connect(
