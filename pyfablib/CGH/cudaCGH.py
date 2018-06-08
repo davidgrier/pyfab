@@ -121,8 +121,8 @@ class cudaCGH(CGH):
         return self.phi.T
 
     def compute_one(self, amp, r, buffer):
-        cumath.exp(self.iqx * r.x() + self.iqxsq * r.z(), out=self._ex)
-        cumath.exp(self.iqy * r.y() + self.iqysq * r.z(), out=self._ey)
+        cumath.exp(self._iqx * r.x() + self._iqxsq * r.z(), out=self._ex)
+        cumath.exp(self._iqy * r.y() + self._iqysq * r.z(), out=self._ey)
         self._ex *= amp
         self.outer(self._ex, self._ey, buffer,
                    np.int32(self.w), np.int32(self.h),
@@ -139,7 +139,9 @@ class cudaCGH(CGH):
         qy = gpuarray.arange(self.h, dtype=np.float32).astype(np.complex64)
         qx = self._qpp * (qx - self.xs)
         qy = self._alpha * self._qpp * (qy - self.ys)
-        self.iqx = 1j * qx
-        self.iqy = 1j * qy
-        self.iqxsq = 1j * qx * qx
-        self.iqysq = 1j * qy * qy
+        self._iqx = 1j * qx
+        self._iqy = 1j * qy
+        self._iqxsq = 1j * qx * qx
+        self._iqysq = 1j * qy * qy
+        self.iqx = self._iqx.get()
+        self.iqy = self._iqy.get()
