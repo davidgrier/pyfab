@@ -262,3 +262,7 @@ class CGH(QtCore.QObject):
     def k0(self, k0):
         self._k0 = float(k0)
         self.compute(all=True)
+
+    def setPhi(self, phi):
+        self.phi = phi.astype(np.uint8)
+        self.sigHologramReady.emit(self.phi)
