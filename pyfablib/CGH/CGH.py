@@ -265,4 +265,4 @@ class CGH(QtCore.QObject):
 
     def setPhi(self, phi):
         self.phi = phi.astype(np.uint8)
-        self.sigHologramReady.emit(self.phi)
+        self.sigHologramReady.emit(self.phi.T)
