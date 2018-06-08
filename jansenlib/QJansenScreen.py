@@ -4,7 +4,7 @@
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
-from video.QVideoItem import QVideoItem
+from .video.QVideoItem import QVideoItem
 
 
 class QJansenScreen(pg.GraphicsLayoutWidget):

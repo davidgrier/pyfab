@@ -48,7 +48,7 @@ class QCGHPropertyWidget(QPropertySheet):
                 'k0': self.wk0.value}
 
     def setConfiguration(self, properties):
-        for property, value in properties.iteritems():
+        for property, value in properties.items():
             try:
                 self.__dict__['w' + property].value = value
             except KeyError:

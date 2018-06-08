@@ -3,6 +3,10 @@
 """Control panel for trap properties."""
 
 from PyQt4 import QtGui, QtCore
+try:
+    from PyQt4.QtCore import QString
+except ImportError:
+    QString = str
 
 
 class QTrapProperty(QtGui.QLineEdit):
@@ -32,7 +36,7 @@ class QTrapProperty(QtGui.QLineEdit):
 
     @value.setter
     def value(self, value):
-        self.setText(QtCore.QString(self.fmt % value))
+        self.setText(QString(self.fmt % value))
         self.updateValue()
 
 

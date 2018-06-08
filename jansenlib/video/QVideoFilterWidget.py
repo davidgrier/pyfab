@@ -3,11 +3,15 @@
 """Control panel for standard video filters."""
 
 from pyqtgraph.Qt import QtGui, QtCore
-from vmedian import vmedian
+from .vmedian import vmedian
 import numpy as np
 import cv2
 from matplotlib.pylab import cm
-from detect import bytscl, Detector
+from .detect import bytscl, Detector
+try:
+    from PyQt4.QtCore import QString
+except ImportError:
+    QString = str
 
 class QVideoFilterWidget(QtGui.QFrame):
 
@@ -15,7 +19,7 @@ class QVideoFilterWidget(QtGui.QFrame):
         super(QVideoFilterWidget, self).__init__()
         self.video = video
         self.height = self.video.source.size.height()
-	self.detector = self.video.parent.parent.detector
+        self.detector = self.video.parent.parent.detector
         self.init_filters()
         self.init_ui()
 
@@ -27,11 +31,11 @@ class QVideoFilterWidget(QtGui.QFrame):
         layout = QtGui.QVBoxLayout(self)
         layout.setMargin(1)
         title = QtGui.QLabel('Video Filters')
-        bmedian = QtGui.QCheckBox(QtCore.QString('Median'))
-        bnormalize = QtGui.QCheckBox(QtCore.QString('Normalize'))
-        bsample = QtGui.QCheckBox(QtCore.QString('Sample and Hold'))
-        bndvi = QtGui.QCheckBox(QtCore.QString('NDVI'))
-        bdetect = QtGui.QCheckBox(QtCore.QString('Detect'))
+        bmedian = QtGui.QCheckBox(QString('Median'))
+        bnormalize = QtGui.QCheckBox(QString('Normalize'))
+        bsample = QtGui.QCheckBox(QString('Sample and Hold'))
+        bndvi = QtGui.QCheckBox(QString('NDVI'))
+        bdetect = QtGui.QCheckBox(QString('Detect'))
         layout.addWidget(title)
         layout.addWidget(bmedian)
         layout.addWidget(bnormalize)
@@ -108,5 +112,5 @@ class QVideoFilterWidget(QtGui.QFrame):
             self.video.registerFilter(self.detector.detect)
         else:
             self.video.unregisterFilter(self.detector.detect)
-	    self.detector.removeRects()
+            self.detector.removeRects()
 		

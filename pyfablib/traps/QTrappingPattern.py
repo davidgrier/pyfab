@@ -4,8 +4,8 @@
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
-from QTrap import QTrap, states
-from QTrapGroup import QTrapGroup
+from .QTrap import QTrap, states
+from .QTrapGroup import QTrapGroup
 
 
 class QTrappingPattern(pg.ScatterPlotItem):

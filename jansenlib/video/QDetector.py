@@ -3,7 +3,7 @@
 '''Stores detector for automated trapping and provides routine for adding rectangular overlays to detected particles.'''
 
 from pyqtgraph.Qt import QtCore, QtGui
-from detect import bytscl, Detector
+from .detect import bytscl, Detector
 import pyqtgraph as pg
 import numpy as np
 

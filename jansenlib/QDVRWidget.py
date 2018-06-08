@@ -4,7 +4,7 @@
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
-from video.QVideoPlayer import QVideoPlayer
+from .video.QVideoPlayer import QVideoPlayer
 import cv2
 import os
 import platform

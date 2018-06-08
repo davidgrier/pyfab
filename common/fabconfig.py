@@ -3,6 +3,7 @@
 import json
 import os
 import io
+import platform
 from datetime import datetime
 from PyQt4 import QtGui
 import logging
@@ -45,7 +46,10 @@ class fabconfig(object):
                                    ensure_ascii=False)
         filename = self.configname(object)
         with io.open(filename, 'w', encoding='utf8') as configfile:
-            configfile.write(unicode(configuration))
+            if platform.python_version().startswith('3.'):
+                configfile.write(str(configuration))
+            else:
+                configfile.write(unicode(configuration))
 
     def restore(self, object):
         """Restore object's configuration from json file."""

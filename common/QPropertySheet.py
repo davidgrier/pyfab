@@ -2,6 +2,10 @@
 
 from PyQt4 import QtGui, QtCore
 import numpy as np
+try:
+    from PyQt4.QtCore import QString
+except ImportError:
+    QString = str
 
 
 class QNumericProperty(QtGui.QLineEdit):
@@ -38,7 +42,7 @@ class QNumericProperty(QtGui.QLineEdit):
     @value.setter
     def value(self, _value):
         value = np.clip(self.type(_value), self.min, self.max)
-        self.setText(QtCore.QString('%.4f' % value))
+        self.setText(QString('%.4f' % value))
         self.updateValue()
 
 
@@ -98,7 +102,7 @@ class QPropertySheet(QtGui.QFrame):
 
     def registerProperty(self, name, value, min=None, max=None,
                          callback=None):
-        wname = QtGui.QLabel(QtCore.QString(name))
+        wname = QtGui.QLabel(QString(name))
         wname.setAlignment(QtCore.Qt.AlignRight)
         if isinstance(value, bool):
             wvalue = QBooleanProperty(name, value)
@@ -107,8 +111,8 @@ class QPropertySheet(QtGui.QFrame):
         self.layout.addWidget(wname, self.row, 1)
         self.layout.addWidget(wvalue, self.row, 2)
         if min is not None:
-            wmin = QtGui.QLabel(QtCore.QString(str(min)))
-            wmax = QtGui.QLabel(QtCore.QString(str(max)))
+            wmin = QtGui.QLabel(QString(str(min)))
+            wmax = QtGui.QLabel(QString(str(max)))
             self.layout.addWidget(wmin, self.row, 3)
             self.layout.addWidget(wmax, self.row, 4)
         if callback is not None:

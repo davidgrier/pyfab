@@ -5,12 +5,12 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 from jansenlib.QJansenWidget import QJansenWidget
-from QHardwareTab import QHardwareTab
-from QSLMTab import QSLMTab
+from .QHardwareTab import QHardwareTab
+from .QSLMTab import QSLMTab
 from common.tabLayout import tabLayout
-import traps
-from QSLM import QSLM
-from CGH import CGH, QCGHPropertyWidget
+from .traps import *
+from .QSLM import QSLM
+from .CGH import CGH, QCGHPropertyWidget
 import sys
 
 
@@ -29,7 +29,7 @@ class QFabWidget(QJansenWidget):
         self.wcgh = QCGHPropertyWidget(self.cgh, self.screen)
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
-        self.pattern = traps.QTrappingPattern(parent=self.screen)
+        self.pattern = QTrappingPattern(parent=self.screen)
         self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.cgh.sigComputing.connect(self.pattern.pauseSignals)
 
@@ -72,7 +72,7 @@ class QFabWidget(QJansenWidget):
     def trapTab(self):
         wtraps = QtGui.QWidget()
         layout = tabLayout(wtraps)
-        layout.addWidget(traps.QTrapWidget(self.pattern))
+        layout.addWidget(QTrapWidget(self.pattern))
         return wtraps
 
     def close(self):

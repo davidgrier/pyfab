@@ -5,7 +5,7 @@
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
-from QCameraDevice import QCameraDevice
+from .QCameraDevice import QCameraDevice
 from collections import deque
 
 

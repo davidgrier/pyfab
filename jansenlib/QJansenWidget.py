@@ -3,14 +3,14 @@
 """QJansenWidget.py: GUI for holographic video microscopy."""
 
 from pyqtgraph.Qt import QtGui, QtCore
-from QJansenScreen import QJansenScreen
-from QHistogramTab import QHistogramTab
-from QDVRWidget import QDVRWidget
+from .QJansenScreen import QJansenScreen
+from .QHistogramTab import QHistogramTab
+from .QDVRWidget import QDVRWidget
 from common.tabLayout import tabLayout
-import video
+from .video import *
 from tasks.taskmanager import taskmanager
 from help.QHelpBrowser import QHelpBrowser
-from video.QDetector import QDetector
+from .video.QDetector import QDetector
 
 
 class QJansenWidget(QtGui.QWidget):
@@ -24,9 +24,9 @@ class QJansenWidget(QtGui.QWidget):
     def init_components(self):
         # video screen
         self.screen = QJansenScreen(size=self.size, gray=True, parent=self)
-        self.wcamera = video.QCameraPropertyWidget(self.screen.video.source)
+        self.wcamera = QCameraPropertyWidget(self.screen.video.source)
         self.detector = QDetector(parent=self.screen)
-        self.filters = video.QVideoFilterWidget(self.screen.video)
+        self.filters = QVideoFilterWidget(self.screen.video)
 
         # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)

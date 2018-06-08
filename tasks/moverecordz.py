@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-
-'''Demonstration of taking existing traps then iteratively delaying, recording
-video, and translating traps in the z direction.'''
+# MENU: Measure z
 
 from task import task
 from pyqtgraph.Qt import QtGui
 
 
 class moverecordz(task):
+    """Delay, record, and translate traps in the z direction."""
     
     def __init__(self, **kwargs):
         super(moverecordz, self).__init__(**kwargs)
