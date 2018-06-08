@@ -42,6 +42,7 @@ class CGH(QtCore.QObject):
         self.slm = slm
         self.w = self.slm.width()
         self.h = self.slm.height()
+        self.phi = np.zeros((self.w, self.h)).astype(np.uint8)
 
         # Conversion from SLM pixels to wavenumbers
         self._qpp = 2. * np.pi / self.w / 10.
@@ -80,8 +81,8 @@ class CGH(QtCore.QObject):
 
     @jit(parallel=True)
     def quantize(self, psi):
-        phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
-        return phi.T
+        self.phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
+        return self.phi.T
 
     @jit(parallel=True)
     def compute_one(self, amp, r, buffer):

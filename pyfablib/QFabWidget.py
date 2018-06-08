@@ -6,6 +6,7 @@
 from pyqtgraph.Qt import QtGui, QtCore
 from jansenlib.QJansenWidget import QJansenWidget
 from QHardwareTab import QHardwareTab
+from QSLMTab import QSLMTab
 from common.tabLayout import tabLayout
 import traps
 from QSLM import QSLM
@@ -43,20 +44,24 @@ class QFabWidget(QJansenWidget):
         # Help tab is at last index
         help_index = self.tabs.count() - 1
         # add new tabs
-        hw_tab = QHardwareTab()
-        if hw_tab.has_content():
-            self.tabs.addTab(hw_tab, 'Hardware')
+        hwtab = QHardwareTab()
+        if hwtab.has_content():
+            self.tabs.addTab(hwtab, 'Hardware')
         self.tabs.addTab(self.cghTab(), 'CGH')
         self.tabs.addTab(self.trapTab(), 'Traps')
+        slmtab = QSLMTab(cgh=self.cgh)
+        self.tabs.addTab(slmtab, 'SLM')
+        self.tabs.currentChanged.connect(slmtab.expose)
         # move Help to end
         self.tabs.tabBar().moveTab(help_index, self.tabs.count() - 1)
-        # set current index of hardware tab for expose events
-        if hw_tab.has_content():
-            hw_tab.index = self.tabs.indexOf(hw_tab)
-            self.tabs.currentChanged.connect(hw_tab.expose)
+        # set current index of other tabs for expose events
+        if hwtab.has_content():
+            hwtab.index = self.tabs.indexOf(hwtab)
+            self.tabs.currentChanged.connect(hwtab.expose)
+        slmtab.index = self.tabs.indexOf(slmtab)
         # populate help browser
         self.browser.load('pyfab')
-        self.wstage = hw_tab.wstage
+        self.wstage = hwtab.wstage
 
     def cghTab(self):
         wcgh = QtGui.QWidget()
