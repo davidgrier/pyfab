@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 
+
 class task(object):
     """task is a base class for operations on images in pyfab/jansen
 
-    Once a task() is registered with taskmanager().registerTask()
-    the taskmanager queues it until it is ready to run.  At that point,
-    taskmanager calls initialize() and proceeds to feed video frames
-    to the task as they become available. The task performs
-    doprocess() on a number of frames set by nframes
-    (default: nframes = 0) while between each doprocess() the task skips a number
-    of frames set by delay (default: delay = 0) before it finally performs its task
-    with a call to dotask().
+    Registering a task with taskmanager().registerTask() places the
+    task in a queue.  When the task reaches the head of the queue,
+    taskmanager() calls initialize() to initialize the task.
+    It then proceeds to feed video frames to the task
+    as they become available.
 
-    When the task isDone(), jansen unregisters the task and deletes it.
+    The task skips a number of frames set by delay (default: 0).
+    It then feeds a number of frames to doprocess() set by 
+    nframes (default: 0).
+    Finally, the task calls dotask() to perform its operation.
+
+    When the task isDone(), taskmanager() unregisters the task
+    and deletes it.
 
     Subclasses of task() should override
     initialize(), doprocess() and dotask()
-    as needed to to accomplish their goals.
     """
 
     def __init__(self,
