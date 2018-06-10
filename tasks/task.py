@@ -11,7 +11,7 @@ class task(object):
     as they become available.
 
     The task skips a number of frames set by delay (default: 0).
-    It then feeds a number of frames to doprocess() set by 
+    It then feeds a number of frames to doprocess() set by
     nframes (default: 0).
     Finally, the task calls dotask() to perform its operation.
 
@@ -26,17 +26,15 @@ class task(object):
                  parent=None,
                  delay=0,
                  nframes=0):
-        self.setParent(parent)
-        self.done = False
+        self.parent = parent
         self.delay = delay
         self.nframes = nframes
+        self.initialized = False
+        self.done = False
+        self.register = parent.tasks.registerTask
 
     def isDone(self):
         return self.done
-
-    def setParent(self, parent):
-        self.parent = parent
-        self.register = self.parent.instrument.tasks.registerTask
 
     def initialize(self, frame):
         """Called when the taskmanager activates the task."""
@@ -51,6 +49,9 @@ class task(object):
         pass
 
     def process(self, frame):
+        if not self.initialized:
+            self.initialize(frame)
+            self.initialized = True
         if self.delay > 0:
             self.delay -= 1
         elif self.nframes > 0:

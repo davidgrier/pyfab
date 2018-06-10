@@ -5,12 +5,12 @@ from task import task
 import numpy as np
 
 
-class hologram(task):
-
+class vortex(task):
     def __init__(self, **kwargs):
-        super(hologram, self).__init__(**kwargs)
+        super(vortex, self).__init__(**kwargs)
 
-    def initialize(self, frame):
+    def dotask(self):
+        print('here')
         ell = 10
         cgh = self.parent.cgh
         theta = np.arctan2.outer(np.imag(cgh.iqx), np.imag(cgh.iqy))
@@ -24,8 +24,8 @@ class sethologram(task):
 
     def __init__(self, **kwargs):
         super(sethologram, self).__init__(**kwargs)
+        self.kwargs = kwargs
 
-    def initialize(self, frame):
-        register = self.parent.tasks.registerTask
-        register('cleartraps')
-        register(hologram())
+    def dotask(self):
+        self.register('cleartraps')
+        self.register(vortex(**self.kwargs))
