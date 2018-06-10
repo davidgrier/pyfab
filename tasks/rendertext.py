@@ -26,7 +26,7 @@ class rendertext(task):
         self.text = text
         self.traps = None
 
-    def initialize(self, frame):
+    def dotask(self):
         sz = self.font.getsize(self.text)
         img = Image.new('L', sz, 0)
         draw = ImageDraw.Draw(img)

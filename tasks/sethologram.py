@@ -5,17 +5,16 @@ from task import task
 import numpy as np
 
 
-class hologram(task):
+class vortex(task):
+    def __init__(self, ell=10, **kwargs):
+        super(vortex, self).__init__(**kwargs)
+        self.ell = ell
 
-    def __init__(self, **kwargs):
-        super(hologram, self).__init__(**kwargs)
-
-    def initialize(self, frame):
-        ell = 10
+    def dotask(self):
         cgh = self.parent.cgh
         theta = np.arctan2.outer(np.imag(cgh.iqx), np.imag(cgh.iqy))
         theta += np.pi
-        phi = np.remainder(ell * theta, 2. * np.pi)
+        phi = np.remainder(self.ell * theta, 2. * np.pi)
         cgh.setPhi(((255./(2.*np.pi))*phi).astype(np.uint8))
 
 
@@ -24,8 +23,8 @@ class sethologram(task):
 
     def __init__(self, **kwargs):
         super(sethologram, self).__init__(**kwargs)
+        self.kwargs = kwargs
 
-    def initialize(self, frame):
-        register = self.parent.tasks.registerTask
-        register('cleartraps')
-        register(hologram())
+    def dotask(self):
+        self.register('cleartraps')
+        self.register(vortex(**self.kwargs))

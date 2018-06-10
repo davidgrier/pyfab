@@ -2,7 +2,6 @@
 
 from collections import deque
 import importlib
-import sys
 
 
 class taskmanager(object):
@@ -31,7 +30,6 @@ class taskmanager(object):
             except IndexError:
                 self.source.sigNewFrame.disconnect(self.handleTask)
                 return
-            self.task.initialize(frame)
         self.task.process(frame)
         if self.task.isDone():
             self.task = None
@@ -42,11 +40,10 @@ class taskmanager(object):
             try:
                 taskmodule = importlib.import_module('tasks.' + task)
                 taskclass = getattr(taskmodule, task)
-                task = taskclass(**kwargs)
+                task = taskclass(parent=self.parent, **kwargs)
             except ImportError as err:
                 print('Could not import ' + task + '\n', err)
                 return
-        task.setParent(self.parent)
         self.queue.append(task)
         if self.task is None:
             self.source.sigNewFrame.connect(self.handleTask)
