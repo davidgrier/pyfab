@@ -14,5 +14,6 @@ class autotrap(task):
 
     def initialize(self, frame):
         rectangles = self.parent.detector.grab(frame)
-        coords = list(map(lambda (x, y, w, h): QVector3D(x + w/2, y + h/2, self.parent.cgh.zc), rectangles))
+        coords = list(map(lambda feature: QVector3D(feature[0] + feature[2]/2,
+                            feature[1] + feature[3]/2, self.parent.cgh.zc), rectangles))
         self.traps = self.parent.pattern.createTraps(coords)
