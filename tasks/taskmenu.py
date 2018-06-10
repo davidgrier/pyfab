@@ -10,7 +10,7 @@ def findTasks():
     """Parse all files in the present directory to identify
     tasks that should be included in the task menu"""
     path = os.path.dirname(os.path.realpath(__file__))
-    files = glob.glob(path+'/*.py')
+    files = sorted(glob.glob(path+'/*.py'))
     tasks = []
     for filename in files:
         task = {}
@@ -36,7 +36,7 @@ def taskMenu(parent):
         return
     globals = {'register': parent.instrument.tasks.registerTask}
     menu = parent.menuBar().addMenu('&Tasks')
-    for task in findTasks():
+    for task in tasks:
         action = QtGui.QAction(task['title'], parent)
         action.setStatusTip(task['tip'])
         handler = eval('lambda: register("'+task['name']+'")', globals)
