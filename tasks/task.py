@@ -36,6 +36,7 @@ class task(object):
 
     def setParent(self, parent):
         self.parent = parent
+        self.register = self.parent.instrument.tasks.registerTask
 
     def initialize(self, frame):
         """Called when the taskmanager activates the task."""
