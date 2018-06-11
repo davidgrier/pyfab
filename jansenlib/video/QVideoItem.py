@@ -25,7 +25,10 @@ class QFPS(QtCore.QObject):
         if len(self.fifo) <= self.depth:
             return
         then = self.fifo.pop()
-        self._fps = 1000. * self.depth / then.msecsTo(now)
+        try:
+            self._fps = 1000. * self.depth / then.msecsTo(now)
+        except ZeroDivisionError:
+            pass
 
     def value(self):
         return self._fps
