@@ -1,4 +1,4 @@
-from maxtask import maxtask
+from .maxtask import maxtask
 import trackpy as tp
 
 

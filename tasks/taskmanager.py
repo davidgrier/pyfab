@@ -37,13 +37,13 @@ class taskmanager(object):
     def registerTask(self, task, **kwargs):
         """Places the named task into the task queue."""
         if isinstance(task, str):
-            try:
-                taskmodule = importlib.import_module('tasks.' + task)
-                taskclass = getattr(taskmodule, task)
-                task = taskclass(parent=self.parent, **kwargs)
-            except ImportError as err:
-                print('Could not import ' + task + '\n', err)
-                return
+            #try:
+            taskmodule = importlib.import_module('tasks.' + task)
+            taskclass = getattr(taskmodule, task)
+            task = taskclass(parent=self.parent, **kwargs)
+            #except ImportError as err:
+            #    print('Could not import ' + task + '\n', err)
+            #    return
         self.queue.append(task)
         if self.task is None:
             self.source.sigNewFrame.connect(self.handleTask)

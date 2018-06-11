@@ -1,7 +1,7 @@
-from task import task
-from maxtask import maxtask
-from cleartraps import cleartraps
-from createtrap import createtrap
+from .task import task
+from .maxtask import maxtask
+from .cleartraps import cleartraps
+from .createtrap import createtrap
 import numpy as np
 import matplotlib.pyplot as plt
 

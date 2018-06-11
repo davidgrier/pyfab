@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from maxtask import maxtask
+from .maxtask import maxtask
 import trackpy as tp
 
 

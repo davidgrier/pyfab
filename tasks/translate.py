@@ -2,7 +2,7 @@
 
 '''Translates traps in some fixed step and direction.'''
 
-from task import task
+from .task import task
 from pyqtgraph.Qt import QtGui
 
 

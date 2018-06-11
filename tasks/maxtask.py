@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from task import task
+from .task import task
 import numpy as np
 import cv2
 

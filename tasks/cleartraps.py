@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Clear traps
 
-from task import task
+from .task import task
 
 
 class cleartraps(task):

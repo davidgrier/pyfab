@@ -2,7 +2,7 @@
 
 '''Simple task to delay a certain number of frames'''
 
-from task import task
+from .task import task
 
 
 class delay(task):

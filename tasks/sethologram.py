@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Set hologram
 
-from task import task
+from .task import task
 import numpy as np
 
 
