@@ -7,11 +7,11 @@ from .vmedian import vmedian
 import numpy as np
 import cv2
 from matplotlib.pylab import cm
-from .detect import bytscl, Detector
 try:
     from PyQt4.QtCore import QString
 except ImportError:
     QString = str
+
 
 class QVideoFilterWidget(QtGui.QFrame):
 

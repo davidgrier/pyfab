@@ -237,6 +237,7 @@ class QDVRWidget(QtGui.QFrame):
     def play(self):
         if self.is_recording():
             return
+        self.framenumber = 0
         self._player = QVideoPlayer(self.playname)
         self._player.sigNewFrame.connect(self.stepFramenumber)
         self._player.start()
