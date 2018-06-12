@@ -205,6 +205,7 @@ class QDVRWidget(QtGui.QFrame):
         fps = self.video.fps()
         size = (self.camera.width, self.camera.height)
         color = not self.camera.gray
+        print(self.filename)
         self._writer = cv2.VideoWriter(self.filename, self._fourcc,
                                        fps, size, color)
         self.stream.sigNewFrame.connect(self.write)
