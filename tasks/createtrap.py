@@ -1,4 +1,4 @@
-from task import task
+from .task import task
 from PyQt4.QtGui import QVector3D
 
 

@@ -75,7 +75,7 @@ class pyfab(QtGui.QMainWindow):
 
         icon = QtGui.QIcon.fromTheme('application-exit')
         action = QtGui.QAction(icon, '&Exit', self)
-        action.setShortcut('Ctrl-Q')
+        action.setShortcut('Ctrl+Q')
         action.setStatusTip('Exit PyFab')
         action.triggered.connect(self.close)
         menu.addAction(action)

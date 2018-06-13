@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Measure z
 
-from task import task
+from .task import task
 from pyqtgraph.Qt import QtGui
 
 

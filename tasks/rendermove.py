@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from rendertext import rendertext
+from .rendertext import rendertext
 from PyQt4 import QtGui
 
 

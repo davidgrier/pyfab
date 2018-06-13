@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
-# MENU: Set hologram
 
-from task import task
+from .task import task
 import numpy as np
 
 
-class vortex(task):
-    def __init__(self, ell=10, **kwargs):
-        super(vortex, self).__init__(**kwargs)
-        self.ell = ell
-
-    def dotask(self):
-        cgh = self.parent.cgh
-        theta = np.arctan2.outer(np.imag(cgh.iqx), np.imag(cgh.iqy))
-        theta += np.pi
-        phi = np.remainder(self.ell * theta, 2. * np.pi)
-        cgh.setPhi(((255./(2.*np.pi))*phi).astype(np.uint8))
-
-
 class sethologram(task):
-    """Set hologram"""
-
     def __init__(self, **kwargs):
-        super(sethologram, self).__init__(**kwargs)
+        super(sethologram, self).__init__(delay=12, **kwargs)
+        # Do not decrease delay value!
         self.kwargs = kwargs
 
+    def initialize(self, frame):
+        self.parent.pattern.clearTraps()
+        self.cgh = self.parent.cgh
+        self.qx = np.imag(self.cgh.iqx)
+        self.qy = np.imag(self.cgh.iqy)
+
     def dotask(self):
-        self.register('cleartraps')
-        self.register(vortex(**self.kwargs))
+        '''To set holograms to the SLM:
+        1. Subclass sethologram
+        2. Override dotask
+        3. Run self.cgh.setPhi(phi) inside dotask, where phi
+           is your custom hologram. 
+        See vortex.py for a demonstration.
+        '''
+        pass

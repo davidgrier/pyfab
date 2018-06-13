@@ -2,7 +2,7 @@
 
 '''Task to record a video for a certain number of frames.'''
 
-from task import task
+from .task import task
 
 
 class record(task):

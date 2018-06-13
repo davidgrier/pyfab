@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Render text ...
 
-from rendertext import rendertext
+from .rendertext import rendertext
 from PyQt4.QtGui import QInputDialog
 
 

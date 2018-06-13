@@ -4,7 +4,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from numpy.random import normal
-from task import task
+from .task import task
 from PyQt4.QtGui import QVector3D
 import os
 

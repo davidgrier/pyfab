@@ -1,4 +1,4 @@
-from task import task
+from .task import task
 
 
 class stagemacro(task):
