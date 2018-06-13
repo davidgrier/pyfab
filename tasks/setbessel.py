@@ -1,10 +1,4 @@
-
-# coding: utf-8
-
-# In[4]:
-
-
-
+# -*- coding: utf-8 -*-
 # MENU: Set Bessel
 
 from task import task
@@ -44,4 +38,3 @@ class setbessel(task):
     def dotask(self):
         self.register('cleartraps')
         self.register(bessel(**self.kwargs))
-
