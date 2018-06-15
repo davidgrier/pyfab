@@ -32,7 +32,6 @@ class annulartrap(sethologram):
             else:
                 print('Custom parameters not found. Falling back to default.')
                 phi = self.annulartrap(xv, yv)
-            print(phi.shape)
             self.cgh.setPhi(((255./(2.*np.pi))*phi).astype(np.uint8))
 
     def annulartrap(self, x, y, R=50., m=9., dx=0., dy=0., dz=0.):
