@@ -27,9 +27,10 @@ class QTrap(QtCore.QObject):
     def __init__(self,
                  parent=None,
                  r=QtGui.QVector3D(),
-                 a=1.,
-                 phi=None,
-                 psi=None,
+                 a=1.,  # relative amplitude
+                 phi=None,  # relative phase
+                 psi=None,  # current hologram
+                 structure=1.+0.j,  # structuring field
                  state=states.normal,
                  active=True):
         super(QTrap, self).__init__()
