@@ -85,7 +85,7 @@ class CGH(QtCore.QObject):
         return self.phi.T
 
     @jit(parallel=True)
-    def compute_one(self, amp, r, buffer):
+    def compute_displace(self, amp, r, buffer):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
@@ -118,7 +118,7 @@ class CGH(QtCore.QObject):
                 amp = trap.amp * self.window(r)
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
-                self.compute_one(amp, r, trap.psi)
+                self.compute_displace(amp, r, trap.psi)
             self._psi += trap.psi
         self.sigHologramReady.emit(self.quantize(self._psi))
         self.time = time() - start

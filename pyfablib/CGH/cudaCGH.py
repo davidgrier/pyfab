@@ -120,7 +120,7 @@ class cudaCGH(CGH):
         self._phi.get(self.phi)
         return self.phi.T
 
-    def compute_one(self, amp, r, buffer):
+    def compute_displace(self, amp, r, buffer):
         cumath.exp(self._iqx * r.x() + self._iqxsq * r.z(), out=self._ex)
         cumath.exp(self._iqy * r.y() + self._iqysq * r.z(), out=self._ey)
         self._ex *= amp

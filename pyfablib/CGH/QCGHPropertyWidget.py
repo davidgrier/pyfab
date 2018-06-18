@@ -13,6 +13,7 @@ class QCGHPropertyWidget(QPropertySheet):
         slm = cgh.slm
         register = self.registerProperty
         setter = self.cgh.setProperty
+        print('QCGH says width, height are: {}, {}'.format(cam.width, cam.height))
         self.wqpp = register('qpp', cgh.qpp, 0.1, 100., setter)
         self.walpha = register('alpha', cgh.alpha, 0.1, 10., setter)
         self.wxc = register('xc', cgh.rc.x(), 0, cam.width, setter)

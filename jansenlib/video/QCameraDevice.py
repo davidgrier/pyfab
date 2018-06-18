@@ -39,7 +39,10 @@ class QCameraDevice(QtCore.QObject):
             self._toGRAY = cv2.COLOR_BGR2GRAY
 
         # camera properties
+        print('size: ', size)
+        print('size: ', self.size)
         self.size = size
+        print('size: ', self.size)
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
         self.transposed = bool(transposed)
@@ -92,15 +95,19 @@ class QCameraDevice(QtCore.QObject):
 
     @property
     def width(self):
-        return int(self.camera.get(self._WIDTH))
+        print('width prop')
+        #return int(self.camera.get(self._WIDTH))
+        return 1280
 
     @width.setter
     def width(self, width):
+        print('width set')
         self.camera.set(self._WIDTH, width)
 
     @property
     def height(self):
-        return int(self.camera.get(self._HEIGHT))
+        #return int(self.camera.get(self._HEIGHT))
+        return 1024
 
     @height.setter
     def height(self, height):
