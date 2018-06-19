@@ -5,6 +5,10 @@
 import cv2
 from pyqtgraph.Qt import QtCore
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class QCameraDevice(QtCore.QObject):
@@ -39,10 +43,8 @@ class QCameraDevice(QtCore.QObject):
             self._toGRAY = cv2.COLOR_BGR2GRAY
 
         # camera properties
-        print('size: ', size)
-        print('size: ', self.size)
+        self.defaultSize = self.size
         self.size = size
-        print('size: ', self.size)
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
         self.transposed = bool(transposed)
@@ -95,23 +97,23 @@ class QCameraDevice(QtCore.QObject):
 
     @property
     def width(self):
-        print('width prop')
-        #return int(self.camera.get(self._WIDTH))
-        return 1280
+        return int(self.camera.get(self._WIDTH))
 
     @width.setter
     def width(self, width):
-        print('width set')
         self.camera.set(self._WIDTH, width)
+        logger.info('Setting camera width: %d (Default: %d)',
+                    width, self.defaultSize.width())
 
     @property
     def height(self):
-        #return int(self.camera.get(self._HEIGHT))
-        return 1024
+        return int(self.camera.get(self._HEIGHT))
 
     @height.setter
     def height(self, height):
         self.camera.set(self._HEIGHT, height)
+        logger.info('Setting camera height: %d (Default: %d)',
+                    height, self.defaultSize.height())
 
     @property
     def size(self):
