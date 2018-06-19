@@ -9,6 +9,10 @@ import cv2
 import os
 import platform
 from common.clickable import clickable
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class QDVRWidget(QtGui.QFrame):
@@ -203,11 +207,16 @@ class QDVRWidget(QtGui.QFrame):
         self._nframes = nframes
         self.framenumber = 0
         fps = self.video.fps()
-        size = (self.camera.width, self.camera.height)
-        color = not self.camera.gray
-        print(self.filename)
+        (w, h) = (self.stream.width, self.stream.height)
+        color = not self.stream.gray
+        logger.info('Recording: {0}x{1}, color: {2}, fps: {3}'.format(
+                    w, h, color, fps))
+        if color:
+            self._shape = (h, w, 3)
+        else:
+            self._shape = (h, w)
         self._writer = cv2.VideoWriter(self.filename, self._fourcc,
-                                       fps, size, color)
+                                       fps, (w, h), color)
         self.stream.sigNewFrame.connect(self.write)
         self.recording.emit(True)
 
@@ -227,6 +236,11 @@ class QDVRWidget(QtGui.QFrame):
         self.recording.emit(False)
 
     def write(self, frame):
+        if frame.shape != self._shape:
+            msg = 'Frame is wrong shape: {0}, expecting: {1}'
+            logger.warn(msg.format(frame.shape, self._shape))
+            self.stop()
+            return
         self._writer.write(frame)
         self.framenumber += 1
         if (self.framenumber == self._nframes):
