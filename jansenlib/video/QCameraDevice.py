@@ -130,7 +130,6 @@ class QCameraDevice(QtCore.QObject):
         else:
             self.width = size[0]
             self.height = size[1]
-        print('out size')
 
     @property
     def roi(self):
