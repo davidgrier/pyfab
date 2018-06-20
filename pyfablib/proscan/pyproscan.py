@@ -3,6 +3,9 @@
 """Abstraction of a Prior Proscan stage controller."""
 
 from common.SerialDevice import SerialDevice
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class pyproscan(SerialDevice):
@@ -24,12 +27,12 @@ class pyproscan(SerialDevice):
         if expect is None or response is None or expect in response:
             return response
         if 'PASS' in response:
-            print(response)
+            logger.info(response)
             self.cycle = response  # FIXME get number
         response = self.readln()
         if expect is None or response is None or expect in response:
             return response
-        print('##### unexpected:', response)
+        logger.warning('Unexpected response: {}'.format(response))
         return None
 
     # Status commands
