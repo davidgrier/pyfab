@@ -43,10 +43,7 @@ class QCameraDevice(QtCore.QObject):
             self._toGRAY = cv2.COLOR_BGR2GRAY
 
         # camera properties
-        self.defaultSize = self.size
-        print(self.defaultSize)
         self.size = size
-        print(self.size)
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
         self.transposed = bool(transposed)
@@ -95,27 +92,29 @@ class QCameraDevice(QtCore.QObject):
             image = cv2.transpose(image)
         if self.flipped or self.mirrored:
             image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
+        self._width = image.shape[1]
+        self._height = image.shape[0]
         self._frame = image
 
     @property
     def width(self):
-        return 1280 # int(self.camera.get(self._WIDTH))
+        # width = int(self.camera.get(self._WIDTH))
+        return self._width
 
     @width.setter
     def width(self, width):
         self.camera.set(self._WIDTH, width)
-        logger.info('Setting camera width: %d (Default: %d)',
-                    width, self.defaultSize.width())
+        logger.info('Setting camera width: {}'.format(width))
 
     @property
     def height(self):
-        return 1024 # int(self.camera.get(self._HEIGHT))
+        # height = int(self.camera.get(self._HEIGHT))
+        return self._height
 
     @height.setter
     def height(self, height):
         self.camera.set(self._HEIGHT, height)
-        logger.info('Setting camera height: %d (Default: %d)',
-                    height, self.defaultSize.height())
+        logger.info('Setting camera height: {}'.format(height))
 
     @property
     def size(self):
@@ -126,11 +125,12 @@ class QCameraDevice(QtCore.QObject):
         if size is None:
             return
         if isinstance(size, QtCore.QSize):
-            self.width = size.width
-            self.height = size.height
+            self.width = size.width()
+            self.height = size.height()
         else:
             self.width = size[0]
             self.height = size[1]
+        print('out size')
 
     @property
     def roi(self):
