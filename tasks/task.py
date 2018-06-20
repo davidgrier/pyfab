@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class task(object):
@@ -59,5 +62,5 @@ class task(object):
             self.nframes -= 1
         else:
             self.dotask()
-            print('TASK: ' + self.__class__.__name__ + ' done')
+            logger.info('TASK: {} done'.format(self.__class__.__name__))
             self.done = True
