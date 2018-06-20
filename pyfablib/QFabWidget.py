@@ -26,7 +26,7 @@ class QFabWidget(QJansenWidget):
         # computation pipeline for the trapping pattern
         self.cgh = CGH(slm=self.slm)
         self.cgh.sigHologramReady.connect(self.slm.setData)
-        self.wcgh = QCGHPropertyWidget(self.cgh, self.screen.video.source)
+        self.wcgh = QCGHPropertyWidget(self)
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
         self.pattern = QTrappingPattern(parent=self.screen)

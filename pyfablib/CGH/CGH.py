@@ -119,7 +119,7 @@ class CGH(QtCore.QObject):
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
                 self.compute_displace(amp, r, trap.psi)
-            self._psi += trap.structure * trap.psi
+            self._psi += trap.psi
         self.sigHologramReady.emit(self.quantize(self._psi))
         self.time = time() - start
         self.sigComputing.emit(False)

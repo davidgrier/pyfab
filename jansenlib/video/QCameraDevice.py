@@ -44,7 +44,9 @@ class QCameraDevice(QtCore.QObject):
 
         # camera properties
         self.defaultSize = self.size
+        print(self.defaultSize)
         self.size = size
+        print(self.size)
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
         self.transposed = bool(transposed)
@@ -97,7 +99,7 @@ class QCameraDevice(QtCore.QObject):
 
     @property
     def width(self):
-        return int(self.camera.get(self._WIDTH))
+        return 1280 # int(self.camera.get(self._WIDTH))
 
     @width.setter
     def width(self, width):
@@ -107,7 +109,7 @@ class QCameraDevice(QtCore.QObject):
 
     @property
     def height(self):
-        return int(self.camera.get(self._HEIGHT))
+        return 1024 # int(self.camera.get(self._HEIGHT))
 
     @height.setter
     def height(self, height):

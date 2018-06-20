@@ -15,15 +15,16 @@ from .video.QDetector import QDetector
 
 class QJansenWidget(QtGui.QWidget):
 
-    def __init__(self, size=(640,480), **kwargs):
+    def __init__(self, **kwargs): # size=(640, 480), **kwargs):
         super(QJansenWidget, self).__init__(**kwargs)
-        self.size = size
+#        self.size = size
         self.init_components()
         self.init_ui()
 
     def init_components(self):
         # video screen
-        self.screen = QJansenScreen(size=self.size, gray=True, parent=self)
+        #        self.screen = QJansenScreen(size=self.size, gray=True, parent=self)
+        self.screen = QJansenScreen(gray=True, parent=self)
         self.wcamera = QCameraPropertyWidget(self.screen.video.source)
         self.detector = QDetector(parent=self.screen)
         self.filters = QVideoFilterWidget(self.screen.video)

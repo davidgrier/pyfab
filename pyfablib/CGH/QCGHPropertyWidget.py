@@ -3,17 +3,19 @@
 """Control panel for configuring hologram calculation."""
 
 from common.QPropertySheet import QPropertySheet
+import logging
 
 
 class QCGHPropertyWidget(QPropertySheet):
 
-    def __init__(self, cgh, cam):
+    def __init__(self, parent):
         super(QCGHPropertyWidget, self).__init__(title='CGH Pipeline')
-        self.cgh = cgh
+        cgh = parent.cgh
         slm = cgh.slm
+        cam = parent.screen.video.defaultSource
         register = self.registerProperty
-        setter = self.cgh.setProperty
-        print('QCGH says width, height are: {}, {}'.format(cam.width, cam.height))
+        setter = cgh.setProperty
+
         self.wqpp = register('qpp', cgh.qpp, 0.1, 100., setter)
         self.walpha = register('alpha', cgh.alpha, 0.1, 10., setter)
         self.wxc = register('xc', cgh.rc.x(), 0, cam.width, setter)
@@ -53,4 +55,4 @@ class QCGHPropertyWidget(QPropertySheet):
             try:
                 self.__dict__['w' + property].value = value
             except KeyError:
-                print('unknown attribute:', property)
+                logging.warning('Unknown attribute: {}'.format(property))
