@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# MENU: Max task
 
 from .task import task
 import numpy as np
