@@ -24,7 +24,7 @@ class QVideoFilterWidget(QtGui.QFrame):
         self.init_ui()
 
     def init_filters(self):
-        self.median = vmedian(order=3)
+        self.median = vmax(order=3)
 
     def init_ui(self):
         self.setFrameShape(QtGui.QFrame.Box)
@@ -105,7 +105,7 @@ class QVideoFilterWidget(QtGui.QFrame):
             self.video.registerFilter(self.ndvi)
         else:
             self.video.unregisterFilter(self.ndvi)
-	
+
     @QtCore.pyqtSlot(bool)
     def handleDetect(self, selected):
         if selected:
@@ -113,4 +113,3 @@ class QVideoFilterWidget(QtGui.QFrame):
         else:
             self.video.unregisterFilter(self.detector.detect)
             self.detector.removeRects()
-		
