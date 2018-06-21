@@ -12,14 +12,17 @@ class bessel(sethologram):
         super(bessel, self).__init__(**kwargs)
 
 
-    def bessel(self, x, y, shift=100, shift0=0, Modetot=1):
+    def bessel(self, qx, qy, shift=100, shift0=0, Modetot=1):
         shift=shift
         shift0=shift0
         Modetot=Modetot
-        phi = np.remainder(np.angle(Modetot)-shift*(np.sqrt(x**2+y**2))-shift0*(x),2*(np.pi))
+        qr = np.hypot.outer(qx, qy)
+        phi = np.remainder(qr, 2*np.pi)
         return phi.T
         
     def dotask(self):
-        xv, yv = np.meshgrid(self.qx, self.qy)
-        phi = self.bessel(xv, yv)
+        #xv, yv = np.meshgrid(self.qx, self.qy)
+        #phi = np.zeros(shape=(self.qx.shape[0], self.qy.shape[0]))
+        #phi.fill(200.)
+        phi = self.bessel(self.qx, self.qy)
         self.cgh.setPhi(((255./(2.*np.pi))*phi).astype(np.uint8))
