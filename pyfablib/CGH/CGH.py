@@ -115,7 +115,7 @@ class CGH(QtCore.QObject):
                 fac = 1. / (1. + self.k0 * (r.z() - self.rc.z()))
                 r *= QtGui.QVector3D(fac, fac, 1.)
                 # windowing
-                #amp = trap.amp * self.window(r)
+                amp = trap.amp * self.window(r)
                 amp = trap.amp
                 if trap.psi is None:
                     trap.psi = self._psi.copy()

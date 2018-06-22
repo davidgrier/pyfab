@@ -10,10 +10,6 @@ class sethologram(task):
         # Do not decrease delay value!
         self.kwargs = kwargs
 
-    def grid(self, qx, qy):
-        gridx = np.zeros(shape=(qx.shape[0], qy.shape[0]))
-        
-
     def initialize(self, frame):
         self.parent.pattern.clearTraps()
         self.cgh = self.parent.cgh
