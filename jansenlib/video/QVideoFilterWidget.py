@@ -123,4 +123,4 @@ class QVideoFilterWidget(QtGui.QFrame):
             self.video.registerFilter(self.detector.detect)
         else:
             self.video.unregisterFilter(self.detector.detect)
-            self.detector.removeRects()
+            self.detector.remove()
