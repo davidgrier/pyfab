@@ -59,6 +59,7 @@ class QVideoItem(pg.ImageItem):
 
         # default source is a camera
         self.defaultSource = QCameraDevice(**kwargs)
+        self.gray = self.defaultSource.gray
         self.sigStop.connect(self.defaultSource.stop)
         # move camera to background thread to reduce latency
         self.thread = QtCore.QThread()
