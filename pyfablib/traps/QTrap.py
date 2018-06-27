@@ -36,7 +36,8 @@ class QTrap(QtCore.QObject):
         super(QTrap, self).__init__()
         self.active = False
         # organization
-        self.parent = parent
+        if parent is not None:
+            self.parent = parent
         # operational state
         self._state = state
         # appearance
