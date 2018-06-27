@@ -120,13 +120,16 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self._update(project=False)
 
     # Creating and deleting traps
-    def createTrap(self, pos, update=True):
-        trap = QTrap(r=self.dataCoords(pos), parent=self)
+    def addTrap(self, trap, update=True):
         self.pattern.add(trap)
         self.trapAdded.emit(trap)
         if update:
             self._update()
         return trap
+
+    def createTrap(self, pos, update=True):
+        trap = QTrap(r=self.dataCoords(pos), parent=self)
+        self.addTrap(trap, update)
 
     def createTraps(self, coordinates):
         coords = list(coordinates)
