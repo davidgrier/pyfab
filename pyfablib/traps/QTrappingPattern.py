@@ -127,8 +127,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
             self._update()
         return trap
 
-    def createTrap(self, pos, update=True):
-        trap = QTrap(r=self.dataCoords(pos), parent=self)
+    def createTrap(self, r, update=True):
+        trap = QTrap(r=r, parent=self)
         self.addTrap(trap, update)
 
     def createTraps(self, coordinates):
@@ -209,7 +209,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         # Shift-Right Click: Add trap
         if modifiers == QtCore.Qt.ShiftModifier:
-            self.createTrap(pos)
+            self.createTrap(self.dataCoords(pos))
         # Ctrl-Right Click: Delete trap
         elif modifiers == QtCore.Qt.ControlModifier:
             self.pattern.remove(self.clickedGroup(pos), delete=True)
