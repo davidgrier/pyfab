@@ -121,14 +121,15 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     # Creating and deleting traps
     def addTrap(self, trap, update=True):
+        trap.parent = self
         self.pattern.add(trap)
         self.trapAdded.emit(trap)
         if update:
             self._update()
-        return trap
+        # return trap
 
     def createTrap(self, r, update=True):
-        trap = QTrap(r=r, parent=self)
+        trap = QTrap(r=r)
         self.addTrap(trap, update)
 
     def createTraps(self, coordinates):
