@@ -20,13 +20,14 @@ class QTrappingPattern(pg.ScatterPlotItem):
         super(QTrappingPattern, self).__init__()
         self.parent = parent
         self.pattern = QTrapGroup(parent=self)
-        self.parent.addOverlay(self)
+        self.screen = self.parent.screen
+        self.screen.addOverlay(self)
 
         # Connect to signals coming from screen
-        self.parent.sigMousePress.connect(self.mousePress)
-        self.parent.sigMouseRelease.connect(self.mouseRelease)
-        self.parent.sigMouseMove.connect(self.mouseMove)
-        self.parent.sigMouseWheel.connect(self.mouseWheel)
+        self.screen.sigMousePress.connect(self.mousePress)
+        self.screen.sigMouseRelease.connect(self.mouseRelease)
+        self.screen.sigMouseMove.connect(self.mouseMove)
+        self.screen.sigMouseWheel.connect(self.mouseWheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.parent)
@@ -37,12 +38,12 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.selected = []
 
     def connectSignals(self):
-        self.parent.sigMouseMove.connect(self.mouseMove)
-        self.parent.sigMouseWheel.connect(self.mouseWheel)
+        self.screen.sigMouseMove.connect(self.mouseMove)
+        self.screen.sigMouseWheel.connect(self.mouseWheel)
 
     def disconnectSignals(self):
-        self.parent.sigMouseMove.disconnect(self.mouseMove)
-        self.parent.sigMouseWheel.disconnect(self.mouseWheel)
+        self.screen.sigMouseMove.disconnect(self.mouseMove)
+        self.screen.sigMouseWheel.disconnect(self.mouseWheel)
 
     def pauseSignals(self, pause):
         if pause:
