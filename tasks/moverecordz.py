@@ -3,6 +3,7 @@
 
 from .task import task
 from pyqtgraph.Qt import QtGui
+import numpy as np
 
 
 class moverecordz(task):
@@ -22,7 +23,7 @@ class moverecordz(task):
             dr = QtGui.QVector3D(0, 0, dz)
             for n in range(0, 50):
                 register('delay', delay=100)
-                register('record', nframes=100, fn=fn + str(z + dz*n) + '.avi')
+                register('record', nframes=100, fn=fn + '{:03d}.avi'.format(str(np.absolute(z + dz*n)))
                 register('translate', traps=self.traps, dr=dr)
 
 
