@@ -3,6 +3,7 @@
 
 from .task import task
 from pyfablib.traps import QVortexTrap
+from pyqtgraph.Qt import QtGui
 
 
 class vortextrap(task):
@@ -12,5 +13,5 @@ class vortextrap(task):
         super(vortextrap, self).__init__(**kwargs)
 
     def dotask(self):
-        trap = QVortexTrap()
+        trap = QVortexTrap(r=QtGui.QVector3D(100, 100, 0))
         self.parent.pattern.addTrap(trap)
