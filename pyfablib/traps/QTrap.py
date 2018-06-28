@@ -59,6 +59,7 @@ class QTrap(QtCore.QObject):
         else:
             self.phi = phi
         self.psi = psi
+        self.structure = structure
         self.cgh = cgh
 
         self.active = active
