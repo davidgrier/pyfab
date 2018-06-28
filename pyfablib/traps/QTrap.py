@@ -30,6 +30,7 @@ class QTrap(QtCore.QObject):
                  a=1.,  # relative amplitude
                  phi=None,  # relative phase
                  psi=None,  # current hologram
+                 cgh=None,  # computational pipeline
                  structure=1.+0.j,  # structuring field
                  state=states.normal,
                  active=True):
@@ -59,6 +60,7 @@ class QTrap(QtCore.QObject):
             self.phi = phi
         # structuring field
         self.psi = psi
+        self.cgh = cgh
 
         self.active = active
 

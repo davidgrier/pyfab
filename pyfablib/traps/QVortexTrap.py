@@ -11,14 +11,15 @@ class QVortexTrap(QTrap):
         self.ell = ell
 
     def update_field(self):
-        print('updating:', type(self.parent.parent.parent.cgh))
+        if self.cgh is None:
+            return
+        print('updating:', type(self.cgh))
 
     @property
-    def parent(self):
-        return self._parent
+    def cgh(self):
+        return self._cgh
 
-    @parent.setter
-    def parent(self, parent):
-        if parent is not None:
-            self._parent = parent
+    @cgh.setter
+    def cgh(self, cgh):
+        self._cgh = cgh
         self.update_field()

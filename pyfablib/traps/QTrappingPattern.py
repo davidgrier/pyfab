@@ -19,6 +19,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.parent = parent
+        print(type(parent))
         self.pattern = QTrapGroup(parent=self)
         self.screen = self.parent.screen
         self.screen.addOverlay(self)
@@ -123,6 +124,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
     # Creating and deleting traps
     def addTrap(self, trap, update=True):
         trap.parent = self
+        trap.cgh = self.parent.cgh
         self.pattern.add(trap)
         self.trapAdded.emit(trap)
         if update:
