@@ -69,6 +69,7 @@ class pyfab(QtGui.QMainWindow):
 
         icon = QtGui.QIcon.fromTheme('document-save')
         action = QtGui.QAction(icon, '&Save Settings', self)
+        action.setShortcut('Ctrl+S')
         action.setStatusTip('Save current settings')
         action.triggered.connect(self.saveSettings)
         menu.addAction(action)

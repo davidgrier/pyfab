@@ -43,7 +43,7 @@ class QHardwareTab(QtGui.QWidget):
             if self.wstage is not None:
                 self.wstage.stop()
             if self.wlaser is not None:
-                self.wstage.stop()
+                self.wlaser.stop()
 
     def has_content(self):
         return self._has_content

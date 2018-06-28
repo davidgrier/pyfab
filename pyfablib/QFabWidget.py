@@ -8,7 +8,7 @@ from jansenlib.QJansenWidget import QJansenWidget
 from .QHardwareTab import QHardwareTab
 from .QSLMTab import QSLMTab
 from common.tabLayout import tabLayout
-from .traps import *
+from .traps import QTrappingPattern, QTrapWidget
 from .QSLM import QSLM
 from .CGH import CGH, QCGHPropertyWidget
 import sys
@@ -26,10 +26,10 @@ class QFabWidget(QJansenWidget):
         # computation pipeline for the trapping pattern
         self.cgh = CGH(slm=self.slm)
         self.cgh.sigHologramReady.connect(self.slm.setData)
-        self.wcgh = QCGHPropertyWidget(self.cgh, self.screen.video.source)
+        self.wcgh = QCGHPropertyWidget(self)
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
-        self.pattern = QTrappingPattern(parent=self.screen)
+        self.pattern = QTrappingPattern(parent=self)
         self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.cgh.sigComputing.connect(self.pattern.pauseSignals)
 

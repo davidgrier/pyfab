@@ -18,6 +18,7 @@ class QSLM(QtGui.QLabel):
             w, h = rect.width(), rect.height()
             parent = desktop.screen(1)
             super(QSLM, self).__init__(parent)
+            self.resize(w, h)
             self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         else:
             w, h = 1024, 768

@@ -4,6 +4,7 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 from .vmedian import vmedian
+from .vmax import vmax
 import numpy as np
 import cv2
 from matplotlib.pylab import cm
@@ -25,6 +26,7 @@ class QVideoFilterWidget(QtGui.QFrame):
 
     def init_filters(self):
         self.median = vmedian(order=3)
+        self.deflicker = vmax(order=4)        
 
     def init_ui(self):
         self.setFrameShape(QtGui.QFrame.Box)
@@ -32,17 +34,20 @@ class QVideoFilterWidget(QtGui.QFrame):
         layout.setMargin(1)
         title = QtGui.QLabel('Video Filters')
         bmedian = QtGui.QCheckBox(QString('Median'))
+        bdeflicker = QtGui.QCheckBox(QString('Deflicker'))
         bnormalize = QtGui.QCheckBox(QString('Normalize'))
         bsample = QtGui.QCheckBox(QString('Sample and Hold'))
         bndvi = QtGui.QCheckBox(QString('NDVI'))
         bdetect = QtGui.QCheckBox(QString('Detect'))
         layout.addWidget(title)
         layout.addWidget(bmedian)
+        layout.addWidget(bdeflicker)
         layout.addWidget(bnormalize)
         layout.addWidget(bsample)
         layout.addWidget(bndvi)
         layout.addWidget(bdetect)
         bmedian.clicked.connect(self.handleMedian)
+        bdeflicker.clicked.connect(self.handleDeflicker)
         bnormalize.clicked.connect(self.handleNormalize)
         bsample.clicked.connect(self.handleSample)
         bndvi.clicked.connect(self.handleNDVI)
@@ -54,6 +59,12 @@ class QVideoFilterWidget(QtGui.QFrame):
             self.video.registerFilter(self.median.filter)
         else:
             self.video.unregisterFilter(self.median.filter)
+
+    def handleDeflicker(self, selected):
+        if selected:
+            self.video.registerFilter(self.deflicker.filter)
+        else:
+            self.video.unregisterFilter(self.deflicker.filter)
 
     def normalize(self, frame):
         self.median.add(frame)
@@ -105,12 +116,11 @@ class QVideoFilterWidget(QtGui.QFrame):
             self.video.registerFilter(self.ndvi)
         else:
             self.video.unregisterFilter(self.ndvi)
-	
+
     @QtCore.pyqtSlot(bool)
     def handleDetect(self, selected):
         if selected:
             self.video.registerFilter(self.detector.detect)
         else:
             self.video.unregisterFilter(self.detector.detect)
-            self.detector.removeRects()
-		
+            self.detector.remove()

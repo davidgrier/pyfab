@@ -116,10 +116,11 @@ class CGH(QtCore.QObject):
                 r *= QtGui.QVector3D(fac, fac, 1.)
                 # windowing
                 amp = trap.amp * self.window(r)
+                amp = trap.amp
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
                 self.compute_displace(amp, r, trap.psi)
-            self._psi += trap.psi
+            self._psi += trap.structure*trap.psi
         self.sigHologramReady.emit(self.quantize(self._psi))
         self.time = time() - start
         self.sigComputing.emit(False)

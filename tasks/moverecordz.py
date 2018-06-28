@@ -19,11 +19,9 @@ class moverecordz(task):
             fn = self.parent.dvr.filename[0:-4]
             register = self.parent.tasks.registerTask
             z = self.traps.r.z()
-            dz = -3
+            dz = 20
             dr = QtGui.QVector3D(0, 0, dz)
             for n in range(0, 50):
                 register('delay', delay=100)
                 register('record', nframes=100, fn=fn + '{:03d}.avi'.format(str(np.absolute(z + dz*n)))
                 register('translate', traps=self.traps, dr=dr)
-
-

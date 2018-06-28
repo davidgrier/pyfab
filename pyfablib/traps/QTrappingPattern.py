@@ -19,14 +19,16 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.parent = parent
+        print(type(parent))
         self.pattern = QTrapGroup(parent=self)
-        self.parent.addOverlay(self)
+        self.screen = self.parent.screen
+        self.screen.addOverlay(self)
 
         # Connect to signals coming from screen
-        self.parent.sigMousePress.connect(self.mousePress)
-        self.parent.sigMouseRelease.connect(self.mouseRelease)
-        self.parent.sigMouseMove.connect(self.mouseMove)
-        self.parent.sigMouseWheel.connect(self.mouseWheel)
+        self.screen.sigMousePress.connect(self.mousePress)
+        self.screen.sigMouseRelease.connect(self.mouseRelease)
+        self.screen.sigMouseMove.connect(self.mouseMove)
+        self.screen.sigMouseWheel.connect(self.mouseWheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.parent)
@@ -37,12 +39,12 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.selected = []
 
     def connectSignals(self):
-        self.parent.sigMouseMove.connect(self.mouseMove)
-        self.parent.sigMouseWheel.connect(self.mouseWheel)
+        self.screen.sigMouseMove.connect(self.mouseMove)
+        self.screen.sigMouseWheel.connect(self.mouseWheel)
 
     def disconnectSignals(self):
-        self.parent.sigMouseMove.disconnect(self.mouseMove)
-        self.parent.sigMouseWheel.disconnect(self.mouseWheel)
+        self.screen.sigMouseMove.disconnect(self.mouseMove)
+        self.screen.sigMouseWheel.disconnect(self.mouseWheel)
 
     def pauseSignals(self, pause):
         if pause:
@@ -120,13 +122,18 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self._update(project=False)
 
     # Creating and deleting traps
-    def createTrap(self, pos, update=True):
-        trap = QTrap(r=self.dataCoords(pos), parent=self)
+    def addTrap(self, trap, update=True):
+        trap.parent = self
+        trap.cgh = self.parent.cgh
         self.pattern.add(trap)
         self.trapAdded.emit(trap)
         if update:
             self._update()
-        return trap
+        # return trap
+
+    def createTrap(self, r, update=True):
+        trap = QTrap(r=r)
+        self.addTrap(trap, update)
 
     def createTraps(self, coordinates):
         coords = list(coordinates)
@@ -206,7 +213,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         # Shift-Right Click: Add trap
         if modifiers == QtCore.Qt.ShiftModifier:
-            self.createTrap(pos)
+            self.createTrap(self.dataCoords(pos))
         # Ctrl-Right Click: Delete trap
         elif modifiers == QtCore.Qt.ControlModifier:
             self.pattern.remove(self.clickedGroup(pos), delete=True)

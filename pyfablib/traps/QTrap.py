@@ -30,13 +30,15 @@ class QTrap(QtCore.QObject):
                  a=1.,  # relative amplitude
                  phi=None,  # relative phase
                  psi=None,  # current hologram
+                 cgh=None,  # computational pipeline
                  structure=1.+0.j,  # structuring field
                  state=states.normal,
                  active=True):
         super(QTrap, self).__init__()
         self.active = False
         # organization
-        self.parent = parent
+        if parent is not None:
+            self.parent = parent
         # operational state
         self._state = state
         # appearance
@@ -56,8 +58,9 @@ class QTrap(QtCore.QObject):
             self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
             self.phi = phi
-        # structuring field
         self.psi = psi
+        self.structure = structure
+        self.cgh = cgh
 
         self.active = active
 

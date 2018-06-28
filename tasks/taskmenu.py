@@ -51,7 +51,8 @@ def taskMenu(parent):
     menu = parent.menuBar().addMenu('&Tasks')
     for task in tasks:
         action = QtGui.QAction(task['title'], parent)
-        action.setStatusTip(task['tip'])
+        if 'tip' in task:
+            action.setStatusTip(task['tip'])
         handler = eval('lambda: register("'+task['name']+'")', globals)
         action.triggered.connect(handler)
         menu.addAction(action)

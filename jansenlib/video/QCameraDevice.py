@@ -5,6 +5,10 @@
 import cv2
 from pyqtgraph.Qt import QtCore
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class QCameraDevice(QtCore.QObject):
@@ -18,7 +22,7 @@ class QCameraDevice(QtCore.QObject):
 
     def __init__(self,
                  cameraID=0,
-                 size=None,
+                 size=(640, 480),
                  mirrored=False,
                  flipped=True,
                  transposed=False,
@@ -39,10 +43,7 @@ class QCameraDevice(QtCore.QObject):
             self._toGRAY = cv2.COLOR_BGR2GRAY
 
         # camera properties
-        print('size: ', size)
-        print('size: ', self.size)
         self.size = size
-        print('size: ', self.size)
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
         self.transposed = bool(transposed)
@@ -91,27 +92,29 @@ class QCameraDevice(QtCore.QObject):
             image = cv2.transpose(image)
         if self.flipped or self.mirrored:
             image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
+        self._width = image.shape[1]
+        self._height = image.shape[0]
         self._frame = image
 
     @property
     def width(self):
-        print('width prop')
-        #return int(self.camera.get(self._WIDTH))
-        return 1280
+        # width = int(self.camera.get(self._WIDTH))
+        return self._width
 
     @width.setter
     def width(self, width):
-        print('width set')
         self.camera.set(self._WIDTH, width)
+        logger.info('Setting camera width: {}'.format(width))
 
     @property
     def height(self):
-        #return int(self.camera.get(self._HEIGHT))
-        return 1024
+        # height = int(self.camera.get(self._HEIGHT))
+        return self._height
 
     @height.setter
     def height(self, height):
         self.camera.set(self._HEIGHT, height)
+        logger.info('Setting camera height: {}'.format(height))
 
     @property
     def size(self):
@@ -122,8 +125,8 @@ class QCameraDevice(QtCore.QObject):
         if size is None:
             return
         if isinstance(size, QtCore.QSize):
-            self.width = size.width
-            self.height = size.height
+            self.width = size.width()
+            self.height = size.height()
         else:
             self.width = size[0]
             self.height = size[1]
