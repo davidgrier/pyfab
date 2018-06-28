@@ -3,6 +3,7 @@
 """QVortexTrap.py: Optical vortex"""
 
 from .QTrap import QTrap
+import numpy as np
 
 
 class QVortexTrap(QTrap):
@@ -13,7 +14,10 @@ class QVortexTrap(QTrap):
     def update_field(self):
         if self.cgh is None:
             return
-        print('updating:', type(self.cgh))
+        qx = np.imag(self.cgh.iqx)
+        qy = np.imag(self.cgh.iqy)
+        theta = np.arctan2.outer(qx, qy)
+        self.structure = np.exp((1j * self.ell) * theta)
 
     @property
     def cgh(self):

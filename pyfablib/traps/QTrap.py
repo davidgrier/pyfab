@@ -58,7 +58,6 @@ class QTrap(QtCore.QObject):
             self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
             self.phi = phi
-        # structuring field
         self.psi = psi
         self.cgh = cgh
 
