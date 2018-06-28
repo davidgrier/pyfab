@@ -8,7 +8,7 @@ from jansenlib.QJansenWidget import QJansenWidget
 from .QHardwareTab import QHardwareTab
 from .QSLMTab import QSLMTab
 from common.tabLayout import tabLayout
-from .traps import *
+from .traps import QTrappingPattern, QTrapWidget
 from .QSLM import QSLM
 from .CGH import CGH, QCGHPropertyWidget
 import sys

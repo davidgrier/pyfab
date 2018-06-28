@@ -28,7 +28,7 @@ class vmax(object):
     def get(self, reshape=True):
         """Return current median image
 
-        :returns: deflicker image
+        :returns: deflickered image
         :rtype: numpy.ndarray
 
         """

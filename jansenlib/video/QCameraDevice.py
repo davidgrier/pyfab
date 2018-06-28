@@ -22,7 +22,7 @@ class QCameraDevice(QtCore.QObject):
 
     def __init__(self,
                  cameraID=0,
-                 size=None,
+                 size=(640, 480),
                  mirrored=False,
                  flipped=True,
                  transposed=False,
