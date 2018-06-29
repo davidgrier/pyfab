@@ -59,7 +59,7 @@ class QTrap(QtCore.QObject):
         else:
             self.phi = phi
         self.psi = psi
-        self.structure = structure
+        self._structure = structure
         self.cgh = cgh
 
         self.active = active
@@ -158,3 +158,11 @@ class QTrap(QtCore.QObject):
         if self.state is not states.static:
             self._state = state
             self.spot['brush'] = self.brush[state]
+
+    @property
+    def structure(self):
+        return self._structure
+
+    @structure.setter
+    def structure(self, field):
+        self._structure = self.cgh.bless(field)

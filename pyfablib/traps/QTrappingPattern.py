@@ -19,7 +19,6 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.parent = parent
-        print(type(parent))
         self.pattern = QTrapGroup(parent=self)
         self.screen = self.parent.screen
         self.screen.addOverlay(self)

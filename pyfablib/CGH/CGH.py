@@ -125,6 +125,9 @@ class CGH(QtCore.QObject):
         self.time = time() - start
         self.sigComputing.emit(False)
 
+    def bless(self, field):
+        return field.astype(np.complex_)
+
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane
         and allocate buffers.

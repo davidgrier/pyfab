@@ -162,3 +162,6 @@ class cudaCGH(CGH):
         self._rho = self.outerrho(qx, qy)
         self.theta = self._theta.get()
         self.qr = self._rho.get()
+
+    def bless(self, field):
+        return gpuarray.to_gpu(field)
