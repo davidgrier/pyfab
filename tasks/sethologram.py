@@ -6,7 +6,7 @@ import numpy as np
 
 class sethologram(task):
     def __init__(self, **kwargs):
-        super(sethologram, self).__init__(delay=12, **kwargs)
+        super(sethologram, self).__init__(delay=20, **kwargs)
         # Do not decrease delay value!
         self.kwargs = kwargs
 
