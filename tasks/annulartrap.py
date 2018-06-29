@@ -21,7 +21,7 @@ class annulartrap(sethologram):
             if len(self.params) == 5:
                 try:
                     R, m, dx, dy, dz = map(lambda param: float(param),
-                                           self.params)                
+                                           self.params)
                 except Exception as e:
                     logging.error('Could not set parameters: {}'.format(e))
         self.R = R

@@ -16,4 +16,5 @@ class vortex(sethologram):
         theta = np.arctan2.outer(self.qx, self.qy)
         theta += np.pi
         phi = np.remainder(self.ell * theta, 2. * np.pi)
+        print(((255./(2.*np.pi))*phi).astype(np.uint8))
         self.cgh.setPhi(((255./(2.*np.pi))*phi).astype(np.uint8))

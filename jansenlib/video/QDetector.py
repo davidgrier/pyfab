@@ -28,7 +28,7 @@ class QDetector(QtCore.QObject):
     def _draw(self, rectangles):
         expand_factor = len(rectangles) // len(self.rois)
         if expand_factor >= 1:
-            self.init_rects(expand_factor=expand_factor)
+            self._init_rects(expand_factor=expand_factor)
         for idx, (x, y, w, h) in enumerate(rectangles):
             self.rois[idx].setPos([x, y])
             self.rois[idx].setSize([w, h])
