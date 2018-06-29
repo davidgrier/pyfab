@@ -61,6 +61,18 @@ class cudaCGH(CGH):
           }
         }
 
+        __global__ void outerrho(float *x, \
+                                 float *y, \
+                                 float *out, \
+                                 int nx, int ny)
+        {
+          int i = threadIdx.x + blockDim.x * blockIdx.x;
+          int j = threadIdx.y + blockDim.y * blockIdx.y;
+          if (i < nx && j < ny) {
+            out[i*ny + j] = hypotf(x[i], y[i]);
+          }
+        }
+
         __global__ void outer(pyComplex *a, \
                               pyComplex *b, \
                               pyComplex *out, \
@@ -98,6 +110,7 @@ class cudaCGH(CGH):
         self.outer = mod.get_function('outer')
         self.phase = mod.get_function('phase')
         self.outertheta = mod.get_function('outertheta')
+        self.outerrho = mod.get_function('outerrho')
         self.npts = np.int32(self.w * self.h)
         self.block = (16, 16, 1)
         dx, mx = divmod(self.w, self.block[0])
@@ -145,3 +158,10 @@ class cudaCGH(CGH):
         self._iqysq = 1j * qy * qy
         self.iqx = self._iqx.get()
         self.iqy = self._iqy.get()
+        self._theta = self.outertheta(qx, qy)
+        self._rho = self.outerrho(qx, qy)
+        self.theta = self._theta.get()
+        self.qr = self._rho.get()
+
+    def bless(self, field):
+        return gpuarray.to_gpu(field)
