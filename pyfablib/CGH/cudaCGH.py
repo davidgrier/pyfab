@@ -145,23 +145,32 @@ class cudaCGH(CGH):
         shape = (self.w, self.h)
         self._psi = gpuarray.zeros(shape, dtype=np.complex64)
         self._phi = gpuarray.zeros(shape, dtype=np.uint8)
-        self.phi = np.zeros(shape, dtype=np.uint8)
+        self._theta = gpuarray.zeros(shape, dtype=np.float32)
+        self._rho = gpuarray.zeros(shape, dtype=np.float32)
         self._ex = gpuarray.zeros(self.w, dtype=np.complex64)
         self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
         qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
         qy = gpuarray.arange(self.h, dtype=np.float32).astype(np.complex64)
         qx = self._qpp * (qx - self.xs)
         qy = self._alpha * self._qpp * (qy - self.ys)
+        self.phi = np.zeros(shape, dtype=np.uint8)
         self._iqx = 1j * qx
         self._iqy = 1j * qy
         self._iqxsq = 1j * qx * qx
         self._iqysq = 1j * qy * qy
         self.iqx = self._iqx.get()
         self.iqy = self._iqy.get()
-        self._theta = self.outertheta(qx, qy)
-        self._rho = self.outerrho(qx, qy)
+        self.outertheta(qx, qy, self._theta,
+                        np.int32(self.w), np.int32(self.h),
+                        block=self.block, grid=self.grid)
+        self.outerrho(qx, qy, self._rho,
+                      np.int32(self.w), np.int32(self.h),
+                      block=self.block, grid=self.grid)
         self.theta = self._theta.get()
         self.qr = self._rho.get()
 
     def bless(self, field):
-        return gpuarray.to_gpu(field)
+        self.context.push()
+        gpu_field = gpuarray.to_gpu(field.astype(np.complex64))
+        cuda.Context.pop()
+        return gpu_field
