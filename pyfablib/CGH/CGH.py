@@ -56,7 +56,7 @@ class CGH(QtCore.QObject):
         # Location of optical axis in camera coordinates
         self._rc = QtGui.QVector3D(320., 240., 0.)
         # Orientation of camera relative to SLM
-        self._theta = 0.
+        self._thetac = 0.
         # Splay wavenumber
         self._k0 = 0.01
 
@@ -125,9 +125,6 @@ class CGH(QtCore.QObject):
         self.time = time() - start
         self.sigComputing.emit(False)
 
-    def outertheta(self, x, y):
-        return np.arctan2.outer(y, x)
-
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane
         and allocate buffers.
@@ -142,7 +139,8 @@ class CGH(QtCore.QObject):
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
         self.iqysq = 1j * qy * qy
-        self.itheta = 1j * self.outertheta(qx, qy)
+        self.theta = np.arctan2.outer(qx, qy)
+        self.qr = np.hypot.outer(qx, qy)
 
     @property
     def xs(self):
@@ -199,7 +197,7 @@ class CGH(QtCore.QObject):
 
     def updateTransformationMatrix(self):
         self.m.setToIdentity()
-        self.m.rotate(self.theta, 0., 0., 1.)
+        self.m.rotate(self.thetac, 0., 0., 1.)
         self.m.translate(-self.rc)
 
     @property
@@ -246,12 +244,12 @@ class CGH(QtCore.QObject):
         self.compute(all=True)
 
     @property
-    def theta(self):
-        return self._theta
+    def thetac(self):
+        return self._thetac
 
-    @theta.setter
-    def theta(self, theta):
-        self._theta = float(theta)
+    @thetac.setter
+    def thetac(self, thetac):
+        self._thetac = float(thetac)
         self.updateTransformationMatrix()
         self.compute(all=True)
 

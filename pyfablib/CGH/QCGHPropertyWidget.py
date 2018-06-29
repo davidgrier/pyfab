@@ -21,7 +21,7 @@ class QCGHPropertyWidget(QPropertySheet):
         self.wxc = register('xc', cgh.rc.x(), 0, cam.width, setter)
         self.wyc = register('yc', cgh.rc.y(), 0, cam.height, setter)
         self.wzc = register('zc', cgh.rc.z(), -500, 500, setter)
-        self.wtheta = register('theta', cgh.theta, -180, 180, setter)
+        self.wthetac = register('thetac', cgh.thetac, -180, 180, setter)
         self.wxs = register('xs', cgh.rs.x(), 0, slm.width(), setter)
         self.wys = register('ys', cgh.rs.y(), 0, slm.height(), setter)
         self.wk0 = register('k0', cgh.k0, -10, 10, setter)
@@ -33,7 +33,7 @@ class QCGHPropertyWidget(QPropertySheet):
         self.wxc.setToolTip('x position of optical axis on camera [pixel]')
         self.wyc.setToolTip('y position of optical axis on camera [pixel]')
         self.wzc.setToolTip('axial position of zeroth-order plane [pixel]')
-        self.wtheta.setToolTip(
+        self.wthetac.setToolTip(
             'orientation of camera relative to SLM [degrees]')
         self.wxs.setToolTip('x position of optical axis on SLM [pixel]')
         self.wys.setToolTip('y position of optical axis on SLM [pixel]')
@@ -47,7 +47,7 @@ class QCGHPropertyWidget(QPropertySheet):
                 'xc': self.wxc.value,
                 'yc': self.wyc.value,
                 'zc': self.wzc.value,
-                'theta': self.wtheta.value,
+                'thetac': self.wthetac.value,
                 'k0': self.wk0.value}
 
     def setConfiguration(self, properties):

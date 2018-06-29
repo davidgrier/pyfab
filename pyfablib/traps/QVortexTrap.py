@@ -14,10 +14,7 @@ class QVortexTrap(QTrap):
     def update_field(self):
         if self.cgh is None:
             return
-        qx = np.imag(self.cgh.iqx)
-        qy = np.imag(self.cgh.iqy)
-        theta = np.arctan2.outer(qx, qy)
-        self.structure = np.exp((1j * self.ell) * theta)
+        self.structure = np.exp((1j * self.ell) * self.cgh.theta)
 
     @property
     def cgh(self):
