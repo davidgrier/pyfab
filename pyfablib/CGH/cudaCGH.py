@@ -26,7 +26,7 @@ class cudaCGH(CGH):
         self.context = self.device.make_context()
 
         mod = SourceModule("""
-        # include <pycuda-complex.hpp>
+        #include <pycuda-complex.hpp>
         typedef pycuda::complex<float> pyComplex;
 
         __device__ float arctan(float y, float x){
@@ -49,10 +49,10 @@ class cudaCGH(CGH):
             return(angle);
         }
 
-        __global__ void outertheta(float *x, \
-                                   float *y, \
-                                   float *out, \
-                                   int nx, int ny)
+        __global__ void outeratan2f(float *x, \
+                                    float *y, \
+                                    float *out, \
+                                    int nx, int ny)
         {
           float yj;
           for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
@@ -65,15 +65,19 @@ class cudaCGH(CGH):
           }
         }
 
-        __global__ void outerrho(float *x, \
-                                 float *y, \
-                                 float *out, \
-                                 int nx, int ny)
+        __global__ void outerhypot(float *x, \
+                                   float *y, \
+                                   float *out, \
+                                   int nx, int ny)
         {
-          int i = threadIdx.x + blockDim.x * blockIdx.x;
-          int j = threadIdx.y + blockDim.y * blockIdx.y;
-          if (i < nx && j < ny) {
-            out[i*ny + j] = hypotf(x[i], y[j]);
+          float yj;
+          for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
+              j < ny; j += blockDim.y * gridDim.y) {
+            yj = y[j];
+            for(int i = threadIdx.x + blockDim.x * blockIdx.x; \
+                i < nx; i += blockDim.x * gridDim.x) {
+              out[i*ny + j] = hypot(x[i], yj);
+            }
           }
         }
 
@@ -112,9 +116,9 @@ class cudaCGH(CGH):
         }
         """)
         self.outer = mod.get_function('outer')
+        self.outeratan2f = mod.get_function('outeratan2f')
+        self.outerhypot = mod.get_function('outerhypot')
         self.phase = mod.get_function('phase')
-        self.outertheta = mod.get_function('outertheta')
-        self.outerrho = mod.get_function('outerrho')
         self.npts = np.int32(self.w * self.h)
         self.block = (16, 16, 1)
         dx, mx = divmod(self.w, self.block[0])
@@ -146,30 +150,32 @@ class cudaCGH(CGH):
                    block=self.block, grid=self.grid)
 
     def updateGeometry(self):
-        shape = (self.w, self.h)
-        self._psi = gpuarray.zeros(shape, dtype=np.complex64)
-        self._phi = gpuarray.zeros(shape, dtype=np.uint8)
-        self._theta = gpuarray.zeros(shape, dtype=np.float32)
-        self._rho = gpuarray.zeros(shape, dtype=np.float32)
+        # GPU storage
+        self._psi = gpuarray.zeros(self.shape, dtype=np.complex64)
+        self._phi = gpuarray.zeros(self.shape, dtype=np.uint8)
+        self._theta = gpuarray.zeros(self.shape, dtype=np.float32)
+        self._rho = gpuarray.zeros(self.shape, dtype=np.float32)
         self._ex = gpuarray.zeros(self.w, dtype=np.complex64)
         self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
+        # Geometry
         qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
         qy = gpuarray.arange(self.h, dtype=np.float32).astype(np.complex64)
         qx = self._qpp * (qx - self.xs)
         qy = self._alpha * self._qpp * (qy - self.ys)
-        self.phi = np.zeros(shape, dtype=np.uint8)
         self._iqx = 1j * qx
         self._iqy = 1j * qy
         self._iqxsq = 1j * qx * qx
         self._iqysq = 1j * qy * qy
-        self.iqx = self._iqx.get()
-        self.iqy = self._iqy.get()
-        self.outertheta(qx, qy, self._theta,
+        self.outeratan2f(qx.real, qy.real, self._theta,
+                         np.int32(self.w), np.int32(self.h),
+                         block=self.block, grid=self.grid)
+        self.outerhypot(qx.real, qy.real, self._rho,
                         np.int32(self.w), np.int32(self.h),
                         block=self.block, grid=self.grid)
-        self.outerrho(qx, qy, self._rho,
-                      np.int32(self.w), np.int32(self.h),
-                      block=self.block, grid=self.grid)
+        # CPU versions
+        self.phi = np.zeros(self.shape, dtype=np.uint8)
+        self.iqx = self._iqx.get()
+        self.iqy = self._iqy.get()
         self.theta = self._theta.get()
         self.qr = self._rho.get()
 

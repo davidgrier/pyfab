@@ -125,9 +125,9 @@ class QTrappingPattern(pg.ScatterPlotItem):
         trap.parent = self
         trap.cgh = self.parent.cgh
         self.pattern.add(trap)
-        self.trapAdded.emit(trap)
         if update:
             self._update()
+        self.trapAdded.emit(trap)
         # return trap
 
     def createTrap(self, r, update=True):

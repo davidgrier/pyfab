@@ -166,3 +166,4 @@ class QTrap(QtCore.QObject):
     @structure.setter
     def structure(self, field):
         self._structure = self.cgh.bless(field)
+        self._update()

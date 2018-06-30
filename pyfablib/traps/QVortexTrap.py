@@ -4,6 +4,9 @@
 
 from .QTrap import QTrap
 import numpy as np
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class QVortexTrap(QTrap):
@@ -13,13 +16,9 @@ class QVortexTrap(QTrap):
 
     def update_field(self):
         if self.cgh is None:
+            logger.info('Tried to update without CGH')
             return
-        # theta = self.cgh.theta
-        qx = np.imag(self.cgh.iqx)
-        qy = np.imag(self.cgh.iqy)
-        theta = np.arctan2.outer(qx, qy)
-        field = np.exp((1j * self.ell) * theta)
-        self.structure = field
+        self.structure = np.exp((1j * self.ell) * self.cgh.theta)
 
     @property
     def cgh(self):
