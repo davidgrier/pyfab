@@ -4,7 +4,10 @@ import serial
 from serial.tools.list_ports import comports
 import io
 import fcntl
+
 import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class SerialDevice(object):
@@ -30,7 +33,7 @@ class SerialDevice(object):
     def find(self):
         ports = list(comports())
         if len(ports) <= 0:
-            logging.warning('No serial ports identified')
+            logger.warning('No serial ports identified')
             return
         for port in ports:
             if port.manufacturer is None:
@@ -49,14 +52,14 @@ class SerialDevice(object):
                         fcntl.flock(self.ser.fileno(),
                                     fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except IOError:
-                        logging.warning('%s is busy', self.ser.port)
+                        logger.warning('{} is busy'.format(self.ser.port))
                         self.ser.close()
                         continue
                 else:
-                    logging.warning('Could not open %s', self.ser.port)
+                    logger.warning('Could not open {}'.format(self.ser.port))
                     continue
             except serial.SerialException as ex:
-                logging.warning('%s is unavailable: %s', port, ex)
+                logger.warning('{} is unavailable: {}'.format(port, ex))
                 continue
             buffer = io.BufferedRWPair(self.ser, self.ser, 1)
             # buffer = io.BufferedRandom(self.ser, 1)

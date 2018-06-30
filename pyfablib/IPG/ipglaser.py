@@ -4,6 +4,8 @@
 
 from common.SerialDevice import SerialDevice
 import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class ipglaser(SerialDevice):
@@ -95,16 +97,16 @@ class ipglaser(SerialDevice):
 
     def error(self, flags=None):
         if not self.flagSet('ERR', flags):
-            logging.info('No errors')
+            logger.info('No errors')
             return False
         if self.flagSet('TMP', flags):
-            logging.warning('ERROR: Over-temperature condition')
+            logger.warning('ERROR: Over-temperature condition')
         if self.flagSet('BKR', flags):
-            logging.warning('ERROR: Excessive backreflection')
+            logger.warning('ERROR: Excessive backreflection')
         if self.flagSet('PWR', flags):
-            logging.warning('ERROR: Power supply off')
+            logger.warning('ERROR: Power supply off')
         if self.flagSet('UNX', flags):
-            logging.warning('ERROR: Unexpected laser output')
+            logger.warning('ERROR: Unexpected laser output')
         return True
 
 

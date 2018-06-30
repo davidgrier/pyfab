@@ -5,8 +5,9 @@
 import cv2
 from pyqtgraph.Qt import QtCore
 import numpy as np
-import logging
 
+import logging
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 

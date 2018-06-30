@@ -4,6 +4,8 @@
 
 from common.QPropertySheet import QPropertySheet
 import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class QCGHPropertyWidget(QPropertySheet):
@@ -55,4 +57,4 @@ class QCGHPropertyWidget(QPropertySheet):
             try:
                 self.__dict__['w' + property].value = value
             except KeyError:
-                logging.warning('Unknown attribute: {}'.format(property))
+                logger.warning('Unknown attribute: {}'.format(property))

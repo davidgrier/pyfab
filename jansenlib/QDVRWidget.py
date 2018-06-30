@@ -9,8 +9,9 @@ import cv2
 import os
 import platform
 from common.clickable import clickable
-import logging
 
+import logging
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 

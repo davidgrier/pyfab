@@ -6,7 +6,10 @@ import numpy as np
 from PyQt4 import QtGui, QtCore
 from numba import jit
 from time import time
+
 import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class CGH(QtCore.QObject):
@@ -63,13 +66,13 @@ class CGH(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def start(self):
-        logging.info('starting CGH pipeline')
+        logger.info('starting CGH pipeline')
         self.updateGeometry()
         self.updateTransformationMatrix()
 
     @QtCore.pyqtSlot()
     def stop(self):
-        logging.info('stopping CGH pipeline')
+        logger.info('stopping CGH pipeline')
 
     @QtCore.pyqtSlot(object, object)
     def setProperty(self, name, value):

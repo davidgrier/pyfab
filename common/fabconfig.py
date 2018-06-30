@@ -6,7 +6,10 @@ import io
 import platform
 from datetime import datetime
 from PyQt4 import QtGui
+
 import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class fabconfig(object):
@@ -20,10 +23,11 @@ class fabconfig(object):
         self.datadir = os.path.expanduser('~/data/')
         self.configdir = os.path.expanduser('~/.pyfab/')
         if not os.path.exists(self.datadir):
-            logging.info('Creating data directory: ' + self.datadir)
+            logger.info('Creating data directory: {}'.format(self.datadir))
             os.makedirs(self.datadir)
         if not os.path.exists(self.configdir):
-            logging.info('Creating configuration directory: ' + self.configdir)
+            logger.info(
+                'Creating configuration directory: {}'.format(self.configdir))
             os.makedirs(self.configdir)
 
     def timestamp(self):
@@ -61,7 +65,7 @@ class fabconfig(object):
             msg = ('Could not read configuration file:\n\t' +
                    str(ex) +
                    '\n\tUsing default configuration.')
-            logging.warning(msg)
+            logger.warning(msg)
 
     def query_save(self, object):
         query = 'Save current configuration?'

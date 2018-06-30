@@ -6,7 +6,10 @@ from pyqtgraph.Qt import QtGui
 from .proscan.QProscan import QProscan
 from .IPG.QIPGLaser import QIPGLaser
 from common.tabLayout import tabLayout
+
 import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class QHardwareTab(QtGui.QWidget):
@@ -24,14 +27,14 @@ class QHardwareTab(QtGui.QWidget):
             self._has_content = True
         except ValueError as ex:
             self.wstage = None
-            logging.warning('Could not install stage: %s', ex)
+            logger.warning('Could not install stage: {}'.format(ex))
         try:
             self.wlaser = QIPGLaser()
             layout.addWidget(self.wlaser)
             self._has_content = True
         except ValueError as ex:
             self.wlaser = None
-            logging.warning('Could not install laser: %s', ex)
+            logger.warning('Could not install laser: {}'.format(ex))
 
     def expose(self, index):
         if index == self.index:

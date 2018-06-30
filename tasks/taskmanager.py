@@ -2,7 +2,10 @@
 
 from collections import deque
 import importlib
+
 import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class taskmanager(object):
@@ -43,7 +46,7 @@ class taskmanager(object):
                 taskclass = getattr(taskmodule, task)
                 task = taskclass(parent=self.parent, **kwargs)
             except ImportError as err:
-                logging.error('Could not import {}: {}'.format(task, err))
+                logger.error('Could not import {}: {}'.format(task, err))
                 return
         self.queue.append(task)
         if self.task is None:
