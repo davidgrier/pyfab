@@ -54,10 +54,14 @@ class cudaCGH(CGH):
                                    float *out, \
                                    int nx, int ny)
         {
-          int i = threadIdx.x + blockDim.x * blockIdx.x;
-          int j = threadIdx.y + blockDim.y * blockIdx.y;
-          if (i < nx && j < ny) {
-            out[i*ny + j] = arctan(y[i], x[i]);
+          float yj;
+          for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
+              j < ny; j += blockDim.y * gridDim.y) {
+            yj = y[j];
+            for(int i = threadIdx.x + blockDim.x * blockIdx.x; \
+                i < nx; i += blockDim.x * gridDim.x) {
+              out[i*ny + j] = atan2f(yj, x[i]);
+            }
           }
         }
 
@@ -69,7 +73,7 @@ class cudaCGH(CGH):
           int i = threadIdx.x + blockDim.x * blockIdx.x;
           int j = threadIdx.y + blockDim.y * blockIdx.y;
           if (i < nx && j < ny) {
-            out[i*ny + j] = hypotf(x[i], y[i]);
+            out[i*ny + j] = hypotf(x[i], y[j]);
           }
         }
 
@@ -173,4 +177,5 @@ class cudaCGH(CGH):
         self.context.push()
         gpu_field = gpuarray.to_gpu(field.astype(np.complex64))
         cuda.Context.pop()
+        print('### bless:', field.dtype, gpu_field.dtype)
         return gpu_field
