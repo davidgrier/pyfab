@@ -17,8 +17,9 @@ class QVortexTrap(QTrap):
         # theta = self.cgh.theta
         qx = np.imag(self.cgh.iqx)
         qy = np.imag(self.cgh.iqy)
-        theta = np.arctan2.outer(qy, qx).T
-        self.structure = np.exp((1j * self.ell) * theta)
+        theta = np.arctan2.outer(qx, qy)
+        field = np.exp((1j * self.ell) * theta)
+        self.structure = field
 
     @property
     def cgh(self):

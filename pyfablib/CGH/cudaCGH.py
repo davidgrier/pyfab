@@ -26,7 +26,7 @@ class cudaCGH(CGH):
         self.context = self.device.make_context()
 
         mod = SourceModule("""
-        #include <pycuda-complex.hpp>
+        # include <pycuda-complex.hpp>
         typedef pycuda::complex<float> pyComplex;
 
         __device__ float arctan(float y, float x){
@@ -177,5 +177,4 @@ class cudaCGH(CGH):
         self.context.push()
         gpu_field = gpuarray.to_gpu(field.astype(np.complex64))
         cuda.Context.pop()
-        print('### bless:', field.dtype, gpu_field.dtype)
         return gpu_field

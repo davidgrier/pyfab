@@ -42,7 +42,8 @@ class CGH(QtCore.QObject):
         self.slm = slm
         self.w = self.slm.width()
         self.h = self.slm.height()
-        self.phi = np.zeros((self.w, self.h)).astype(np.uint8)
+        self.shape = (self.w, self.h)
+        self.phi = np.zeros(self.shape).astype(np.uint8)
 
         # Conversion from SLM pixels to wavenumbers
         self._qpp = 2. * np.pi / self.w / 10.
@@ -120,7 +121,7 @@ class CGH(QtCore.QObject):
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
                 self.compute_displace(amp, r, trap.psi)
-            self._psi += trap.structure  # *trap.psi
+            self._psi += trap.structure * trap.psi
         self.sigHologramReady.emit(self.quantize(self._psi))
         self.time = time() - start
         self.sigComputing.emit(False)
@@ -132,8 +133,7 @@ class CGH(QtCore.QObject):
         """Compute position-dependent properties in SLM plane
         and allocate buffers.
         """
-        shape = (self.w, self.h)
-        self._psi = np.zeros(shape, dtype=np.complex_)
+        self._psi = np.zeros(self.shape, dtype=np.complex_)
         qx = np.arange(self.w) - self.rs.x()
         qy = np.arange(self.h) - self.rs.y()
         qx = self._qpp * qx
