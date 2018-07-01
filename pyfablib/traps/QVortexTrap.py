@@ -42,7 +42,8 @@ class QVortexTrap(QTrap):
     def plotSymbol(self):
         """Graphical representation of an optical vortex"""
         sym = QtGui.QPainterPath()
-        sym.addText(0, 0, QtGui.QFont('San Serif', 10), 'V')
+        font = QtGui.QFont('Sans Serif', 10, QtGui.QFont.Black)
+        sym.addText(0, 0, font, 'V')
         # scale symbol to unit square
         box = sym.boundingRect()
         scale = 1./max(box.width(), box.height())
