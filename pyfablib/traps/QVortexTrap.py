@@ -12,10 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 class QVortexTrap(QTrap):
-    def __init__(self, ell=10, **kwargs):
+    def __init__(self, ell=10, cgh=None, **kwargs):
         super(QVortexTrap, self).__init__(**kwargs)
         self.ell = ell
         self.spot['symbol'] = self.plotSymbol()
+        self.cgh = cgh
 
     def update_structure(self):
         if self.cgh is None:
@@ -40,8 +41,8 @@ class QVortexTrap(QTrap):
 
     @cgh.setter
     def cgh(self, cgh):
+        self._cgh = cgh
         if cgh is None:
             return
-        self._cgh = cgh
         self._cgh.sigUpdateGeometry.connect(self.update_structure)
         self.update_structure()
