@@ -42,29 +42,29 @@ class QTrapProperty(QtGui.QLineEdit):
 
 class QTrapLine(QtGui.QWidget):
     """Control for properties of one trap."""
-    
+
     def __init__(self, trap):
         super(QTrapLine, self).__init__()
         layout = QtGui.QHBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
-        self.wx = QTrapProperty(trap.r.x())
-        self.wy = QTrapProperty(trap.r.y())
-        self.wz = QTrapProperty(trap.r.z())
-        self.wa = QTrapProperty(trap.a, decimals=2)
-        self.wp = QTrapProperty(trap.phi, decimals=2)
+        self.wx = self.prop(trap.r.x(), trap.setX)
+        self.wy = self.prop(trap.r.y(), trap.setY)
+        self.wz = self.prop(trap.r.z(), trap.setZ)
+        self.wa = self.prop(trap.a, trap.setA, decimals=2)
+        self.wp = self.prop(trap.phi, trap.setPhi, decimals=2)
         layout.addWidget(self.wx)
         layout.addWidget(self.wy)
         layout.addWidget(self.wz)
         layout.addWidget(self.wa)
         layout.addWidget(self.wp)
         trap.valueChanged.connect(self.updateValues)
-        self.wx.valueChanged.connect(trap.setX)
-        self.wy.valueChanged.connect(trap.setY)
-        self.wz.valueChanged.connect(trap.setZ)
-        self.wa.valueChanged.connect(trap.setA)
-        self.wp.valueChanged.connect(trap.setPhi)
         self.setLayout(layout)
+
+    def prop(self, value, handler, decimals=1):
+        wid = QTrapProperty(value, decimals=decimals)
+        wid.valueChanged.connect(handler)
+        return wid
 
     def updateValues(self, trap):
         self.wx.value = trap.r.x()
@@ -76,7 +76,7 @@ class QTrapLine(QtGui.QWidget):
 
 class QTrapWidget(QtGui.QFrame):
     """Controls for all traps."""
-    
+
     def __init__(self, pattern=None):
         super(QTrapWidget, self).__init__()
         self.properties = dict()
@@ -113,11 +113,8 @@ class QTrapWidget(QtGui.QFrame):
         layout = QtGui.QHBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
-        layout.addWidget(self.labelItem('x'))
-        layout.addWidget(self.labelItem('y'))
-        layout.addWidget(self.labelItem('z'))
-        layout.addWidget(self.labelItem('alpha'))
-        layout.addWidget(self.labelItem('phi'))
+        for label in ['x', 'y', 'z', 'alpha', 'phi']:
+            layout.addWidget(self.labelItem(label))
         widget.setLayout(layout)
         return widget
 
