@@ -115,10 +115,10 @@ class cudaCGH(CGH):
           }
         }
         """)
-        self.outer = mod.get_function('outer')
-        self.outeratan2f = mod.get_function('outeratan2f')
-        self.outerhypot = mod.get_function('outerhypot')
-        self.phase = mod.get_function('phase')
+        self._outer = mod.get_function('outer')
+        self._outeratan2f = mod.get_function('outeratan2f')
+        self._outerhypot = mod.get_function('outerhypot')
+        self._phase = mod.get_function('phase')
         self.npts = np.int32(self.w * self.h)
         self.block = (16, 16, 1)
         dx, mx = divmod(self.w, self.block[0])
@@ -126,6 +126,22 @@ class cudaCGH(CGH):
         self.grid = ((dx + (mx > 0)) * self.block[0],
                      (dy + (my > 0)) * self.block[1])
         super(cudaCGH, self).start()
+
+    def outer(self, a, b, out):
+        self._outer(a, b, out, np.int32(self.w), np.int32(self.h),
+                    block=self.block, grid=self.grid)
+
+    def outeratan2f(self, a, b, out):
+        self._outeratan2f(a, b, out, np.int32(self.w), np.int32(self.h),
+                          block=self.block, grid=self.grid)
+
+    def outerhypot(self, a, b, out):
+        self._outerhypot(a, b, out, np.int32(self.w), np.int32(self.h),
+                         block=self.block, grid=self.grid)
+
+    def phase(self, a, out):
+        self._phase(a, out, np.int32(self.w), np.int32(self.h),
+                    block=self.block, grid=self.grid)
 
     @QtCore.pyqtSlot()
     def stop(self):
@@ -135,9 +151,7 @@ class cudaCGH(CGH):
         tools.clear_context_caches()
 
     def quantize(self, psi):
-        self.phase(psi, self._phi,
-                   np.int32(self.w), np.int32(self.h),
-                   block=self.block, grid=self.grid)
+        self.phase(psi, self._phi)
         self._phi.get(self.phi)
         return self.phi.T
 
@@ -145,9 +159,7 @@ class cudaCGH(CGH):
         cumath.exp(self._iqx * r.x() + self._iqxsq * r.z(), out=self._ex)
         cumath.exp(self._iqy * r.y() + self._iqysq * r.z(), out=self._ey)
         self._ex *= amp
-        self.outer(self._ex, self._ey, buffer,
-                   np.int32(self.w), np.int32(self.h),
-                   block=self.block, grid=self.grid)
+        self.outer(self._ex, self._ey, buffer),
 
     def updateGeometry(self):
         # GPU storage
@@ -166,12 +178,8 @@ class cudaCGH(CGH):
         self._iqy = 1j * qy
         self._iqxsq = 1j * qx * qx
         self._iqysq = 1j * qy * qy
-        self.outeratan2f(qx.real, qy.real, self._theta,
-                         np.int32(self.w), np.int32(self.h),
-                         block=self.block, grid=self.grid)
-        self.outerhypot(qx.real, qy.real, self._rho,
-                        np.int32(self.w), np.int32(self.h),
-                        block=self.block, grid=self.grid)
+        self.outeratan2f(qx.real, qy.real, self._theta)
+        self.outerhypot(qx.real, qy.real, self._rho)
         # CPU versions
         self.phi = np.zeros(self.shape, dtype=np.uint8)
         self.iqx = self._iqx.get()
