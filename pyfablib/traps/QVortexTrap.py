@@ -17,22 +17,22 @@ class QVortexTrap(QTrap):
         self.ell = ell
         self.spot['symbol'] = self.plotSymbol()
 
-    def update_field(self):
+    def update_structure(self):
         if self.cgh is None:
-            logger.info('Tried to update without CGH')
+            logger.warn('Tried to update without CGH')
             return
         self.structure = np.exp((1j * self.ell) * self.cgh.theta)
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
         sym.addText(0, 0, QtGui.QFont('San Serif', 10), 'V')
+        # scale symbol to unit square
         box = sym.boundingRect()
-        scale = min(1./box.width(), 1/box.height())
-        tr = QtGui.QTransform()
-        tr.scale(scale, scale)
+        scale = 1./max(box.width(), box.height())
+        tr = QtGui.QTransform().scale(scale, scale)
+        # center symbol on (0, 0)
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
-        sym = tr.map(sym)
-        return sym
+        return tr.map(sym)
 
     @property
     def cgh(self):
@@ -40,5 +40,8 @@ class QVortexTrap(QTrap):
 
     @cgh.setter
     def cgh(self, cgh):
+        if cgh is None:
+            return
         self._cgh = cgh
-        self.update_field()
+        self._cgh.sigUpdateGeometry.connect(self.update_structure)
+        self.update_structure()

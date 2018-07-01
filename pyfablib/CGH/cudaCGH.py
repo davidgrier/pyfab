@@ -178,6 +178,7 @@ class cudaCGH(CGH):
         self.iqy = self._iqy.get()
         self.theta = self._theta.get()
         self.qr = self._rho.get()
+        self.sigUpdateGeometry.emit()
 
     def bless(self, field):
         self.context.push()

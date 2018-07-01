@@ -37,6 +37,7 @@ class CGH(QtCore.QObject):
     sigRun = QtCore.pyqtSignal(bool)
     sigComputing = QtCore.pyqtSignal(bool)
     sigHologramReady = QtCore.pyqtSignal(np.ndarray)
+    sigUpdateGeometry = QtCore.pyqtSignal()
 
     def __init__(self, slm=None):
         super(CGH, self).__init__()
@@ -147,6 +148,7 @@ class CGH(QtCore.QObject):
         self.iqysq = 1j * qy * qy
         self.theta = np.arctan2.outer(qx, qy)
         self.qr = np.hypot.outer(qx, qy)
+        self.sigUpdateGeometry.emit()
 
     @property
     def xs(self):
