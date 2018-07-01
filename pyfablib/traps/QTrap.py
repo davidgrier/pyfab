@@ -50,7 +50,7 @@ class QTrap(QtCore.QObject):
                      'size': 10.,
                      'pen': pg.mkPen('k', width=0.5),
                      'brush': self.brush[state],
-                     'symbol': 'o'}
+                     'symbol': self.plotSymbol()}
         # physical properties
         self.r = r
         self._a = a
@@ -64,6 +64,43 @@ class QTrap(QtCore.QObject):
 
         self.active = active
 
+    # Customizable methods for subclassed traps
+    def plotSymbol(self):
+        """Graphical representation of trap"""
+        return 'o'
+
+    def update_structure(self):
+        """Update structuring field to properties of CGH pipeline"""
+        self.structure = 1. + 0j
+
+    # Organization
+    def _update(self):
+        if self.active:
+            self.state = states.selected
+            self.parent._update()
+
+    def update_spot(self):
+        """Adapt trap appearance to trap motion"""
+        self.spot['pos'] = self.coords()
+        self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
+
+    @property
+    def cgh(self):
+        return self._cgh
+
+    @cgh.setter
+    def cgh(self, cgh):
+        self._cgh = cgh
+        if cgh is None:
+            return
+        self._cgh.sigUpdateGeometry.connect(self.update_structure)
+        self.update_structure()
+
+    # Motion
+    def coords(self):
+        """In-plane position of trap for plotting."""
+        return self._r.toPointF()
+
     def moveBy(self, dr):
         """Translate trap.
         """
@@ -73,19 +110,6 @@ class QTrap(QtCore.QObject):
         """Return True if this trap lies within the specified rectangle.
         """
         return rect.contains(self.coords())
-
-    def _update(self):
-        if self.active:
-            self.state = states.selected
-            self.parent._update()
-
-    def update_spot(self):
-        self.spot['pos'] = self.coords()
-        self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
-
-    def coords(self):
-        """In-plane position of trap for plotting."""
-        return self._r.toPointF()
 
     @property
     def r(self):
@@ -117,6 +141,7 @@ class QTrap(QtCore.QObject):
         self.update_spot()
         self._update()
 
+    # Relative amplitude and phase
     def updateAmp(self):
         self.amp = self.a * np.exp(1j * self.phi)
         self._update()
@@ -159,6 +184,7 @@ class QTrap(QtCore.QObject):
             self._state = state
             self.spot['brush'] = self.brush[state]
 
+    # Structure field for multifunctional traps
     @property
     def structure(self):
         return self._structure
