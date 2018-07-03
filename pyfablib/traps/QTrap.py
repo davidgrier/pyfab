@@ -106,6 +106,11 @@ class QTrap(QtCore.QObject):
         """
         self.r = self.r + dr
 
+    def moveTo(self, r):
+        """Move trap to position r.
+        """
+        self.r = r
+
     def isWithin(self, rect):
         """Return True if this trap lies within the specified rectangle.
         """
