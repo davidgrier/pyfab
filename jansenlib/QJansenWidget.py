@@ -44,7 +44,7 @@ class QJansenWidget(QtGui.QWidget):
         layout.setSpacing(1)
         layout.addWidget(self.screen)
         self.tabs = QtGui.QTabWidget()
-        self.tabs.setMaximumWidth(rect.width() // 2 - 140)
+        self.tabs.setMaximumWidth(400 * (rect.width() // 1920))
         self.tabs.addTab(self.videoTab(), 'Video')
         tab = QHistogramTab(self.screen.video)
         tab.index = self.tabs.addTab(tab, 'Histogram')
