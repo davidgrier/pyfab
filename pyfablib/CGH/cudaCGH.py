@@ -189,6 +189,8 @@ class cudaCGH(CGH):
         self.sigUpdateGeometry.emit()
 
     def bless(self, field):
+        if type(field) is complex:
+            field = np.ones(self.shape)
         self.context.push()
         gpu_field = gpuarray.to_gpu(field.astype(np.complex64))
         cuda.Context.pop()

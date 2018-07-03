@@ -131,6 +131,8 @@ class CGH(QtCore.QObject):
         self.sigComputing.emit(False)
 
     def bless(self, field):
+        if type(field) is complex:
+            field = np.ones(self.shape)
         return field.astype(np.complex_)
 
     def updateGeometry(self):

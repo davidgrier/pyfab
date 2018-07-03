@@ -71,7 +71,7 @@ class QTrap(QtCore.QObject):
 
     def update_structure(self):
         """Update structuring field to properties of CGH pipeline"""
-        self.structure = 1. + 0j
+        self.structure = 1. + 0.j
 
     # Organization
     def _update(self):
