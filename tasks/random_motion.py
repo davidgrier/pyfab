@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # MENU: Random motion
 
-from .movealong import movealong
+from .trek import trek
 import numpy as np
 
 
-class random_motion(movealong):
+class random_motion(trek):
     """Demonstration of moving all current traps on some random path."""
 
     def __init__(self, **kwargs):
@@ -15,7 +15,7 @@ class random_motion(movealong):
         """
         Returns a dictionary of traps corresponding to their
         parameterized random motion
-        
+
         Args:
             traps: QTrapGroup of all traps on the QTrappingPattern
         """

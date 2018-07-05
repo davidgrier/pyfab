@@ -5,10 +5,10 @@
 from .task import task
 
 
-class movealong(task):
+class trek(task):
 
     def __init__(self, **kwargs):
-        super(movealong, self).__init__(**kwargs)
+        super(trek, self).__init__(**kwargs)
         self.traps = None
 
     def initialize(self, frame):
@@ -26,7 +26,7 @@ class movealong(task):
                     self.register('delay', delay=1)
                     for trap in self.trajectories:
                         trajectory = self.trajectories[trap]
-                        self.register('moveto', trap=trap, r=trajectory[n])
+                        self.register('step', trap=trap, r=trajectory[n])
 
     def parameterize(self, traps, destinations=None):
         """
