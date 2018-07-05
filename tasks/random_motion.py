@@ -11,9 +11,10 @@ class random_motion(movealong):
     def __init__(self, **kwargs):
         super(random_motion, self).__init__(**kwargs)
 
-    def compute_paths(self, traps):
+    def parameterize(self, traps):
         """
-        Returns a dictionary of traps corresponding to their parameterized random motion
+        Returns a dictionary of traps corresponding to their
+        parameterized random motion
         
         Args:
             traps: QTrapGroup of all traps on the QTrappingPattern

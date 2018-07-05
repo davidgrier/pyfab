@@ -13,7 +13,7 @@ class movealong(task):
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
-        self.trajectories = self.compute_paths(self.traps)
+        self.trajectories = self.parameterize(self.traps)
 
     def dotask(self):
         if self.traps.count() > 0:
@@ -28,7 +28,7 @@ class movealong(task):
                         trajectory = self.trajectories[trap]
                         self.register('moveto', trap=trap, r=trajectory[n])
 
-    def compute_paths(self, traps, destinations=None):
+    def parameterize(self, traps, destinations=None):
         """
         Returns a dictionary of traps corresponding to their
         respective parameterization.
