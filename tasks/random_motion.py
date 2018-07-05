@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # MENU: Random motion
 
-from .trek import trek
+from .parameterize import parameterize
 import numpy as np
 
 
-class random_motion(trek):
+class random_motion(parameterize):
     """Demonstration of moving all current traps on some random path."""
 
     def __init__(self, **kwargs):

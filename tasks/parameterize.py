@@ -5,10 +5,10 @@
 from .task import task
 
 
-class trek(task):
+class parameterize(task):
 
     def __init__(self, **kwargs):
-        super(trek, self).__init__(**kwargs)
+        super(parameterize, self).__init__(**kwargs)
         self.traps = None
 
     def initialize(self, frame):
@@ -28,14 +28,12 @@ class trek(task):
                         trajectory = self.trajectories[trap]
                         self.register('step', trap=trap, r=trajectory[n])
 
-    def parameterize(self, traps, destinations=None):
+    def parameterize(self, traps):
         """
         Returns a dictionary of traps corresponding to their
         respective parameterization.
 
         Args:
             traps: QTrapGroup of all traps on the QTrappingPattern
-        Keywords:
-            destinations: list of (x, y, z) destinations for each trap
         """
         return None
