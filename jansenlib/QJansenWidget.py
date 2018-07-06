@@ -7,7 +7,7 @@ from .QJansenScreen import QJansenScreen
 from .QHistogramTab import QHistogramTab
 from .QDVRWidget import QDVRWidget
 from common.tabLayout import tabLayout
-from .video import *
+from .video import QCameraPropertyWidget, QVideoFilterWidget
 from tasks.taskmanager import taskmanager
 from help.QHelpBrowser import QHelpBrowser
 from .video.QDetector import QDetector
@@ -44,7 +44,7 @@ class QJansenWidget(QtGui.QWidget):
         layout.setSpacing(1)
         layout.addWidget(self.screen)
         self.tabs = QtGui.QTabWidget()
-        self.tabs.setMaximumWidth(400 * (rect.width() // 1920))
+        # self.tabs.setMaximumWidth(400 * (rect.width() // 1920))
         self.tabs.addTab(self.videoTab(), 'Video')
         tab = QHistogramTab(self.screen.video)
         tab.index = self.tabs.addTab(tab, 'Histogram')
