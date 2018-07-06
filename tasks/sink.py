@@ -14,5 +14,5 @@ class sink(assemble):
     def structure(self, traps):
         vertices = {}
         for trap in traps.flatten():
-            vertices[trap] = np.array([100, 100, 0])
+            vertices[trap] = np.array([320, 240, 50])
         return vertices

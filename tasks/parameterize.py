@@ -26,7 +26,6 @@ class parameterize(task):
                 for n in range(N):
                     self.register('delay', delay=1)
                     for trap in self.trajectories:
-                        print(self.trajectories[trap])
                         curve = self.trajectories[trap].curve
                         self.register('step', trap=trap, r=curve[n])
 
@@ -62,14 +61,19 @@ class Curve(object):
     def step(self, direction):
         norm = np.linalg.norm(direction)
         if norm != 0:
-            direction = direction / np.linalg.norm(direction)
+            direction = direction / norm
+            if norm < 5.:
+                self.v = .3
         step = direction * self.v
         self.curve = np.concatenate((self.curve, np.array([self.r_f + step])),
                                     axis=0)
 
     def __str__(self):
-        data = "Shape: {}\nInitial: {}\nFinal: {}\nVelocity: {}"
-        return data.format(self.curve.shape,
-                           self.r_i,
-                           self.r_f,
-                           self.v)
+        r_i = self.r_i
+        r_f = self.r_f
+        data = [self.curve.shape,
+                (int(r_i[0]), int(r_i[1]), int(r_i[2])),
+                (int(r_f[0]), int(r_f[1]), int(r_f[2])),
+                self.v]
+        string = "Curve(shape={}, r_i={}, r_f={}, v={})"
+        return string.format(*data)

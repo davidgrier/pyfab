@@ -17,7 +17,7 @@ class assemble(parameterize):
         self.trajectories = self.parameterize(self.traps,
                                               vertices=self.vertices)
 
-    def parameterize(self, traps, vertices=None, max_step=2):
+    def parameterize(self, traps, vertices=None, max_step=6):
         '''
         Returns dictionary where Keys are QTraps and Values
         are Curve objects leading to each trap's respective
@@ -86,9 +86,10 @@ class assemble(parameterize):
         for trap in trajectories.keys():
             x_v, y_v, z_v = vertices[trap]
             x_f, y_f, z_f = trajectories[trap].r_f
-            x_f, y_f, z_f = int(x_f), int(y_f), int(z_f)
-            x_v, y_v, z_v = int(x_v), int(y_v), int(z_v)
-            if x_v == x_f and y_v == y_f and z_v == z_f:
+            x_condition = x_v - .5 <= x_f <= x_v + .5
+            y_condition = y_v - .5 <= y_f <= y_v + .5
+            z_condition = z_v - .5 <= z_f <= z_v + .5
+            if x_condition and y_condition and z_condition:
                 status[trap] = True
             else:
                 status[trap] = False
