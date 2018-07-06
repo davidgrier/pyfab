@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-# MENU: Sink
 
 """Framework for moving a set of traps to a set of vertices"""
 
-from .parameterize import parameterize
+from .parameterize import parameterize, Curve
 import numpy as np
 
 
 class assemble(parameterize):
-    """Demonstration of traps moving into a sink"""
 
     def __init__(self, **kwargs):
         super(assemble, self).__init__(**kwargs)
@@ -20,69 +18,82 @@ class assemble(parameterize):
                                               vertices=self.vertices)
 
     def parameterize(self, traps, vertices=None, max_step=2):
+        '''
+        Returns dictionary where Keys are QTraps and Values
+        are Curve objects leading to each trap's respective
+        vertex.
+
+        Args:
+            traps: QTrapGroup of all traps in QTrappingPattern.
+        Keywords:
+            vertices: Dictionary where Keys are QTraps and Values
+                      are 3D ndarray position vectors.
+            max_step: Represents maximum velocity. This is the max
+                      step size a trap can take between increments.
+        '''
         trajectories = None
         if vertices is not None:
-            # Initialize with initial position and velocity
+            # Initialize trajectories and status
             trajectories = {}
-            velocities = {}
             for trap in traps.flatten():
-                xi, yi, zi = trap.r.x(), trap.r.y(), trap.r.z()
-                trajectories[trap] = np.array([[xi, yi, zi]])
-                velocities[trap] = max_step // 2
-            # Fill parameterizations
-            status = self.status(trajectories, vertices)
-            done = False
+                r_i = (trap.r.x(), trap.r.y(), trap.r.z())
+                trajectories[trap] = Curve(r_i, v_i=max_step/2)
+            status, done = self.status(trajectories, vertices)
+            # Calculate curves
             while not done:
+                # Move each trap a single step
                 for trap in trajectories.keys():
-                    # If we're already there append the same position as last
+                    trajectory = trajectories[trap]
                     if status[trap] is True:
-                        trajectories[trap] = np.concatenate((trajectories[trap],
-                                                            np.array([trajectories[trap][-1]])),
-                                                            axis=0)
+                        # Don't move if it's already there
+                        trajectory.step(np.array([0., 0., 0.]))
                     else:
-                        rl = trajectories[trap][-1]
-                        rd = vertices[trap]
-                        step = ((rd - rl) / np.linalg.norm(rd - rl)) * velocities[trap]
-                        
-                        trajectories[trap] = np.concatenate((trajectories[trap],
-                                                            np.array([trajectories[trap][-1] + step])),
-                                                            axis=0)
-                # Check if we're done
-                status = self.status(trajectories, vertices)
-                done = True
-                for trap in status.keys():
-                    if status[trap] is False:
-                        done = False
+                        # Take a step towards final position
+                        r_f = trajectory.r_f
+                        r_v = vertices[trap]
+                        trajectory.step(r_v - r_f)
+                status, done = self.status(trajectories, vertices)
         return trajectories
 
     def structure(self, traps):
         '''
-        Returns a dictionary where keys are traps and values are vertices.
-        Subclass to assemble specific structure.
+        Returns a dictionary where Keys are QTraps and Values are 
+        ndarray cartesian position vectors for vertex location.
+        Overwrite in subclass to assemble specific structure.
 
         Args:
             traps: QTrapGroup of all traps in QTrappingPattern
         '''
-        vertices = {}
-        for trap in traps.flatten():
-            vertices[trap] = np.array([100, 100, 0])
-        return vertices
+        return None
 
     def status(self, trajectories, vertices):
-        """Returns a dictionary where keys are traps and values are
-        True if trap has reached its vertex and False if not.
-        """
+        '''
+        Routine to evaluate whether trajectories have reached
+        their respective vertices or not
+
+        Args:
+            trajectories: dictionary where Keys are QTraps and Values
+                          are Curve objects.
+            vertices: dictionary where Keys are QTraps and Values are
+                      ndarray cartesian position vectors.
+        Returns:
+            status: Dictionary where Keys are QTraps and Values are
+                    True if trap has reached its vertex and False if not.
+            done: True if all traps in status are True, False otherwise
+        '''
         status = {}
+        done = True
         for trap in trajectories.keys():
-            xd, yd, zd = vertices[trap]
-            xl, yl, zl = trajectories[trap][-1]
-            xl, yl, zl = int(xl), int(yl), int(zl)
-            xd, yd, zd = int(xd), int(yd), int(zd)
-            if xd == xl and yd == yl and zd == zl:
+            x_v, y_v, z_v = vertices[trap]
+            x_f, y_f, z_f = trajectories[trap].r_f
+            x_f, y_f, z_f = int(x_f), int(y_f), int(z_f)
+            x_v, y_v, z_v = int(x_v), int(y_v), int(z_v)
+            if x_v == x_f and y_v == y_f and z_v == z_f:
                 status[trap] = True
             else:
                 status[trap] = False
-        return status
+                done = False
+        return status, done
 
     def detect_collision(self):
         pass

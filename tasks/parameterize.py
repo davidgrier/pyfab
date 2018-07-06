@@ -3,6 +3,7 @@
 """Framework for moving all current traps along some trajectory"""
 
 from .task import task
+import numpy as np
 
 
 class parameterize(task):
@@ -19,14 +20,15 @@ class parameterize(task):
         if self.traps.count() > 0:
             if self.trajectories is not None:
                 # All paths must be same length
-                N = list(self.trajectories.values())[0].shape[0]
+                N = list(self.trajectories.values())[0].curve.shape[0]
                 # Move along paths
                 self.traps.select(True)
                 for n in range(N):
                     self.register('delay', delay=1)
                     for trap in self.trajectories:
-                        trajectory = self.trajectories[trap]
-                        self.register('step', trap=trap, r=trajectory[n])
+                        print(self.trajectories[trap])
+                        curve = self.trajectories[trap].curve
+                        self.register('step', trap=trap, r=curve[n])
 
     def parameterize(self, traps):
         """
@@ -37,3 +39,37 @@ class parameterize(task):
             traps: QTrapGroup of all traps on the QTrappingPattern
         """
         return None
+
+
+class Curve(object):
+    '''
+    Creates and manipulates a parameterized curve in cartesian coordinates
+    '''
+
+    def __init__(self, r_i, v_i=1, **kwargs):
+        super(Curve, self).__init__(**kwargs)
+        self.v = v_i
+        self.curve = np.array([[r_i[0], r_i[1], r_i[2]]])
+
+    @property
+    def r_f(self):
+        return self.curve[-1]
+
+    @property
+    def r_i(self):
+        return self.curve[0]
+
+    def step(self, direction):
+        norm = np.linalg.norm(direction)
+        if norm != 0:
+            direction = direction / np.linalg.norm(direction)
+        step = direction * self.v
+        self.curve = np.concatenate((self.curve, np.array([self.r_f + step])),
+                                    axis=0)
+
+    def __str__(self):
+        data = "Shape: {}\nInitial: {}\nFinal: {}\nVelocity: {}"
+        return data.format(self.curve.shape,
+                           self.r_i,
+                           self.r_f,
+                           self.v)
