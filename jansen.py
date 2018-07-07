@@ -32,11 +32,7 @@ class jansen(QtGui.QMainWindow):
         self.instrument = QJansenWidget()
         self.init_ui()
         self.show()
-        tabs = self.instrument.tabs
-        tabs.setFixedWidth(tabs.width())
-        desktop = QtGui.QDesktopWidget()
-        rect = desktop.screenGeometry(0)
-        self.resize(rect.width() // 2, rect.height() // 2)
+        self.instrument.setSize()
 
     def init_ui(self):
         self.setWindowTitle('Jansen')
@@ -48,7 +44,7 @@ class jansen(QtGui.QMainWindow):
         exitIcon = QtGui.QIcon.fromTheme('exit')
         exitAction = QtGui.QAction(exitIcon, '&Quit', self)
         exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Quit PyFab')
+        exitAction.setStatusTip('Quit Jansen')
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 

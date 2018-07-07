@@ -37,14 +37,11 @@ class QJansenWidget(QtGui.QWidget):
         self.wcamera.enabled = not recording
 
     def init_ui(self):
-        desktop = QtGui.QDesktopWidget()
-        rect = desktop.screenGeometry(0)
         layout = QtGui.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
         layout.addWidget(self.screen)
         self.tabs = QtGui.QTabWidget()
-        # self.tabs.setMaximumWidth(400 * (rect.width() // 1920))
         self.tabs.addTab(self.videoTab(), 'Video')
         tab = QHistogramTab(self.screen.video)
         tab.index = self.tabs.addTab(tab, 'Histogram')
@@ -52,6 +49,14 @@ class QJansenWidget(QtGui.QWidget):
         self.tabs.addTab(self.helpTab(), 'Help')
         layout.addWidget(self.tabs)
         layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
+
+    def setSize(self):
+        desktop = QtGui.QDesktopWidget()
+        rect = desktop.screenGeometry(0)
+        self.tabs.setMaximumWidth(rect.width() // 3)
+        self.tabs.setFixedWidth(self.tabs.width())
+        self.setMinimumHeight(1.1*self.screen.height())
+        self.setMinimumWidth(1.1*self.screen.width()+self.tabs.width())
 
     def videoTab(self):
         wvideo = QtGui.QWidget()

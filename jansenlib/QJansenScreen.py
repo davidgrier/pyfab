@@ -26,12 +26,13 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.parent = parent
         # VideoItem displays video feed
         self.video = QVideoItem(parent=self, **kwargs)
+        source = self.video.source
         # ViewBox presents video and contains overlays
         self.viewbox = self.addViewBox(enableMenu=False,
                                        enableMouse=False,
                                        lockAspect=1.)
-        self.viewbox.setRange(self.video.source.roi,
-                              padding=0, update=True)
+        self.viewbox.setRange(source.roi, padding=0, update=True)
+        self.viewbox.setMinimumSize(source.size.width(), source.size.height())
         self.viewbox.addItem(self.video)
 
     def addOverlay(self, graphicsItem):

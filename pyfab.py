@@ -37,13 +37,8 @@ class pyfab(QtGui.QMainWindow):
 
         self.config = fabconfig(self)
         self.config.restore(self.instrument.wcgh)
+        self.instrument.setSize()
         self.show()
-
-        tabs = self.instrument.tabs
-        tabs.setFixedWidth(tabs.width())
-        desktop = QtGui.QDesktopWidget()
-        rect = desktop.screenGeometry(0)
-        self.resize(rect.width() // 2, rect.height() // 2)
 
     def init_ui(self):
         self.setWindowTitle('PyFab')
