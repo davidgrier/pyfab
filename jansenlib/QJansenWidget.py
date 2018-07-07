@@ -39,7 +39,7 @@ class QJansenWidget(QtGui.QWidget):
     def init_ui(self):
         layout = QtGui.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(1)
+        layout.setSpacing(0)
         layout.addWidget(self.screen)
         self.tabs = QtGui.QTabWidget()
         self.tabs.addTab(self.videoTab(), 'Video')
