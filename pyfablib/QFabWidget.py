@@ -46,11 +46,15 @@ class QFabWidget(QJansenWidget):
         # add new tabs
         hwtab = QHardwareTab()
         if hwtab.has_content():
-            self.tabs.addTab(hwtab, 'Hardware')
-        self.tabs.addTab(self.cghTab(), 'CGH')
-        self.tabs.addTab(self.trapTab(), 'Traps')
+            index = self.tabs.addTab(hwtab, 'Hardware')
+            self.tabs.setTabToolTip(index, 'Hardware')
+        index = self.tabs.addTab(self.cghTab(), 'CGH')
+        self.tabs.setTabToolTip(index, 'CGH')
+        index = self.tabs.addTab(self.trapTab(), 'Traps')
+        self.tabs.setTabToolTip(index, 'Traps')
         slmtab = QSLMTab(cgh=self.cgh)
-        self.tabs.addTab(slmtab, 'SLM')
+        index = self.tabs.addTab(slmtab, 'SLM')
+        self.tabs.setTabToolTip(index, 'SLM')
         self.tabs.currentChanged.connect(slmtab.expose)
         # move Help to end
         self.tabs.tabBar().moveTab(help_index, self.tabs.count() - 1)
