@@ -57,8 +57,7 @@ class QJansenWidget(QtGui.QWidget):
         rect = desktop.screenGeometry(0)
         self.tabs.setMaximumWidth(rect.width() // 3)
         self.tabs.setFixedWidth(self.tabs.width())
-        self.setMinimumHeight(1.1*self.screen.height())
-        self.setMinimumWidth(1.1*self.screen.width()+self.tabs.width())
+        self.setMinimumWidth(self.screen.width()+22+self.tabs.width())
         return self
 
     def videoTab(self):
