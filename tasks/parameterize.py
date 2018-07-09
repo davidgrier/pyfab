@@ -58,13 +58,22 @@ class Curve(object):
     def r_i(self):
         return self.curve[0]
 
-    def step(self, direction):
-        norm = np.linalg.norm(direction)
-        if norm != 0:
-            direction = direction / norm
-            if norm < 5.:
+    def step(self, direction, repulsion=np.array([0., 0., 0.]), separation=np.inf):
+        n_d = np.linalg.norm(direction)
+        n_r = np.linalg.norm(repulsion)
+        if n_d != 0:
+            direction /= n_d
+            if n_d < 5.:
                 self.v = .3
-        step = direction * self.v
+            if n_r != 0:
+                repulsion /= n_r
+        decay = n_d / separation
+        # 1. Use the norm of the repulsion vector to make things more
+        # repulsive when close together (make them separate more)
+        # 2. Make things less likely to rotate in the same direction
+        # or perhaps to definitely rotate away from collision
+        # 3. Better naming and organization
+        step = direction * self.v + repulsion * (decay*self.v)
         self.curve = np.concatenate((self.curve, np.array([self.r_f + step])),
                                     axis=0)
 

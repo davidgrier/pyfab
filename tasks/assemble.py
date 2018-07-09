@@ -33,12 +33,24 @@ class assemble(parameterize):
         '''
         trajectories = None
         if vertices is not None:
-            # Initialize trajectories and status
+            # Initialize trajectories, status
             trajectories = {}
             for trap in traps.flatten():
                 r_i = (trap.r.x(), trap.r.y(), trap.r.z())
                 trajectories[trap] = Curve(r_i, v_i=max_step/2)
             status, done = self.status(trajectories, vertices)
+            # Initialize rotations, initial separations
+            separation = {}
+            rotations = {}
+            for trap in traps.flatten():
+                r_v = vertices[trap]
+                r_i = trajectories[trap].r_i
+                separation[trap] = np.linalg.norm(r_v - r_i)
+                flip_x = np.random.choice([1, -1])
+                flip_z = np.random.choice([1, -1])
+                rotation = [np.array(((1, 0, 0), (0, 0, 1*flip_x), (0, -1*flip_x, 0))),
+                            np.array(((0, 1*flip_z, 0), (-1*flip_z, 0, 0), (0, 0, 1)))]
+                rotations[trap] = rotation
             # Calculate curves
             while not done:
                 # Move each trap a single step
@@ -49,9 +61,19 @@ class assemble(parameterize):
                         trajectory.step(np.array([0., 0., 0.]))
                     else:
                         # Take a step towards final position
+                        repulsion = np.array([0., 0., 0.])
+                        for neighbor in trajectories.keys():
+                            # Calculate repulsive force
+                            if trap is not neighbor:
+                                d = trajectories[neighbor].r_f - trajectory.r_f
+                                for R in rotations[trap]:
+                                    d = R.dot(d)
+                                repulsion += r
                         r_f = trajectory.r_f
                         r_v = vertices[trap]
-                        trajectory.step(r_v - r_f)
+                        trajectory.step(r_v - r_f,
+                                        repulsion=repulsion,
+                                        separation=separation[trap])
                 status, done = self.status(trajectories, vertices)
         return trajectories
 
@@ -96,7 +118,9 @@ class assemble(parameterize):
                 done = False
         return status, done
 
-    def detect_collision(self):
+    def rotate(self, v):
+        '''Rotate position vector about xy, yz, xz planes, randomly 
+        '''
         pass
 
     def avoid(self, collision):
