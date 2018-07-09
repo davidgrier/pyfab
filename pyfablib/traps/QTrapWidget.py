@@ -7,6 +7,7 @@ try:
     from PyQt4.QtCore import QString
 except ImportError:
     QString = str
+from .QTrap import QTrap
 
 
 class QTrapProperty(QtGui.QLineEdit):
@@ -67,6 +68,7 @@ class QTrapLine(QtGui.QWidget):
         wid.valueChanged.connect(handler)
         return wid
 
+    @QtCore.pyqtSlot(QTrap)
     def updateValues(self, trap):
         self.wx.value = trap.r.x()
         self.wy.value = trap.r.y()

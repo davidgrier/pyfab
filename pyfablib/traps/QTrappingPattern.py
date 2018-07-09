@@ -51,9 +51,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
         else:
             self.connectSignals()
 
-    def _update(self, project=True):
-        """Provide a list of spots to screen for plotting
-        and optionally send trap data to CGH pipeline.
+    def update_appearance(self):
+        """Provide a list of spots to screen for plotting.
 
         This will be called by children when their properties change.
         Changes can be triggered by mouse events, by interaction with
@@ -63,8 +62,11 @@ class QTrappingPattern(pg.ScatterPlotItem):
         traps = self.pattern.flatten()
         spots = [trap.spot for trap in traps]
         self.setData(spots=spots)
-        if project:
-            self.sigCompute.emit(traps)
+        return traps
+
+    def _update(self):
+        traps = self.update_appearance()
+        self.sigCompute.emit(traps)
 
     def dataCoords(self, pos):
         """Convert pixel position in screen widget to
@@ -118,7 +120,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
                 child.state = states.normal
         if len(self.selected) <= 1:
             self.selected = []
-        self._update(project=False)
+        self.update_appearance()
 
     # Creating and deleting traps
     def addTrap(self, trap, update=True):
@@ -205,7 +207,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         # select group
         else:
             self.group.state = states.selected
-        self._update(project=False)
+        self.update_appearance()
 
     def rightPress(self, pos, modifiers):
         """Creation and destruction.
@@ -254,7 +256,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             child.state = states.normal
         self.group = None
         self.selection.hide()
-        self._update(project=False)
+        self.update_appearance()
 
     @QtCore.pyqtSlot(QtGui.QWheelEvent)
     def mouseWheel(self, event):
