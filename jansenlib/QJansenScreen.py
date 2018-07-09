@@ -23,6 +23,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     def __init__(self, parent=None, **kwargs):
         super(QJansenScreen, self).__init__()
+        self.ci.layout.setContentsMargins(0, 0, 0, 0)
         self.parent = parent
         # VideoItem displays video feed
         self.video = QVideoItem(parent=self, **kwargs)
