@@ -69,20 +69,21 @@ class QTrap(QtCore.QObject):
         """Graphical representation of trap"""
         return 'o'
 
+    def update_appearance(self):
+        """Adapt trap appearance to trap motion and property changes"""
+        self.spot['pos'] = self.coords()
+        self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
+
     def update_structure(self):
         """Update structuring field to properties of CGH pipeline"""
         self.structure = 1. + 0.j
 
-    # Organization
     def _update(self):
+        """Implement changes in trap properties"""
+        self.update_appearance()
         if self.active:
             self.state = states.selected
             self.parent._update()
-
-    def update_spot(self):
-        """Adapt trap appearance to trap motion"""
-        self.spot['pos'] = self.coords()
-        self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
 
     @property
     def cgh(self):
@@ -96,26 +97,52 @@ class QTrap(QtCore.QObject):
         self._cgh.sigUpdateGeometry.connect(self.update_structure)
         self.update_structure()
 
-    # Motion
+    # Methods for implementing motion
     def coords(self):
-        """In-plane position of trap for plotting."""
+        """In-plane position of trap for plotting"""
         return self._r.toPointF()
 
     def moveBy(self, dr):
-        """Translate trap.
-        """
+        """Translate trap."""
         self.r = self.r + dr
 
     def moveTo(self, r):
-        """Move trap to position r.
-        """
+        """Move trap to position r"""
         self.r = r
 
     def isWithin(self, rect):
-        """Return True if this trap lies within the specified rectangle.
-        """
+        """Return True if this trap lies within the specified rectangle"""
         return rect.contains(self.coords())
 
+    # Slots for updating parameters
+    @QtCore.pyqtSlot(float)
+    def setX(self, x):
+        self._r.setX(x)
+        self._update()
+
+    @QtCore.pyqtSlot(float)
+    def setY(self, y):
+        self._r.setY(y)
+        self._update()
+
+    @QtCore.pyqtSlot(float)
+    def setZ(self, z):
+        self._r.setZ(z)
+        self._update()
+
+    @QtCore.pyqtSlot(float)
+    def setA(self, a):
+        self._a = a
+        self.amp = a * np.exp(1j * self.phi)
+        self._update()
+
+    @QtCore.pyqtSlot(float)
+    def setPhi(self, phi):
+        self._phi = phi
+        self.amp = self.a * np.exp(1j * phi)
+        self._update()
+
+    # Trap properties
     @property
     def r(self):
         """Three-dimensional position of trap."""
@@ -124,33 +151,8 @@ class QTrap(QtCore.QObject):
     @r.setter
     def r(self, r):
         self._r = QtGui.QVector3D(r)
-        self.update_spot()
         self.valueChanged.emit(self)
         self._update()
-
-    def setX(self, x):
-        self._r.setX(x)
-        self.update_spot()
-        self._update()
-
-    def setY(self, y):
-        self._r.setY(y)
-        self.update_spot()
-        self._update()
-
-    def setZ(self, z):
-        self._r.setZ(z)
-        self.update_spot()
-        self._update()
-
-    # Relative amplitude and phase
-    def updateAmp(self):
-        self.amp = self.a * np.exp(1j * self.phi)
-        self._update()
-
-    def setA(self, a):
-        self._a = a
-        self.updateAmp()
 
     @property
     def a(self):
@@ -160,10 +162,6 @@ class QTrap(QtCore.QObject):
     def a(self, a):
         self.setA(a)
         self.valueChanged.emit(self)
-
-    def setPhi(self, phi):
-        self._phi = phi
-        self.updateAmp()
 
     @property
     def phi(self):
