@@ -19,15 +19,16 @@ class QTrapProperty(QtGui.QLineEdit):
         self.setAlignment(QtCore.Qt.AlignRight)
         self.setMaximumWidth(50)
         self.setMaxLength(8)
-        self.fmt = '%' + '.%df' % decimals
+        self.fmt = '%.{}f'.format(decimals)
         v = QtGui.QDoubleValidator(decimals=decimals)
         v.setNotation(QtGui.QDoubleValidator.StandardNotation)
         self.setValidator(v)
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
+    @QtCore.pyqtSlot()
     def updateValue(self):
-        self._value = float(str(self.text()))
+        self.value = float(str(self.text()))
         self.valueChanged.emit(self._value)
 
     @property
@@ -37,7 +38,7 @@ class QTrapProperty(QtGui.QLineEdit):
     @value.setter
     def value(self, value):
         self.setText(QString(self.fmt % value))
-        self.updateValue()
+        self._value = value
 
 
 class QTrapLine(QtGui.QWidget):

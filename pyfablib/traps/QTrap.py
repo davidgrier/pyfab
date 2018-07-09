@@ -123,12 +123,9 @@ class QTrap(QtCore.QObject):
 
     @r.setter
     def r(self, r):
-        active = self.active
-        self.active = False
         self._r = QtGui.QVector3D(r)
         self.update_spot()
         self.valueChanged.emit(self)
-        self.active = active
         self._update()
 
     def setX(self, x):
