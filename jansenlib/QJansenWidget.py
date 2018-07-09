@@ -53,9 +53,14 @@ class QJansenWidget(QtGui.QWidget):
         layout.setAlignment(self.tabs, QtCore.Qt.AlignTop)
 
     def setSize(self):
+        """Fix the size of the tab bar
+
+        Tabs should take up than 4 inches of screen space,
+        and certainly less than a third of the screen"""
         desktop = QtGui.QDesktopWidget()
         rect = desktop.screenGeometry(0)
-        self.tabs.setMaximumWidth(rect.width() // 3)
+        width = min(rect.width() // 3, 4*desktop.logicalDpiX())
+        self.tabs.setMaximumWidth(width)
         self.tabs.setFixedWidth(self.tabs.width())
         self.setMinimumWidth(self.screen.width()+self.tabs.width())
         return self
