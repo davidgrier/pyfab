@@ -17,7 +17,7 @@ class assemble(parameterize):
         self.trajectories = self.parameterize(self.traps,
                                               vertices=self.vertices)
 
-    def parameterize(self, traps, vertices=None, max_step=6):
+    def parameterize(self, traps, vertices=None):
         '''
         Returns dictionary where Keys are QTraps and Values
         are Curve objects leading to each trap's respective
@@ -33,24 +33,13 @@ class assemble(parameterize):
         '''
         trajectories = None
         if vertices is not None:
-            # Initialize trajectories, status
+            # Initialize trajectories, status, separation
             trajectories = {}
             for trap in traps.flatten():
                 r_i = (trap.r.x(), trap.r.y(), trap.r.z())
-                trajectories[trap] = Curve(r_i, v_i=max_step/2)
-            status, done = self.status(trajectories, vertices)
-            # Initialize rotations, initial separations
-            separation = {}
-            rotations = {}
-            for trap in traps.flatten():
+                trajectories[trap] = Curve(r_i)
                 r_v = vertices[trap]
-                r_i = trajectories[trap].r_i
-                separation[trap] = np.linalg.norm(r_v - r_i)
-                flip_x = np.random.choice([1, -1])
-                flip_z = np.random.choice([1, -1])
-                rotation = [np.array(((1, 0, 0), (0, 0, 1*flip_x), (0, -1*flip_x, 0))),
-                            np.array(((0, 1*flip_z, 0), (-1*flip_z, 0, 0), (0, 0, 1)))]
-                rotations[trap] = rotation
+            status, done = self.status(trajectories, vertices)
             # Calculate curves
             while not done:
                 # Move each trap a single step
@@ -61,21 +50,28 @@ class assemble(parameterize):
                         trajectory.step(np.array([0., 0., 0.]))
                     else:
                         # Take a step towards final position
-                        repulsion = np.array([0., 0., 0.])
-                        for neighbor in trajectories.keys():
-                            # Calculate repulsive force
-                            if trap is not neighbor:
-                                d = trajectories[neighbor].r_f - trajectory.r_f
-                                for R in rotations[trap]:
-                                    d = R.dot(d)
-                                repulsion += r
                         r_f = trajectory.r_f
                         r_v = vertices[trap]
-                        trajectory.step(r_v - r_f,
-                                        repulsion=repulsion,
-                                        separation=separation[trap])
+                        f_a = self.attraction(r_v - r_f)
+                        f_r = self.repulsion(trap, trajectories)
+                        trajectory.step(f_a + f_r, scaling=6)
                 status, done = self.status(trajectories, vertices)
         return trajectories
+
+    def repulsion(self, trap, trajectories):
+        f = np.array([0., 0., 0.])
+        q = .1
+        for neighbor in trajectories.keys():
+            if trap is not neighbor:
+                d_i = trajectories[neighbor].r_f - trajectories[trap].r_f
+                norm = np.linalg.norm(d_i)
+                f += (q**2 / norm**3) * d_i
+        return f*-1
+
+    def attraction(self, x):
+        k = .01
+        f = k * x
+        return f
 
     def structure(self, traps):
         '''
@@ -117,11 +113,3 @@ class assemble(parameterize):
                 status[trap] = False
                 done = False
         return status, done
-
-    def rotate(self, v):
-        '''Rotate position vector about xy, yz, xz planes, randomly 
-        '''
-        pass
-
-    def avoid(self, collision):
-        pass

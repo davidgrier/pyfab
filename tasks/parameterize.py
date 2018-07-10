@@ -45,10 +45,11 @@ class Curve(object):
     Creates and manipulates a parameterized curve in cartesian coordinates
     '''
 
-    def __init__(self, r_i, v_i=1, **kwargs):
+    def __init__(self, r_i, **kwargs):
         super(Curve, self).__init__(**kwargs)
-        self.v = v_i
-        self.curve = np.array([[r_i[0], r_i[1], r_i[2]]])
+        self.curve = np.zeros(shape=(1, 3))
+        self.curve[0] = np.array([r_i[0], r_i[1], r_i[2]])
+        self.scaling = None
 
     @property
     def r_f(self):
@@ -58,31 +59,20 @@ class Curve(object):
     def r_i(self):
         return self.curve[0]
 
-    def step(self, direction, repulsion=np.array([0., 0., 0.]), separation=np.inf):
-        n_d = np.linalg.norm(direction)
-        n_r = np.linalg.norm(repulsion)
-        if n_d != 0:
-            direction /= n_d
-            if n_d < 5.:
-                self.v = .3
-            if n_r != 0:
-                repulsion /= n_r
-        decay = n_d / separation
-        # 1. Use the norm of the repulsion vector to make things more
-        # repulsive when close together (make them separate more)
-        # 2. Make things less likely to rotate in the same direction
-        # or perhaps to definitely rotate away from collision
-        # 3. Better naming and organization
-        step = direction * self.v + repulsion * (decay*self.v)
+    def step(self, v, scaling=1.0):
+        self.scaling = scaling
+        step = v * scaling
         self.curve = np.concatenate((self.curve, np.array([self.r_f + step])),
                                     axis=0)
 
     def __str__(self):
         r_i = self.r_i
         r_f = self.r_f
+        print(r_i)
+        print(r_f)
         data = [self.curve.shape,
                 (int(r_i[0]), int(r_i[1]), int(r_i[2])),
                 (int(r_f[0]), int(r_f[1]), int(r_f[2])),
-                self.v]
-        string = "Curve(shape={}, r_i={}, r_f={}, v={})"
+                self.scaling]
+        string = "Curve(shape={}, r_i={}, r_f={}, scaling={})"
         return string.format(*data)
