@@ -4,7 +4,7 @@
 
 from .QTrap import QTrap
 import numpy as np
-from pyqtgraph.Qt import QtGui
+from pyqtgraph.Qt import QtGui, QtCore
 
 import logging
 logging.basicConfig()
@@ -33,11 +33,12 @@ class QVortexTrap(QTrap):
 
     def __init__(self, ell=10, **kwargs):
         super(QVortexTrap, self).__init__(**kwargs)
-        self._ell = ell  # set private copy in case CGH is not initialized
+        self._ell = ell  # save private copy in case CGH is not initialized
 
     def update_structure(self):
         """Helical structuring field distinguishes an optical vortex"""
         self.structure = np.exp((1j * self.ell) * self.cgh.theta)
+        self._update()  # Required for changes to take effect
 
     def plotSymbol(self):
         """Graphical representation of an optical vortex"""
@@ -52,11 +53,16 @@ class QVortexTrap(QTrap):
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
         return tr.map(sym)
 
+    @QtCore.pyqtSlot(np.int)
+    def setEll(self, ell):
+        self._ell = np.int(ell)
+        self.update_structure()
+
     @property
     def ell(self):
         return self._ell
 
     @ell.setter
     def ell(self, ell):
-        self._ell = np.int(ell)
-        self.update_structure()
+        self.setEll(ell)
+        self.valueChanged.emit(self)

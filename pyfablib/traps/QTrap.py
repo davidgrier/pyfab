@@ -78,6 +78,7 @@ class QTrap(QtCore.QObject):
         """Update structuring field to properties of CGH pipeline"""
         self.structure = 1. + 0.j
 
+    # Private method to implement changes
     def _update(self):
         """Implement changes in trap properties"""
         self.update_appearance()
@@ -96,6 +97,7 @@ class QTrap(QtCore.QObject):
             return
         self._cgh.sigUpdateGeometry.connect(self.update_structure)
         self.update_structure()
+        self._update()
 
     # Methods for implementing motion
     def coords(self):
