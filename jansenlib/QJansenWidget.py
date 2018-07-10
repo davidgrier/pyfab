@@ -42,6 +42,7 @@ class QJansenWidget(QtGui.QWidget):
         layout.setSpacing(0)
         layout.addWidget(self.screen)
         self.tabs = QtGui.QTabWidget()
+        self.tabs.setUsesScrollButtons(True)
         index = self.tabs.addTab(self.videoTab(), 'Video')
         self.tabs.setTabToolTip(index, 'Video')
         tab = QHistogramTab(self.screen.video)
@@ -59,7 +60,7 @@ class QJansenWidget(QtGui.QWidget):
         and certainly less than a third of the screen"""
         desktop = QtGui.QDesktopWidget()
         rect = desktop.screenGeometry(0)
-        width = min(rect.width() // 3, 4*desktop.logicalDpiX())
+        width = min(rect.width() // 3, int(5*desktop.logicalDpiX()))
         self.tabs.setMaximumWidth(width)
         self.tabs.setFixedWidth(self.tabs.width())
         self.setMinimumWidth(self.screen.width()+self.tabs.width())
