@@ -24,7 +24,6 @@ class parameterize(task):
                 # Move along paths
                 self.traps.select(True)
                 for n in range(N):
-                    self.register('delay', delay=1)
                     for trap in self.trajectories:
                         curve = self.trajectories[trap].curve
                         self.register('step', trap=trap, r=curve[n])
@@ -49,7 +48,7 @@ class Curve(object):
         super(Curve, self).__init__(**kwargs)
         self.curve = np.zeros(shape=(1, 3))
         self.curve[0] = np.array([r_i[0], r_i[1], r_i[2]])
-        self.scaling = None
+        self.last_step = None
 
     @property
     def r_f(self):
@@ -59,20 +58,17 @@ class Curve(object):
     def r_i(self):
         return self.curve[0]
 
-    def step(self, v, scaling=1.0):
-        self.scaling = scaling
-        step = v * scaling
-        self.curve = np.concatenate((self.curve, np.array([self.r_f + step])),
+    def step(self, d):
+        self.last_step = d
+        self.curve = np.concatenate((self.curve, np.array([self.r_f + d])),
                                     axis=0)
 
     def __str__(self):
-        r_i = self.r_i
-        r_f = self.r_f
-        print(r_i)
-        print(r_f)
+        np.set_printoptions(
+            formatter={'float': lambda x: "{0:0.2f}".format(x)})
         data = [self.curve.shape,
-                (int(r_i[0]), int(r_i[1]), int(r_i[2])),
-                (int(r_f[0]), int(r_f[1]), int(r_f[2])),
-                self.scaling]
-        string = "Curve(shape={}, r_i={}, r_f={}, scaling={})"
+                self.r_i,
+                self.r_f,
+                self.last_step]
+        string = "Curve(shape={}, r_i={}, r_f={}, last_step={})"
         return string.format(*data)
