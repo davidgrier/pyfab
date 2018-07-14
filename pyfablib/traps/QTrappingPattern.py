@@ -68,12 +68,6 @@ class QTrappingPattern(pg.ScatterPlotItem):
         traps = self.update_appearance()
         self.sigCompute.emit(traps)
 
-    def dataCoords(self, pos):
-        """Convert pixel position in screen widget to
-        image coordinates.
-        """
-        return self.mapFromScene(pos)
-
     def selectedPoint(self, position):
         points = self.pointsAt(position)
         if len(points) <= 0:
@@ -85,7 +79,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def clickedTrap(self, pos):
         """Return the trap at the specified position
         """
-        coords = self.dataCoords(pos)
+        coords = self.mapFromScene(pos)
         index = self.selectedPoint(coords)
         if index is None:
             return None
@@ -111,7 +105,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """Return a list of traps whose groups fall
         entirely within the selection region.
         """
-        rect = self.dataCoords(QtCore.QRectF(region)).boundingRect()
+        rect = self.mapFromScene(QtCore.QRectF(region)).boundingRect()
         for child in self.pattern.children:
             if child.isWithin(rect):
                 self.selected.append(child)
@@ -130,7 +124,6 @@ class QTrappingPattern(pg.ScatterPlotItem):
         if update:
             self._update()
         self.trapAdded.emit(trap)
-        # return trap
 
     def createTrap(self, r, update=True):
         trap = QTrap(r=r)
@@ -186,7 +179,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """Move the selected group so that the selected
         trap is at the specified position.
         """
-        coords = self.dataCoords(pos)
+        coords = self.mapFromScene(pos)
         dr = QtGui.QVector3D(coords - self.trap.coords())
         self.group.moveBy(dr)
 
@@ -214,7 +207,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         # Shift-Right Click: Add trap
         if modifiers == QtCore.Qt.ShiftModifier:
-            self.createTrap(self.dataCoords(pos))
+            self.createTrap(self.mapFromScene(pos))
         # Ctrl-Right Click: Delete trap
         elif modifiers == QtCore.Qt.ControlModifier:
             self.pattern.remove(self.clickedGroup(pos), delete=True)
