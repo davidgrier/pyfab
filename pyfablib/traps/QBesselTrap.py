@@ -6,7 +6,6 @@ import cmath
 from pyqtgraph.Qt import QtGui
 
 
-
 class QBesselTrap(QTrap):
     def __init__(self, **kwargs):
         super(QBesselTrap, self).__init__()
@@ -22,4 +21,4 @@ class QBesselTrap(QTrap):
         phi = np.remainder(np.angle(self.modetot) - self.shift*qr -
                            self.shiftx*xv - self.shifty*yv, 2*(np.pi))
         self.structure = np.exp((1j) * self.cgh.phi)
-     
+        self._update()
