@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 """Framework for moving a set of traps to a set of vertices"""
 
 from .parameterize import parameterize, Curve
@@ -65,7 +66,7 @@ class assemble(parameterize):
                           and values are Curve objects
         '''
         # Initialize variables
-        padding = 5.5
+        padding = 6
         speed = 5.
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
