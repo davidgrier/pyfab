@@ -13,8 +13,9 @@ class circle(assemble):
 
     def structure(self, traps):
         vertices = {}
-        R = 100
+        R = 200
         for idx, trap in enumerate(traps.flatten()):
-            theta = idx
-            vertices[trap] = np.array([320 + R*np.cos(theta), 240 + R*np.sin(theta), 0])
+            theta = idx / 1.2
+            vertices[trap] = np.array([320 + R*np.cos(theta),
+                                       240 + R*np.sin(theta), 50])
         return vertices

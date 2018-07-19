@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class QBesselIPHTrap(QTrap):
 
-    def __init__(self, r_alpha=[250., 250.], m=[0., 0.], z=200., **kwargs):
+    def __init__(self, r_alpha=[250., 250.], m=[10., 10.], z=200., **kwargs):
         super(QBesselIPHTrap, self).__init__(**kwargs)
         self._r_alpha = r_alpha
         self._m = m

@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 
 class QRingTrap(QTrap):
 
-    def __init__(self, R=300, m=0, **kwargs):
+    def __init__(self, R=300, m=10, **kwargs):
         super(QRingTrap, self).__init__(**kwargs)
         self._R = R
         self._m = m
 
     def update_structure(self):
-        psi = jv(self.m, self.R * self.cgh.qr) * np.exp((1j * self.m) * self.cgh.theta)
-        self.structure = psi
+        phi = jv(self.m, self.R * self.cgh.qr) * np.exp((1j * self.m) * self.cgh.theta)
+        self.structure = phi
         self._update()
 
     def plotSymbol(self):
