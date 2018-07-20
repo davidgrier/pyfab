@@ -18,7 +18,7 @@ class QTrapProperty(QtGui.QLineEdit):
     def __init__(self, value, decimals=1):
         super(QTrapProperty, self).__init__()
         self.setAlignment(QtCore.Qt.AlignRight)
-        self.setMaximumWidth(50)
+        self.setMaximumWidth(60)
         self.setMaxLength(8)
         self.fmt = '%.{}f'.format(decimals)
         v = QtGui.QDoubleValidator(decimals=decimals)
@@ -50,31 +50,27 @@ class QTrapLine(QtGui.QWidget):
         layout = QtGui.QHBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
-        self.wx = self.prop(trap.r.x(), trap.setX)
-        self.wy = self.prop(trap.r.y(), trap.setY)
-        self.wz = self.prop(trap.r.z(), trap.setZ)
-        self.wa = self.prop(trap.a, trap.setA, decimals=2)
-        self.wp = self.prop(trap.phi, trap.setPhi, decimals=2)
-        layout.addWidget(self.wx)
-        layout.addWidget(self.wy)
-        layout.addWidget(self.wz)
-        layout.addWidget(self.wa)
-        layout.addWidget(self.wp)
+        layout.setAlignment(QtCore.Qt.AlignLeft)
+        self.wid = dict()
+        for prop in trap.properties:
+            self.wid[prop] = self.propertyWidget(trap, prop)
+            tip = trap.__class__.__name__ + ': ' + prop
+            self.wid[prop].setStatusTip(tip)
+            layout.addWidget(self.wid[prop])
         trap.valueChanged.connect(self.updateValues)
         self.setLayout(layout)
 
-    def prop(self, value, handler, decimals=1):
+    def propertyWidget(self, trap, prop, decimals=2):
+        value = getattr(trap, prop)
         wid = QTrapProperty(value, decimals=decimals)
-        wid.valueChanged.connect(handler)
+        wid.valueChanged.connect(lambda v: trap.setProperty(prop, v))
         return wid
 
     @QtCore.pyqtSlot(QTrap)
     def updateValues(self, trap):
-        self.wx.value = trap.r.x()
-        self.wy.value = trap.r.y()
-        self.wz.value = trap.r.z()
-        self.wa.value = trap.a
-        self.wp.value = trap.phi
+        for prop in trap.properties:
+            value = getattr(trap, prop)
+            self.wid[prop].value = value
 
 
 class QTrapWidget(QtGui.QFrame):
@@ -108,12 +104,13 @@ class QTrapWidget(QtGui.QFrame):
     def labelItem(self, name):
         label = QtGui.QLabel(name)
         label.setAlignment(QtCore.Qt.AlignCenter)
-        label.setMaximumWidth(50)
+        label.setMinimumWidth(60)
         return label
 
     def labelLine(self):
         widget = QtGui.QWidget()
         layout = QtGui.QHBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignLeft)
         layout.setSpacing(0)
         layout.setMargin(0)
         for label in ['x', 'y', 'z', 'alpha', 'phi']:

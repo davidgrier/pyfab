@@ -52,6 +52,7 @@ class QTrap(QtCore.QObject):
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
         # physical properties
+        self.properties = ['x', 'y', 'z', 'a', 'phi']
         self.r = r
         self._a = a
         if phi is None:
@@ -116,38 +117,17 @@ class QTrap(QtCore.QObject):
         """Return True if this trap lies within the specified rectangle"""
         return rect.contains(self.coords())
 
-    # Slots for updating parameters
-    @QtCore.pyqtSlot(float)
-    def setX(self, x):
-        self._r.setX(x)
-        self._update()
-
-    @QtCore.pyqtSlot(float)
-    def setY(self, y):
-        self._r.setY(y)
-        self._update()
-
-    @QtCore.pyqtSlot(float)
-    def setZ(self, z):
-        self._r.setZ(z)
-        self._update()
-
-    @QtCore.pyqtSlot(float)
-    def setA(self, a):
-        self._a = a
-        self.amp = a * np.exp(1j * self.phi)
-        self._update()
-
-    @QtCore.pyqtSlot(float)
-    def setPhi(self, phi):
-        self._phi = phi
-        self.amp = self.a * np.exp(1j * phi)
-        self._update()
+    # Slot for updating parameters
+    @QtCore.pyqtSlot(str, float)
+    def setProperty(self, property, value):
+        self.blockSignals(True)
+        setattr(self, property, value)
+        self.blockSignals(False)
 
     # Trap properties
     @property
     def r(self):
-        """Three-dimensional position of trap."""
+        """Three-dimensional position of trap"""
         return self._r
 
     @r.setter
@@ -157,27 +137,62 @@ class QTrap(QtCore.QObject):
         self._update()
 
     @property
+    def x(self):
+        return self._r.x()
+
+    @x.setter
+    def x(self, x):
+        self._r.setX(x)
+        self.valueChanged.emit(self)
+        self._update()
+
+    @property
+    def y(self):
+        return self._r.y()
+
+    @y.setter
+    def y(self, y):
+        self._r.setY(y)
+        self.valueChanged.emit(self)
+        self._update()
+
+    @property
+    def z(self):
+        return self._r.z()
+
+    @z.setter
+    def z(self, z):
+        self._r.setZ(z)
+        self.valueChanged.emit(self)
+        self._update()
+
+    @property
     def a(self):
+        """Relative amplitude of trap"""
         return self._a
 
     @a.setter
     def a(self, a):
-        self.setA(a)
+        self._a = a
+        self.amp = a * np.exp(1j * self.phi)
         self.valueChanged.emit(self)
+        self._update()
 
     @property
     def phi(self):
+        """Relative phase of trap"""
         return self._phi
 
     @phi.setter
     def phi(self, phi):
-        self.setPhi(phi)
+        self._phi = phi
+        self.amp = self.a * np.exp(1j * phi)
         self.valueChanged.emit(self)
+        self._update()
 
     @property
     def state(self):
-        """Current state of trap
-        """
+        """Current state of trap"""
         return self._state
 
     @state.setter
