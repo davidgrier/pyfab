@@ -6,7 +6,7 @@ import numpy as np
 
 
 class cube(assemble):
-    """Demonstration of traps assembling a cube."""
+    """Demonstration of traps assembling a body-centered cube."""
 
     def __init__(self, **kwargs):
         super(cube, self).__init__(**kwargs)
@@ -16,7 +16,7 @@ class cube(assemble):
             vertices = None
             print("9 traps are needed for body centered cube")
         else:
-            vertices = {}
+            vertices = []
             s = 250
             xc = self.parent.cgh.xc
             yc = self.parent.cgh.yc
@@ -28,15 +28,14 @@ class cube(assemble):
                     samples.append(x)
             for idx, trap in enumerate(traps.flatten()):
                 if idx == 8:
-                    vertices[trap] = np.array([xc, yc, s // 2])
+                    vertices.append(np.array([xc, yc, s // 2]))
                 else:
                     if idx < 4:
                         z = 0
                     else:
                         z = s
                     i = idx % 4
-                    vertices[trap] = np.array([xc + samples[i][0]*s/2,
-                                               yc + samples[i][1]*s/2,
-                                               z])
-            print(vertices.values())
-            return vertices
+                    vertices.append(np.array([xc + samples[i][0]*s/2,
+                                              yc + samples[i][1]*s/2,
+                                              z]))
+        return vertices
