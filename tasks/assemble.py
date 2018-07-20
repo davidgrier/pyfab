@@ -32,6 +32,8 @@ class assemble(parameterize):
         '''
         trajectories = None
         if vertices is not None:
+            if type(vertices) is list:
+                vertices = self.pair(vertices, traps)
             # Initialize trajectories, status
             trajectories = {}
             for trap in traps.flatten():
@@ -91,14 +93,44 @@ class assemble(parameterize):
 
     def structure(self, traps):
         '''
-        Returns a dictionary where keys are QTraps and values are 
-        ndarray cartesian position vectors for vertex location.
-        Overwrite in subclass to assemble specific structure.
+        Returns vertices of shape to assemble. Overwrite
+        in subclass to assemble specific structure.
 
         Args:
             traps: QTrapGroup of all traps in QTrappingPattern
+        Returns:
+            dictionary where keys are QTraps and values are
+            ndarray vertex locations
+            OR
+            list of ndarray vertex locations
         '''
         return None
+
+    def pair(self, vertices, traps):
+        '''
+        Returns a dictionary of where QTrap keys are
+        paired with nearby ndarray vertex location values.
+
+        Args:
+            traps: QTrapGroup of all traps in QTrappingPattern
+            vertices: list of vertices
+        '''
+        trap_list = traps.flatten()
+        v = {}
+        while len(trap_list) > 0 and len(vertices) > 0:
+            d_min = np.inf
+            idx_t = None
+            idx_v = None
+            for i, trap in enumerate(trap_list):
+                r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
+                for j, r_v in enumerate(vertices):
+                    d = np.linalg.norm(r_t - r_v)
+                    if d < d_min:
+                        d_min = d
+                        idx_t = i
+                        idx_v = j
+            v[trap_list.pop(idx_t)] = vertices.pop(idx_v)
+        return v
 
     def status(self, trajectories, vertices):
         '''
