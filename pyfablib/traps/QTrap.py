@@ -52,7 +52,11 @@ class QTrap(QtCore.QObject):
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
         # physical properties
-        self.properties = ['x', 'y', 'z', 'a', 'phi']
+        self.properties = [{'name': 'x', 'decimals': 1},
+                           {'name': 'y', 'decimals': 1},
+                           {'name': 'z', 'decimals': 1},
+                           {'name': 'a', 'decimals': 2},
+                           {'name': 'phi', 'decimals': 2}]
         self.r = r
         self._a = a
         if phi is None:

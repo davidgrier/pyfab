@@ -34,7 +34,7 @@ class QVortexTrap(QTrap):
     def __init__(self, ell=10, **kwargs):
         super(QVortexTrap, self).__init__(**kwargs)
         self._ell = ell  # save private copy in case CGH is not initialized
-        self.properties.append('ell')
+        self.properties.append({'name': 'ell', 'decimals': 0})
 
     def update_structure(self):
         """Helical structuring field distinguishes an optical vortex"""

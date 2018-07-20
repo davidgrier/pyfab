@@ -53,24 +53,28 @@ class QTrapLine(QtGui.QWidget):
         layout.setAlignment(QtCore.Qt.AlignLeft)
         self.wid = dict()
         for prop in trap.properties:
-            self.wid[prop] = self.propertyWidget(trap, prop)
-            tip = trap.__class__.__name__ + ': ' + prop
-            self.wid[prop].setStatusTip(tip)
-            layout.addWidget(self.wid[prop])
+            name = prop['name']
+            self.wid[name] = self.propertyWidget(trap, prop)
+            tip = trap.__class__.__name__ + ': ' + name
+            self.wid[name].setStatusTip(tip)
+            layout.addWidget(self.wid[name])
         trap.valueChanged.connect(self.updateValues)
         self.setLayout(layout)
 
-    def propertyWidget(self, trap, prop, decimals=2):
-        value = getattr(trap, prop)
+    def propertyWidget(self, trap, prop):
+        name = prop['name']
+        decimals = prop['decimals']
+        value = getattr(trap, name)
         wid = QTrapProperty(value, decimals=decimals)
-        wid.valueChanged.connect(lambda v: trap.setProperty(prop, v))
+        wid.valueChanged.connect(lambda v: trap.setProperty(name, v))
         return wid
 
     @QtCore.pyqtSlot(QTrap)
     def updateValues(self, trap):
         for prop in trap.properties:
-            value = getattr(trap, prop)
-            self.wid[prop].value = value
+            name = prop['name']
+            value = getattr(trap, name)
+            self.wid[name].value = value
 
 
 class QTrapWidget(QtGui.QFrame):
