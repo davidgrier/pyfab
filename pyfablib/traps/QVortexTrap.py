@@ -34,6 +34,7 @@ class QVortexTrap(QTrap):
     def __init__(self, ell=10, **kwargs):
         super(QVortexTrap, self).__init__(**kwargs)
         self._ell = ell  # save private copy in case CGH is not initialized
+        self.properties.append('ell')
 
     def update_structure(self):
         """Helical structuring field distinguishes an optical vortex"""
@@ -53,16 +54,12 @@ class QVortexTrap(QTrap):
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
         return tr.map(sym)
 
-    @QtCore.pyqtSlot(np.int)
-    def setEll(self, ell):
-        self._ell = np.int(ell)
-        self.update_structure()
-
     @property
     def ell(self):
         return self._ell
 
     @ell.setter
     def ell(self, ell):
-        self.setEll(ell)
+        self._ell = np.int(ell)
+        self.update_structure()
         self.valueChanged.emit(self)
