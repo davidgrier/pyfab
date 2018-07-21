@@ -10,13 +10,13 @@ except ImportError:
 from .QTrap import QTrap
 
 
-class QTrapProperty(QtGui.QLineEdit):
+class QTrapPropertyEdit(QtGui.QLineEdit):
     """Control for one property of one trap."""
 
     valueChanged = QtCore.pyqtSignal(float)
 
     def __init__(self, value, decimals=1):
-        super(QTrapProperty, self).__init__()
+        super(QTrapPropertyEdit, self).__init__()
         self.setAlignment(QtCore.Qt.AlignRight)
         self.setMaximumWidth(60)
         self.setMaxLength(8)
@@ -65,7 +65,7 @@ class QTrapLine(QtGui.QWidget):
         name = prop['name']
         decimals = prop['decimals']
         value = getattr(trap, name)
-        wid = QTrapProperty(value, decimals=decimals)
+        wid = QTrapPropertyEdit(value, decimals=decimals)
         wid.valueChanged.connect(lambda v: trap.setProperty(name, v))
         return wid
 
@@ -97,7 +97,7 @@ class QTrapWidget(QtGui.QFrame):
         inner.setLayout(self.layout)
         scroll = QtGui.QScrollArea()
         scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         scroll.setWidgetResizable(True)
         scroll.setWidget(inner)
         layout = QtGui.QVBoxLayout(self)
