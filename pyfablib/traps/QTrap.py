@@ -52,11 +52,13 @@ class QTrap(QtCore.QObject):
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
         # physical properties
-        self.properties = [{'name': 'x', 'decimals': 1},
-                           {'name': 'y', 'decimals': 1},
-                           {'name': 'z', 'decimals': 1},
-                           {'name': 'a', 'decimals': 2},
-                           {'name': 'phi', 'decimals': 2}]
+        self.properties = []
+        self.registerProperty('x')
+        self.registerProperty('y')
+        self.registerProperty('z')
+        self.registerProperty('a', decimals=2)
+        self.registerProperty('phi', decimals=2)
+
         self.r = r
         self._a = a
         if phi is None:
@@ -122,6 +124,9 @@ class QTrap(QtCore.QObject):
         return rect.contains(self.coords())
 
     # Slot for updating parameters
+    def registerProperty(self, property, decimals=1):
+        self.properties.append({'name': property, 'decimals': decimals})
+
     @QtCore.pyqtSlot(str, float)
     def setProperty(self, property, value):
         self.blockSignals(True)
