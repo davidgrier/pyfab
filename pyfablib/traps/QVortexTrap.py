@@ -4,11 +4,7 @@
 
 from .QTrap import QTrap
 import numpy as np
-from pyqtgraph.Qt import QtGui, QtCore
-
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
+from pyqtgraph.Qt import QtGui
 
 
 class QVortexTrap(QTrap):
@@ -18,7 +14,7 @@ class QVortexTrap(QTrap):
     optical trap.
     1. A structured trap should implement the update_structure()
     method, which sets the structuring field, self.structure.
-    update_structure() will be called whenever properties change in the
+    This method will be called whenever properties change in the
     CGH pipeline.
     2. Optionally, the structured trap can override the plotSymbol()
     method, which defines the plot symbol used to represent the trap
