@@ -58,7 +58,6 @@ class QTrap(QtCore.QObject):
         self.registerProperty('z')
         self.registerProperty('a', decimals=2)
         self.registerProperty('phi', decimals=2)
-
         self.r = r
         self._a = a
         if phi is None:
@@ -123,7 +122,7 @@ class QTrap(QtCore.QObject):
         """Return True if this trap lies within the specified rectangle"""
         return rect.contains(self.coords())
 
-    # Slot for updating parameters
+    # Slot for updating parameters with QTrapWidget
     def registerProperty(self, property, decimals=1):
         self.properties.append({'name': property, 'decimals': decimals})
 
