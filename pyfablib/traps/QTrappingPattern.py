@@ -126,7 +126,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.trapAdded.emit(trap)
 
     def createTrap(self, r):
-        self.addTrap(QTrap(r=r, parent=self))
+        self.addTrap(QTrap(r=r))
 
     def createTraps(self, coordinates):
         coords = list(coordinates)
