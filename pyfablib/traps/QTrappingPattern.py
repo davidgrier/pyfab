@@ -117,29 +117,29 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.update_appearance()
 
     # Creating and deleting traps
-    def addTrap(self, trap, update=True):
+    def addTrap(self, trap):
         trap.parent = self
         trap.cgh = self.parent.cgh
+        trap.state = states.selected
         self.pattern.add(trap)
-        if update:
-            self._update()
+        self._update()
         self.trapAdded.emit(trap)
 
-    def createTrap(self, r, update=True):
-        trap = QTrap(r=r)
-        self.addTrap(trap, update)
+    def createTrap(self, r):
+        self.addTrap(QTrap(r=r, parent=self))
 
     def createTraps(self, coordinates):
         coords = list(coordinates)
         if len(coords) < 1:
             return
-        group = QTrapGroup(active=False)
+        self.pattern.ignoreUpdates = True
+        group = QTrapGroup()
         self.pattern.add(group)
         for r in coords:
-            trap = QTrap(r=r, parent=group, active=False)
+            trap = QTrap(r=r, parent=group)
             group.add(trap)
             self.trapAdded.emit(trap)
-        group.active = True
+        self.pattern.ignoreUpdates = False
         self._update()
         return group
 

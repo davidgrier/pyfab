@@ -32,10 +32,11 @@ class QTrap(QtCore.QObject):
                  psi=None,  # current hologram
                  cgh=None,  # computational pipeline
                  structure=1.+0.j,  # structuring field
-                 state=states.normal,
-                 active=True):
+                 state=states.normal):
         super(QTrap, self).__init__()
-        self.active = False
+
+        self.ignoreUpdates = True
+
         # organization
         if parent is not None:
             self.parent = parent
@@ -68,7 +69,8 @@ class QTrap(QtCore.QObject):
         self._structure = structure
         self.cgh = cgh
 
-        self.active = active
+        self.update_appearance()
+        self.ignoreUpdates = False
 
     # Customizable methods for subclassed traps
     def plotSymbol(self):
@@ -87,10 +89,10 @@ class QTrap(QtCore.QObject):
     # Private method to implement changes
     def _update(self):
         """Implement changes in trap properties"""
+        if self.ignoreUpdates:
+            return
         self.update_appearance()
-        if self.active:
-            self.state = states.selected
-            self.parent._update()
+        self.parent._update()
 
     @property
     def cgh(self):
