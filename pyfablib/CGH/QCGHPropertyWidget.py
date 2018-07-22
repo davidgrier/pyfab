@@ -32,13 +32,11 @@ class QCGHPropertyWidget(QPropertySheet):
         tip = header + 'camera orientation relative to SLM [degrees]'
         self.wthetac = register('thetac', cgh.thetac, -180, 180, setter, tip)
         tip = header + 'x coordinate of optical axis on SLM [pixel]'
-
-        self.wxs = register('xs', cgh.rs.x(), 0, slm.width(), setter,
-                            tip+)
-        self.wys = register('ys', cgh.rs.y(), 0, slm.height(), setter,
-                            tip+'y position of optical axis on SLM [pixel]')
-        self.wk0 = register('k0', cgh.k0, -10, 10, setter,
-                            tip+'Axial splay factor [radian/pixel]')
+        self.wxs = register('xs', cgh.rs.x(), 0, slm.width(), setter, tip)
+        tip = header + 'y coordinate of optical axis on SLM [pixel]'
+        self.wys = register('ys', cgh.rs.y(), 0, slm.height(), setter, tip)
+        tip = header + 'Axial splay factor [radian/pixel]'
+        self.wk0 = register('k0', cgh.k0, -10, 10, setter, tip)
 
     def configuration(self):
         return {'xs': self.wxs.value,
