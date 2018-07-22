@@ -18,7 +18,7 @@ class QTrapPropertyEdit(QtGui.QLineEdit):
     def __init__(self, value, decimals=1):
         super(QTrapPropertyEdit, self).__init__()
         self.setAlignment(QtCore.Qt.AlignRight)
-        self.setMaximumWidth(60)
+        self.setFixedWidth(50)
         self.setMaxLength(8)
         self.fmt = '%.{}f'.format(decimals)
         v = QtGui.QDoubleValidator(decimals=decimals)
@@ -110,7 +110,7 @@ class QTrapWidget(QtGui.QFrame):
     def labelItem(self, name):
         label = QtGui.QLabel(name)
         label.setAlignment(QtCore.Qt.AlignCenter)
-        label.setMinimumWidth(60)
+        label.setFixedWidth(50)
         return label
 
     def labelLine(self):
