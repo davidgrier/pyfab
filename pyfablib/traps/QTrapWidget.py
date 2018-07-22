@@ -108,20 +108,17 @@ class QTrapWidget(QtGui.QFrame):
         self.setLayout(layout)
         self.layout.addWidget(self.labelLine())
 
-    def labelItem(self, name):
-        label = QtGui.QLabel(name)
-        label.setAlignment(QtCore.Qt.AlignCenter)
-        label.setFixedWidth(50)
-        return label
-
     def labelLine(self):
         widget = QtGui.QWidget()
         layout = QtGui.QHBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignLeft)
         layout.setSpacing(0)
         layout.setMargin(0)
-        for label in ['x', 'y', 'z', 'alpha', 'phi']:
-            layout.addWidget(self.labelItem(label))
+        for name in ['x', 'y', 'z', 'alpha', 'phi']:
+            label = QtGui.QLabel(name)
+            label.setAlignment(QtCore.Qt.AlignCenter)
+            label.setFixedWidth(50)
+            layout.addWidget(label)
         widget.setLayout(layout)
         return widget
 
