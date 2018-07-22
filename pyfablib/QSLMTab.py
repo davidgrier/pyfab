@@ -16,13 +16,14 @@ class QSLMTab(QtGui.QWidget):
         self.cgh = cgh
 
         layout = tabLayout(self)
-        wgraphics = pg.GraphicsLayoutWidget()
-        view = wgraphics.addViewBox(enableMenu=False,
-                                    enableMouse=False,
-                                    lockAspect=1.)
+        graphics = pg.GraphicsLayoutWidget()
+        ax = graphics.addPlot(title='', autoLevels=False)
+        ax.setXRange(0, self.cgh.w)
+        ax.setYRange(0, self.cgh.h)
+        ax.setAspectLocked(True)
         self.image = pg.ImageItem()
-        view.addItem(self.image)
-        layout.addWidget(wgraphics)
+        ax.addItem(self.image)
+        layout.addWidget(graphics)
 
     def expose(self, index):
         if index == self.index:
