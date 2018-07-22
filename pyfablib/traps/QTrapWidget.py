@@ -13,9 +13,9 @@ from .QTrap import QTrap
 class QTrapPropertyEdit(QtGui.QLineEdit):
     """Control for one property of one trap."""
 
-    valueChanged = QtCore.pyqtSignal(float)
+    valueChanged = QtCore.pyqtSignal(object, float)
 
-    def __init__(self, value, decimals=1):
+    def __init__(self, name, value, decimals=1):
         super(QTrapPropertyEdit, self).__init__()
         self.setAlignment(QtCore.Qt.AlignRight)
         self.setFixedWidth(50)
@@ -24,13 +24,14 @@ class QTrapPropertyEdit(QtGui.QLineEdit):
         v = QtGui.QDoubleValidator(decimals=decimals)
         v.setNotation(QtGui.QDoubleValidator.StandardNotation)
         self.setValidator(v)
+        self.name = name
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
     @QtCore.pyqtSlot()
     def updateValue(self):
         self.value = float(str(self.text()))
-        self.valueChanged.emit(self._value)
+        self.valueChanged.emit(self.name, self.value)
 
     @property
     def value(self):
@@ -42,11 +43,11 @@ class QTrapPropertyEdit(QtGui.QLineEdit):
         self._value = value
 
 
-class QTrapLine(QtGui.QWidget):
+class QTrapPropertyWidget(QtGui.QWidget):
     """Control for properties of one trap."""
 
     def __init__(self, trap):
-        super(QTrapLine, self).__init__()
+        super(QTrapPropertyWidget, self).__init__()
         layout = QtGui.QHBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
@@ -67,8 +68,8 @@ class QTrapLine(QtGui.QWidget):
         name = prop['name']
         decimals = prop['decimals']
         value = getattr(trap, name)
-        wid = QTrapPropertyEdit(value, decimals=decimals)
-        wid.valueChanged.connect(lambda v: trap.setProperty(name, v))
+        wid = QTrapPropertyEdit(name, value, decimals=decimals)
+        wid.valueChanged.connect(trap.setProperty)
         return wid
 
     @QtCore.pyqtSlot(QTrap)
@@ -125,9 +126,9 @@ class QTrapWidget(QtGui.QFrame):
         return widget
 
     def registerTrap(self, trap):
-        trapline = QTrapLine(trap)
-        self.properties[trap] = trapline
-        self.layout.addWidget(trapline)
+        trapWidget = QTrapPropertyWidget(trap)
+        self.properties[trap] = trapWidget
+        self.layout.addWidget(trapWidget)
         trap.destroyed.connect(lambda: self.unregisterTrap(trap))
 
     def unregisterTrap(self, trap):

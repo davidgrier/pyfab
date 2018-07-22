@@ -132,9 +132,9 @@ class QTrap(QtCore.QObject):
         self.properties.append(prop)
 
     @QtCore.pyqtSlot(str, float)
-    def setProperty(self, property, value):
+    def setProperty(self, name, value):
         self.blockSignals(True)
-        setattr(self, property, value)
+        setattr(self, name, value)
         self.blockSignals(False)
 
     # Trap properties
