@@ -125,8 +125,11 @@ class QTrap(QtCore.QObject):
         return rect.contains(self.coords())
 
     # Slot for updating parameters with QTrapWidget
-    def registerProperty(self, property, decimals=1):
-        self.properties.append({'name': property, 'decimals': decimals})
+    def registerProperty(self, property, decimals=1, tooltip=False):
+        prop = {'name': property,
+                'decimals': decimals,
+                'tooltip': tooltip}
+        self.properties.append(prop)
 
     @QtCore.pyqtSlot(str, float)
     def setProperty(self, property, value):

@@ -7,10 +7,6 @@ import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui
 from scipy.special import jv
 
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-
 
 class QRingTrap(QTrap):
 
@@ -18,9 +14,12 @@ class QRingTrap(QTrap):
         super(QRingTrap, self).__init__(**kwargs)
         self._R = R
         self._m = m
+        self.registerProperty('R', tooltip=True)
+        self.registerProperty('m', decimals=0, tooltip=True)
 
     def update_structure(self):
-        phi = jv(self.m, self.R * self.cgh.qr) * np.exp((1j * self.m) * self.cgh.theta)
+        phi = jv(self.m, self.R * self.cgh.qr) * \
+            np.exp((1j * self.m) * self.cgh.theta)
         self.structure = phi
         self._update()
 

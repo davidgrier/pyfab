@@ -57,6 +57,8 @@ class QTrapLine(QtGui.QWidget):
             self.wid[name] = self.propertyWidget(trap, prop)
             tip = trap.__class__.__name__ + ': ' + name
             self.wid[name].setStatusTip(tip)
+            if prop['tooltip']:
+                self.wid[name].setToolTip(name)
             layout.addWidget(self.wid[name])
         trap.valueChanged.connect(self.updateValues)
         self.setLayout(layout)
