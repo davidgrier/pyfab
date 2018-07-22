@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 
 
-class QHistogramTab(QtGui.QWidget):
+class QHistogramTab(QtGui.QFrame):
 
     def __init__(self, video_source):
         super(QHistogramTab, self).__init__()
@@ -18,14 +18,13 @@ class QHistogramTab(QtGui.QWidget):
         self.index = -1
         self.video = video_source
 
+        self.setFrameShape(QtGui.QFrame.Box)
         layout = tabLayout(self)
 
-        histo = pg.PlotWidget(background='w')
-        histo.setMaximumHeight(250)
+        title = QtGui.QLabel('Histogram')
+        layout.addWidget(title)
+        histo = self.plotWidget('Intensity', 'N(Intensity)', height=250)
         histo.setXRange(0, 255)
-        histo.setLabel('bottom', 'Intensity')
-        histo.setLabel('left', 'N(Intensity)')
-        histo.showGrid(x=True, y=True)
         self.rplot = histo.plot()
         self.rplot.setPen('r', width=2)
         self.gplot = histo.plot()
@@ -34,23 +33,30 @@ class QHistogramTab(QtGui.QWidget):
         self.bplot.setPen('b', width=2)
         layout.addWidget(histo)
 
-        xmean = pg.PlotWidget(background='w')
-        xmean.setMaximumHeight(150)
-        xmean.setLabel('bottom', 'x [pixel]')
-        xmean.setLabel('left', 'I(x)')
-        xmean.showGrid(x=True, y=True)
+        title = QtGui.QLabel('Horizontal Profile')
+        layout.addWidget(title)
+        xmean = self.plotWidget('x [pixel]', 'I(x)')
         self.xplot = xmean.plot()
         self.xplot.setPen('r', width=2)
         layout.addWidget(xmean)
 
-        ymean = pg.PlotWidget(background='w')
-        ymean.setMaximumHeight(150)
-        ymean.setLabel('bottom', 'y [pixel]')
-        ymean.setLabel('left', 'I(y)')
-        ymean.showGrid(x=True, y=True)
+        title = QtGui.QLabel('Vertical Profile')
+        layout.addWidget(title)
+        ymean = self.plotWidget('y [pixel]', 'I(y)')
         self.yplot = ymean.plot()
         self.yplot.setPen('r', width=2)
         layout.addWidget(ymean)
+
+    def plotWidget(self, xlabel, ylabel, height=150):
+        wid = pg.PlotWidget(background='w')
+        wid.getAxis('bottom').setPen(0.1)
+        wid.getAxis('left').setPen(0.1)
+        wid.showGrid(x=True, y=True)
+        wid.setMouseEnabled(x=False, y=False)
+        wid.setMaximumHeight(height)
+        wid.setLabel('bottom', xlabel)
+        wid.setLabel('left', ylabel)
+        return wid
 
     def expose(self, index):
         if index == self.index:

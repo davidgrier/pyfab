@@ -101,7 +101,7 @@ class QPropertySheet(QtGui.QFrame):
             self.row += 1
 
     def registerProperty(self, name, value, min=None, max=None,
-                         callback=None):
+                         callback=None, tooltip=None):
         wname = QtGui.QLabel(QString(name))
         wname.setAlignment(QtCore.Qt.AlignRight)
         if isinstance(value, bool):
@@ -117,6 +117,8 @@ class QPropertySheet(QtGui.QFrame):
             self.layout.addWidget(wmax, self.row, 4)
         if callback is not None:
             wvalue.valueChanged.connect(callback)
+        if tooltip is not None:
+            wvalue.setStatusTip(tooltip)
         self.row += 1
         self.properties[name] = wvalue
         return wvalue

@@ -6,7 +6,7 @@ from common.tabLayout import tabLayout
 import numpy as np
 
 
-class QSLMTab(QtGui.QWidget):
+class QSLMTab(QtGui.QFrame):
 
     def __init__(self, cgh=None):
         super(QSLMTab, self).__init__()
@@ -15,14 +15,20 @@ class QSLMTab(QtGui.QWidget):
 
         self.cgh = cgh
 
+        self.setFrameShape(QtGui.QFrame.Box)
         layout = tabLayout(self)
-        graphics = pg.GraphicsLayoutWidget()
-        ax = graphics.addPlot(title='', autoLevels=False)
-        ax.setXRange(0, self.cgh.w)
-        ax.setYRange(0, self.cgh.h)
-        ax.setAspectLocked(True)
+
+        title = QtGui.QLabel('SLM data')
+        layout.addWidget(title)
+        graphics = pg.PlotWidget(background='w')
+        graphics.getAxis('bottom').setPen(0.1)
+        graphics.getAxis('left').setPen(0.1)
+        graphics.setXRange(0, self.cgh.w)
+        graphics.setYRange(0, self.cgh.h)
+        graphics.setAspectLocked(True)
+        graphics.enableAutoRange(enable=False)
         self.image = pg.ImageItem()
-        ax.addItem(self.image)
+        graphics.addItem(self.image)
         layout.addWidget(graphics)
 
     def expose(self, index):
