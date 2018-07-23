@@ -59,6 +59,7 @@ class QCameraDevice(QtCore.QObject):
                 break
         self.frame = image
 
+    @QtCore.pyqtSlot()
     def run(self):
         while self.running:
             ready, self.frame = self.camera.read()
