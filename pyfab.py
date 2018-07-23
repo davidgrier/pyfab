@@ -32,9 +32,8 @@ class pyfab(QtGui.QMainWindow):
     def __init__(self):
         self.app = QtGui.QApplication(sys.argv)
         super(pyfab, self).__init__()
-        self.instrument = QFabWidget().setSize()
+        self.instrument = QFabWidget()
         self.init_ui()
-
         self.config = fabconfig(self)
         self.config.restore(self.instrument.wcgh)
         self.show()
@@ -42,12 +41,11 @@ class pyfab(QtGui.QMainWindow):
     def init_ui(self):
         self.setWindowTitle('PyFab')
         self.statusBar().showMessage('Ready')
-
         self.menuBar().setNativeMenuBar(False)
         self.fileMenu()
         taskMenu(self)
         self.calibrationMenu()
-
+        self.instrument.setTabBarWidth()
         self.setCentralWidget(self.instrument)
 
     def fileMenu(self):

@@ -18,28 +18,25 @@ class QCGHPropertyWidget(QPropertySheet):
         register = self.registerProperty
         setter = cgh.setProperty
 
-        self.wqpp = register('qpp', cgh.qpp, 0.1, 100., setter)
-        self.walpha = register('alpha', cgh.alpha, 0.1, 10., setter)
-        self.wxc = register('xc', cgh.rc.x(), 0, cam.width, setter)
-        self.wyc = register('yc', cgh.rc.y(), 0, cam.height, setter)
-        self.wzc = register('zc', cgh.rc.z(), -500, 500, setter)
-        self.wthetac = register('thetac', cgh.thetac, -180, 180, setter)
-        self.wxs = register('xs', cgh.rs.x(), 0, slm.width(), setter)
-        self.wys = register('ys', cgh.rs.y(), 0, slm.height(), setter)
-        self.wk0 = register('k0', cgh.k0, -10, 10, setter)
-        self.addToolTips()
-
-    def addToolTips(self):
-        self.wqpp.setToolTip('Overall scale factor [mrad/pixel]')
-        self.walpha.setToolTip('x-y anisotropy')
-        self.wxc.setToolTip('x position of optical axis on camera [pixel]')
-        self.wyc.setToolTip('y position of optical axis on camera [pixel]')
-        self.wzc.setToolTip('axial position of zeroth-order plane [pixel]')
-        self.wthetac.setToolTip(
-            'orientation of camera relative to SLM [degrees]')
-        self.wxs.setToolTip('x position of optical axis on SLM [pixel]')
-        self.wys.setToolTip('y position of optical axis on SLM [pixel]')
-        self.wk0.setToolTip('Axial splay factor [radian/pixel]')
+        header = 'CGH Calibration: '
+        tip = header + 'Overall scale factor [mrad/pixel]'
+        self.wqpp = register('qpp', cgh.qpp, 0.1, 100., setter, tip)
+        tip = header + 'x-y anisotropy'
+        self.walpha = register('alpha', cgh.alpha, 0.1, 10., setter, tip)
+        tip = header + 'x coordinate of optical axis on camera [pixel]'
+        self.wxc = register('xc', cgh.rc.x(), 0, cam.width, setter, tip)
+        tip = header + 'y coordinate of optical axis on camera [pixel]'
+        self.wyc = register('yc', cgh.rc.y(), 0, cam.height, setter, tip)
+        tip = header + 'axial coordinate of focal plane [pixel]'
+        self.wzc = register('zc', cgh.rc.z(), -500, 500, setter, tip)
+        tip = header + 'camera orientation relative to SLM [degrees]'
+        self.wthetac = register('thetac', cgh.thetac, -180, 180, setter, tip)
+        tip = header + 'x coordinate of optical axis on SLM [pixel]'
+        self.wxs = register('xs', cgh.rs.x(), 0, slm.width(), setter, tip)
+        tip = header + 'y coordinate of optical axis on SLM [pixel]'
+        self.wys = register('ys', cgh.rs.y(), 0, slm.height(), setter, tip)
+        tip = header + 'Axial splay factor [radian/pixel]'
+        self.wk0 = register('k0', cgh.k0, -10, 10, setter, tip)
 
     def configuration(self):
         return {'xs': self.wxs.value,

@@ -16,4 +16,3 @@ class besseltrap(task):
     def dotask(self):
         trap = QBesselTrap(r=QtGui.QVector3D(100, 100, 0))
         self.parent.pattern.addTrap(trap)
-

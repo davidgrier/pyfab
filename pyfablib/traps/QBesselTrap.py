@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from QTrap import QTrap
+from .QTrap import QTrap
 import numpy as np
 import cmath 
 from pyqtgraph.Qt import QtCore, QtGui

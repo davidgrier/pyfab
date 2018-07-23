@@ -10,27 +10,28 @@ except ImportError:
 from .QTrap import QTrap
 
 
-class QTrapProperty(QtGui.QLineEdit):
+class QTrapPropertyEdit(QtGui.QLineEdit):
     """Control for one property of one trap."""
 
-    valueChanged = QtCore.pyqtSignal(float)
+    valueChanged = QtCore.pyqtSignal(object, float)
 
-    def __init__(self, value, decimals=1):
-        super(QTrapProperty, self).__init__()
+    def __init__(self, name, value, decimals=1):
+        super(QTrapPropertyEdit, self).__init__()
         self.setAlignment(QtCore.Qt.AlignRight)
-        self.setMaximumWidth(50)
+        self.setFixedWidth(50)
         self.setMaxLength(8)
         self.fmt = '%.{}f'.format(decimals)
         v = QtGui.QDoubleValidator(decimals=decimals)
         v.setNotation(QtGui.QDoubleValidator.StandardNotation)
         self.setValidator(v)
+        self.name = name
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
     @QtCore.pyqtSlot()
     def updateValue(self):
         self.value = float(str(self.text()))
-        self.valueChanged.emit(self._value)
+        self.valueChanged.emit(self.name, self.value)
 
     @property
     def value(self):
@@ -42,39 +43,41 @@ class QTrapProperty(QtGui.QLineEdit):
         self._value = value
 
 
-class QTrapLine(QtGui.QWidget):
+class QTrapPropertyWidget(QtGui.QWidget):
     """Control for properties of one trap."""
 
     def __init__(self, trap):
-        super(QTrapLine, self).__init__()
+        super(QTrapPropertyWidget, self).__init__()
         layout = QtGui.QHBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
-        self.wx = self.prop(trap.r.x(), trap.setX)
-        self.wy = self.prop(trap.r.y(), trap.setY)
-        self.wz = self.prop(trap.r.z(), trap.setZ)
-        self.wa = self.prop(trap.a, trap.setA, decimals=2)
-        self.wp = self.prop(trap.phi, trap.setPhi, decimals=2)
-        layout.addWidget(self.wx)
-        layout.addWidget(self.wy)
-        layout.addWidget(self.wz)
-        layout.addWidget(self.wa)
-        layout.addWidget(self.wp)
+        layout.setAlignment(QtCore.Qt.AlignLeft)
+        self.wid = dict()
+        for prop in trap.properties:
+            name = prop['name']
+            self.wid[name] = self.propertyWidget(trap, prop)
+            tip = trap.__class__.__name__ + ': ' + name
+            self.wid[name].setStatusTip(tip)
+            if prop['tooltip']:
+                self.wid[name].setToolTip(name)
+            layout.addWidget(self.wid[name])
         trap.valueChanged.connect(self.updateValues)
         self.setLayout(layout)
 
-    def prop(self, value, handler, decimals=1):
-        wid = QTrapProperty(value, decimals=decimals)
-        wid.valueChanged.connect(handler)
+    def propertyWidget(self, trap, prop):
+        name = prop['name']
+        decimals = prop['decimals']
+        value = getattr(trap, name)
+        wid = QTrapPropertyEdit(name, value, decimals=decimals)
+        wid.valueChanged.connect(trap.setProperty)
         return wid
 
     @QtCore.pyqtSlot(QTrap)
     def updateValues(self, trap):
-        self.wx.value = trap.r.x()
-        self.wy.value = trap.r.y()
-        self.wz.value = trap.r.z()
-        self.wa.value = trap.a
-        self.wp.value = trap.phi
+        for prop in trap.properties:
+            name = prop['name']
+            value = getattr(trap, name)
+            self.wid[name].value = value
 
 
 class QTrapWidget(QtGui.QFrame):
@@ -97,7 +100,7 @@ class QTrapWidget(QtGui.QFrame):
         inner.setLayout(self.layout)
         scroll = QtGui.QScrollArea()
         scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         scroll.setWidgetResizable(True)
         scroll.setWidget(inner)
         layout = QtGui.QVBoxLayout(self)
@@ -105,26 +108,24 @@ class QTrapWidget(QtGui.QFrame):
         self.setLayout(layout)
         self.layout.addWidget(self.labelLine())
 
-    def labelItem(self, name):
-        label = QtGui.QLabel(name)
-        label.setAlignment(QtCore.Qt.AlignCenter)
-        label.setMaximumWidth(50)
-        return label
-
     def labelLine(self):
         widget = QtGui.QWidget()
         layout = QtGui.QHBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignLeft)
         layout.setSpacing(0)
         layout.setMargin(0)
-        for label in ['x', 'y', 'z', 'alpha', 'phi']:
-            layout.addWidget(self.labelItem(label))
+        for name in ['x', 'y', 'z', 'alpha', 'phi']:
+            label = QtGui.QLabel(name)
+            label.setAlignment(QtCore.Qt.AlignCenter)
+            label.setFixedWidth(50)
+            layout.addWidget(label)
         widget.setLayout(layout)
         return widget
 
     def registerTrap(self, trap):
-        trapline = QTrapLine(trap)
-        self.properties[trap] = trapline
-        self.layout.addWidget(trapline)
+        trapWidget = QTrapPropertyWidget(trap)
+        self.properties[trap] = trapWidget
+        self.layout.addWidget(trapWidget)
         trap.destroyed.connect(lambda: self.unregisterTrap(trap))
 
     def unregisterTrap(self, trap):

@@ -32,10 +32,11 @@ class QTrap(QtCore.QObject):
                  psi=None,  # current hologram
                  cgh=None,  # computational pipeline
                  structure=1.+0.j,  # structuring field
-                 state=states.normal,
-                 active=True):
+                 state=states.normal):
         super(QTrap, self).__init__()
-        self.active = False
+
+        self.ignoreUpdates = True
+
         # organization
         if parent is not None:
             self.parent = parent
@@ -52,6 +53,12 @@ class QTrap(QtCore.QObject):
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
         # physical properties
+        self.properties = []
+        self.registerProperty('x')
+        self.registerProperty('y')
+        self.registerProperty('z')
+        self.registerProperty('a', decimals=2)
+        self.registerProperty('phi', decimals=2)
         self.r = r
         self._a = a
         if phi is None:
@@ -62,7 +69,8 @@ class QTrap(QtCore.QObject):
         self._structure = structure
         self.cgh = cgh
 
-        self.active = active
+        self.update_appearance()
+        self.ignoreUpdates = False
 
     # Customizable methods for subclassed traps
     def plotSymbol(self):
@@ -81,10 +89,10 @@ class QTrap(QtCore.QObject):
     # Private method to implement changes
     def _update(self):
         """Implement changes in trap properties"""
+        if self.ignoreUpdates:
+            return
         self.update_appearance()
-        if self.active:
-            self.state = states.selected
-            self.parent._update()
+        self.parent._update()
 
     @property
     def cgh(self):
@@ -116,38 +124,23 @@ class QTrap(QtCore.QObject):
         """Return True if this trap lies within the specified rectangle"""
         return rect.contains(self.coords())
 
-    # Slots for updating parameters
-    @QtCore.pyqtSlot(float)
-    def setX(self, x):
-        self._r.setX(x)
-        self._update()
+    # Slot for updating parameters with QTrapWidget
+    def registerProperty(self, property, decimals=1, tooltip=False):
+        prop = {'name': property,
+                'decimals': decimals,
+                'tooltip': tooltip}
+        self.properties.append(prop)
 
-    @QtCore.pyqtSlot(float)
-    def setY(self, y):
-        self._r.setY(y)
-        self._update()
-
-    @QtCore.pyqtSlot(float)
-    def setZ(self, z):
-        self._r.setZ(z)
-        self._update()
-
-    @QtCore.pyqtSlot(float)
-    def setA(self, a):
-        self._a = a
-        self.amp = a * np.exp(1j * self.phi)
-        self._update()
-
-    @QtCore.pyqtSlot(float)
-    def setPhi(self, phi):
-        self._phi = phi
-        self.amp = self.a * np.exp(1j * phi)
-        self._update()
+    @QtCore.pyqtSlot(str, float)
+    def setProperty(self, name, value):
+        self.blockSignals(True)
+        setattr(self, name, value)
+        self.blockSignals(False)
 
     # Trap properties
     @property
     def r(self):
-        """Three-dimensional position of trap."""
+        """Three-dimensional position of trap"""
         return self._r
 
     @r.setter
@@ -157,27 +150,62 @@ class QTrap(QtCore.QObject):
         self._update()
 
     @property
+    def x(self):
+        return self._r.x()
+
+    @x.setter
+    def x(self, x):
+        self._r.setX(x)
+        self.valueChanged.emit(self)
+        self._update()
+
+    @property
+    def y(self):
+        return self._r.y()
+
+    @y.setter
+    def y(self, y):
+        self._r.setY(y)
+        self.valueChanged.emit(self)
+        self._update()
+
+    @property
+    def z(self):
+        return self._r.z()
+
+    @z.setter
+    def z(self, z):
+        self._r.setZ(z)
+        self.valueChanged.emit(self)
+        self._update()
+
+    @property
     def a(self):
+        """Relative amplitude of trap"""
         return self._a
 
     @a.setter
     def a(self, a):
-        self.setA(a)
+        self._a = a
+        self.amp = a * np.exp(1j * self.phi)
         self.valueChanged.emit(self)
+        self._update()
 
     @property
     def phi(self):
+        """Relative phase of trap"""
         return self._phi
 
     @phi.setter
     def phi(self, phi):
-        self.setPhi(phi)
+        self._phi = phi
+        self.amp = self.a * np.exp(1j * phi)
         self.valueChanged.emit(self)
+        self._update()
 
     @property
     def state(self):
-        """Current state of trap
-        """
+        """Current state of trap"""
         return self._state
 
     @state.setter

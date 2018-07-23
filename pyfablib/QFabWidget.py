@@ -23,47 +23,50 @@ class QFabWidget(QJansenWidget):
         super(QFabWidget, self).init_components()
         # spatial light modulator
         self.slm = QSLM()
+
         # computation pipeline for the trapping pattern
         self.cgh = CGH(slm=self.slm)
         self.cgh.sigHologramReady.connect(self.slm.setData)
         self.wcgh = QCGHPropertyWidget(self)
-        # trapping pattern is an interactive overlay
-        # that translates user actions into hologram computations
-        self.pattern = QTrappingPattern(parent=self)
-        self.pattern.sigCompute.connect(self.cgh.setTraps)
-        self.cgh.sigComputing.connect(self.pattern.pauseSignals)
 
+        # move CGH pipeline to a separate thread to readuce latency
         self.thread = QtCore.QThread()
         self.thread.start()
         self.cgh.moveToThread(self.thread)
         self.thread.started.connect(self.cgh.start)
         self.thread.finished.connect(self.cgh.stop)
 
+        # trapping pattern is an interactive overlay
+        # that translates user actions into hologram computations
+        self.pattern = QTrappingPattern(parent=self)
+        self.pattern.sigCompute.connect(self.cgh.setTraps)
+        self.cgh.sigComputing.connect(self.pattern.pauseSignals)
+
     def init_ui(self):
         super(QFabWidget, self).init_ui()
-        # Help tab is at last index
-        help_index = self.tabs.count() - 1
-        # add new tabs
+
+        # Insert new tabs before Help tab
         hwtab = QHardwareTab()
-        if hwtab.has_content():
-            index = self.tabs.addTab(hwtab, 'Hardware')
-            self.tabs.setTabToolTip(index, 'Hardware')
-        index = self.tabs.addTab(self.cghTab(), 'CGH')
+        index = self.tabs.insertTab(self.tabs.count()-1, hwtab, 'Hardware')
+        self.tabs.setTabToolTip(index, 'Hardware')
+        hwtab.index = index
+        self.tabs.currentChanged.connect(hwtab.expose)
+        self.tabs.setTabEnabled(index, hwtab.has_content())
+
+        cghtab = self.cghTab()
+        index = self.tabs.insertTab(index+1, cghtab, 'CGH')
         self.tabs.setTabToolTip(index, 'CGH')
-        index = self.tabs.addTab(self.trapTab(), 'Traps')
+
+        traptab = self.trapTab()
+        index = self.tabs.insertTab(index+1, traptab, 'Traps')
         self.tabs.setTabToolTip(index, 'Traps')
+
         slmtab = QSLMTab(cgh=self.cgh)
-        index = self.tabs.addTab(slmtab, 'SLM')
+        index = self.tabs.insertTab(index+1, slmtab, 'SLM')
         self.tabs.setTabToolTip(index, 'SLM')
+        slmtab.index = index
         self.tabs.currentChanged.connect(slmtab.expose)
-        # move Help to end
-        self.tabs.tabBar().moveTab(help_index, self.tabs.count() - 1)
-        # set current index of other tabs for expose events
-        if hwtab.has_content():
-            hwtab.index = self.tabs.indexOf(hwtab)
-            self.tabs.currentChanged.connect(hwtab.expose)
-        slmtab.index = self.tabs.indexOf(slmtab)
-        # populate help browser
+
         self.browser.load('pyfab')
         self.wstage = hwtab.wstage
 

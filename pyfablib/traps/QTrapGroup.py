@@ -8,33 +8,24 @@ from .QTrap import QTrap, states
 
 class QTrapGroup(QtCore.QObject):
 
-    def __init__(self, parent=None, name=None, active=True):
+    def __init__(self, parent=None, name=None):
         super(QTrapGroup, self).__init__()
+        self.ignoreUpdates = False
         self.parent = parent
         self.children = []
         self.name = name
-        self.active = active
         self._r = QtGui.QVector3D()
-        # self.psi = None
 
     def add(self, child):
-        """Add an object to the trap group.
-        """
+        """Add a trap to the group"""
         child.parent = self
-        child.active = self.active
         self.children.append(child)
-        # if child.psi is not None:
-        #    if self.psi is None:
-        #        self.psi = child.psi
-        #    else:
-        #        self.psi += child.psi
 
     def remove(self, thischild, delete=False):
         """Remove an object from the trap group.
         If the group is now empty, remove it
         from its parent group
         """
-        # self.psi = None
         if thischild in self.children:
             thischild.parent = None
             self.children.remove(thischild)
@@ -53,9 +44,10 @@ class QTrapGroup(QtCore.QObject):
         super(QTrapGroup, self).deleteLater()
 
     def _update(self):
+        if self.ignoreUpdates:
+            return
         self.updatePosition()
-        if self.active:
-            self.parent._update()
+        self.parent._update()
 
     def count(self):
         """Return the number of items in the group.
@@ -100,16 +92,6 @@ class QTrapGroup(QtCore.QObject):
             self.state = states.normal
 
     @property
-    def active(self):
-        return self._active
-
-    @active.setter
-    def active(self, active):
-        for child in self.children:
-            child.active = active
-        self._active = active
-
-    @property
     def r(self):
         return self._r
 
@@ -123,7 +105,7 @@ class QTrapGroup(QtCore.QObject):
     def moveBy(self, dr):
         """Translate traps in the group.
         """
-        self.active = False
+        self.ignoreUpdates = True
         # same displacement for all traps
         if isinstance(dr, QtGui.QVector3D):
             for child in self.children:
@@ -132,7 +114,7 @@ class QTrapGroup(QtCore.QObject):
         else:
             for n, child in enumerate(self.children):
                 child.moveBy(dr[n])
-        self.active = True
+        self.ignoreUpdates = False
         self._update()
 
     def rotateTo(self, xy):

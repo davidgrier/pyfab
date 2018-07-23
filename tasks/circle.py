@@ -6,15 +6,19 @@ import numpy as np
 
 
 class circle(assemble):
-    """Demonstration of traps moving into a sink."""
+    """Demonstration of traps assembling a circle."""
 
     def __init__(self, **kwargs):
-        super(assemble, self).__init__(**kwargs)
+        super(circle, self).__init__(**kwargs)
 
     def structure(self, traps):
         vertices = {}
-        R = 100
+        R = 200
+        xc = self.parent.cgh.xc
+        yc = self.parent.cgh.yc
         for idx, trap in enumerate(traps.flatten()):
-            theta = idx
-            vertices[trap] = np.array([320 + R*np.cos(theta), 240 + R*np.sin(theta), 0])
+            theta = idx / 1.2
+            vertices[trap] = np.array([xc + R*np.cos(theta),
+                                       yc + R*np.sin(theta),
+                                       50])
         return vertices
