@@ -16,12 +16,14 @@ class moverecordz(task):
     def dotask(self):
         self.traps = self.parent.pattern.pattern
         if self.traps.count() > 0:
-            fn = self.parent.dvr.filename[0:-4]
+            fn0 = self.parent.dvr.filename[0:-4]
             register = self.parent.tasks.registerTask
             z = self.traps.r.z()
             dz = 20
             dr = QtGui.QVector3D(0, 0, dz)
             for n in range(0, 50):
+                zval = np.absolute(z + dz*n)
                 register('delay', delay=100)
-                register('record', nframes=100, fn=fn + '{:03d}.avi'.format(str(np.absolute(z + dz*n)))
+                register('record', nframes=100,
+                         fn=fn0+'{:03d}.avi'.format(zval))
                 register('translate', traps=self.traps, dr=dr)
