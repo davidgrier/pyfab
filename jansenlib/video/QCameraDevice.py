@@ -94,8 +94,9 @@ class QCameraDevice(QtCore.QObject):
             image = cv2.transpose(image)
         if self.flipped or self.mirrored:
             image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
-        self._width = image.shape[1]
-        self._height = image.shape[0]
+        (self._height, self._width) = image.shape[:2]
+        # self._width = image.shape[1]
+        # self._height = image.shape[0]
         self._frame = image
 
     @property
@@ -130,8 +131,7 @@ class QCameraDevice(QtCore.QObject):
             self.width = size.width()
             self.height = size.height()
         else:
-            self.width = size[0]
-            self.height = size[1]
+            (self.width, self.height) = size
 
     @property
     def roi(self):
