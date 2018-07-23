@@ -3,7 +3,7 @@
 # MENU: Bessel Trapping
 
 from .task import task
-from pyfablib.traps import QBesselTrap
+from pyfablib.traps.QBesselTrap import QBesselTrap
 from pyqtgraph.Qt import QtGui
 
 
