@@ -135,6 +135,7 @@ class QTrap(QtCore.QObject):
     def setProperty(self, name, value):
         self.blockSignals(True)
         setattr(self, name, value)
+        self.state = states.selected
         self.blockSignals(False)
 
     # Trap properties
