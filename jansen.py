@@ -29,24 +29,22 @@ class jansen(QtGui.QMainWindow):
 
     def __init__(self):
         super(jansen, self).__init__()
-        self.instrument = QJansenWidget().setSize()
+        self.instrument = QJansenWidget()
         self.init_ui()
         self.show()
 
     def init_ui(self):
         self.setWindowTitle('Jansen')
         self.statusBar().showMessage('Ready')
-
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
-
         exitIcon = QtGui.QIcon.fromTheme('exit')
         exitAction = QtGui.QAction(exitIcon, '&Quit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Quit Jansen')
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
-
+        self.instrument.setTabBarWidth()
         self.setCentralWidget(self.instrument)
 
     def close(self):
