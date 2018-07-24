@@ -31,6 +31,7 @@ class QCameraDevice(QtCore.QObject):
         super(QCameraDevice, self).__init__()
 
         self.camera = cv2.VideoCapture(cameraID)
+        self.read = self.camera.read
 
         if cv2.__version__.startswith('2.'):
             self._WIDTH = cv2.cv.CV_CAP_PROP_FRAME_WIDTH
@@ -54,7 +55,7 @@ class QCameraDevice(QtCore.QObject):
         self.emitting = False
 
         while True:
-            ready, image = self.camera.read()
+            ready, image = self.read()
             if ready:
                 break
         self.frame = image
@@ -62,7 +63,7 @@ class QCameraDevice(QtCore.QObject):
     @QtCore.pyqtSlot()
     def run(self):
         while self.running:
-            ready, self.frame = self.camera.read()
+            ready, self.frame = self.read()
             if ready and self.emitting:
                 self.sigNewFrame.emit(self.frame)
         self.camera.release()
@@ -95,8 +96,6 @@ class QCameraDevice(QtCore.QObject):
         if self.flipped or self.mirrored:
             image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
         (self._height, self._width) = image.shape[:2]
-        # self._width = image.shape[1]
-        # self._height = image.shape[0]
         self._frame = image
 
     @property
