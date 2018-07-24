@@ -70,6 +70,7 @@ class QTrap(QtCore.QObject):
         self.cgh = cgh
 
         self.update_appearance()
+        self.needsUpdate = True
         self.ignoreUpdates = False
 
     # Customizable methods for subclassed traps
@@ -91,6 +92,8 @@ class QTrap(QtCore.QObject):
         """Implement changes in trap properties"""
         if self.ignoreUpdates:
             return
+        self.needsUpdate = True
+        self.valueChanged.emit(self)
         self.update_appearance()
         self.parent._update()
 
@@ -105,7 +108,6 @@ class QTrap(QtCore.QObject):
             return
         self._cgh.sigUpdateGeometry.connect(self.update_structure)
         self.update_structure()
-        self._update()
 
     # Methods for implementing motion
     def coords(self):
@@ -146,7 +148,6 @@ class QTrap(QtCore.QObject):
     @r.setter
     def r(self, r):
         self._r = QtGui.QVector3D(r)
-        self.valueChanged.emit(self)
         self._update()
 
     @property
@@ -156,7 +157,6 @@ class QTrap(QtCore.QObject):
     @x.setter
     def x(self, x):
         self._r.setX(x)
-        self.valueChanged.emit(self)
         self._update()
 
     @property
@@ -166,7 +166,6 @@ class QTrap(QtCore.QObject):
     @y.setter
     def y(self, y):
         self._r.setY(y)
-        self.valueChanged.emit(self)
         self._update()
 
     @property
@@ -176,7 +175,6 @@ class QTrap(QtCore.QObject):
     @z.setter
     def z(self, z):
         self._r.setZ(z)
-        self.valueChanged.emit(self)
         self._update()
 
     @property
@@ -188,7 +186,6 @@ class QTrap(QtCore.QObject):
     def a(self, a):
         self._a = a
         self.amp = a * np.exp(1j * self.phi)
-        self.valueChanged.emit(self)
         self._update()
 
     @property
@@ -200,7 +197,6 @@ class QTrap(QtCore.QObject):
     def phi(self, phi):
         self._phi = phi
         self.amp = self.a * np.exp(1j * phi)
-        self.valueChanged.emit(self)
         self._update()
 
     @property

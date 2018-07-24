@@ -111,9 +111,7 @@ class CGH(QtCore.QObject):
         start = time()
         self._psi.fill(0. + 0j)
         for trap in self.traps:
-            if ((all is True) or
-                    (trap.state == trap.state.selected) or
-                    (trap.psi is None)):
+            if ((all is True) or trap.needsUpdate):
                 # map coordinates into trap space
                 r = self.m * trap.r
                 # axial splay
@@ -125,6 +123,7 @@ class CGH(QtCore.QObject):
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
                 self.compute_displace(amp, r, trap.psi)
+                trap.needsUpdate = False
             self._psi += trap.structure * trap.psi
         self.sigHologramReady.emit(self.quantize(self._psi))
         self.time = time() - start
