@@ -12,13 +12,13 @@ class circle(assemble):
         super(circle, self).__init__(**kwargs)
 
     def structure(self, traps):
-        vertices = {}
+        vertices = []
         R = 200
         xc = self.parent.cgh.xc
         yc = self.parent.cgh.yc
         for idx, trap in enumerate(traps.flatten()):
             theta = idx / 1.2
-            vertices[trap] = np.array([xc + R*np.cos(theta),
-                                       yc + R*np.sin(theta),
-                                       50])
+            vertices.append(np.array([xc + R*np.cos(theta),
+                                      yc + R*np.sin(theta),
+                                      50]))
         return vertices
