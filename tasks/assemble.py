@@ -54,11 +54,11 @@ class assemble(parameterize):
                     if status[trap] is 'far':
                         # Take a step towards final position with noise
                         dr = self.direct(trap, vertices[trap],
-                                         trajectories) + noise*.1
+                                         trajectories) + noise*.2
                     elif status[trap] is 'close+jiggling':
                         # If you're close enough but others aren't,
                         # jiggle around the goal
-                        dr = noise*.5
+                        dr = noise*.6
                     elif status[trap] is 'close':
                         # If everyone is close, go to goal without noise
                         dr = self.direct(trap, vertices[trap],
@@ -84,9 +84,8 @@ class assemble(parameterize):
                           and values are Curve objects
         '''
         # Initialize variables
-        padding = 6.5
-        #max_step = 
-        max_speed = 4.
+        padding = 7.
+        max_speed = 5.
         speed = max_speed / 2.
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex

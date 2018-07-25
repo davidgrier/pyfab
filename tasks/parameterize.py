@@ -29,7 +29,8 @@ class parameterize(task):
                     for trap in traps:
                         curve = self.trajectories[trap].curve
                         new_positions[trap] = curve[n]
-                    self.register('relocate', new_positions=new_positions)
+                    self.register('relocate', new_positions=new_positions,
+                                  delay=2)
 
     def parameterize(self, traps):
         """
