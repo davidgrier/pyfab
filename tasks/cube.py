@@ -17,7 +17,7 @@ class cube(assemble):
             print("9 traps are needed for body centered cube")
         else:
             vertices = []
-            s = 250
+            s = 300
             xc = self.parent.cgh.xc
             yc = self.parent.cgh.yc
             samples = list()

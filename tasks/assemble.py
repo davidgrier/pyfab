@@ -42,7 +42,9 @@ class assemble(parameterize):
             for trap in traps.flatten():
                 r_i = (trap.r.x(), trap.r.y(), trap.r.z())
                 trajectories[trap] = Curve(r_i)
-            status, done, close = self.status(trajectories, vertices)
+            precision = .1
+            status, done, close = self.status(trajectories, vertices,
+                                              precision=precision)
             # Calculate curves
             while not (done and close):
                 # Move each trap a single step
@@ -53,25 +55,29 @@ class assemble(parameterize):
                     noise = np.array(list(map(f_rand, np.zeros(3))))
                     if status[trap] is 'far':
                         # Take a step towards final position with noise
-                        dr = self.direct(trap, vertices[trap],
-                                         trajectories) + noise*.2
+                        dr = self.direct(trap,
+                                         vertices[trap],
+                                         trajectories,
+                                         precision=precision) + noise*.2
                     elif status[trap] is 'close+jiggling':
                         # If you're close enough but others aren't,
                         # jiggle around the goal
-                        dr = noise*.6
+                        dr = noise
                     elif status[trap] is 'close':
                         # If everyone is close, go to goal without noise
-                        dr = self.direct(trap, vertices[trap],
-                                         trajectories)
+                        dr = self.direct(trap,
+                                         vertices[trap],
+                                         trajectories,
+                                         precision=precision)
                     elif status[trap] is 'done':
                         # Don't move if the trap has made it
                         dr = np.zeros(3, dtype=np.float_)
-                    print(np.linalg.norm(dr))
                     trajectory.step(dr)
-                status, done, close = self.status(trajectories, vertices)
+                status, done, close = self.status(trajectories, vertices,
+                                                  precision=precision)
         return trajectories
 
-    def direct(self, trap, r_v, trajectories):
+    def direct(self, trap, r_v, trajectories, precision=.1):
         '''
         Returns a displacement vector directing trap toward
         its vertex but away from other traps
@@ -85,8 +91,8 @@ class assemble(parameterize):
         '''
         # Initialize variables
         padding = 7.
-        max_speed = 5.
-        speed = max_speed / 2.
+        max_step = 5.
+        speed = 2.5
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
         dx, dy, dz = d_v / np.linalg.norm(d_v)
@@ -102,10 +108,16 @@ class assemble(parameterize):
                 dy += ((np.sin(theta) * np.sin(phi)) / r) * p
                 dz += (np.cos(phi) / r) * p
         # Scale step size by dimensionless speed
-        dr = np.array([dx, dy, dz])
-        if np.linalg.norm(d_v) < 5.:
-            speed = max_speed / 10.
-        dr *= speed
+        dr = np.array([dx, dy, dz])*speed
+        step_size = np.linalg.norm(dr)
+        # Fix step size if it gets too large
+        if step_size > max_step:
+            dr /= step_size
+            dr *= max_step
+        # When close to goal, scale down by below desired precision
+        if np.linalg.norm(d_v) <= max_step:
+            dr /= step_size
+            dr *= precision*.9
         return dr
 
     def structure(self, traps):
@@ -153,7 +165,7 @@ class assemble(parameterize):
             vertices_dict[traps.pop(idx_t)] = vertices_list.pop(idx_v)
         return vertices_dict
 
-    def status(self, trajectories, vertices):
+    def status(self, trajectories, vertices, precision=.1):
         '''
         Routine to evaluate whether trajectories have reached
         their respective vertices or not.
@@ -184,10 +196,10 @@ class assemble(parameterize):
             # precision, set state to jiggling
             x_v, y_v, z_v = vertices[trap]
             x_f, y_f, z_f = trajectories[trap].r_f
-            precision = 5
-            x_cond = x_v - precision <= x_f <= x_v + precision
-            y_cond = y_v - precision <= y_f <= y_v + precision
-            z_cond = z_v - precision <= z_f <= z_v + precision
+            p = precision*50
+            x_cond = x_v - p <= x_f <= x_v + p
+            y_cond = y_v - p <= y_f <= y_v + p
+            z_cond = z_v - p <= z_f <= z_v + p
             if x_cond and y_cond and z_cond:
                 status[trap] = 'close+jiggling'
             else:
@@ -200,10 +212,10 @@ class assemble(parameterize):
                 # their goal, everyone go toward the goal
                 x_v, y_v, z_v = vertices[trap]
                 x_f, y_f, z_f = trajectories[trap].r_f
-                precision = .1
-                x_cond = x_v - precision <= x_f <= x_v + precision
-                y_cond = y_v - precision <= y_f <= y_v + precision
-                z_cond = z_v - precision <= z_f <= z_v + precision
+                p = precision
+                x_cond = x_v - p <= x_f <= x_v + p
+                y_cond = y_v - p <= y_f <= y_v + p
+                z_cond = z_v - p <= z_f <= z_v + p
                 if x_cond and y_cond and z_cond:
                     status[trap] = 'done'
                 else:
