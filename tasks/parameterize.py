@@ -24,9 +24,12 @@ class parameterize(task):
                 # Move along paths
                 self.traps.select(True)
                 for n in range(N):
-                    for trap in self.trajectories:
+                    new_positions = {}
+                    traps = self.trajectories.keys()
+                    for trap in traps:
                         curve = self.trajectories[trap].curve
-                        self.register('step', trap=trap, r=curve[n])
+                        new_positions[trap] = curve[n]
+                    self.register('relocate', new_positions=new_positions)
 
     def parameterize(self, traps):
         """

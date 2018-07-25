@@ -99,8 +99,10 @@ class QVideoItem(pg.ImageItem):
 
     @QtCore.pyqtSlot(np.ndarray)
     def updateImage(self, image):
+        self.source.blockSignals(True)
         for filter in self._filters:
             image = filter(image)
+        self.source.blockSignals(False)
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)
 
