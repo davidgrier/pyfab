@@ -34,11 +34,6 @@ class QTrapGroup(QtCore.QObject):
         if self.count() == 0 and isinstance(self.parent(), QTrapGroup):
             self.parent().remove(self, delete=True)
 
-    def deleteLater(self):
-        for child in self.children():
-            child.deleteLater()
-        super(QTrapGroup, self).deleteLater()
-
     def _update(self):
         if self.ignoreUpdates:
             return
