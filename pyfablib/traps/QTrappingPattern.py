@@ -18,9 +18,9 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
-        self.parent = parent
+        self.setParent(parent)  # this is not set by ScatterPlotItem
         self.pattern = QTrapGroup(parent=self)
-        self.screen = self.parent.screen
+        self.screen = self.parent().screen
         self.screen.addOverlay(self)
 
         # Connect to signals coming from screen
@@ -30,26 +30,20 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.screen.sigMouseWheel.connect(self.mouseWheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
-            QtGui.QRubberBand.Rectangle, self.parent)
+            QtGui.QRubberBand.Rectangle, self.parent())
         self.origin = QtCore.QPoint()
         # traps, selected trap and active group
         self.trap = None
         self.group = None
         self.selected = []
 
-    def connectSignals(self):
-        self.screen.sigMouseMove.connect(self.mouseMove)
-        self.screen.sigMouseWheel.connect(self.mouseWheel)
-
-    def disconnectSignals(self):
-        self.screen.sigMouseMove.disconnect(self.mouseMove)
-        self.screen.sigMouseWheel.disconnect(self.mouseWheel)
-
     def pauseSignals(self, pause):
         if pause:
-            self.disconnectSignals()
+            self.screen.sigMouseMove.disconnect(self.mouseMove)
+            self.screen.sigMouseWheel.disconnect(self.mouseWheel)
         else:
-            self.connectSignals()
+            self.screen.sigMouseMove.connect(self.mouseMove)
+            self.screen.sigMouseWheel.connect(self.mouseWheel)
 
     def update_appearance(self):
         """Provide a list of spots to screen for plotting.
@@ -90,8 +84,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         if obj is None:
             return None
-        while obj.parent is not self.pattern:
-            obj = obj.parent
+        while obj.parent() is not self.pattern:
+            obj = obj.parent()
         return obj
 
     def clickedGroup(self, pos):
@@ -105,21 +99,20 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """Return a list of traps whose groups fall
         entirely within the selection region.
         """
+        self.selected = []
         rect = self.mapFromScene(QtCore.QRectF(region)).boundingRect()
-        for child in self.pattern.children:
+        for child in self.pattern.children():
             if child.isWithin(rect):
                 self.selected.append(child)
                 child.state = states.grouping
             else:
                 child.state = states.normal
-        if len(self.selected) <= 1:
-            self.selected = []
         self.update_appearance()
 
     # Creating and deleting traps
     def addTrap(self, trap):
-        trap.parent = self
-        trap.cgh = self.parent.cgh
+        trap.setParent(self)
+        trap.cgh = self.parent().cgh
         trap.state = states.selected
         self.pattern.add(trap)
         self._update()
@@ -159,8 +152,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
             return
         group = QTrapGroup()
         for trap in self.selected:
-            if trap.parent is not self:
-                trap.parent.remove(trap)
+            if trap.parent() is not self:
+                trap.parent().remove(trap)
             group.add(trap)
         self.pattern.add(group)
         self.selected = []
@@ -170,7 +163,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         place children in the top level.
         """
         if isinstance(self.group, QTrapGroup):
-            for child in self.group.children:
+            for child in self.group.children():
                 child.state = states.grouping
                 self.group.remove(child)
                 self.pattern.add(child)
@@ -245,7 +238,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """Event handler for mouseRelease events.
         """
         self.createGroup()
-        for child in self.pattern.children:
+        for child in self.pattern.children():
             child.state = states.normal
         self.group = None
         self.selection.hide()

@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
-"""Framework for moving a set of traps to a set of vertices"""
+"""
+Brownian molecular dynamics simulation for moving
+a set of traps to a set of vertices
+"""
 
 from .parameterize import parameterize, Curve
 import numpy as np
@@ -39,23 +42,42 @@ class assemble(parameterize):
             for trap in traps.flatten():
                 r_i = (trap.r.x(), trap.r.y(), trap.r.z())
                 trajectories[trap] = Curve(r_i)
-            status, done = self.status(trajectories, vertices)
+            precision = .1
+            status, done, close = self.status(trajectories, vertices,
+                                              precision=precision)
             # Calculate curves
-            while not done:
+            while not (done and close):
                 # Move each trap a single step
                 for trap in trajectories.keys():
                     trajectory = trajectories[trap]
-                    if status[trap] is True:
-                        # Don't move if it's already there
-                        trajectory.step(np.array([0., 0., 0.]))
-                    else:
-                        # Take a step towards final position
-                        dr = self.direct(trap, vertices[trap], trajectories)
-                        trajectory.step(dr)
-                status, done = self.status(trajectories, vertices)
+                    # Create a random step
+                    f_rand = lambda x: np.random.random_sample() * np.random.choice([1, -1])
+                    noise = np.array(list(map(f_rand, np.zeros(3))))
+                    if status[trap] is 'far':
+                        # Take a step towards final position with noise
+                        dr = self.direct(trap,
+                                         vertices[trap],
+                                         trajectories,
+                                         precision=precision) + noise*.2
+                    elif status[trap] is 'close+jiggling':
+                        # If you're close enough but others aren't,
+                        # jiggle around the goal
+                        dr = noise
+                    elif status[trap] is 'close':
+                        # If everyone is close, go to goal without noise
+                        dr = self.direct(trap,
+                                         vertices[trap],
+                                         trajectories,
+                                         precision=precision)
+                    elif status[trap] is 'done':
+                        # Don't move if the trap has made it
+                        dr = np.zeros(3, dtype=np.float_)
+                    trajectory.step(dr)
+                status, done, close = self.status(trajectories, vertices,
+                                                  precision=precision)
         return trajectories
 
-    def direct(self, trap, r_v, trajectories):
+    def direct(self, trap, r_v, trajectories, precision=.1):
         '''
         Returns a displacement vector directing trap toward
         its vertex but away from other traps
@@ -68,8 +90,9 @@ class assemble(parameterize):
                           and values are Curve objects
         '''
         # Initialize variables
-        padding = 6
-        speed = 5.
+        padding = 7.
+        max_step = 5.
+        speed = 2.5
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
         dx, dy, dz = d_v / np.linalg.norm(d_v)
@@ -85,10 +108,16 @@ class assemble(parameterize):
                 dy += ((np.sin(theta) * np.sin(phi)) / r) * p
                 dz += (np.cos(phi) / r) * p
         # Scale step size by dimensionless speed
-        dr = np.array([dx, dy, dz])
-        if np.linalg.norm(d_v) < 5.:
-            speed = .3
-        dr *= speed
+        dr = np.array([dx, dy, dz])*speed
+        step_size = np.linalg.norm(dr)
+        # Fix step size if it gets too large
+        if step_size > max_step:
+            dr /= step_size
+            dr *= max_step
+        # When close to goal, scale down by below desired precision
+        if np.linalg.norm(d_v) <= max_step:
+            dr /= step_size
+            dr *= precision*.9
         return dr
 
     def structure(self, traps):
@@ -106,36 +135,40 @@ class assemble(parameterize):
         '''
         return None
 
-    def pair(self, vertices, traps):
+    def pair(self, vertices_list, traps):
         '''
-        Returns a dictionary of where QTrap keys are
-        paired with nearby ndarray vertex location values.
+        Algorithm that pairs traps to vertices so that total
+        distance traveled across all traps is a local minimum
 
         Args:
             traps: QTrapGroup of all traps in QTrappingPattern
             vertices: list of vertices
+        Returns:
+            v: dictionary where keys are QTraps and values are
+               their vertex pairing
         '''
-        trap_list = traps.flatten()
-        v = {}
-        while len(trap_list) > 0 and len(vertices) > 0:
+        traps = traps.flatten()
+        vertices_dict = {}
+        while len(traps) > 0 and len(vertices_list) > 0:
+            # Initialize min distance and indeces where min occurs
             d_min = np.inf
             idx_t = None
             idx_v = None
-            for i, trap in enumerate(trap_list):
+            for i, trap in enumerate(traps):
                 r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
-                for j, r_v in enumerate(vertices):
+                for j, r_v in enumerate(vertices_list):
                     d = np.linalg.norm(r_t - r_v)
                     if d < d_min:
                         d_min = d
                         idx_t = i
                         idx_v = j
-            v[trap_list.pop(idx_t)] = vertices.pop(idx_v)
-        return v
+            vertices_dict[traps.pop(idx_t)] = vertices_list.pop(idx_v)
+        return vertices_dict
 
-    def status(self, trajectories, vertices):
+    def status(self, trajectories, vertices, precision=.1):
         '''
         Routine to evaluate whether trajectories have reached
-        their respective vertices or not
+        their respective vertices or not.
 
         Args:
             trajectories: dictionary where Keys are QTraps and Values
@@ -143,21 +176,49 @@ class assemble(parameterize):
             vertices: dictionary where Keys are QTraps and Values are
                       ndarray cartesian position vectors.
         Returns:
-            status: Dictionary where Keys are QTraps and Values are
-                    True if trap has reached its vertex and False if not.
-            done: True if all traps in status are True, False otherwise
+            status: Dictionary where keys are QTraps and values are
+                    'far' if trap has not reached either its 
+                    vicinity or the goal itself
+                    'close+jiggling' if trap has reached the vicinity of its
+                    goal but others haven't
+                    'close' if all traps are close but trap hasn't reached
+                    its goal
+                    'done' if trap has reached its goal
+            done: True if all traps in status are 'done', False otherwise
+            close: True if all traps in status are 'jiggling', False
+                      otherwise
         '''
         status = {}
-        done = True
+        done = False
+        close = True
         for trap in trajectories.keys():
+            # If not everyone has made it to range defined by
+            # precision, set state to jiggling
             x_v, y_v, z_v = vertices[trap]
             x_f, y_f, z_f = trajectories[trap].r_f
-            x_condition = x_v - .5 <= x_f <= x_v + .5
-            y_condition = y_v - .5 <= y_f <= y_v + .5
-            z_condition = z_v - .5 <= z_f <= z_v + .5
-            if x_condition and y_condition and z_condition:
-                status[trap] = True
+            p = precision*50
+            x_cond = x_v - p <= x_f <= x_v + p
+            y_cond = y_v - p <= y_f <= y_v + p
+            z_cond = z_v - p <= z_f <= z_v + p
+            if x_cond and y_cond and z_cond:
+                status[trap] = 'close+jiggling'
             else:
-                status[trap] = False
-                done = False
-        return status, done
+                status[trap] = 'far'
+                close = False
+        if close:
+            done = True
+            for trap in trajectories.keys():
+                # If everyone is close enough to jiggle around
+                # their goal, everyone go toward the goal
+                x_v, y_v, z_v = vertices[trap]
+                x_f, y_f, z_f = trajectories[trap].r_f
+                p = precision
+                x_cond = x_v - p <= x_f <= x_v + p
+                y_cond = y_v - p <= y_f <= y_v + p
+                z_cond = z_v - p <= z_f <= z_v + p
+                if x_cond and y_cond and z_cond:
+                    status[trap] = 'done'
+                else:
+                    status[trap] = 'close'
+                    done = False
+        return status, done, close
