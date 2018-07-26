@@ -90,8 +90,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         if obj is None:
             return None
-        while obj.parent is not self.pattern:
-            obj = obj.parent
+        while obj.parent() is not self.pattern:
+            obj = obj.parent()
         return obj
 
     def clickedGroup(self, pos):
@@ -118,7 +118,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     # Creating and deleting traps
     def addTrap(self, trap):
-        trap.parent = self
+        trap.setParent(self)
         trap.cgh = self.parent.cgh
         trap.state = states.selected
         self.pattern.add(trap)
@@ -159,8 +159,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
             return
         group = QTrapGroup()
         for trap in self.selected:
-            if trap.parent is not self:
-                trap.parent.remove(trap)
+            if trap.parent() is not self:
+                trap.parent().remove(trap)
             group.add(trap)
         self.pattern.add(group)
         self.selected = []

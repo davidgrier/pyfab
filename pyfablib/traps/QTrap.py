@@ -33,13 +33,10 @@ class QTrap(QtCore.QObject):
                  cgh=None,  # computational pipeline
                  structure=1.+0.j,  # structuring field
                  state=states.normal):
-        super(QTrap, self).__init__()
+        super(QTrap, self).__init__(parent)
 
         self.ignoreUpdates = True
 
-        # organization
-        if parent is not None:
-            self.parent = parent
         # operational state
         self._state = state
         # appearance
@@ -95,7 +92,7 @@ class QTrap(QtCore.QObject):
         self.needsUpdate = True
         self.valueChanged.emit(self)
         self.update_appearance()
-        self.parent._update()
+        self.parent()._update()
 
     @property
     def cgh(self):

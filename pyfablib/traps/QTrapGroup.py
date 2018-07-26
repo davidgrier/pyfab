@@ -9,16 +9,15 @@ from .QTrap import QTrap, states
 class QTrapGroup(QtCore.QObject):
 
     def __init__(self, parent=None, name=None):
-        super(QTrapGroup, self).__init__()
+        super(QTrapGroup, self).__init__(parent)
         self.ignoreUpdates = False
-        self.parent = parent
         self.children = []
         self.name = name
         self._r = QtGui.QVector3D()
 
     def add(self, child):
         """Add a trap to the group"""
-        child.parent = self
+        child.setParent(self)
         self.children.append(child)
 
     def remove(self, thischild, delete=False):
@@ -27,7 +26,7 @@ class QTrapGroup(QtCore.QObject):
         from its parent group
         """
         if thischild in self.children:
-            thischild.parent = None
+            thischild.setParent(None)
             self.children.remove(thischild)
             if delete is True:
                 thischild.deleteLater()
@@ -35,8 +34,8 @@ class QTrapGroup(QtCore.QObject):
             for child in self.children:
                 if isinstance(child, QTrapGroup):
                     child.remove(thischild, delete=delete)
-        if ((len(self.children) == 0) and isinstance(self.parent, QTrapGroup)):
-            self.parent.remove(self)
+        if ((len(self.children) == 0) and isinstance(self.parent(), QTrapGroup)):
+            self.parent().remove(self)
 
     def deleteLater(self):
         for child in self.children:
@@ -47,7 +46,7 @@ class QTrapGroup(QtCore.QObject):
         if self.ignoreUpdates:
             return
         self.updatePosition()
-        self.parent._update()
+        self.parent()._update()
 
     def count(self):
         """Return the number of items in the group.
