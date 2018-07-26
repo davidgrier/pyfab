@@ -111,7 +111,7 @@ class CGH(QtCore.QObject):
         start = time()
         self._psi.fill(0. + 0j)
         for trap in self.traps:
-            if ((all is True) or trap.needsUpdate):
+            if ((all is True) or trap.needsRefresh):
                 # map coordinates into trap space
                 r = self.m * trap.r
                 # axial splay

@@ -45,7 +45,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             self.screen.sigMouseMove.connect(self.mouseMove)
             self.screen.sigMouseWheel.connect(self.mouseWheel)
 
-    def update_appearance(self):
+    def refreshAppearance(self):
         """Provide a list of spots to screen for plotting.
 
         This will be called by children when their properties change.
@@ -58,8 +58,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.setData(spots=spots)
         return traps
 
-    def _update(self):
-        traps = self.update_appearance()
+    def refresh(self):
+        traps = self.refreshAppearance()
         self.sigCompute.emit(traps)
 
     def selectedPoint(self, position):
@@ -107,7 +107,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
                 child.state = states.grouping
             else:
                 child.state = states.normal
-        self.update_appearance()
+        self.refreshAppearance()
 
     # Creating and deleting traps
     def addTrap(self, trap):
@@ -115,7 +115,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         trap.cgh = self.parent().cgh
         trap.state = states.selected
         self.pattern.add(trap)
-        self._update()
+        self.refresh()
         self.trapAdded.emit(trap)
 
     def createTrap(self, r):
@@ -125,15 +125,15 @@ class QTrappingPattern(pg.ScatterPlotItem):
         coords = list(coordinates)
         if len(coords) < 1:
             return
-        self.pattern.blockUpdates = True
+        self.pattern.blockRefresh = True
         group = QTrapGroup()
         self.pattern.add(group)
         for r in coords:
             trap = QTrap(r=r, parent=group)
             group.add(trap)
             self.trapAdded.emit(trap)
-        self.pattern.blockUpdates = False
-        self._update()
+        self.pattern.blockRefresh = False
+        self.refresh()
         return group
 
     def clearTraps(self):
@@ -142,7 +142,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         traps = self.pattern.flatten()
         for trap in traps:
             self.pattern.remove(trap, delete=True)
-        self._update()
+        self.refresh()
 
     # Creating, breaking and moving groups of traps
     def createGroup(self):
@@ -193,7 +193,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         # select group
         else:
             self.group.state = states.selected
-        self.update_appearance()
+        self.refreshAppearance()
 
     def rightPress(self, pos, modifiers):
         """Creation and destruction.
@@ -204,7 +204,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         # Ctrl-Right Click: Delete trap
         elif modifiers == QtCore.Qt.ControlModifier:
             self.pattern.remove(self.clickedGroup(pos), delete=True)
-            self._update()
+            self.refresh()
 
     # Handlers for signals emitted by QJansenScreen
     @QtCore.pyqtSlot(QtGui.QMouseEvent)
@@ -242,7 +242,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             child.state = states.normal
         self.group = None
         self.selection.hide()
-        self.update_appearance()
+        self.refreshAppearance()
 
     @QtCore.pyqtSlot(QtGui.QWheelEvent)
     def mouseWheel(self, event):
