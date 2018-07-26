@@ -18,9 +18,9 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
-        self.parent = parent
+        self.setParent(parent)  # this is not set by ScatterPlotItem
         self.pattern = QTrapGroup(parent=self)
-        self.screen = self.parent.screen
+        self.screen = self.parent().screen
         self.screen.addOverlay(self)
 
         # Connect to signals coming from screen
@@ -30,7 +30,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.screen.sigMouseWheel.connect(self.mouseWheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
-            QtGui.QRubberBand.Rectangle, self.parent)
+            QtGui.QRubberBand.Rectangle, self.parent())
         self.origin = QtCore.QPoint()
         # traps, selected trap and active group
         self.trap = None
@@ -99,6 +99,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """Return a list of traps whose groups fall
         entirely within the selection region.
         """
+        self.selected = []
         rect = self.mapFromScene(QtCore.QRectF(region)).boundingRect()
         for child in self.pattern.children():
             if child.isWithin(rect):
@@ -106,14 +107,12 @@ class QTrappingPattern(pg.ScatterPlotItem):
                 child.state = states.grouping
             else:
                 child.state = states.normal
-        if len(self.selected) <= 1:
-            self.selected = []
         self.update_appearance()
 
     # Creating and deleting traps
     def addTrap(self, trap):
         trap.setParent(self)
-        trap.cgh = self.parent.cgh
+        trap.cgh = self.parent().cgh
         trap.state = states.selected
         self.pattern.add(trap)
         self._update()
