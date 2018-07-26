@@ -13,7 +13,6 @@ class states(Enum):
     normal = 1
     selected = 2
     grouping = 3
-    inactive = 4
 
 
 class QTrap(QtCore.QObject):
@@ -42,8 +41,7 @@ class QTrap(QtCore.QObject):
         # appearance
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 100, 100, 120),
-                      states.grouping: pg.mkBrush(255, 255, 100, 120),
-                      states.inactive: pg.mkBrush(0, 0, 255, 120)}
+                      states.grouping: pg.mkBrush(255, 255, 100, 120)}
         self.spot = {'pos': QtCore.QPointF(),
                      'size': 10.,
                      'pen': pg.mkPen('k', width=0.5),
