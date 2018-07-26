@@ -46,15 +46,8 @@ class QTrapGroup(QtCore.QObject):
         return len(self.children())
 
     def flatten(self):
-        """Return a list of the traps in the group.
-        """
-        traps = []
-        for child in self.children():
-            if isinstance(child, QTrap):
-                traps.append(child)
-            else:
-                traps.extend(child.flatten())
-        return traps
+        """Return a list of the traps in the group"""
+        return self.findChildren(QTrap)
 
     def isWithin(self, rect):
         """Return True if the entire group lies within
