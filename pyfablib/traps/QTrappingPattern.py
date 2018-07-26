@@ -37,19 +37,13 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.group = None
         self.selected = []
 
-    def connectSignals(self):
-        self.screen.sigMouseMove.connect(self.mouseMove)
-        self.screen.sigMouseWheel.connect(self.mouseWheel)
-
-    def disconnectSignals(self):
-        self.screen.sigMouseMove.disconnect(self.mouseMove)
-        self.screen.sigMouseWheel.disconnect(self.mouseWheel)
-
     def pauseSignals(self, pause):
         if pause:
-            self.disconnectSignals()
+            self.screen.sigMouseMove.disconnect(self.mouseMove)
+            self.screen.sigMouseWheel.disconnect(self.mouseWheel)
         else:
-            self.connectSignals()
+            self.screen.sigMouseMove.connect(self.mouseMove)
+            self.screen.sigMouseWheel.connect(self.mouseWheel)
 
     def update_appearance(self):
         """Provide a list of spots to screen for plotting.
