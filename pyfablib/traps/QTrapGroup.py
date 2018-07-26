@@ -10,7 +10,7 @@ class QTrapGroup(QtCore.QObject):
 
     def __init__(self, parent=None, name=None):
         super(QTrapGroup, self).__init__(parent)
-        self.ignoreUpdates = False
+        self.blockUpdates(False)
         self.name = name
         self._r = QtGui.QVector3D()
 
@@ -34,8 +34,14 @@ class QTrapGroup(QtCore.QObject):
         if self.count() == 0 and isinstance(self.parent(), QTrapGroup):
             self.parent().remove(self, delete=True)
 
+    def blockUpdates(self, state):
+        self._blockUpdate = bool(state)
+
+    def updatesBlocked(self):
+        return self._blockUpdate
+    
     def _update(self):
-        if self.ignoreUpdates:
+        if self.updatesBlocked():
             return
         self.updatePosition()
         self.parent()._update()
@@ -88,7 +94,7 @@ class QTrapGroup(QtCore.QObject):
     def moveBy(self, dr):
         """Translate traps in the group.
         """
-        self.ignoreUpdates = True
+        self.blockUpdates(True)
         # same displacement for all traps
         if isinstance(dr, QtGui.QVector3D):
             for child in self.children():
@@ -97,7 +103,7 @@ class QTrapGroup(QtCore.QObject):
         else:
             for n, child in enumerate(self.children()):
                 child.moveBy(dr[n])
-        self.ignoreUpdates = False
+        self.blockUpdates(False)
         self._update()
 
     def rotateTo(self, xy):

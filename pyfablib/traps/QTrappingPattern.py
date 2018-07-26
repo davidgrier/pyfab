@@ -125,14 +125,14 @@ class QTrappingPattern(pg.ScatterPlotItem):
         coords = list(coordinates)
         if len(coords) < 1:
             return
-        self.pattern.ignoreUpdates = True
+        self.pattern.blockUpdates = True
         group = QTrapGroup()
         self.pattern.add(group)
         for r in coords:
             trap = QTrap(r=r, parent=group)
             group.add(trap)
             self.trapAdded.emit(trap)
-        self.pattern.ignoreUpdates = False
+        self.pattern.blockUpdates = False
         self._update()
         return group
 

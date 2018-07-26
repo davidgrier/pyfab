@@ -34,7 +34,7 @@ class QTrap(QtCore.QObject):
                  state=states.normal):
         super(QTrap, self).__init__(parent)
 
-        self.ignoreUpdates = True
+        self.blockUpdates(True)
 
         # operational state
         self._state = state
@@ -66,7 +66,7 @@ class QTrap(QtCore.QObject):
 
         self.update_appearance()
         self.needsUpdate = True
-        self.ignoreUpdates = False
+        self.blockUpdates(False)
 
     # Customizable methods for subclassed traps
     def plotSymbol(self):
@@ -82,10 +82,16 @@ class QTrap(QtCore.QObject):
         """Update structuring field to properties of CGH pipeline"""
         self.structure = 1. + 0.j
 
-    # Private method to implement changes
+    # Private methods to implement changes
+    def blockUpdates(self, state):
+        self._blockUpdate = bool(state)
+
+    def updatesBlocked(self):
+        return self._blockUpdate
+    
     def _update(self):
         """Implement changes in trap properties"""
-        if self.ignoreUpdates:
+        if self.updatesBlocked():
             return
         self.needsUpdate = True
         self.valueChanged.emit(self)
