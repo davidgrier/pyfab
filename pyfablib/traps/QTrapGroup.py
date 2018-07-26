@@ -41,8 +41,7 @@ class QTrapGroup(QtCore.QObject):
         self.parent()._update()
 
     def count(self):
-        """Return the number of items in the group.
-        """
+        """Return the number of items in the group"""
         return len(self.children())
 
     def flatten(self):
