@@ -11,34 +11,31 @@ class QTrapGroup(QtCore.QObject):
     def __init__(self, parent=None, name=None):
         super(QTrapGroup, self).__init__(parent)
         self.ignoreUpdates = False
-        self.children = []
         self.name = name
         self._r = QtGui.QVector3D()
 
     def add(self, child):
         """Add a trap to the group"""
         child.setParent(self)
-        self.children.append(child)
 
     def remove(self, thischild, delete=False):
         """Remove an object from the trap group.
         If the group is now empty, remove it
         from its parent group
         """
-        if thischild in self.children:
+        if thischild in self.children():
             thischild.setParent(None)
-            self.children.remove(thischild)
             if delete is True:
                 thischild.deleteLater()
         else:
-            for child in self.children:
+            for child in self.children():
                 if isinstance(child, QTrapGroup):
                     child.remove(thischild, delete=delete)
-        if ((len(self.children) == 0) and isinstance(self.parent(), QTrapGroup)):
-            self.parent().remove(self)
+        if self.count() == 0 and isinstance(self.parent(), QTrapGroup):
+            self.parent().remove(self, delete=True)
 
     def deleteLater(self):
-        for child in self.children:
+        for child in self.children():
             child.deleteLater()
         super(QTrapGroup, self).deleteLater()
 
@@ -51,13 +48,13 @@ class QTrapGroup(QtCore.QObject):
     def count(self):
         """Return the number of items in the group.
         """
-        return len(self.children)
+        return len(self.children())
 
     def flatten(self):
         """Return a list of the traps in the group.
         """
         traps = []
-        for child in self.children:
+        for child in self.children():
             if isinstance(child, QTrap):
                 traps.append(child)
             else:
@@ -69,7 +66,7 @@ class QTrapGroup(QtCore.QObject):
         the specified rectangle.
         """
         result = True
-        for child in self.children:
+        for child in self.children():
             result = result and child.isWithin(rect)
         return result
 
@@ -77,11 +74,11 @@ class QTrapGroup(QtCore.QObject):
     def state(self):
         """Current state of the children in the group.
         """
-        return self.children[0].state
+        return self.children()[0].state
 
     @state.setter
     def state(self, state):
-        for child in self.children:
+        for child in self.children():
             child.state = state
 
     def select(self, state=True):
@@ -107,11 +104,11 @@ class QTrapGroup(QtCore.QObject):
         self.ignoreUpdates = True
         # same displacement for all traps
         if isinstance(dr, QtGui.QVector3D):
-            for child in self.children:
+            for child in self.children():
                 child.moveBy(dr)
         # specified displacement for each trap
         else:
-            for n, child in enumerate(self.children):
+            for n, child in enumerate(self.children()):
                 child.moveBy(dr[n])
         self.ignoreUpdates = False
         self._update()

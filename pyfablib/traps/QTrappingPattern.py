@@ -106,7 +106,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         entirely within the selection region.
         """
         rect = self.mapFromScene(QtCore.QRectF(region)).boundingRect()
-        for child in self.pattern.children:
+        for child in self.pattern.children():
             if child.isWithin(rect):
                 self.selected.append(child)
                 child.state = states.grouping
@@ -170,7 +170,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         place children in the top level.
         """
         if isinstance(self.group, QTrapGroup):
-            for child in self.group.children:
+            for child in self.group.children():
                 child.state = states.grouping
                 self.group.remove(child)
                 self.pattern.add(child)
@@ -245,7 +245,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """Event handler for mouseRelease events.
         """
         self.createGroup()
-        for child in self.pattern.children:
+        for child in self.pattern.children():
             child.state = states.normal
         self.group = None
         self.selection.hide()
