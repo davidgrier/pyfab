@@ -8,6 +8,7 @@ a set of traps to a set of vertices
 
 from .parameterize import parameterize, Curve
 import numpy as np
+import itertools
 
 
 class assemble(parameterize):
@@ -148,22 +149,30 @@ class assemble(parameterize):
                their vertex pairing
         '''
         traps = traps.flatten()
-        vertices_dict = {}
-        while len(traps) > 0 and len(vertices_list) > 0:
-            # Initialize min distance and indeces where min occurs
-            d_min = np.inf
-            idx_t = None
-            idx_v = None
-            for i, trap in enumerate(traps):
-                r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
-                for j, r_v in enumerate(vertices_list):
-                    d = np.linalg.norm(r_t - r_v)
-                    if d < d_min:
-                        d_min = d
-                        idx_t = i
-                        idx_v = j
-            vertices_dict[traps.pop(idx_t)] = vertices_list.pop(idx_v)
-        return vertices_dict
+        vertices = {}
+        t = []
+        for idx, trap in enumerate(traps):
+            r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
+            t.append(r_t)
+        v = np.vstack(vertices_list)
+        t = np.vstack(t)
+        if len(traps) <= 9:
+            v_perms = np.asarray(list(itertools.permutations(v)))
+        else:
+            num_perms = 5*10**5
+            v_perms = np.empty((num_perms, len(vertices_list), 3))
+            f = lambda x: np.random.permutation(v)
+            v_perms = np.asarray(list(map(f, v_perms)))
+        d_min = np.inf
+        i_min = None
+        for i, v_perm in enumerate(v_perms):
+            d = np.sum((v_perm - t)**2)
+            if d < d_min:
+                d_min = d
+                i_min = i
+        for idx, trap in enumerate(traps):
+            vertices[trap] = v_perms[i_min][idx]
+        return vertices
 
     def status(self, trajectories, vertices, precision=.1):
         '''
