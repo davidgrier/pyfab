@@ -19,15 +19,6 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.setParent(parent)  # this is not set by ScatterPlotItem
-
-        self.screen = self.parent().screen
-        self.screen.addOverlay(self)
-
-        # Connect to signals coming from screen
-        self.screen.sigMousePress.connect(self.mousePress)
-        self.screen.sigMouseRelease.connect(self.mouseRelease)
-        self.screen.sigMouseMove.connect(self.mouseMove)
-        self.screen.sigMouseWheel.connect(self.mouseWheel)
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.parent())
@@ -37,14 +28,6 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.trap = None
         self.group = None
         self.selected = []
-
-    def pauseSignals(self, pause):
-        if pause:
-            self.screen.sigMouseMove.disconnect(self.mouseMove)
-            self.screen.sigMouseWheel.disconnect(self.mouseWheel)
-        else:
-            self.screen.sigMouseMove.connect(self.mouseMove)
-            self.screen.sigMouseWheel.connect(self.mouseWheel)
 
     def refreshAppearance(self):
         """Provide a list of spots to screen for plotting.

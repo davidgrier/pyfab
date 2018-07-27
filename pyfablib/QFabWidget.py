@@ -39,8 +39,13 @@ class QFabWidget(QJansenWidget):
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
         self.pattern = QTrappingPattern(parent=self)
-        self.cgh.sigComputing.connect(self.pattern.pauseSignals)
+        self.screen.addOverlay(self.pattern)
         self.pattern.sigCompute.connect(self.cgh.setTraps)
+        self.screen.sigMousePress.connect(self.pattern.mousePress)
+        self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
+        self.screen.sigMouseMove.connect(self.pattern.mouseMove)
+        self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
+        self.cgh.sigComputing.connect(self.pauseSignals)
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
@@ -81,6 +86,14 @@ class QFabWidget(QJansenWidget):
         layout = tabLayout(wtraps)
         layout.addWidget(QTrapWidget(self.pattern))
         return wtraps
+
+    def pauseSignals(self, pause):
+        if pause:
+            self.screen.sigMouseMove.disconnect(self.pattern.mouseMove)
+            self.screen.sigMouseWheel.disconnect(self.pattern.mouseWheel)
+        else:
+            self.screen.sigMouseMove.connect(self.pattern.mouseMove)
+            self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
 
     def close(self):
         super(QFabWidget, self).close()
