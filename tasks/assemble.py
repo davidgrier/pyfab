@@ -271,9 +271,10 @@ class assemble(parameterize):
             total distance traveled
         '''
         N = t.shape[0]
+        fac = N // 5 if N >= 5 else 1
         # Init number of generations, size of generations, first generation
-        total_gens = 100
-        gen_size = 30
+        total_gens = 120*fac
+        gen_size = 40*fac
         gen = np.asarray(list(map(lambda x: np.random.permutation(v),
                                   np.empty((gen_size, N, 3)))))
         mutated_gen = np.empty((gen_size*2, N, 3))
@@ -287,6 +288,8 @@ class assemble(parameterize):
                 i, j = (np.random.choice(range(N)),
                         np.random.choice(range(N)))
                 mutations[idx][[i, j]] = mutations[idx][[j, i]]
+                # Mutate by reflection
+                np.flipud(mutations[idx])
             # Fill mutated_gen with current gen and all mutations
             mutated_gen[:gen_size] = gen
             mutated_gen[gen_size:] = mutations
