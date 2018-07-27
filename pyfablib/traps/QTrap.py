@@ -13,7 +13,6 @@ class states(Enum):
     normal = 1
     selected = 2
     grouping = 3
-    inactive = 4
 
 
 class QTrap(QtCore.QObject):
@@ -35,15 +34,14 @@ class QTrap(QtCore.QObject):
                  state=states.normal):
         super(QTrap, self).__init__(parent)
 
-        self.ignoreUpdates = True
+        self.blockRefresh(True)
 
         # operational state
         self._state = state
         # appearance
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 100, 100, 120),
-                      states.grouping: pg.mkBrush(255, 255, 100, 120),
-                      states.inactive: pg.mkBrush(0, 0, 255, 120)}
+                      states.grouping: pg.mkBrush(255, 255, 100, 120)}
         self.spot = {'pos': QtCore.QPointF(),
                      'size': 10.,
                      'pen': pg.mkPen('k', width=0.5),
@@ -66,33 +64,39 @@ class QTrap(QtCore.QObject):
         self._structure = structure
         self.cgh = cgh
 
-        self.update_appearance()
-        self.needsUpdate = True
-        self.ignoreUpdates = False
+        self.refreshAppearance()
+        self.needsRefresh = True
+        self.blockRefresh(False)
 
     # Customizable methods for subclassed traps
     def plotSymbol(self):
         """Graphical representation of trap"""
         return 'o'
 
-    def update_appearance(self):
+    def refreshAppearance(self):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
         self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
 
-    def update_structure(self):
+    def updateStructure(self):
         """Update structuring field to properties of CGH pipeline"""
         self.structure = 1. + 0.j
 
-    # Private method to implement changes
-    def _update(self):
+    # Private methods to implement changes
+    def blockRefresh(self, state):
+        self._blockRefresh = bool(state)
+
+    def refreshBlocked(self):
+        return self._blockRefresh
+
+    def refresh(self):
         """Implement changes in trap properties"""
-        if self.ignoreUpdates:
+        if self.refreshBlocked():
             return
-        self.needsUpdate = True
+        self.needsRefresh = True
         self.valueChanged.emit(self)
-        self.update_appearance()
-        self.parent()._update()
+        self.refreshAppearance()
+        self.parent().refresh()
 
     @property
     def cgh(self):
@@ -103,8 +107,8 @@ class QTrap(QtCore.QObject):
         self._cgh = cgh
         if cgh is None:
             return
-        self._cgh.sigUpdateGeometry.connect(self.update_structure)
-        self.update_structure()
+        self._cgh.sigUpdateGeometry.connect(self.updateStructure)
+        self.updateStructure()
 
     # Methods for implementing motion
     def coords(self):
@@ -145,7 +149,7 @@ class QTrap(QtCore.QObject):
     @r.setter
     def r(self, r):
         self._r = QtGui.QVector3D(r)
-        self._update()
+        self.refresh()
 
     @property
     def x(self):
@@ -154,7 +158,7 @@ class QTrap(QtCore.QObject):
     @x.setter
     def x(self, x):
         self._r.setX(x)
-        self._update()
+        self.refresh()
 
     @property
     def y(self):
@@ -163,7 +167,7 @@ class QTrap(QtCore.QObject):
     @y.setter
     def y(self, y):
         self._r.setY(y)
-        self._update()
+        self.refresh()
 
     @property
     def z(self):
@@ -172,7 +176,7 @@ class QTrap(QtCore.QObject):
     @z.setter
     def z(self, z):
         self._r.setZ(z)
-        self._update()
+        self.refresh()
 
     @property
     def a(self):
@@ -183,7 +187,7 @@ class QTrap(QtCore.QObject):
     def a(self, a):
         self._a = a
         self.amp = a * np.exp(1j * self.phi)
-        self._update()
+        self.refresh()
 
     @property
     def phi(self):
@@ -194,7 +198,7 @@ class QTrap(QtCore.QObject):
     def phi(self, phi):
         self._phi = phi
         self.amp = self.a * np.exp(1j * phi)
-        self._update()
+        self.refresh()
 
     @property
     def state(self):
@@ -215,4 +219,4 @@ class QTrap(QtCore.QObject):
     @structure.setter
     def structure(self, field):
         self._structure = self.cgh.bless(field)
-        self._update()
+        self.refresh()
