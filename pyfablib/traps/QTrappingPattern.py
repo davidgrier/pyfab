@@ -48,7 +48,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     def selectedPoint(self, position):
         points = self.pointsAt(position)
-        if len(points) <= 0:
+        if not points:
             return None
         index = self.points().tolist().index(points[0])
         return index
@@ -107,7 +107,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     def createTraps(self, coordinates):
         coords = list(coordinates)
-        if len(coords) < 1:
+        if not coords:
             return
         self.pattern.blockRefresh = True
         group = QTrapGroup()
@@ -130,10 +130,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     # Creating, breaking and moving groups of traps
     def createGroup(self):
-        """Combine selected objects into new group.
-        """
-        if len(self.selected) == 0:
-            return
+        """Combine selected objects into new group"""
         group = QTrapGroup()
         for trap in self.selected:
             if trap.parent() is not self:
@@ -221,7 +218,8 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def mouseRelease(self, event):
         """Event handler for mouseRelease events.
         """
-        self.createGroup()
+        if self.selected:
+            self.createGroup()
         for child in self.pattern.children():
             child.state = states.normal
         self.group = None

@@ -40,11 +40,11 @@ class QFabWidget(QJansenWidget):
         # that translates user actions into hologram computations
         self.pattern = QTrappingPattern(parent=self)
         self.screen.addOverlay(self.pattern)
-        self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.screen.sigMousePress.connect(self.pattern.mousePress)
         self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
         self.screen.sigMouseMove.connect(self.pattern.mouseMove)
         self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
+        self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.cgh.sigComputing.connect(self.pauseSignals)
 
     def init_ui(self):

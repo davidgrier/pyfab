@@ -65,6 +65,7 @@ class CGH(QtCore.QObject):
         # Splay wavenumber
         self._k0 = 0.01
 
+    # Slots for threaded operation
     @QtCore.pyqtSlot()
     def start(self):
         logger.info('starting CGH pipeline')
@@ -84,8 +85,10 @@ class CGH(QtCore.QObject):
         self.traps = traps
         self.compute()
 
+    # Methods for computing holograms
     @jit(parallel=True)
     def quantize(self, psi):
+        """Compute the phase of the field, scaled to uint8"""
         self.phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
         return self.phi.T
 
@@ -99,14 +102,14 @@ class CGH(QtCore.QObject):
         np.outer(amp * ex, ey, buffer)
 
     def window(self, r):
+        """Adjust amplitude to account for aperture size"""
         x = 0.5 * np.pi * np.array([r.x() / self.w, r.y() / self.h])
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
     @jit(parallel=True)
     def compute(self, all=False):
-        """Compute phase hologram for specified traps
-        """
+        """Compute phase hologram for specified traps"""
         self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0. + 0j)
@@ -118,7 +121,7 @@ class CGH(QtCore.QObject):
                 fac = 1. / (1. + self.k0 * (r.z() - self.rc.z()))
                 r *= QtGui.QVector3D(fac, fac, 1.)
                 # windowing
-                amp = trap.amp * self.window(r)
+                # amp = trap.amp * self.window(r)
                 amp = trap.amp
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
@@ -130,10 +133,17 @@ class CGH(QtCore.QObject):
         self.sigComputing.emit(False)
 
     def bless(self, field):
+        """Ensure that field has correct type for compute"""
         if type(field) is complex:
             field = np.ones(self.shape)
         return field.astype(np.complex_)
 
+    def setPhi(self, phi):
+        """Specify the hologram to project, without computation"""
+        self.phi = phi.astype(np.uint8)
+        self.sigHologramReady.emit(self.phi.T)
+
+    # Helper routines when calibration constants are changed
     def updateGeometry(self):
         """Compute position-dependent properties in SLM plane
         and allocate buffers.
@@ -151,6 +161,15 @@ class CGH(QtCore.QObject):
         self.qr = np.hypot.outer(qx, qy)
         self.sigUpdateGeometry.emit()
 
+    def updateTransformationMatrix(self):
+        """Translate and rotate requested trap positions to account
+        for position and orientation of camera relative to SLM
+        """
+        self.m.setToIdentity()
+        self.m.rotate(self.thetac, 0., 0., 1.)
+        self.m.translate(-self.rc)
+
+    # Calibration constants
     @property
     def xs(self):
         return self.rs.x()
@@ -203,11 +222,6 @@ class CGH(QtCore.QObject):
         self._alpha = float(alpha)
         self.updateGeometry()
         self.compute(all=True)
-
-    def updateTransformationMatrix(self):
-        self.m.setToIdentity()
-        self.m.rotate(self.thetac, 0., 0., 1.)
-        self.m.translate(-self.rc)
 
     @property
     def xc(self):
@@ -270,7 +284,3 @@ class CGH(QtCore.QObject):
     def k0(self, k0):
         self._k0 = float(k0)
         self.compute(all=True)
-
-    def setPhi(self, phi):
-        self.phi = phi.astype(np.uint8)
-        self.sigHologramReady.emit(self.phi.T)
