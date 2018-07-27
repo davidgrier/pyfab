@@ -12,7 +12,7 @@ class QVortexTrap(QTrap):
 
     This is an example of how to subclass QTrap to create a structured
     optical trap.
-    1. A structured trap should implement the update_structure()
+    1. A structured trap should implement the updateStructure()
     method, which sets the structuring field, self.structure.
     This method will be called whenever properties change in the
     CGH pipeline.
@@ -23,7 +23,7 @@ class QVortexTrap(QTrap):
     representing plot symbols for pyqtgraph.  The default symbol is 'o'.
     3. The structured trap has properties that define its structure.
     For an optical vortex, this is the winding number ell.  Routines
-    that change these properties should call update_structure() to
+    that change these properties should call updateStructure() to
     ensure that the changes take effect.
     """
 
@@ -33,7 +33,7 @@ class QVortexTrap(QTrap):
         self.registerProperty('ell', decimals=0, tooltip=True)
 
     def updateStructure(self):
-        """Helical structuring field distinguishes an optical vortex"""
+        """Helical structuring field defines an optical vortex"""
         self.structure = np.exp((1j * self.ell) * self.cgh.theta)
 
     def plotSymbol(self):

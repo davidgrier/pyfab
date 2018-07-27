@@ -4,7 +4,7 @@
 
 from .QTrap import QTrap
 import numpy as np
-from pyqtgraph.Qt import QtCore, QtGui
+from pyqtgraph.Qt import QtGui
 from scipy.special import jv
 
 
