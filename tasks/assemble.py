@@ -59,7 +59,7 @@ class assemble(parameterize):
                         dr = self.direct(trap,
                                          vertices[trap],
                                          trajectories,
-                                         precision=precision) + noise*.2
+                                         precision=precision) + noise
                     elif status[trap] is 'close+jiggling':
                         # If you're close enough but others aren't,
                         # jiggle around the goal
@@ -155,7 +155,7 @@ class assemble(parameterize):
             t.append(r_t)
         v = np.vstack(vertex_list)
         t = np.vstack(t)
-        # Determin when to switch algorithms
+        # Determine when to switch algorithms
         limit = 8
         # Find best trap-vertex pairings
         if len(trap_list) < limit:
