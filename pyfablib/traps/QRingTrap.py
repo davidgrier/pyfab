@@ -17,11 +17,10 @@ class QRingTrap(QTrap):
         self.registerProperty('R', tooltip=True)
         self.registerProperty('m', decimals=0, tooltip=True)
 
-    def update_structure(self):
+    def updateStructure(self):
         phi = jv(self.m, self.R * self.cgh.qr) * \
             np.exp((1j * self.m) * self.cgh.theta)
         self.structure = phi
-        self._update()
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
@@ -35,24 +34,15 @@ class QRingTrap(QTrap):
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
         return tr.map(sym)
 
-    @QtCore.pyqtSlot(np.int)
-    def set_R(self, R):
-        self._R = np.int(R)
-        self.update_structure()
-
     @property
     def R(self):
         return self._R
 
     @R.setter
     def R(self, R):
-        self.set_R(R)
+        self._R = R
+        self.updateStructure()
         self.valueChanged.emit(self)
-
-    @QtCore.pyqtSlot(np.int)
-    def set_m(self, m):
-        self._m = np.int(m)
-        self.update_structure()
 
     @property
     def m(self):
@@ -60,5 +50,6 @@ class QRingTrap(QTrap):
 
     @m.setter
     def m(self, m):
-        self.set_m(m)
+        self._m = np.int(m)
+        self.updateStructure()
         self.valueChanged.emit(self)

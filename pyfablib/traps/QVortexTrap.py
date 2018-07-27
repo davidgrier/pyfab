@@ -32,10 +32,9 @@ class QVortexTrap(QTrap):
         self._ell = ell  # save private copy in case CGH is not initialized
         self.registerProperty('ell', decimals=0, tooltip=True)
 
-    def update_structure(self):
+    def updateStructure(self):
         """Helical structuring field distinguishes an optical vortex"""
         self.structure = np.exp((1j * self.ell) * self.cgh.theta)
-        self._update()  # Required for changes to take effect
 
     def plotSymbol(self):
         """Graphical representation of an optical vortex"""
@@ -57,5 +56,5 @@ class QVortexTrap(QTrap):
     @ell.setter
     def ell(self, ell):
         self._ell = np.int(ell)
-        self.update_structure()
+        self.updateStructure()
         self.valueChanged.emit(self)
