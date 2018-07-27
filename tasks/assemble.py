@@ -52,8 +52,8 @@ class assemble(parameterize):
                 for trap in trajectories.keys():
                     trajectory = trajectories[trap]
                     # Create a random step
-                    f_rand = lambda x: np.random.random_sample() * np.random.choice([1, -1])
-                    noise = np.array(list(map(f_rand, np.zeros(3))))
+                    f = lambda x: np.random.random_sample() * np.random.choice([1, -1])
+                    noise = np.array(list(map(f, np.zeros(3))))
                     if status[trap] is 'far':
                         # Take a step towards final position with noise
                         dr = self.direct(trap,
@@ -136,32 +136,61 @@ class assemble(parameterize):
         '''
         return None
 
-    def pair(self, vertices_list, traps):
+    def pair(self, vertex_list, traps):
         '''
-        Algorithm that pairs traps to vertices so that total
-        distance traveled across all traps is a local minimum
-
-        Args:
-            traps: QTrapGroup of all traps in QTrappingPattern
-            vertices: list of vertices
-        Returns:
-            v: dictionary where keys are QTraps and values are
-               their vertex pairing
+        Wrapper method that determines which way to pair
+        traps to vertex locaitons. Searches all possibilities
+        for small trap number and uses a genetic algorithm
+        for large trap number.
+        
+        Returns: 
+            vertices: dictionary where keys are QTraps and 
+                      values are their vertex pairing
         '''
-        traps = traps.flatten()
-        vertices = {}
+        trap_list = traps.flatten()
+        # Initialize matrices of vertices and trap locations
         t = []
-        for idx, trap in enumerate(traps):
+        for idx, trap in enumerate(trap_list):
             r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
             t.append(r_t)
-        v = np.vstack(vertices_list)
+        v = np.vstack(vertex_list)
         t = np.vstack(t)
-        if len(traps) <= 9:
+        # Determin when to switch algorithms
+        limit = 8
+        # Find best trap-vertex pairings
+        if len(trap_list) < limit:
+            best_pairing = self.pair_search(v, t, trap_limit=limit)
+        else:
+            best_pairing = self.pair_genetic(v, t)
+        vertices = {}
+        for idx, trap in enumerate(trap_list):
+            vertices[trap] = best_pairing[idx]
+        return vertices
+
+    def pair_search(self, v, t, trap_limit=8):
+        '''
+        Algorithm that finds best trap-vertex pairings for
+        small trap limit, and tries to find the best by
+        generating random permutations for large trap limit
+
+        Args:
+            t: matrix of trap locations
+            v: matrix of vertices
+        Keywords:
+            trap_limit: the trap number where the algorithm
+                        searches through random permutations
+                        rather than all
+        Returns:
+            permutation of v's rows that best minimizes
+            total distance traveled
+        '''
+        N = t.shape[0]
+        if N < trap_limit:
             v_perms = np.asarray(list(itertools.permutations(v)))
         else:
-            num_perms = 5*10**5
-            v_perms = np.empty((num_perms, len(vertices_list), 3))
+            num_perms = 5*10**4
             f = lambda x: np.random.permutation(v)
+            v_perms = np.empty((num_perms, N, 3))
             v_perms = np.asarray(list(map(f, v_perms)))
         d_min = np.inf
         i_min = None
@@ -170,9 +199,74 @@ class assemble(parameterize):
             if d < d_min:
                 d_min = d
                 i_min = i
-        for idx, trap in enumerate(traps):
-            vertices[trap] = v_perms[i_min][idx]
+        return v_perms[i_min]
+
+    def pair_genetic(self, v, t):
+        '''
+        Genetic algorithm that finds best trap-vertex pairings.
+        
+        Args:
+            t: matrix of trap locations
+            v: matrix of vertices
+        Returns:
+            permutation of v's rows that best minimizes
+            total distance traveled
+        '''
+        N = t.shape[0]
+        # Init number of generations, size of generations, first generation
+        total_gens = 100
+        gen_size = 30
+        gen = np.asarray(list(map(lambda x: np.random.permutation(v),
+                                  np.empty((gen_size, N, 3)))))
+        mutated_gen = np.empty((gen_size*2, N, 3))
+        # Define fitness metric
+        d = lambda v_perm: np.sum((v_perm - t)**2)
+        for gen_idx in range(total_gens):
+            mutations = np.empty(gen.shape)
+            for idx, mutation in enumerate(mutations):
+                # Mutate by swapping random indexes
+                mutations[idx] = gen[idx]
+                i, j = (np.random.choice(range(N)),
+                        np.random.choice(range(N)))
+                mutations[idx][[i, j]] = mutations[idx][[j, i]]
+            # Fill mutated_gen with current gen and all mutations
+            mutated_gen[:gen_size] = gen
+            mutated_gen[gen_size:] = mutations
+            # Cut out worst performing permutations
+            gen = np.asarray(sorted(mutated_gen,
+                                    key=d))
+            gen = gen[:gen_size]
+        return gen[0]
+    '''
+    def pair_greedy(self, vertices_list, trap_list):
+         
+         Greedy algorithm that pairs traps to vertices.
+ 
+         Args:
+             traps: QTrapGroup of all traps in QTrappingPattern
+             vertices: list of vertices
+         Returns:
+             vertices: dictionary where keys are QTraps and values are
+                       their vertex pairing
+         
+         traps = traps.flatten()
+         vertices = {}
+         while len(trap_list) > 0 and len(vertices_list) > 0:
+             # Initialize min distance and indeces where min occurs
+             d_min = np.inf
+             idx_t = None
+             idx_v = None
+             for i, trap in enumerate(trap_list):
+                 r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
+                 for j, r_v in enumerate(vertices_list):
+                     d = np.linalg.norm(r_t - r_v)
+                     if d < d_min:
+                         d_min = d
+                         idx_t = i
+                         idx_v = j
+            vertices[trap_list.pop(idx_t)] = vertices_list.pop(idx_v)
         return vertices
+    '''
 
     def status(self, trajectories, vertices, precision=.1):
         '''
