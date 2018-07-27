@@ -19,7 +19,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.setParent(parent)  # this is not set by ScatterPlotItem
-        self.pattern = QTrapGroup(parent=self)
+
         self.screen = self.parent().screen
         self.screen.addOverlay(self)
 
@@ -33,6 +33,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             QtGui.QRubberBand.Rectangle, self.parent())
         self.origin = QtCore.QPoint()
         # traps, selected trap and active group
+        self.pattern = QTrapGroup(self)
         self.trap = None
         self.group = None
         self.selected = []

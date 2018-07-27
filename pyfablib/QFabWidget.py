@@ -31,10 +31,10 @@ class QFabWidget(QJansenWidget):
 
         # move CGH pipeline to a separate thread to readuce latency
         self.thread = QtCore.QThread()
-        self.thread.start()
         self.cgh.moveToThread(self.thread)
         self.thread.started.connect(self.cgh.start)
         self.thread.finished.connect(self.cgh.stop)
+        self.thread.start()
 
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
