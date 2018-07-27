@@ -22,6 +22,21 @@ class assemble(parameterize):
         self.trajectories = self.parameterize(self.traps,
                                               vertices=self.vertices)
 
+    def structure(self, traps):
+        '''
+        Returns vertices of shape to assemble. Overwrite
+        in subclass to assemble specific structure.
+
+        Args:
+            traps: QTrapGroup of all traps in QTrappingPattern
+        Returns:
+            dictionary where keys are QTraps and values are
+            ndarray vertex locations
+            OR
+            list of ndarray vertex locations
+        '''
+        return None
+
     def parameterize(self, traps, vertices=None):
         '''
         Returns dictionary where Keys are QTraps and Values
@@ -121,20 +136,63 @@ class assemble(parameterize):
             dr *= precision*.9
         return dr
 
-    def structure(self, traps):
+    def status(self, trajectories, vertices, precision=.1):
         '''
-        Returns vertices of shape to assemble. Overwrite
-        in subclass to assemble specific structure.
+        Routine to evaluate whether trajectories have reached
+        their respective vertices or not.
 
         Args:
-            traps: QTrapGroup of all traps in QTrappingPattern
+            trajectories: dictionary where Keys are QTraps and Values
+                          are Curve objects.
+            vertices: dictionary where Keys are QTraps and Values are
+                      ndarray cartesian position vectors.
         Returns:
-            dictionary where keys are QTraps and values are
-            ndarray vertex locations
-            OR
-            list of ndarray vertex locations
+            status: Dictionary where keys are QTraps and values are
+                    'far' if trap has not reached either its 
+                    vicinity or the goal itself
+                    'close+jiggling' if trap has reached the vicinity of its
+                    goal but others haven't
+                    'close' if all traps are close but trap hasn't reached
+                    its goal
+                    'done' if trap has reached its goal
+            done: True if all traps in status are 'done', False otherwise
+            close: True if all traps in status are 'jiggling', False
+                      otherwise
         '''
-        return None
+        status = {}
+        done = False
+        close = True
+        for trap in trajectories.keys():
+            # If not everyone has made it to range defined by
+            # precision, set state to jiggling
+            x_v, y_v, z_v = vertices[trap]
+            x_f, y_f, z_f = trajectories[trap].r_f
+            p = precision*50
+            x_cond = x_v - p <= x_f <= x_v + p
+            y_cond = y_v - p <= y_f <= y_v + p
+            z_cond = z_v - p <= z_f <= z_v + p
+            if x_cond and y_cond and z_cond:
+                status[trap] = 'close+jiggling'
+            else:
+                status[trap] = 'far'
+                close = False
+        if close:
+            done = True
+            for trap in trajectories.keys():
+                # If everyone is close enough to jiggle around
+                # their goal, everyone go toward the goal
+                x_v, y_v, z_v = vertices[trap]
+                x_f, y_f, z_f = trajectories[trap].r_f
+                p = precision
+                x_cond = x_v - p <= x_f <= x_v + p
+                y_cond = y_v - p <= y_f <= y_v + p
+                z_cond = z_v - p <= z_f <= z_v + p
+                if x_cond and y_cond and z_cond:
+                    status[trap] = 'done'
+                else:
+                    status[trap] = 'close'
+                    done = False
+        return status, done, close
 
     def pair(self, vertex_list, traps):
         '''
@@ -159,15 +217,15 @@ class assemble(parameterize):
         limit = 8
         # Find best trap-vertex pairings
         if len(trap_list) < limit:
-            best_pairing = self.pair_search(v, t, trap_limit=limit)
+            best_pairing = self._pair_search(v, t, trap_limit=limit)
         else:
-            best_pairing = self.pair_genetic(v, t)
+            best_pairing = self._pair_genetic(v, t)
         vertices = {}
         for idx, trap in enumerate(trap_list):
             vertices[trap] = best_pairing[idx]
         return vertices
 
-    def pair_search(self, v, t, trap_limit=8):
+    def _pair_search(self, v, t, trap_limit=8):
         '''
         Algorithm that finds best trap-vertex pairings for
         small trap limit, and tries to find the best by
@@ -201,7 +259,7 @@ class assemble(parameterize):
                 i_min = i
         return v_perms[i_min]
 
-    def pair_genetic(self, v, t):
+    def _pair_genetic(self, v, t):
         '''
         Genetic algorithm that finds best trap-vertex pairings.
         
@@ -267,61 +325,3 @@ class assemble(parameterize):
             vertices[trap_list.pop(idx_t)] = vertices_list.pop(idx_v)
         return vertices
     '''
-
-    def status(self, trajectories, vertices, precision=.1):
-        '''
-        Routine to evaluate whether trajectories have reached
-        their respective vertices or not.
-
-        Args:
-            trajectories: dictionary where Keys are QTraps and Values
-                          are Curve objects.
-            vertices: dictionary where Keys are QTraps and Values are
-                      ndarray cartesian position vectors.
-        Returns:
-            status: Dictionary where keys are QTraps and values are
-                    'far' if trap has not reached either its 
-                    vicinity or the goal itself
-                    'close+jiggling' if trap has reached the vicinity of its
-                    goal but others haven't
-                    'close' if all traps are close but trap hasn't reached
-                    its goal
-                    'done' if trap has reached its goal
-            done: True if all traps in status are 'done', False otherwise
-            close: True if all traps in status are 'jiggling', False
-                      otherwise
-        '''
-        status = {}
-        done = False
-        close = True
-        for trap in trajectories.keys():
-            # If not everyone has made it to range defined by
-            # precision, set state to jiggling
-            x_v, y_v, z_v = vertices[trap]
-            x_f, y_f, z_f = trajectories[trap].r_f
-            p = precision*50
-            x_cond = x_v - p <= x_f <= x_v + p
-            y_cond = y_v - p <= y_f <= y_v + p
-            z_cond = z_v - p <= z_f <= z_v + p
-            if x_cond and y_cond and z_cond:
-                status[trap] = 'close+jiggling'
-            else:
-                status[trap] = 'far'
-                close = False
-        if close:
-            done = True
-            for trap in trajectories.keys():
-                # If everyone is close enough to jiggle around
-                # their goal, everyone go toward the goal
-                x_v, y_v, z_v = vertices[trap]
-                x_f, y_f, z_f = trajectories[trap].r_f
-                p = precision
-                x_cond = x_v - p <= x_f <= x_v + p
-                y_cond = y_v - p <= y_f <= y_v + p
-                z_cond = z_v - p <= z_f <= z_v + p
-                if x_cond and y_cond and z_cond:
-                    status[trap] = 'done'
-                else:
-                    status[trap] = 'close'
-                    done = False
-        return status, done, close
