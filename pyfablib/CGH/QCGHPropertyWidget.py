@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 
 class QCGHPropertyWidget(QPropertySheet):
 
-    def __init__(self, parent):
-        super(QCGHPropertyWidget, self).__init__(title='CGH Pipeline')
-        cgh = parent.cgh
+    def __init__(self, parent=None):
+        super(QCGHPropertyWidget, self).__init__(parent, title='CGH Pipeline')
+        cgh = self.parent().cgh
         slm = cgh.slm
-        cam = parent.screen.video.defaultSource
+        cam = self.parent().screen.video.defaultSource
         register = self.registerProperty
         setter = cgh.setProperty
 

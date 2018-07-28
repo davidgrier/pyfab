@@ -75,8 +75,8 @@ class QBooleanProperty(QtGui.QCheckBox):
 
 class QPropertySheet(QtGui.QFrame):
 
-    def __init__(self, title=None, header=True, **kwargs):
-        super(QPropertySheet, self).__init__(**kwargs)
+    def __init__(self, parent=None, title=None, header=True):
+        super(QPropertySheet, self).__init__(parent)
         self.setFrameShape(QtGui.QFrame.Box)
         self.properties = dict()
         self.initUI(title, header)
