@@ -35,6 +35,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                                        lockAspect=True)
         self.viewbox.setRange(source.roi, padding=0, update=True)
         self.viewbox.addItem(self.video)
+        self._pause = False
 
     def addOverlay(self, graphicsItem):
         """Convenience routine for placing overlays over video."""
@@ -47,18 +48,24 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     def close(self):
         self.video.close()
 
+    @QtCore.pyqtSlot(bool)
+    def pauseSignals(self, pause):
+        self._pause = bool(pause)
+
+    def mouseMoveEvent(self, event):
+        if not self._pause:
+            self.sigMouseMove.emit(event)
+        event.accept()
+
+    def wheelEvent(self, event):
+        if not self._pause:
+            self.sigMouseWheel.emit(event)
+        event.accept()
+
     def mousePressEvent(self, event):
         self.sigMousePress.emit(event)
         event.accept()
 
     def mouseReleaseEvent(self, event):
         self.sigMouseRelease.emit(event)
-        event.accept()
-
-    def mouseMoveEvent(self, event):
-        self.sigMouseMove.emit(event)
-        event.accept()
-
-    def wheelEvent(self, event):
-        self.sigMouseWheel.emit(event)
         event.accept()

@@ -45,7 +45,7 @@ class QFabWidget(QJansenWidget):
         self.screen.sigMouseMove.connect(self.pattern.mouseMove)
         self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
         self.pattern.sigCompute.connect(self.cgh.setTraps)
-        self.cgh.sigComputing.connect(self.pauseSignals)
+        self.cgh.sigComputing.connect(self.screen.pauseSignals)
 
     def init_ui(self):
         super(QFabWidget, self).init_ui()
@@ -86,14 +86,6 @@ class QFabWidget(QJansenWidget):
         layout = tabLayout(wtraps)
         layout.addWidget(QTrapWidget(self.pattern))
         return wtraps
-
-    def pauseSignals(self, pause):
-        if pause:
-            self.screen.sigMouseMove.disconnect(self.pattern.mouseMove)
-            self.screen.sigMouseWheel.disconnect(self.pattern.mouseWheel)
-        else:
-            self.screen.sigMouseMove.connect(self.pattern.mouseMove)
-            self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
 
     def close(self):
         super(QFabWidget, self).close()
