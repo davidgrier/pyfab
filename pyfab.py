@@ -32,7 +32,7 @@ class pyfab(QtGui.QMainWindow):
     def __init__(self):
         self.app = QtGui.QApplication(sys.argv)
         super(pyfab, self).__init__()
-        self.instrument = QFabWidget()
+        self.instrument = QFabWidget(self)
         self.init_ui()
         self.config = fabconfig(self)
         self.config.restore(self.instrument.wcgh)

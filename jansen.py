@@ -29,7 +29,7 @@ class jansen(QtGui.QMainWindow):
 
     def __init__(self):
         super(jansen, self).__init__()
-        self.instrument = QJansenWidget()
+        self.instrument = QJansenWidget(self)
         self.init_ui()
         self.show()
 

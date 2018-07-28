@@ -15,8 +15,8 @@ from .video.QDetector import QDetector
 
 class QJansenWidget(QtGui.QWidget):
 
-    def __init__(self, **kwargs):
-        super(QJansenWidget, self).__init__(**kwargs)
+    def __init__(self, parent=None):
+        super(QJansenWidget, self).__init__(parent)
         self.init_components()
         self.init_ui()
 
