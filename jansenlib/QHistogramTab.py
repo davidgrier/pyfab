@@ -17,7 +17,6 @@ class QHistogramTab(QtGui.QFrame):
         self.title = 'Histogram'
         self.index = -1
         self.video = video_source
-        self.skip = False
 
         self.setFrameShape(QtGui.QFrame.Box)
         layout = tabLayout(self)
@@ -66,11 +65,8 @@ class QHistogramTab(QtGui.QFrame):
             self.video.unregisterFilter(self.histogramFilter)
 
     def histogramFilter(self, frame):
-        self.skip = not self.skip
-        if self.skip:
-            return frame
         if self.video.source.gray:
-            y, x = np.histogram(frame, bins=256, range=[0, 255])
+            y = np.bincount(frame.flat, minlength=256)
             self.rplot.setData(y=y)
             self.gplot.setData(y=[0, 0])
             self.bplot.setData(y=[0, 0])
@@ -78,11 +74,11 @@ class QHistogramTab(QtGui.QFrame):
             self.yplot.setData(y=np.mean(frame, 1))
         else:
             b, g, r = cv2.split(frame)
-            y, x = np.histogram(r, bins=256, range=[0, 255])
+            y = np.bincount(r.flat, minlength=256)
             self.rplot.setData(y=y)
-            y, x = np.histogram(g, bins=256, range=[0, 255])
+            y = np.bincount(g.flat, minlength=256)
             self.gplot.setData(y=y)
-            y, x = np.histogram(b, bins=256, range=[0, 255])
+            y = np.bincount(b.flat, minlength=256)
             self.bplot.setData(y=y)
             self.xplot.setData(y=np.mean(r, 0))
             self.yplot.setData(y=np.mean(r, 1))
