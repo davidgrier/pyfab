@@ -4,15 +4,11 @@
 
 from .QTrap import QTrap
 import numpy as np
-from pyqtgraph.Qt import QtCore, QtGui
+from pyqtgraph.Qt import QtGui
 import scipy.integrate as integrate
 import scipy.special as special
 from scipy import interpolate
 import warnings
-
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
 
 
 class QBesselIPHTrap(QTrap):
@@ -28,7 +24,7 @@ class QBesselIPHTrap(QTrap):
         """
         Compute electric fields after propagated by a distance z
         via Rayleigh-Sommerfeld approximation.
-        
+
         Args:
         r: distance from the center.
         z: displacement(s) from the focal plane [pixels].
@@ -70,7 +66,7 @@ class QBesselIPHTrap(QTrap):
             E_2d += np.exp(ci*m*theta) * (RealE + ci*ImagE)
         phi = E_2d
         self.structure = phi
-        self._update()
+        self.refresh()
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
@@ -84,26 +80,16 @@ class QBesselIPHTrap(QTrap):
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
         return tr.map(sym)
 
-    @QtCore.pyqtSlot(list)
-    def set_r_alpha(self, r_alpha):
-        for r_a, idx in enumerate(r_alpha):
-            self._r_alpha[idx] = np.int(r_a)
-        self.update_structure()
-
     @property
     def r_alpha(self):
         return self._r_alpha
 
     @r_alpha.setter
     def r_alpha(self, r_alpha):
-        self.set_r_alpha(r_alpha)
+        for r_a, idx in enumerate(r_alpha):
+            self._r_alpha[idx] = np.int(r_a)
+        self.updateStructure()
         self.valueChanged.emit(self)
-
-    @QtCore.pyqtSlot(list)
-    def set_m(self, m):
-        for m_i, idx in enumerate(m):
-            self._m[idx] = np.int(m_i)
-        self.update_structure()
 
     @property
     def m(self):
@@ -111,13 +97,10 @@ class QBesselIPHTrap(QTrap):
 
     @m.setter
     def m(self, m):
-        self.set_m(m)
+        for m_i, idx in enumerate(m):
+            self._m[idx] = np.int(m_i)
+        self.updateStructure()
         self.valueChanged.emit(self)
-
-    @QtCore.pyqtSlot(np.int)
-    def set_z(self, z):
-        self._z = np.int(z)
-        self.update_structure()
 
     @property
     def z(self):
@@ -125,6 +108,6 @@ class QBesselIPHTrap(QTrap):
 
     @z.setter
     def z(self, z):
-        self.set_z(z)
+        self._z = np.int(z)
+        self.updateStructure()
         self.valueChanged.emit(self)
-

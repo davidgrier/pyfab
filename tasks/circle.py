@@ -16,8 +16,9 @@ class circle(assemble):
         R = 200
         xc = self.parent.cgh.xc
         yc = self.parent.cgh.yc
-        for idx, trap in enumerate(traps.flatten()):
-            theta = idx / 1.2
+        trap_list = traps.flatten()
+        for idx, trap in enumerate(trap_list):
+            theta = 2*np.pi*(idx+1) / len(trap_list)
             vertices.append(np.array([xc + R*np.cos(theta),
                                       yc + R*np.sin(theta),
                                       50]))
