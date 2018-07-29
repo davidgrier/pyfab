@@ -48,7 +48,7 @@ class QTrap(QtCore.QObject):
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
         # physical properties
-        self._properties = []
+        self.properties = dict()
         self.registerProperty('x')
         self.registerProperty('y')
         self.registerProperty('z')
@@ -141,15 +141,9 @@ class QTrap(QtCore.QObject):
         return rect.contains(self.coords())
 
     # Methods for editing properties with QTrapWidget
-    def properties(self):
-        return self._properties
-
-    def registerProperty(self, property, decimals=1, tooltip=False):
+    def registerProperty(self, name, decimals=1, tooltip=False):
         """Register a property so that it can be edited"""
-        prop = {'name': property,
-                'decimals': decimals,
-                'tooltip': tooltip}
-        self._properties.append(prop)
+        self.properties[name] = {'decimals': decimals, 'tooltip': tooltip}
 
     @QtCore.pyqtSlot(str, float)
     def setProperty(self, name, value):

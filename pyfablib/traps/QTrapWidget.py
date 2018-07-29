@@ -53,29 +53,26 @@ class QTrapPropertyWidget(QtGui.QWidget):
         layout.setMargin(0)
         layout.setAlignment(QtCore.Qt.AlignLeft)
         self.wid = dict()
-        for prop in trap.properties():
-            name = prop['name']
-            self.wid[name] = self.propertyWidget(trap, prop)
+        for name in trap.properties.keys():
+            self.wid[name] = self.propertyWidget(trap, name)
             tip = trap.__class__.__name__ + ': ' + name
             self.wid[name].setStatusTip(tip)
-            if prop['tooltip']:
+            if trap.properties[name]['tooltip']:
                 self.wid[name].setToolTip(name)
             layout.addWidget(self.wid[name])
         trap.valueChanged.connect(self.updateValues)
         self.setLayout(layout)
 
-    def propertyWidget(self, trap, prop):
-        name = prop['name']
-        decimals = prop['decimals']
+    def propertyWidget(self, trap, name):
         value = getattr(trap, name)
+        decimals = trap.properties[name]['decimals']
         wid = QTrapPropertyEdit(name, value, decimals=decimals)
         wid.valueChanged.connect(trap.setProperty)
         return wid
 
     @QtCore.pyqtSlot(QTrap)
     def updateValues(self, trap):
-        for prop in trap.properties():
-            name = prop['name']
+        for name in trap.properties.keys():
             value = getattr(trap, name)
             self.wid[name].value = value
 
