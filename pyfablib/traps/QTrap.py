@@ -48,7 +48,7 @@ class QTrap(QtCore.QObject):
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
         # physical properties
-        self.properties = []
+        self._properties = []
         self.registerProperty('x')
         self.registerProperty('y')
         self.registerProperty('z')
@@ -79,25 +79,12 @@ class QTrap(QtCore.QObject):
         self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
 
     def updateStructure(self):
-        """Update structuring field to properties of CGH pipeline"""
-        self.structure = 1. + 0.j
+        """Update structuring field for changes in trap properties
+        and calibration constants
+        """
+        pass
 
-    # Private methods to implement changes
-    def blockRefresh(self, state):
-        self._blockRefresh = bool(state)
-
-    def refreshBlocked(self):
-        return self._blockRefresh
-
-    def refresh(self):
-        """Implement changes in trap properties"""
-        if self.refreshBlocked():
-            return
-        self.needsRefresh = True
-        self.valueChanged.emit(self)
-        self.refreshAppearance()
-        self.parent().refresh()
-
+    # Computational pipeline for calculating structure field
     @property
     def cgh(self):
         return self._cgh
@@ -110,32 +97,66 @@ class QTrap(QtCore.QObject):
         self._cgh.sigUpdateGeometry.connect(self.updateStructure)
         self.updateStructure()
 
-    # Methods for implementing motion
-    def coords(self):
-        """In-plane position of trap for plotting"""
-        return self._r.toPointF()
+    @property
+    def structure(self):
+        return self._structure
 
+    @structure.setter
+    def structure(self, field):
+        self._structure = self.cgh.bless(field)
+        self.refresh()
+
+    # Implementing changes in properties
+    def blockRefresh(self, state):
+        """Do not send refresh requests to parent if state is True"""
+        self._blockRefresh = bool(state)
+
+    def refreshBlocked(self):
+        return self._blockRefresh
+
+    def refresh(self):
+        """Request parent to implement changes"""
+        if self.refreshBlocked():
+            return
+        self.needsRefresh = True
+        self.valueChanged.emit(self)
+        self.refreshAppearance()
+        self.parent().refresh()
+
+    # Methods for moving the trap
     def moveBy(self, dr):
-        """Translate trap."""
+        """Translate trap by specified displacement vector"""
         self.r = self.r + dr
 
     def moveTo(self, r):
         """Move trap to position r"""
         self.r = r
 
+    def coords(self):
+        """In-plane position of trap for plotting"""
+        return self._r.toPointF()
+
     def isWithin(self, rect):
         """Return True if this trap lies within the specified rectangle"""
         return rect.contains(self.coords())
 
-    # Slot for updating parameters with QTrapWidget
+    # Methods for editing properties with QTrapWidget
+    def properties(self):
+        return self._properties
+
     def registerProperty(self, property, decimals=1, tooltip=False):
+        """Register a property so that it can be edited"""
         prop = {'name': property,
                 'decimals': decimals,
                 'tooltip': tooltip}
-        self.properties.append(prop)
+        self._properties.append(prop)
 
     @QtCore.pyqtSlot(str, float)
     def setProperty(self, name, value):
+        """Thread-safe method to change a specified property without
+        emitting signals.  This is called by QTrapWidget when the
+        user edits a property.  Blocking signals prevents a loop.
+        """
         self.blockSignals(True)
         setattr(self, name, value)
         self.blockSignals(False)
@@ -210,13 +231,3 @@ class QTrap(QtCore.QObject):
         if self.state is not states.static:
             self._state = state
             self.spot['brush'] = self.brush[state]
-
-    # Structure field for multifunctional traps
-    @property
-    def structure(self):
-        return self._structure
-
-    @structure.setter
-    def structure(self, field):
-        self._structure = self.cgh.bless(field)
-        self.refresh()

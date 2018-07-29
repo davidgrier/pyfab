@@ -53,7 +53,7 @@ class QTrapPropertyWidget(QtGui.QWidget):
         layout.setMargin(0)
         layout.setAlignment(QtCore.Qt.AlignLeft)
         self.wid = dict()
-        for prop in trap.properties:
+        for prop in trap.properties():
             name = prop['name']
             self.wid[name] = self.propertyWidget(trap, prop)
             tip = trap.__class__.__name__ + ': ' + name
@@ -74,7 +74,7 @@ class QTrapPropertyWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot(QTrap)
     def updateValues(self, trap):
-        for prop in trap.properties:
+        for prop in trap.properties():
             name = prop['name']
             value = getattr(trap, name)
             self.wid[name].value = value
