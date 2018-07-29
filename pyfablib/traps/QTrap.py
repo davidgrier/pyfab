@@ -17,7 +17,8 @@ class states(Enum):
 
 class QTrap(QtCore.QObject):
     """A trap has physical properties, including three-dimensional
-    position, relative amplitude and relative phase.
+    position, relative amplitude and relative phase.  A structuring
+    field can change its optical properties.
     It also has an appearance as presented on the QFabScreen.
     """
 
@@ -28,7 +29,6 @@ class QTrap(QtCore.QObject):
                  r=QtGui.QVector3D(),
                  a=1.,  # relative amplitude
                  phi=None,  # relative phase
-                 psi=None,  # current hologram
                  cgh=None,  # computational pipeline
                  structure=1.+0.j,  # structuring field
                  state=states.normal):
@@ -48,20 +48,20 @@ class QTrap(QtCore.QObject):
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
         # physical properties
-        self.properties = dict()
-        self.registerProperty('x')
-        self.registerProperty('y')
-        self.registerProperty('z')
-        self.registerProperty('a', decimals=2)
-        self.registerProperty('phi', decimals=2)
         self.r = r
         self._a = a
         if phi is None:
             self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
             self.phi = phi
-        self.psi = psi
+        self.properties = dict()
+        self.registerProperty('x')
+        self.registerProperty('y')
+        self.registerProperty('z')
+        self.registerProperty('a', decimals=2)
+        self.registerProperty('phi', decimals=2)
         self._structure = structure
+        self.psi = None
         self.cgh = cgh
 
         self.refreshAppearance()
@@ -143,7 +143,8 @@ class QTrap(QtCore.QObject):
     # Methods for editing properties with QTrapWidget
     def registerProperty(self, name, decimals=1, tooltip=False):
         """Register a property so that it can be edited"""
-        self.properties[name] = {'decimals': decimals, 'tooltip': tooltip}
+        self.properties[name] = {'decimals': decimals,
+                                 'tooltip': tooltip}
 
     @QtCore.pyqtSlot(str, float)
     def setProperty(self, name, value):
