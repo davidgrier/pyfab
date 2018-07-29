@@ -8,83 +8,61 @@ from .QTrap import QTrap, states
 
 class QTrapGroup(QtCore.QObject):
 
-    def __init__(self, parent=None, name=None):
+    def __init__(self, parent=None):
         super(QTrapGroup, self).__init__(parent)
-        self.blockRefresh(False)
-        self.name = name
         self._r = QtGui.QVector3D()
+        self.blockRefresh(False)
 
+    # Organizing traps within the group
     def add(self, child):
         """Add a trap to the group"""
         child.setParent(self)
 
     def remove(self, thischild, delete=False):
-        """Remove an object from the trap group.
+        """Remove a trap from the group.
         If the group is now empty, remove it
         from its parent group
         """
         if thischild in self.children():
             thischild.setParent(None)
-            if delete is True:
+            if delete:
                 thischild.deleteLater()
         else:
             for child in self.children():
                 if isinstance(child, QTrapGroup):
                     child.remove(thischild, delete=delete)
-        if self.count() == 0 and isinstance(self.parent(), QTrapGroup):
+        if self.empty() and isinstance(self.parent(), QTrapGroup):
             self.parent().remove(self, delete=True)
 
+    def count(self):
+        """Return the number of items in the group"""
+        return len(self.children())
+
+    def empty(self):
+        """True if group has no children"""
+        return self.count() == 0
+
+    def flatten(self):
+        """Return a list of the traps in the group"""
+        return self.findChildren(QTrap)
+
+    # Implementing changes in trap properties
     def blockRefresh(self, state):
+        """Do not send refresh requests to parent if state is True"""
         self._blockRefresh = bool(state)
 
     def refreshBlocked(self):
         return self._blockRefresh
 
     def refresh(self):
-        if self.refreshBlocked():
-            return
+        """Request parent to implement changes"""
         self.updatePosition()
-        self.parent().refresh()
+        if not self.refreshBlocked():
+            self.parent().refresh()
 
-    def count(self):
-        """Return the number of items in the group"""
-        return len(self.children())
-
-    def flatten(self):
-        """Return a list of the traps in the group"""
-        return self.findChildren(QTrap)
-
-    def isWithin(self, rect):
-        """Return True if the entire group lies within
-        the specified rectangle.
-        """
-        result = True
-        for child in self.children():
-            result = result and child.isWithin(rect)
-        return result
-
-    @property
-    def state(self):
-        """Current state of the children in the group.
-        """
-        return self.children()[0].state
-
-    @state.setter
-    def state(self, state):
-        for child in self.children():
-            child.state = state
-
-    def select(self, state=True):
-        if state:
-            self.state = states.selected
-        else:
-            self.state = states.normal
-
-    @property
-    def r(self):
-        return self._r
-
+    # Methods for changing group properties
     def updatePosition(self):
+        """The group is located at the center of mass of its children"""
         self._r *= 0.
         traps = self.flatten()
         for trap in traps:
@@ -92,8 +70,7 @@ class QTrapGroup(QtCore.QObject):
         self._r /= len(traps)
 
     def moveBy(self, dr):
-        """Translate traps in the group.
-        """
+        """Translate traps in the group"""
         self.blockRefresh(True)
         # same displacement for all traps
         if isinstance(dr, QtGui.QVector3D):
@@ -106,7 +83,47 @@ class QTrapGroup(QtCore.QObject):
         self.blockRefresh(False)
         self.refresh()
 
+    def moveTo(self, r):
+        """Translate traps so that the group is centered at r"""
+        dr = r - self.r
+        self.moveBy(dr)
+
     def rotateTo(self, xy):
-        """Rotate group of traps about its center.
-        """
+        """Rotate group of traps about its center"""
         pass
+
+    def isWithin(self, rect):
+        """Return True if the entire group lies within
+        the specified rectangle.
+        """
+        result = True
+        for child in self.children():
+            result = result and child.isWithin(rect)
+        return result
+
+    def select(self, state=True):
+        """Utility for setting state of group"""
+        if state:
+            self.state = states.selected
+        else:
+            self.state = states.normal
+
+    # Group's properties
+    @property
+    def state(self):
+        """Current state of the children in the group.
+        """
+        return self.children()[0].state
+
+    @state.setter
+    def state(self, state):
+        for child in self.children():
+            child.state = state
+
+    @property
+    def r(self):
+        return self._r
+
+    @r.setter
+    def r(self, r):
+        self.moveTo(r)
