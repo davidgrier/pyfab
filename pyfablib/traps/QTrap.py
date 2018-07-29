@@ -38,6 +38,7 @@ class QTrap(QtCore.QObject):
 
         # operational state
         self._state = state
+
         # appearance
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 100, 100, 120),
@@ -47,6 +48,7 @@ class QTrap(QtCore.QObject):
                      'pen': pg.mkPen('k', width=0.5),
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
+
         # physical properties
         self.r = r
         self._a = a
@@ -54,17 +56,14 @@ class QTrap(QtCore.QObject):
             self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
             self.phi = phi
-        self.properties = dict()
-        self.registerProperty('x')
-        self.registerProperty('y')
-        self.registerProperty('z')
-        self.registerProperty('a', decimals=2)
-        self.registerProperty('phi', decimals=2)
+        self.registerProperties()
+        self.updateAppearance()
+
+        # hologram calculation
         self._structure = structure
         self.psi = None
         self.cgh = cgh
 
-        self.refreshAppearance()
         self.needsRefresh = True
         self.blockRefresh(False)
 
@@ -73,7 +72,7 @@ class QTrap(QtCore.QObject):
         """Graphical representation of trap"""
         return 'o'
 
-    def refreshAppearance(self):
+    def updateAppearance(self):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
         self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
@@ -118,9 +117,9 @@ class QTrap(QtCore.QObject):
         """Request parent to implement changes"""
         if self.refreshBlocked():
             return
-        self.needsRefresh = True
         self.valueChanged.emit(self)
-        self.refreshAppearance()
+        self.updateAppearance()
+        self.needsRefresh = True
         self.parent().refresh()
 
     # Methods for moving the trap
@@ -157,6 +156,14 @@ class QTrap(QtCore.QObject):
         self.blockSignals(False)
 
     # Trap properties
+    def registerProperties(self):
+        self.properties = dict()
+        self.registerProperty('x')
+        self.registerProperty('y')
+        self.registerProperty('z')
+        self.registerProperty('a', decimals=2)
+        self.registerProperty('phi', decimals=2)
+
     @property
     def r(self):
         """Three-dimensional position of trap"""
