@@ -8,12 +8,14 @@ from pyqtgraph.Qt import QtGui
 
 
 class QBesselTrap(QTrap):
-    def __init__(self, **kwargs):
+    def __init__(self, shift=1000, **kwargs):
         super(QBesselTrap, self).__init__()
+        self._shift = shift
 
     def updateStructure(self):
-        phi = np.remainder(np.angle(1) - 100*self.cgh.qr, 2*(np.pi))
+        phi = np.remainder(np.angle(1) - self.shift*self.cgh.qr, 2*(np.pi))
         self.structure = np.exp(1j * phi)
+        self.refresh()
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
@@ -26,3 +28,13 @@ class QBesselTrap(QTrap):
         # center symbol on (0, 0)
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
         return tr.map(sym)
+
+    @property
+    def shift(self):
+        return self._shift
+
+    @shift.setter
+    def shift(self, shift):
+        self._shift = np.int(shift)
+        self.update_structure()
+        self.valueChanged.emit(self)
