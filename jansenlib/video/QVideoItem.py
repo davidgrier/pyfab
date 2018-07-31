@@ -47,8 +47,7 @@ class QVideoItem(pg.ImageItem):
                  source=None,
                  **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
-        super(QVideoItem, self).__init__(**kwargs)
-        self.parent = parent
+        super(QVideoItem, self).__init__(parent=parent, **kwargs)
         self._filters = list()
 
         # performance metrics
@@ -58,9 +57,8 @@ class QVideoItem(pg.ImageItem):
 
         # default source is a camera
         self.camera = QCameraThread(parent=self, **kwargs)
-        self.gray = self.camera.gray
-        self.camera.start()
         self.source = self.camera
+        self.camera.start()
 
     @property
     def source(self):

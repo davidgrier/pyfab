@@ -21,11 +21,12 @@ class QDVRWidget(QtGui.QFrame):
     recording = QtCore.pyqtSignal(bool)
 
     def __init__(self,
+                 parent=None,
                  screen=None,
                  filename='~/data/fabdvr.avi',
                  codec=None,
                  **kwargs):
-        super(QDVRWidget, self).__init__(**kwargs)
+        super(QDVRWidget, self).__init__(parent=parent, **kwargs)
 
         self._writer = None
         self._player = None

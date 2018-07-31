@@ -11,8 +11,8 @@ import cv2
 
 class QHistogramTab(QtGui.QFrame):
 
-    def __init__(self, video_source):
-        super(QHistogramTab, self).__init__()
+    def __init__(self, video_source, parent=None):
+        super(QHistogramTab, self).__init__(parent)
 
         self.title = 'Histogram'
         self.index = -1

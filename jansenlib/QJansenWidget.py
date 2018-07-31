@@ -10,7 +10,6 @@ from common.tabLayout import tabLayout
 from .video import QCameraPropertyWidget, QVideoFilterWidget
 from tasks.taskmanager import taskmanager
 from help.QHelpBrowser import QHelpBrowser
-from .video.QDetector import QDetector
 
 
 class QJansenWidget(QtGui.QWidget):
@@ -22,10 +21,9 @@ class QJansenWidget(QtGui.QWidget):
 
     def init_components(self):
         # video screen
-        self.screen = QJansenScreen(gray=True, parent=self)
-        self.wcamera = QCameraPropertyWidget(self.screen.video.source)
-        self.detector = QDetector(parent=self.screen)
-        self.filters = QVideoFilterWidget(self.screen.video)
+        self.screen = QJansenScreen(self, gray=True)
+        self.wcamera = QCameraPropertyWidget(self.screen.video.camera)
+        self.filters = QVideoFilterWidget(self)
 
         # tasks are processes that are synchronized with video frames
         self.tasks = taskmanager(parent=self)
@@ -63,7 +61,8 @@ class QJansenWidget(QtGui.QWidget):
         width = min(rect.width() // 3, int(7*desktop.logicalDpiX()))
         self.tabs.setMaximumWidth(width)
         self.tabs.setFixedWidth(self.tabs.width())
-        self.setMinimumWidth(self.screen.width()+self.tabs.width())
+        width = self.screen.video.camera.width
+        self.setMinimumWidth(width+self.tabs.width())
         return self
 
     def videoTab(self):

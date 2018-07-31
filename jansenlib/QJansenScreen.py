@@ -22,18 +22,16 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
 
     def __init__(self, parent=None, **kwargs):
-        super(QJansenScreen, self).__init__()
+        super(QJansenScreen, self).__init__(parent)
         self.ci.layout.setContentsMargins(0, 0, 0, 0)
-        self.parent = parent
         # VideoItem displays video feed
-        self.video = QVideoItem(parent=self, **kwargs)
-        source = self.video.source
+        self.video = QVideoItem(self, **kwargs)
         # ViewBox presents video and contains overlays
         self.viewbox = self.addViewBox(enableMenu=False,
                                        enableMouse=False,
                                        invertY=False,
                                        lockAspect=True)
-        self.viewbox.setRange(source.roi, padding=0, update=True)
+        self.viewbox.setRange(self.video.camera.roi, padding=0, update=True)
         self.viewbox.addItem(self.video)
         self._pause = False
 
