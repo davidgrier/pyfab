@@ -22,11 +22,9 @@ class QDVRWidget(QtGui.QFrame):
 
     def __init__(self,
                  parent=None,
-                 screen=None,
                  filename='~/data/fabdvr.avi',
-                 codec=None,
-                 **kwargs):
-        super(QDVRWidget, self).__init__(parent=parent, **kwargs)
+                 codec=None):
+        super(QDVRWidget, self).__init__(parent)
 
         self._writer = None
         self._player = None
@@ -42,8 +40,7 @@ class QDVRWidget(QtGui.QFrame):
         self._framenumber = 0
         self._nframes = 0
 
-        self.screen = screen
-        self.video = self.screen.video
+        self.video = self.parent().screen.video
         self.camera = self.video.camera
         self.stream = self.camera
 
@@ -72,20 +69,11 @@ class QDVRWidget(QtGui.QFrame):
         self.gsource.addButton(self.bvideo, 2)
         self.gsource.addButton(self.bscreen, 3)
         self.gsource.buttonClicked[int].connect(self.setSource)
-        # record stop frame_counter
-        self.brecord = self.recordButton()
-        self.bstop = self.stopButton()
         self.wframe = self.framecounterWidget()
-        # recording filename
         wsavelabel = QtGui.QLabel('Save As')
         wsavelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.wsavename = self.saveFilenameWidget()
-        # rewind pause play
-        self.brewind = self.rewindButton()
-        self.bpause = self.pauseButton()
-        self.bplay = self.playButton()
         wplaylabel = QtGui.QLabel('Play')
-        # playing filename
         wplaylabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.wplayname = self.playFilenameWidget()
         # Place widgets in layout
@@ -93,14 +81,14 @@ class QDVRWidget(QtGui.QFrame):
         layout.addWidget(self.bcamera, 2, 1)
         layout.addWidget(self.bvideo, 2, 2)
         layout.addWidget(self.bscreen, 2, 3)
-        layout.addWidget(self.brecord, 3, 1)
-        layout.addWidget(self.bstop, 3, 2)
+        layout.addWidget(self.recordButton(), 3, 1)
+        layout.addWidget(self.stopButton(), 3, 2)
         layout.addWidget(self.wframe, 3, 3)
         layout.addWidget(wsavelabel, 4, 1)
         layout.addWidget(self.wsavename, 4, 2, 1, 2)
-        layout.addWidget(self.brewind, 5, 1)
-        layout.addWidget(self.bpause, 5, 2)
-        layout.addWidget(self.bplay, 5, 3)
+        layout.addWidget(self.rewindButton(), 5, 1)
+        layout.addWidget(self.pauseButton(), 5, 2)
+        layout.addWidget(self.playButton(), 5, 3)
         layout.addWidget(wplaylabel, 6, 1)
         layout.addWidget(self.wplayname, 6, 2, 1, 2)
         self.setLayout(layout)

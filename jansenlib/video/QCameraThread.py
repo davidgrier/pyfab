@@ -2,8 +2,8 @@
 
 """QCameraThread.py: OpenCV video camera running in a QThread"""
 
-import cv2
 from pyqtgraph.Qt import QtCore
+import cv2
 import numpy as np
 
 import logging
@@ -72,20 +72,14 @@ class QCameraThread(QtCore.QThread):
 
     def run(self):
         self.running = True
-        self.emitting = True
         while self.running:
             ready, self.frame = self.read()
-            if ready and self.emitting:
+            if ready:
                 self.sigNewFrame.emit(self.frame)
         self.camera.release()
 
     def stop(self):
-        self.emitting = False
         self.running = False
-
-    @QtCore.pyqtSlot(bool)
-    def pause(self, paused):
-        self.emitting = not paused
 
     @property
     def frame(self):

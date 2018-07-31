@@ -22,15 +22,16 @@ class QJansenWidget(QtGui.QWidget):
     def init_components(self):
         # video screen
         self.screen = QJansenScreen(self, gray=True)
-        self.wcamera = QCameraPropertyWidget(self.screen.video.camera)
+        self.wcamera = QCameraPropertyWidget(self, self.screen.video.camera)
         self.filters = QVideoFilterWidget(self)
 
         # tasks are processes that are synchronized with video frames
-        self.tasks = taskmanager(parent=self)
+        self.tasks = taskmanager(self)
         # DVR
-        self.dvr = QDVRWidget(screen=self.screen)
+        self.dvr = QDVRWidget(self)
         self.dvr.recording.connect(self.handleRecording)
 
+    @QtCore.pyqtSlot(bool)
     def handleRecording(self, recording):
         self.wcamera.enabled = not recording
 

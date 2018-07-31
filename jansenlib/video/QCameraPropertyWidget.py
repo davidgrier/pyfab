@@ -7,8 +7,9 @@ from common.QPropertySheet import QPropertySheet
 
 class QCameraPropertyWidget(QPropertySheet):
 
-    def __init__(self, camera=None):
-        super(QCameraPropertyWidget, self).__init__(title='Video Camera',
+    def __init__(self, parent=None, camera=None):
+        super(QCameraPropertyWidget, self).__init__(parent,
+                                                    title='Video Camera',
                                                     header=False)
         self.camera = camera
         self.wmirrored = self.registerProperty('mirrored', self.mirrored)
