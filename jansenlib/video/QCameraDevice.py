@@ -51,17 +51,20 @@ class QCameraDevice(QtCore.QObject):
         self.transposed = bool(transposed)
         self.gray = bool(gray)
 
+        # Do not emit frames until start()
         self.running = False
         self.emitting = False
 
+        # initialize camera with one frame
         while True:
             ready, image = self.read()
             if ready:
                 break
         self.frame = image
 
+    # Thread-safe slots for interacting with camera
     @QtCore.pyqtSlot()
-    def run(self):
+    def loop(self):
         while self.running:
             ready, self.frame = self.read()
             if ready and self.emitting:
@@ -73,7 +76,7 @@ class QCameraDevice(QtCore.QObject):
         if not self.running:
             self.running = True
             self.emitting = True
-            self.run()
+            self.loop()
 
     @QtCore.pyqtSlot()
     def stop(self):
@@ -98,6 +101,7 @@ class QCameraDevice(QtCore.QObject):
         (self._height, self._width) = image.shape[:2]
         self._frame = image
 
+    # Camera properties
     @property
     def width(self):
         # width = int(self.camera.get(self._WIDTH))

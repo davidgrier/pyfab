@@ -9,7 +9,7 @@ from pyqtgraph.Qt import QtGui
 
 class QBesselTrap(QTrap):
     def __init__(self, shift=1000, **kwargs):
-        super(QBesselTrap, self).__init__()
+        super(QBesselTrap, self).__init__(**kwargs)
         self._shift = shift
 
     def updateStructure(self):
@@ -19,8 +19,8 @@ class QBesselTrap(QTrap):
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
-        font = QtGui.QFont('Sans Serif', 10, QtGui.QFont.Black)
-        sym.addText(0, 0, font, 'b')
+        font = QtGui.QFont('Sans Serif', 12, QtGui.QFont.Black)
+        sym.addText(0, 0, font, 'B')
         # scale symbol to unit square
         box = sym.boundingRect()
         scale = 1./max(box.width(), box.height())
