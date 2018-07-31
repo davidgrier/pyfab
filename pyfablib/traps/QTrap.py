@@ -6,6 +6,7 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 from enum import Enum
+from collections import OrderedDict
 
 
 class states(Enum):
@@ -157,7 +158,7 @@ class QTrap(QtCore.QObject):
 
     # Trap properties
     def registerProperties(self):
-        self.properties = dict()
+        self.properties = OrderedDict()
         self.registerProperty('x')
         self.registerProperty('y')
         self.registerProperty('z')
