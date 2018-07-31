@@ -15,11 +15,9 @@ class QVideoPlayer(QtCore.QObject):
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
-    # finished = QtCore.pyqtSignal()
 
-    def __init__(self,
-                 filename=None):
-        super(QVideoPlayer, self).__init__()
+    def __init__(self, parent=None, filename=None):
+        super(QVideoPlayer, self).__init__(parent)
 
         self.filename = filename
         self.running = False
@@ -55,7 +53,6 @@ class QVideoPlayer(QtCore.QObject):
     def emit(self):
         if not self.running:
             self.close()
-            # self.finished.emit()
             return
         if self.rewinding:
             self.seek(0)

@@ -144,7 +144,7 @@ class QDVRWidget(QtGui.QFrame):
         b.clicked.connect(self.rewind)
         b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaSkipBackward))
         b.setIconSize(self.iconSize)
-        b.setToolTip('Pause video')
+        b.setToolTip('Rewind video')
         return b
 
     def playButton(self):
@@ -242,8 +242,11 @@ class QDVRWidget(QtGui.QFrame):
     def play(self):
         if self.is_recording():
             return
+        if self.is_playing():
+            self._player.pause(False)
+            return
         self.framenumber = 0
-        self._player = QVideoPlayer(self.playname)
+        self._player = QVideoPlayer(self, self.playname)
         self._player.sigNewFrame.connect(self.stepFramenumber)
         self._player.start()
         self.video.source = self._player
