@@ -14,7 +14,7 @@ class QCGHPropertyWidget(QPropertySheet):
         super(QCGHPropertyWidget, self).__init__(parent, title='CGH Pipeline')
         cgh = self.parent().cgh
         slm = cgh.slm
-        cam = self.parent().screen.video.defaultSource
+        cam = self.parent().screen.video.camera
         register = self.registerProperty
         setter = cgh.setProperty
 

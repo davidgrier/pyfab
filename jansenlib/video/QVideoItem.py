@@ -5,7 +5,7 @@
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
-from .QCameraDevice import QCameraDevice
+from .QCameraThread import QCameraThread
 from collections import deque
 
 
@@ -42,7 +42,6 @@ class QVideoItem(pg.ImageItem):
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
-    sigStop = QtCore.pyqtSignal()
 
     def __init__(self, parent=None,
                  source=None,
@@ -58,16 +57,10 @@ class QVideoItem(pg.ImageItem):
         self.fps = self._fps.value
 
         # default source is a camera
-        self.defaultSource = QCameraDevice(**kwargs)
-        self.gray = self.defaultSource.gray
-        self.sigStop.connect(self.defaultSource.stop)
-        # move camera to background thread to reduce latency
-        self.thread = QtCore.QThread()
-        self.defaultSource.moveToThread(self.thread)
-        self.thread.started.connect(self.defaultSource.start)
-        self.thread.finished.connect(self.cleanup)
-        self.thread.start()
-        self.source = self.defaultSource
+        self.camera = QCameraThread(parent=self, **kwargs)
+        self.gray = self.camera.gray
+        self.camera.start()
+        self.source = self.camera
 
     @property
     def source(self):
@@ -85,17 +78,11 @@ class QVideoItem(pg.ImageItem):
         self._source = source
 
     def close(self):
-        """Stopping the video source causes the thread to
-        emit its finished() signal, which triggers cleanup()."""
-        self.sigStop.emit()
+        self.camera.stop()
+        self.camera.wait()
 
     def closeEvent(self):
         self.close()
-
-    @QtCore.pyqtSlot()
-    def cleanup(self):
-        self.thread.quit()
-        self.thread.wait()
 
     @QtCore.pyqtSlot(np.ndarray)
     def updateImage(self, image):

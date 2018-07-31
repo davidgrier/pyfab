@@ -43,7 +43,7 @@ class QDVRWidget(QtGui.QFrame):
 
         self.screen = screen
         self.video = self.screen.video
-        self.camera = self.screen.video.source
+        self.camera = self.video.camera
         self.stream = self.camera
 
         self.filename = filename
@@ -230,7 +230,7 @@ class QDVRWidget(QtGui.QFrame):
         if self.is_playing():
             self._player.stop()
             self._player = None
-            self.video.source = self.video.defaultSource
+            self.video.source = self.video.camera
         self.framenumber = 0
         self._nframes = 0
         self._writer = None
