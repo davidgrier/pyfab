@@ -43,9 +43,7 @@ class QVideoItem(pg.ImageItem):
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, parent=None,
-                 source=None,
-                 **kwargs):
+    def __init__(self, parent=None, source=None, **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(parent=parent, **kwargs)
         self._filters = list()
@@ -59,6 +57,7 @@ class QVideoItem(pg.ImageItem):
         self.camera = QCameraThread(parent=self, **kwargs)
         self.source = self.camera
         self.camera.start()
+        self.gray = self.camera.gray
 
     @property
     def source(self):
@@ -89,6 +88,7 @@ class QVideoItem(pg.ImageItem):
         self.source.blockSignals(True)
         for filter in self._filters:
             image = filter(image)
+        self.gray = (image.ndim == 2)
         self.source.blockSignals(False)
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)

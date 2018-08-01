@@ -197,7 +197,7 @@ class QDVRWidget(QtGui.QFrame):
         self._nframes = nframes
         self.framenumber = 0
         fps = self.video.fps()
-        (w, h) = (self.stream.width, self.stream.height)
+        (w, h) = (self.stream.width(), self.stream.height())
         color = not self.stream.gray
         msg = 'Recording: {}x{}, color: {}, fps: {}'
         logger.info(msg.format(w, h, color, fps))

@@ -96,23 +96,19 @@ class QCameraThread(QtCore.QThread):
         (self._height, self._width) = image.shape[:2]
         self._frame = image
 
-    @property
     def width(self):
         # width = int(self.camera.get(self._WIDTH))
         return self._width
 
-    @width.setter
-    def width(self, width):
+    def setWidth(self, width):
         self.camera.set(self._WIDTH, width)
         logger.info('Setting camera width: {}'.format(width))
 
-    @property
     def height(self):
         # height = int(self.camera.get(self._HEIGHT))
         return self._height
 
-    @height.setter
-    def height(self, height):
+    def setHeight(self, height):
         self.camera.set(self._HEIGHT, height)
         logger.info('Setting camera height: {}'.format(height))
 
@@ -125,14 +121,15 @@ class QCameraThread(QtCore.QThread):
         if size is None:
             return
         if isinstance(size, QtCore.QSize):
-            self.width = size.width()
-            self.height = size.height()
+            self.setWidth(size.width())
+            self.setHeight(size.height())
         else:
-            (self.width, self.height) = size
+            self.setWidth(size[0])
+            self.setHeight(size[1])
 
     @property
     def roi(self):
-        return QtCore.QRectF(0., 0., self.width, self.height)
+        return QtCore.QRectF(0., 0., self.width(), self.height())
 
     @property
     def gray(self):
