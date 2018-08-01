@@ -36,16 +36,45 @@ class jansen(QtGui.QMainWindow):
     def init_ui(self):
         self.setWindowTitle('Jansen')
         self.statusBar().showMessage('Ready')
-        menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-        exitIcon = QtGui.QIcon.fromTheme('exit')
-        exitAction = QtGui.QAction(exitIcon, '&Quit', self)
-        exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Quit Jansen')
-        exitAction.triggered.connect(self.close)
-        fileMenu.addAction(exitAction)
+        self.fileMenu()
         self.instrument.setTabBarWidth()
         self.setCentralWidget(self.instrument)
+
+    def fileMenu(self):
+        menu = self.menuBar().addMenu('&File')
+
+        icon = QtGui.QIcon.fromTheme('camera-photo')
+        action = QtGui.QAction(icon, 'Save &Photo', self)
+        action.setShortcut('Ctrl+S')
+        action.setStatusTip('Save a snapshot')
+        action.triggered.connect(self.savePhoto)
+        menu.addAction(action)
+
+        icon = QtGui.QIcon.fromTheme('camera-photo')
+        action = QtGui.QAction(icon, 'Save Photo &As ...', self)
+        action.setShortcut('Ctrl+A')
+        action.setStatusTip('Save a snapshot')
+        action.triggered.connect(lambda: self.savePhoto(True))
+        menu.addAction(action)
+
+        icon = QtGui.QIcon.fromTheme('application-exit')
+        action = QtGui.QAction(icon, '&Quit', self)
+        action.setShortcut('Ctrl+Q')
+        action.setStatusTip('Quit Jansen')
+        action.triggered.connect(self.close)
+        menu.addAction(action)
+
+    def savePhoto(self, select=False):
+        filename = self.config.filename(suffix='.png')
+        if select:
+            filename = QtGui.QFileDialog.getSaveFileName(
+                self, 'Save Snapshot',
+                directory=filename,
+                filter='Image files (*.png)')
+        if filename:
+            qimage = self.instrument.screen.video.qimage
+            qimage.mirrored(vertical=True).save(filename)
+            self.statusBar().showMessage('Saved ' + filename)
 
     def close(self):
         self.instrument.close()
