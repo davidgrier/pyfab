@@ -24,9 +24,9 @@ class QCGHPropertyWidget(QPropertySheet):
         tip = header + 'x-y anisotropy'
         self.walpha = register('alpha', cgh.alpha, 0.1, 10., setter, tip)
         tip = header + 'x coordinate of optical axis on camera [pixel]'
-        self.wxc = register('xc', cgh.rc.x(), 0, cam.width, setter, tip)
+        self.wxc = register('xc', cgh.rc.x(), 0, cam.width(), setter, tip)
         tip = header + 'y coordinate of optical axis on camera [pixel]'
-        self.wyc = register('yc', cgh.rc.y(), 0, cam.height, setter, tip)
+        self.wyc = register('yc', cgh.rc.y(), 0, cam.height(), setter, tip)
         tip = header + 'axial coordinate of focal plane [pixel]'
         self.wzc = register('zc', cgh.rc.z(), -500, 500, setter, tip)
         tip = header + 'camera orientation relative to SLM [degrees]'
