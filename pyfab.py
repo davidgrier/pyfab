@@ -64,6 +64,12 @@ class pyfab(QtGui.QMainWindow):
         action.triggered.connect(lambda: self.savePhoto(True))
         menu.addAction(action)
 
+        icon = QtGui.QIcon.fromTheme('camera-photo')
+        action = QtGui.QAction(icon, 'Save Hologram ...', self)
+        action.setStatusTip('Save current hologram')
+        action.triggered.connect(lambda: self.saveHologram())
+        menu.addAction(action)
+        
         icon = QtGui.QIcon.fromTheme('document-save')
         action = QtGui.QAction(icon, 'Save Settings', self)
         action.setShortcut('Ctrl+T')
@@ -125,6 +131,16 @@ class pyfab(QtGui.QMainWindow):
         if filename:
             qimage = self.instrument.screen.video.qimage
             qimage.mirrored(vertical=True).save(filename)
+            self.statusBar().showMessage('Saved ' + filename)
+
+    def saveHologram(self):
+        filename = self.config.filename(suffix='.png')
+        filename = QtGui.QFileDialog.getSaveFileName(
+            self, 'Save Snapshot',
+            directory=filename,
+            filter='Image files (*.png)')
+        if filename:
+            self.instrument.slm.pixmap().save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
     def saveSettings(self):
