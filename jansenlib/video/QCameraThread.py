@@ -114,7 +114,7 @@ class QCameraThread(QtCore.QThread):
 
     @property
     def size(self):
-        return QtCore.QSize(self.width, self.height)
+        return QtCore.QSize(self.width(), self.height())
 
     @size.setter
     def size(self, size):
