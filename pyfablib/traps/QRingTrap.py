@@ -10,8 +10,8 @@ from scipy.special import jv
 
 class QRingTrap(QTrap):
 
-    def __init__(self, R=80, m=20, a=50, **kwargs):
-        super(QRingTrap, self).__init__(a=a, **kwargs)
+    def __init__(self, R=80, m=20, alpha=50, **kwargs):
+        super(QRingTrap, self).__init__(alpha=alpha, **kwargs)
         self._R = R
         self._m = m
         self.registerProperty('R', tooltip=True)

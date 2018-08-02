@@ -28,7 +28,7 @@ class QTrap(QtCore.QObject):
     def __init__(self,
                  parent=None,
                  r=QtGui.QVector3D(),
-                 a=1.,  # relative amplitude
+                 alpha=1.,  # relative amplitude
                  phi=None,  # relative phase
                  cgh=None,  # computational pipeline
                  structure=1.+0.j,  # structuring field
@@ -52,7 +52,7 @@ class QTrap(QtCore.QObject):
 
         # physical properties
         self.r = r
-        self._a = a
+        self._alpha = alpha
         if phi is None:
             self.phi = np.random.uniform(low=0., high=2. * np.pi)
         else:
@@ -162,7 +162,7 @@ class QTrap(QtCore.QObject):
         self.registerProperty('x')
         self.registerProperty('y')
         self.registerProperty('z')
-        self.registerProperty('a', decimals=2)
+        self.registerProperty('alpha', decimals=2)
         self.registerProperty('phi', decimals=2)
 
     @property
@@ -203,14 +203,14 @@ class QTrap(QtCore.QObject):
         self.refresh()
 
     @property
-    def a(self):
+    def alpha(self):
         """Relative amplitude of trap"""
-        return self._a
+        return self._alpha
 
-    @a.setter
-    def a(self, a):
-        self._a = a
-        self.amp = a * np.exp(1j * self.phi)
+    @alpha.setter
+    def alpha(self, alpha):
+        self._alpha = alpha
+        self.amp = alpha * np.exp(1j * self.phi)
         self.refresh()
 
     @property
@@ -221,7 +221,7 @@ class QTrap(QtCore.QObject):
     @phi.setter
     def phi(self, phi):
         self._phi = phi
-        self.amp = self.a * np.exp(1j * phi)
+        self.amp = self.alpha * np.exp(1j * phi)
         self.refresh()
 
     @property
