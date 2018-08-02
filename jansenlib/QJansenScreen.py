@@ -5,6 +5,7 @@
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 from .video.QVideoItem import QVideoItem
+import numpy as np
 
 
 class QJansenScreen(pg.GraphicsLayoutWidget):
@@ -20,6 +21,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
     sigMouseWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
+    sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
     def __init__(self, parent=None, **kwargs):
         super(QJansenScreen, self).__init__(parent)

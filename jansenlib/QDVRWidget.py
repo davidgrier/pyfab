@@ -5,6 +5,7 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from .video.QVideoPlayer import QVideoPlayer
+from .QScreenshot import QScreenshot
 import cv2
 import os
 import platform
@@ -40,7 +41,9 @@ class QDVRWidget(QtGui.QFrame):
         self._framenumber = 0
         self._nframes = 0
 
-        self.video = self.parent().screen.video
+        self.screen = self.parent().screen
+        self.screenshot = QScreenshot(self, self.screen)
+        self.video = self.screen.video
         self.camera = self.video.camera
         self.stream = self.camera
 
@@ -184,10 +187,18 @@ class QDVRWidget(QtGui.QFrame):
 
     @QtCore.pyqtSlot(int)
     def setSource(self, button):
+        try:
+            self.camera.sigNewFrame.disconnect(self.screenshot.takeScreenshot)
+        except Exception:
+            pass
         if button == 1:
             self.stream = self.camera
         elif button == 2:
             self.stream = self.video
+        elif button == 3:
+            self.screenshot.takeScreenshot()
+            self.camera.sigNewFrame.connect(self.screenshot.takeScreenshot)
+            self.stream = self.screenshot
 
     @QtCore.pyqtSlot()
     def record(self, nframes=10000):
