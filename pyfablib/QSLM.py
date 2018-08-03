@@ -5,8 +5,6 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
-from PIL import Image
-from PIL.ImageQt import ImageQt
 
 
 class QSLM(QtGui.QLabel):
@@ -42,7 +40,8 @@ class QSLM(QtGui.QLabel):
     @data.setter
     def data(self, d):
         self._data = d
-        img = QtGui.QImage(ImageQt(Image.fromarray(d)))
+        img = QtGui.QImage(d.data, d.shape[1], d.shape[0], d.strides[0],
+                           QtGui.QImage.Format_Indexed8)
         pix = QtGui.QPixmap.fromImage(img)
         self.setPixmap(pix)
 
