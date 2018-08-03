@@ -140,7 +140,7 @@ class cudaCGH(CGH):
                          block=self.block, grid=self.grid)
 
     def phase(self, a, out):
-        self._phase(a, out, np.int32(self.h), np.int32(self.w),
+        self._phase(a, out, np.int32(a.shape[0]), np.int32(a.shape[1]),
                     block=self.block, grid=self.grid)
 
     @QtCore.pyqtSlot()
