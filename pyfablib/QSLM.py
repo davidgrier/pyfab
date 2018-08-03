@@ -9,23 +9,19 @@ import numpy as np
 
 class QSLM(QtGui.QLabel):
 
-    def __init__(self, parent=None, fake=False, **kwargs):
+    def __init__(self, parent=None, fake=False):
         desktop = QtGui.QDesktopWidget()
         if (desktop.screenCount() == 2) and not fake:
+            super(QSLM, self).__init__(desktop.screen(1))
             rect = desktop.screenGeometry(1)
-            w, h = rect.width(), rect.height()
-            parent = desktop.screen(1)
-            super(QSLM, self).__init__(parent)
-            self.resize(w, h)
+            self.resize(rect.width(), rect.height())
             self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         else:
-            w, h = 640, 480
             super(QSLM, self).__init__(parent)
+            w, h = 640, 480
             self.resize(w, h)
             self.setWindowTitle('SLM')
-        self._width = w
-        self._height = h
-        phi = np.zeros((h, w), dtype=np.uint8)
+        phi = np.zeros((self.height(), self.width()), dtype=np.uint8)
         self.data = phi
         self.show()
 
@@ -44,12 +40,6 @@ class QSLM(QtGui.QLabel):
                            QtGui.QImage.Format_Indexed8)
         pix = QtGui.QPixmap.fromImage(img)
         self.setPixmap(pix)
-
-    def height(self):
-        return self._height
-
-    def width(self):
-        return self._width
 
 
 def main():
