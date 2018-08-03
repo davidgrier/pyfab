@@ -40,6 +40,7 @@ class pyfab(QtGui.QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle('PyFab')
+        self.setWindowIcon(QtGui.QIcon('icons/pyfab.png'))
         self.statusBar().showMessage('Ready')
         self.menuBar().setNativeMenuBar(False)
         self.fileMenu()
