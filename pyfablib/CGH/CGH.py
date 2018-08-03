@@ -44,9 +44,9 @@ class CGH(QtCore.QObject):
         self.traps = []
         # SLM geometry
         self.slm = slm
-        self.w = self.slm.width()
         self.h = self.slm.height()
-        self.shape = (self.w, self.h)
+        self.w = self.slm.width()
+        self.shape = (self.h, self.w)
         self.phi = np.zeros(self.shape).astype(np.uint8)
 
         # Conversion from SLM pixels to wavenumbers
@@ -90,7 +90,7 @@ class CGH(QtCore.QObject):
     def quantize(self, psi):
         """Compute the phase of the field, scaled to uint8"""
         self.phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
-        return self.phi.T
+        return self.phi
 
     @jit(parallel=True)
     def compute_displace(self, amp, r, buffer):
@@ -99,7 +99,7 @@ class CGH(QtCore.QObject):
         """
         ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
-        np.outer(amp * ex, ey, buffer)
+        np.outer(amp * ey, ex, buffer)
 
     def window(self, r):
         """Adjust amplitude to account for aperture size"""
@@ -157,8 +157,8 @@ class CGH(QtCore.QObject):
         self.iqy = 1j * qy
         self.iqxsq = 1j * qx * qx
         self.iqysq = 1j * qy * qy
-        self.theta = np.arctan2.outer(qx, qy)
-        self.qr = np.hypot.outer(qx, qy)
+        self.theta = np.arctan2.outer(qy, qx)
+        self.qr = np.hypot.outer(qy, qx)
         self.sigUpdateGeometry.emit()
 
     def updateTransformationMatrix(self):

@@ -33,7 +33,7 @@ class QSLMTab(QtGui.QFrame):
 
     def expose(self, index):
         if index == self.index:
-            self.update(self.cgh.phi.T)
+            self.update(self.cgh.phi)
             self.cgh.sigHologramReady.connect(self.update)
         else:
             try:

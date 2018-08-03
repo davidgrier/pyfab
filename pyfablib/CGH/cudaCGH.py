@@ -128,19 +128,19 @@ class cudaCGH(CGH):
         super(cudaCGH, self).start()
 
     def outer(self, a, b, out):
-        self._outer(a, b, out, np.int32(self.w), np.int32(self.h),
+        self._outer(a, b, out, np.int32(a.size), np.int32(b.size),
                     block=self.block, grid=self.grid)
 
     def outeratan2f(self, a, b, out):
-        self._outeratan2f(a, b, out, np.int32(self.w), np.int32(self.h),
+        self._outeratan2f(a, b, out, np.int32(a.size), np.int32(b.size),
                           block=self.block, grid=self.grid)
 
     def outerhypot(self, a, b, out):
-        self._outerhypot(a, b, out, np.int32(self.w), np.int32(self.h),
+        self._outerhypot(a, b, out, np.int32(a.size), np.int32(b.size),
                          block=self.block, grid=self.grid)
 
     def phase(self, a, out):
-        self._phase(a, out, np.int32(self.w), np.int32(self.h),
+        self._phase(a, out, np.int32(self.h), np.int32(self.w),
                     block=self.block, grid=self.grid)
 
     @QtCore.pyqtSlot()
@@ -153,13 +153,13 @@ class cudaCGH(CGH):
     def quantize(self, psi):
         self.phase(psi, self._phi)
         self._phi.get(self.phi)
-        return self.phi.T
+        return self.phi
 
     def compute_displace(self, amp, r, buffer):
         cumath.exp(self._iqx * r.x() + self._iqxsq * r.z(), out=self._ex)
         cumath.exp(self._iqy * r.y() + self._iqysq * r.z(), out=self._ey)
-        self._ex *= amp
-        self.outer(self._ex, self._ey, buffer),
+        self._ey *= amp
+        self.outer(self._ey, self._ex, buffer),
 
     def updateGeometry(self):
         # GPU storage
@@ -178,8 +178,8 @@ class cudaCGH(CGH):
         self._iqy = 1j * qy
         self._iqxsq = 1j * qx * qx
         self._iqysq = 1j * qy * qy
-        self.outeratan2f(qx.real, qy.real, self._theta)
-        self.outerhypot(qx.real, qy.real, self._rho)
+        self.outeratan2f(qy.real, qx.real, self._theta)
+        self.outerhypot(qy.real, qx.real, self._rho)
         # CPU versions
         self.phi = np.zeros(self.shape, dtype=np.uint8)
         self.iqx = self._iqx.get()
