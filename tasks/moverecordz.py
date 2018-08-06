@@ -25,5 +25,5 @@ class moverecordz(task):
                 z_nom = np.absolute(z + dz*n)
                 self.register('delay', delay=60)
                 self.register('record', nframes=100,
-                              fn=fn0+'{:03f}.avi'.format(z_nom))
+                              fn=fn0+'{:03d}.avi'.format(int(z_nom)))
                 self.register('translate', traps=self.traps, dr=dr)
