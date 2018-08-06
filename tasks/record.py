@@ -8,7 +8,7 @@ from .task import task
 class record(task):
 
     def __init__(self, fn=None, **kwargs):
-        #pass in nframes keyword for length of recording 
+        # Pass in nframes keyword for length of recording 
         super(record, self).__init__(**kwargs)
         self.fn = fn
         
