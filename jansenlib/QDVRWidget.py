@@ -271,7 +271,8 @@ class QDVRWidget(QtGui.QFrame):
     @QtCore.pyqtSlot()
     def pause(self):
         if self.is_playing():
-            self._player.pause(True)
+            state = self._player.isPaused()
+            self._player.pause(not state)
 
     # Core capabilities
 

@@ -86,6 +86,9 @@ class QVideoPlayer(QtCore.QObject):
     def pause(self, paused):
         self.emitting = not paused
 
+    def isPaused(self):
+        return not self.emitting
+
     @property
     def size(self):
         return QtCore.QSize(self.width, self.height)
