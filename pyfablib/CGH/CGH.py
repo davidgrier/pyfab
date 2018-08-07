@@ -53,6 +53,8 @@ class CGH(QtCore.QObject):
         self._qpp = 2. * np.pi / self.w / 10.
         # Effective aspect ratio of SLM pixels
         self._alpha = 1.
+        # Effective azial aspect ratio: lambda/4 [pixel]
+        self._beta = 2.
         # Location of optical axis in SLM coordinates
         self._rs = QtCore.QPointF(self.w / 2., self.h / 2.)
 
@@ -155,8 +157,8 @@ class CGH(QtCore.QObject):
         qy = self._alpha * self._qpp * qy
         self.iqx = 1j * qx
         self.iqy = 1j * qy
-        self.iqxsq = 1j * qx * qx
-        self.iqysq = 1j * qy * qy
+        self.iqxsq = 1j * self._beta * qx * qx
+        self.iqysq = 1j * self._beta * qy * qy
         self.theta = np.arctan2.outer(qy, qx)
         self.qr = np.hypot.outer(qy, qx)
         self.sigUpdateGeometry.emit()
@@ -220,6 +222,16 @@ class CGH(QtCore.QObject):
     @alpha.setter
     def alpha(self, alpha):
         self._alpha = float(alpha)
+        self.updateGeometry()
+        self.compute(all=True)
+
+    @property
+    def beta(self):
+        return self._beta
+
+    @beta.setter
+    def beta(self, beta):
+        self._beta = float(beta)
         self.updateGeometry()
         self.compute(all=True)
 

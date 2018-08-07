@@ -176,8 +176,8 @@ class cudaCGH(CGH):
         qy = self._alpha * self._qpp * (qy - self.ys)
         self._iqx = 1j * qx
         self._iqy = 1j * qy
-        self._iqxsq = 1j * qx * qx
-        self._iqysq = 1j * qy * qy
+        self._iqxsq = 1j * self._beta * qx * qx
+        self._iqysq = 1j * self._beta * qy * qy
         self.outeratan2f(qy.real, qx.real, self._theta)
         self.outerhypot(qy.real, qx.real, self._rho)
         # CPU versions

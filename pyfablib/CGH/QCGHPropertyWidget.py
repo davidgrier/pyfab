@@ -23,6 +23,8 @@ class QCGHPropertyWidget(QPropertySheet):
         self.wqpp = register('qpp', cgh.qpp, 0.1, 100., setter, tip)
         tip = header + 'x-y anisotropy'
         self.walpha = register('alpha', cgh.alpha, 0.1, 10., setter, tip)
+        tip = header + 'z scale [pixel]'
+        self.wbeta = register('beta', cgh.beta, 0.1, 10., setter, tip)
         tip = header + 'x coordinate of optical axis on camera [pixel]'
         self.wxc = register('xc', cgh.rc.x(), 0, cam.width(), setter, tip)
         tip = header + 'y coordinate of optical axis on camera [pixel]'
@@ -43,6 +45,7 @@ class QCGHPropertyWidget(QPropertySheet):
                 'ys': self.wys.value,
                 'qpp': self.wqpp.value,
                 'alpha': self.walpha.value,
+                'beta': self.wbeta.value,
                 'xc': self.wxc.value,
                 'yc': self.wyc.value,
                 'zc': self.wzc.value,
