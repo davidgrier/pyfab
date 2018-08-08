@@ -19,6 +19,8 @@ class QBesselIPHTrap(QTrap):
         self._m = m
         self._z = z
         self.lamda = 1.064
+        self.registerProperty('r_alpha')
+        self.registerProperty('m')
 
     def iph_field(self, r, z, m, r_alpha, lamda, xFactor=1.0):
         """
@@ -97,7 +99,7 @@ class QBesselIPHTrap(QTrap):
 
     @m.setter
     def m(self, m):
-        for m_i, idx in enumerate(m):
+        for idx, m_i in enumerate(m):
             self._m[idx] = np.int(m_i)
         self.updateStructure()
         self.valueChanged.emit(self)

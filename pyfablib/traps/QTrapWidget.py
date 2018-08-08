@@ -8,10 +8,11 @@ try:
 except ImportError:
     QString = str
 from .QTrap import QTrap
+import numpy as np
 
 
 class QTrapPropertyEdit(QtGui.QLineEdit):
-    """Control for one property of one trap."""
+    """Control for one property of one trap"""
 
     valueChanged = QtCore.pyqtSignal(object, float)
 
@@ -43,6 +44,34 @@ class QTrapPropertyEdit(QtGui.QLineEdit):
         self._value = value
 
 
+class QTrapListPropertyEdit(QtGui.QLineEdit):
+    """Control for one list-like property of one trap"""
+
+    valueChanged = QtCore.pyqtSignal(object, object)
+
+    def __init__(self, name, value):
+        super(QTrapListPropertyEdit, self).__init__()
+        self.setAlignment(QtCore.Qt.AlignRight)
+        self.setFixedWidth(50)
+        self.name = name
+        self.value = value
+        self.returnPressed.connect(self.updateValue)
+
+    @QtCore.pyqtSlot()
+    def updateValue(self):
+        self.value = np.array(self.text()[1:-1].split(', '), dtype=np.float)
+        self.valueChanged.emit(self.name, self.value)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self.setText(str(value))
+        self._value = value
+
+
 class QTrapPropertyWidget(QtGui.QWidget):
     """Control for properties of one trap."""
 
@@ -66,7 +95,10 @@ class QTrapPropertyWidget(QtGui.QWidget):
     def propertyWidget(self, trap, name):
         value = getattr(trap, name)
         decimals = trap.properties[name]['decimals']
-        wid = QTrapPropertyEdit(name, value, decimals=decimals)
+        if isinstance(value, list):
+            wid = QTrapListPropertyEdit(name, value)
+        else:
+            wid = QTrapPropertyEdit(name, value, decimals=decimals)
         wid.valueChanged.connect(trap.setProperty)
         return wid
 
