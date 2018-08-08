@@ -38,6 +38,7 @@ class CGH(QtCore.QObject):
     sigComputing = QtCore.pyqtSignal(bool)
     sigHologramReady = QtCore.pyqtSignal(np.ndarray)
     sigUpdateGeometry = QtCore.pyqtSignal()
+    sigUpdateTransformationMatrix = QtCore.pyqtSignal()
 
     def __init__(self, slm=None):
         super(CGH, self).__init__()
@@ -170,6 +171,7 @@ class CGH(QtCore.QObject):
         self.m.setToIdentity()
         self.m.rotate(self.thetac, 0., 0., 1.)
         self.m.translate(-self.rc)
+        self.sigUpdateTransformationMatrix.emit()
 
     # Calibration constants
     @property
