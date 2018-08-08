@@ -10,20 +10,20 @@ from pyqtgraph.Qt import QtGui
 class QLineTrap(QTrap):
     """Optical line trap"""
 
-    def __init__(self, dx=10., dy=0., phi0=0., **kwargs):
-        self._dx = dx  # save private copy in case CGH is not initialized
-        self._dy = dy
+    def __init__(self, dx=10., dy=0., phi0=0., alpha=10, **kwargs):
+        self._dr = QtGui.QVector3D(dx, dy, 0)
         self._phi0 = phi0
-        super(QLineTrap, self).__init__(**kwargs)
+        super(QLineTrap, self).__init__(alpha=alpha, **kwargs)
         self.registerProperty('dx', decimals=1, tooltip=True)
         self.registerProperty('dy', decimals=1, tooltip=True)
         self.registerProperty('phi0', decimals=2, tooltip=True)
 
     def updateStructure(self):
         """Sinc structuring field defines a line trap"""
+        dr = self.cgh.m * self._dr
         self.structure = np.sinc(
-            np.add.outer((0.5j * self.dy) * self.cgh.iqy,
-                         (0.5j * self.dx) * self.cgh.iqx))
+            np.add.outer((0.5j * dr.y()) * self.cgh.iqy,
+                         (0.5j * dr.x()) * self.cgh.iqx))
 
     def plotSymbol(self):
         """Graphical representation of a line trap"""
@@ -40,21 +40,21 @@ class QLineTrap(QTrap):
 
     @property
     def dx(self):
-        return self._dx
+        return self._dr.x()
 
     @dx.setter
     def dx(self, dx):
-        self._dx = dx
+        self._dr.setX(dx)
         self.updateStructure()
         self.valueChanged.emit(self)
 
     @property
     def dy(self):
-        return self._dy
+        return self._dr.y()
 
     @dy.setter
     def dy(self, dy):
-        self._dy = dy
+        self._dr.setY(dy)
         self.updateStructure()
         self.valueChanged.emit(self)
 
