@@ -49,7 +49,7 @@ class QBesselIPHTrap(QTrap):
         Efield = real[0] + ci * imag[0]
         return Efield
 
-    def update_structure(self):
+    def updateStructure(self):
         interpN = 450
         qr = self.cgh.qr
         theta = self.cgh.theta
