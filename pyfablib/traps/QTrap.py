@@ -95,6 +95,7 @@ class QTrap(QtCore.QObject):
         if cgh is None:
             return
         self._cgh.sigUpdateGeometry.connect(self.updateStructure)
+        self._cgh.sigUpdateTransformationMatrix.connect(self.updateStructure)
         self.updateStructure()
 
     @property

@@ -17,7 +17,6 @@ class QLineTrap(QTrap):
         self.registerProperty('dx', decimals=1, tooltip=True)
         self.registerProperty('dy', decimals=1, tooltip=True)
         self.registerProperty('phi0', decimals=2, tooltip=True)
-        self.cgh.sigUpdateTransformationMatrix.connect(self.updateStructure)
 
     def updateStructure(self):
         """Sinc structuring field defines a line trap"""
