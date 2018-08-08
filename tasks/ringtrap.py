@@ -2,7 +2,7 @@
 # MENU: Ring trap
 
 from .task import task
-from pyfablib.traps.QRingTrap import QRingTrap
+from pyfablib.traps import QRingTrap
 from pyqtgraph.Qt import QtGui
 
 
