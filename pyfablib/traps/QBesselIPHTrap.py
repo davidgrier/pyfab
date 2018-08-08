@@ -88,7 +88,7 @@ class QBesselIPHTrap(QTrap):
 
     @r_alpha.setter
     def r_alpha(self, r_alpha):
-        for r_a, idx in enumerate(r_alpha):
+        for idx, r_a in enumerate(r_alpha):
             self._r_alpha[idx] = np.int(r_a)
         self.updateStructure()
         self.valueChanged.emit(self)
