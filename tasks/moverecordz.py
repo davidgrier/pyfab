@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Measure z
+# MENU: Experiments/Measure z
 
 from .task import task
 from pyqtgraph.Qt import QtGui

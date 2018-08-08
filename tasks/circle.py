@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Assemble circle
+# MENU: Motion/Assemble circle
 
 from .assemble import assemble
 import numpy as np

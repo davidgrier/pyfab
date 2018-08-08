@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Switch places
+# MENU: Motion/Switch places
 
 from .assemble import assemble
 import numpy as np

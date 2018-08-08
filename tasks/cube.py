@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Assemble cube
+# MENU: Motion/Assemble cube
 
 from .assemble import assemble
 import numpy as np
