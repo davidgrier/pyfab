@@ -1,6 +1,5 @@
-
 # -*- coding: utf-8 -*-
-# MENU: Bessel Trapping
+# MENU: Add trap/Bessel trap
 
 from .task import task
 from pyfablib.traps.QBesselTrap import QBesselTrap

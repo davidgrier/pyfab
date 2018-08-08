@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Render text
+# MENU: Add trap/Render text
 
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np

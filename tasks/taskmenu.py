@@ -19,7 +19,13 @@ def findTasks():
             if match:
                 name = os.path.basename(filename)
                 task['name'] = name.split('.')[0]
-                task['title'] = match.group(1)
+                title = match.group(1)
+                match = re.search('(.*)/(.*)', title)
+                if match:
+                    task['submenu'] = match.group(1)
+                    task['title'] = match.group(2)
+                else:
+                    task['title'] = title
                 continue
             match = re.search('"""(.*)"""', line)
             if match and 'name' in task:
@@ -40,7 +46,10 @@ def taskMenu(parent):
        MENU: Task Title
        The title "Task Title" will appear in the Task menu,
        and so should be unique.
-    3. Optional: single-line docstring will appear in the
+    3. Optional: if the Task Title is divided by "/", the first
+       part will be used to create a sub-menu and the second
+       part will be used to create an entry in the sub-menu.
+    4. Optional: single-line docstring will appear in the
        top-level status bar as a tool tip that explains the
        tasks' purpose.
     """
@@ -49,13 +58,20 @@ def taskMenu(parent):
         return
     globals = {'register': parent.instrument.tasks.registerTask}
     menu = parent.menuBar().addMenu('&Tasks')
+    submenus = dict()
     for task in tasks:
         action = QtGui.QAction(task['title'], parent)
         if 'tip' in task:
             action.setStatusTip(task['tip'])
         handler = eval('lambda: register("'+task['name']+'")', globals)
         action.triggered.connect(handler)
-        menu.addAction(action)
+        if 'submenu' in task:
+            title = task['submenu']
+            if title not in submenus:
+                submenus[title] = menu.addMenu(title)
+            submenus[title].addAction(action)
+        else:
+            menu.addAction(action)
 
 
 if __name__ == '__main__':

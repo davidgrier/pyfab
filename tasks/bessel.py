@@ -1,5 +1,5 @@
 # coding: utf-8
-# MENU: Bessel
+# MENU: Set background/Bessel beam
 
 from .sethologram import sethologram
 import numpy as np

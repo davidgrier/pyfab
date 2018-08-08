@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Bessel IPH trap
+# MENU: Add trap/Bessel IPH trap
 
 from .task import task
 from pyfablib.traps.QBesselIPHTrap import QBesselIPHTrap

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Optical vortex
+# MENU: Add trap/Optical vortex
 
 from .task import task
 from pyfablib.traps import QVortexTrap

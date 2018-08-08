@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Line trap
+# MENU: Add trap/Line trap
 
 from .task import task
 from pyfablib.traps import QLineTrap

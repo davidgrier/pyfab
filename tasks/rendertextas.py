@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Render text ...
+# MENU: Add trap/Render text ...
 
 from .rendertext import rendertext
 from PyQt4.QtGui import QInputDialog

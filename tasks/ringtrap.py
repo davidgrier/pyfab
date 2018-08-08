@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Ring trap
+# MENU: Add trap/Ring trap
 
 from .task import task
 from pyfablib.traps import QRingTrap

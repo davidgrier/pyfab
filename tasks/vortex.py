@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Vortex trap
+# MENU: Set background/Optical vortex
 
 from .sethologram import sethologram
 import numpy as np
