@@ -19,7 +19,7 @@ class moverecordz(task):
         if self.traps.count() > 0:
             fn0, fn_ext = os.path.splitext(self.parent.dvr.filename)
             z = self.traps.r.z()
-            dz = 20
+            dz = -6
             dr = QtGui.QVector3D(0, 0, dz)
             for n in range(0, 50):
                 z_nom = np.absolute(z + dz*n)
