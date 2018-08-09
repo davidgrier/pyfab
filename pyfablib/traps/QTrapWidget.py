@@ -53,13 +53,20 @@ class QTrapListPropertyEdit(QtGui.QLineEdit):
         super(QTrapListPropertyEdit, self).__init__()
         self.setAlignment(QtCore.Qt.AlignRight)
         self.setFixedWidth(50)
+        numberrx = '([+-]?\d+\.?\d*)'
+        listrx = '\[' + '(?:\s*'+numberrx+'\s*,)*\s*' + numberrx + '\s*\]'
+        print(listrx)
+        self.rx = QtCore.QRegExp(listrx)
+        val = QtGui.QRegExpValidator(self.rx)
+        self.setValidator(val)
         self.name = name
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
     @QtCore.pyqtSlot()
     def updateValue(self):
-        self.value = np.array(self.text()[1:-1].split(', '), dtype=np.float)
+        txt = str(self.text())
+        self.value = np.fromstring(txt[1:-1], sep=',', dtype=np.float)
         self.valueChanged.emit(self.name, self.value)
 
     @property
