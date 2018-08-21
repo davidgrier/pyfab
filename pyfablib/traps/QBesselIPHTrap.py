@@ -13,16 +13,17 @@ import warnings
 
 class QBesselIPHTrap(QTrap):
 
-    def __init__(self, r_alpha=[250., 250.], m=[10., 10.], z=200., **kwargs):
+    def __init__(self, r_alpha=[480.], m=[0.], iz=820., **kwargs):
         super(QBesselIPHTrap, self).__init__(**kwargs)
         self._r_alpha = r_alpha
         self._m = m
-        self._z = z
+        self._iz = iz
         self.lamda = 1.064
         self.registerProperty('r_alpha')
         self.registerProperty('m')
+        self.registerProperty('iz')
 
-    def iph_field(self, r, z, m, r_alpha, lamda, xFactor=1.0):
+    def iph_field(self, r, iz, m, r_alpha, lamda, xFactor=1.0):
         """
         Compute electric fields after propagated by a distance z
         via Rayleigh-Sommerfeld approximation.
@@ -37,14 +38,14 @@ class QBesselIPHTrap(QTrap):
         """
         warnings.filterwarnings('ignore')
         ci = complex(0., 1.)
-        k = 360./lamda
+        k = 360/lamda
         real = integrate.quadrature(lambda q: q * special.jv(m, q*r_alpha) *
                                     special.jv(m, q*r) *
-                                    np.cos(z * np.sqrt(k**2 - q**2)),
+                                    np.cos(iz * np.sqrt(k**2 - q**2)),
                                     0, xFactor*k, maxiter=100)
         imag = integrate.quadrature(lambda q: q * special.jv(m, q*r_alpha) *
                                     special.jv(m, q*r) *
-                                    np.sin(z * np.sqrt(k**2 - q**2)),
+                                    np.sin(iz * np.sqrt(k**2 - q**2)),
                                     0, xFactor*k, maxiter=100)
         Efield = real[0] + ci * imag[0]
         return Efield
@@ -59,7 +60,7 @@ class QBesselIPHTrap(QTrap):
         ci = complex(0., 1.)
         for r_alpha, m in zip(self.r_alpha, self.m):
             for i in range(interpN):
-                ELine[i] = self.iph_field(rad[i], self.z, m,
+                ELine[i] = self.iph_field(rad[i], self.iz, m,
                                           r_alpha, self.lamda)
             RealESpline = interpolate.splrep(rad, np.real(ELine), s=0)
             ImagESpline = interpolate.splrep(rad, np.imag(ELine), s=0)
@@ -105,11 +106,12 @@ class QBesselIPHTrap(QTrap):
         self.valueChanged.emit(self)
 
     @property
-    def z(self):
-        return self._z
+    def iz(self):
+        return self._iz
 
-    @z.setter
-    def z(self, z):
-        self._z = np.int(z)
+    @iz.setter
+    def iz(self, iz):
+        self._iz = np.int(iz)
         self.updateStructure()
         self.valueChanged.emit(self)
+

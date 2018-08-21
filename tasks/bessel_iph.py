@@ -14,5 +14,8 @@ class bessel_iph(task):
         super(bessel_iph, self).__init__(**kwargs)
 
     def dotask(self):
-        trap = QBesselIPHTrap(r=QtGui.QVector3D(100, 100, 0))
+        xc = self.parent.cgh.xc
+        yc = self.parent.cgh.yc
+        zc = self.parent.cgh.zc
+        trap = QBesselIPHTrap(r=QtGui.QVector3D(xc, yc, zc))
         self.parent.pattern.addTrap(trap)
