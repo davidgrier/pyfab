@@ -23,15 +23,17 @@ class parameterize(task):
                 N = list(self.trajectories.values())[0].curve.shape[0]
                 # Move along paths
                 self.traps.select(True)
-                for n in range(N):
+                for n in reversed(range(N)):
                     new_positions = {}
                     traps = self.trajectories.keys()
                     for trap in traps:
                         curve = self.trajectories[trap].curve
                         new_positions[trap] = curve[n]
                     delay = 100 if n == 0 else 3
-                    self.register('relocate', new_positions=new_positions,
-                                  delay=delay)
+                    self.register('relocate',
+                                  new_positions=new_positions,
+                                  delay=delay,
+                                  override=True)
 
     def parameterize(self, traps):
         """

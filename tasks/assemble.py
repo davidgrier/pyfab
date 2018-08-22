@@ -58,7 +58,7 @@ class assemble(parameterize):
             for trap in traps.flatten():
                 r_i = (trap.r.x(), trap.r.y(), trap.r.z())
                 trajectories[trap] = Curve(r_i)
-            precision = .1
+            precision = 3
             status, done, close = self.status(trajectories, vertices,
                                               precision=precision)
             # Calculate curves
@@ -107,8 +107,8 @@ class assemble(parameterize):
         '''
         # Initialize variables
         padding = 7.
-        max_step = 5.
-        speed = 2.5
+        max_step = 20.
+        speed = 12.
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
         dx, dy, dz = d_v / np.linalg.norm(d_v)
