@@ -4,36 +4,43 @@
 
 from .task import task
 import numpy as np
+from PyQt4.QtGui import QVector3D
 
 
 class parameterize(task):
 
     def __init__(self, **kwargs):
-        super(parameterize, self).__init__(**kwargs)
+        super(parameterize, self).__init__(delay=100,
+                                           skip=3,
+                                           nframes=10**6,
+                                           **kwargs)
         self.traps = None
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
         self.trajectories = self.parameterize(self.traps)
-
-    def dotask(self):
+        self.N = None
+        self.n = 0
         if self.traps.count() > 0:
             if self.trajectories is not None:
-                # All paths must be same length
-                N = list(self.trajectories.values())[0].curve.shape[0]
-                # Move along paths
+                self.N = list(self.trajectories.values())[0].curve.shape[0]
+                self.n = 0
                 self.traps.select(True)
-                for n in reversed(range(N)):
-                    new_positions = {}
-                    traps = self.trajectories.keys()
-                    for trap in traps:
-                        curve = self.trajectories[trap].curve
-                        new_positions[trap] = curve[n]
-                    delay = 100 if n == 0 else 3
-                    self.register('relocate',
-                                  new_positions=new_positions,
-                                  delay=delay,
-                                  override=True)
+
+    def doprocess(self, frame):
+        if self.n < self.N:
+            new_positions = {}
+            traps = self.trajectories.keys()
+            for trap in traps:
+                curve = self.trajectories[trap].curve
+                r = QVector3D(curve[self.n][0],
+                              curve[self.n][1],
+                              curve[self.n][2])
+                new_positions[trap] = r
+                trap.moveTo(new_positions[trap])
+            self.n += 1
+        else:
+            self.nframes = 0
 
     def parameterize(self, traps):
         """

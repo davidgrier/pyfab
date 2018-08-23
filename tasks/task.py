@@ -28,8 +28,11 @@ class task(object):
     def __init__(self,
                  parent=None,
                  delay=0,
-                 nframes=0):
+                 nframes=0,
+                 skip=0):
         self.parent = parent
+        self.skip = skip
+        self.counter = skip
         self.delay = delay
         self.nframes = nframes
         self.initialized = False
@@ -58,8 +61,12 @@ class task(object):
         if self.delay > 0:
             self.delay -= 1
         elif self.nframes > 0:
-            self.doprocess(frame)
-            self.nframes -= 1
+            if self.counter > 0:
+                self.counter -= 1
+            else:
+                self.doprocess(frame)
+                self.nframes -= 1
+                self.counter = self.skip
         else:
             self.dotask()
             logger.info('TASK: {} done'.format(self.__class__.__name__))
