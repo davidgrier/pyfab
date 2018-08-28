@@ -18,11 +18,12 @@ class moverecordz(task):
         self.traps = self.parent.pattern.pattern
         xc = self.parent.cgh.xc
         trap = self.traps.flatten()[0]
-        self.r = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
+        self.r = np.array((trap.r.x(), trap.r.y()))
         sgn = -1 if self.r[0] - xc > 0 else 1
-        self.r_bg = np.array((2*xc - self.r[0] + 50*sgn, self.r[1], self.r[2]))
+        self.r_bg = np.array((2*xc - self.r[0] + 50*sgn, self.r[1]))
 
     def dotask(self):
+        self.traps = self.parent.pattern.pattern
         if self.traps.count() > 0:
             fn0, fn_ext = os.path.splitext(self.parent.dvr.filename)
             z = self.traps.r.z()
