@@ -21,6 +21,13 @@ class assemble(parameterize):
         self.vertices = self.structure(self.traps)
         self.trajectories = self.parameterize(self.traps,
                                               vertices=self.vertices)
+        self.N = None
+        self.n = 0
+        if self.traps.count() > 0:
+            if self.trajectories is not None:
+                self.N = list(self.trajectories.values())[0].curve.shape[0]
+                self.n = 0
+                self.traps.select(True)
 
     def structure(self, traps):
         '''

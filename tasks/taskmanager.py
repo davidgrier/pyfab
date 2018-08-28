@@ -38,7 +38,7 @@ class taskmanager(object):
         if self.task.isDone():
             self.task = None
 
-    def registerTask(self, task, override=False, **kwargs):
+    def registerTask(self, task, **kwargs):
         """Places the named task into the task queue."""
         if isinstance(task, str):
             try:
@@ -48,6 +48,6 @@ class taskmanager(object):
             except ImportError as err:
                 logger.error('Could not import {}: {}'.format(task, err))
                 return
-        self.queue.appendleft(task) if override else self.queue.append(task)
+        self.queue.append(task)
         if self.task is None:
             self.source.sigNewFrame.connect(self.handleTask)

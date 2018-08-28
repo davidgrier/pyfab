@@ -31,11 +31,11 @@ class moverecordz(task):
             dr = QtGui.QVector3D(0, 0, dz)
             for n in range(0, 50):
                 z_nom = np.absolute(z + dz*n)
-                self.register('moveto', r=self.r_bg)
+                self.register('moveto', x=self.r_bg[0], y=self.r_bg[1], z=None)
                 self.register('delay', delay=30)
                 self.register('record', fn=fn0+'_bg_{:03d}.avi'.
                               format(int(z_nom)))
-                self.register('moveto', r=self.r)
+                self.register('moveto', x=self.r[0], y=self.r[1], z=None)
                 self.register('delay', delay=60)
                 self.register('record', nframes=100,
                               fn=fn0+'{:03d}.avi'.format(int(z_nom)))
