@@ -10,7 +10,7 @@ from scipy.special import jv
 
 class QRingTrap(QTrap):
 
-    def __init__(self, R=280, m=20, alpha=50, **kwargs):
+    def __init__(self, R=280, m=0, alpha=50, **kwargs):
         super(QRingTrap, self).__init__(alpha=alpha, **kwargs)
         self._R = R
         self._m = m
