@@ -70,7 +70,7 @@ class pyfab(QtGui.QMainWindow):
         action.setStatusTip('Save current hologram')
         action.triggered.connect(lambda: self.saveHologram())
         menu.addAction(action)
-        
+
         icon = QtGui.QIcon.fromTheme('document-save')
         action = QtGui.QAction(icon, 'Save Settings', self)
         action.setShortcut('Ctrl+T')

@@ -22,6 +22,7 @@
 
 from PyQt4 import QtGui
 from jansenlib.QJansenWidget import QJansenWidget
+from common.fabconfig import fabconfig
 import sys
 
 
@@ -31,6 +32,7 @@ class jansen(QtGui.QMainWindow):
         super(jansen, self).__init__()
         self.instrument = QJansenWidget(self)
         self.init_ui()
+        self.config = fabconfig(self)
         self.show()
 
     def init_ui(self):

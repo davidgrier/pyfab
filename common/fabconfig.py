@@ -20,8 +20,9 @@ class fabconfig(object):
 
     def __init__(self, parent):
         self.parent = parent
+        self.classname = parent.__class__.__name__.lower()
         self.datadir = os.path.expanduser('~/data/')
-        self.configdir = os.path.expanduser('~/.pyfab/')
+        self.configdir = os.path.expanduser('~/.{}/'.format(self.classname))
         if not os.path.exists(self.datadir):
             logger.info('Creating data directory: {}'.format(self.datadir))
             os.makedirs(self.datadir)
@@ -33,7 +34,9 @@ class fabconfig(object):
     def timestamp(self):
         return datetime.now().strftime('_%Y%b%d_%H%M%S')
 
-    def filename(self, prefix='pyfab', suffix=None):
+    def filename(self, prefix=None, suffix=None):
+        if prefix is None:
+            prefix = self.classname
         return os.path.join(self.datadir,
                             prefix + self.timestamp() + suffix)
 
