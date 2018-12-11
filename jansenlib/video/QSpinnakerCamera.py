@@ -49,6 +49,35 @@ class QSpinnakerCamera(QtCore.QObject):
         self.cameras.Clear()
         self.system.ReleaseInstance()
 
+    # Dynamically mapping to GenICam properties
+    _pmap = {'width': 'Width',
+             'height': 'Height',
+             'x0': 'OffsetX',
+             'y0': 'OffsetY',
+             'acquisitionmode': 'AcquisitionMode',
+             'exposure': 'ExposureTime',
+             'framerate': 'AcquisitionFrameRate',
+             'blacklevel': 'BlackLevel',
+             'gain': 'Gain'}
+
+    def _noattribute(self, name):
+        msg = "'{0}' object has no attribute '{1}'"
+        return msg.format(type(self).__name__, name)
+
+    def __getattr__(self, name):
+        try:
+            sname = self._pmap[name]
+            return self._getFValue(sname)
+        except KeyError:
+            raise AttributeError(self._noattribute(name))
+
+    def __setattr__(self, name, value):
+        try:
+            pname = self._pmap[name]
+            self._setFValue(pname, value)
+        except KeyError:
+            super(QSpinnakerCamera, self).__setattr__(name, value)
+
     @QtCore.pyqtSlot(object)
     def getProperty(self, name):
         if hasattr(self, name):
@@ -60,80 +89,6 @@ class QSpinnakerCamera(QtCore.QObject):
     def setProperty(self, name, value):
         if hasattr(self, name):
             setattr(self, name, value)
-
-    # Image geometry and ROI
-    @property
-    def width(self):
-        return self._getFValue('Width')
-
-    @width.setter
-    def width(self, width):
-        self._setFValue('Width', width)
-
-    @property
-    def height(self):
-        return self._getFValue('Height')
-
-    @height.setter
-    def height(self, height):
-        self._setFValue('Height', height)
-
-    @property
-    def x0(self):
-        return self._getFValue('OffsetX')
-
-    @x0.setter
-    def x0(self, value):
-        self._setFValue('OffsetX', value)
-
-    @property
-    def y0(self):
-        return self._getFValue('OffsetY')
-
-    @y0.setter
-    def y0(self, value):
-        self._setFValue('OffsetY', value)
-
-    # Exposure settings
-    @property
-    def acquisitionmode(self):
-        return self._getFValue('AcquisitionMode')
-
-    @acquisitionmode.setter
-    def acquisitionmode(self, modename):
-        self._setFValue('AcquisitionMode', modename)
-
-    @property
-    def exposure(self):
-        return self._getFValue('ExposureTime')
-
-    @exposure.setter
-    def exposure(self, value):
-        self._setFValue('ExposureTime', value)
-
-    @property
-    def framerate(self):
-        return self._getFValue('AcquisitionFrameRate')
-
-    @framerate.setter
-    def framerate(self, value):
-        self._setFValue('AcquisitionFrameRate', value)
-
-    @property
-    def blacklevel(self):
-        return self._getFValue('BlackLevel')
-
-    @blacklevel.setter
-    def blacklevel(self, value):
-        self._setFValue('BlackLevel', value)
-
-    @property
-    def gain(self):
-        return self._getFValue('Gain')
-
-    @gain.setter
-    def gain(self, value):
-        self._setFValue('Gain', value)
 
     def frame(self):
         res = self.camera.GetNextImage()
@@ -236,7 +191,8 @@ if __name__ == '__main__':
     import json
 
     cam = QSpinnakerCamera()
-    print(json.dumps(cam.cameraInfo(), sort_keys=True, indent=4))
+    print(cam.width)
+    # print(json.dumps(cam.cameraInfo(), sort_keys=True, indent=4))
     # print(cam.framerate, cam.exposure)
     # print(cam.blacklevel, cam.gain)
     img = cam.frame()
