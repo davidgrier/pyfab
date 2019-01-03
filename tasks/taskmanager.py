@@ -25,10 +25,13 @@ class Taskmanager(object):
         self.source = parent.screen.video
         self.task = None
         self.queue = deque()
+        self._paused = False
 
     def handleTask(self, frame):
         """Activates the next task in the queue, processes the
         next video frame, then cleans up the task if it is done."""
+        if self._paused:
+            return
         if self.task is None:
             try:
                 self.task = self.queue.popleft()
@@ -52,3 +55,7 @@ class Taskmanager(object):
         self.queue.append(task)
         if self.task is None:
             self.source.sigNewFrame.connect(self.handleTask)
+
+    def toggle_pause(self):
+        """Toggle the pause state of the task manager"""
+        self._paused = not self._paused
