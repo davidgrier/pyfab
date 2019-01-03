@@ -8,7 +8,8 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
-class taskmanager(object):
+class Taskmanager(object):
+
     """taskmanager creates and manages a queue of task() objects
     for the pyfab/jansen system.
 

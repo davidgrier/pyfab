@@ -35,6 +35,7 @@ class QSpinnakerCamera(QtCore.QObject):
         self.cameras = self.system.GetCameras()
         if self.cameras.GetSize() < 1:
             logger.error('No Spinnaker cameras found')
+        self.properties = self._pmap.keys
         self.camera = self.cameras[0]
         self.camera.Init()
         self.nodes = self.camera.GetNodeMap()
@@ -69,7 +70,7 @@ class QSpinnakerCamera(QtCore.QObject):
             sname = self._pmap[name]
             return self._getFValue(sname)
         except KeyError:
-            raise AttributeError(self._noattribute(name))
+            super(QSpinnakerCamera, self).__getattr__(name)
 
     def __setattr__(self, name, value):
         try:

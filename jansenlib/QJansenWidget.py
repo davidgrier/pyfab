@@ -8,7 +8,7 @@ from .QHistogramTab import QHistogramTab
 from .QDVRWidget import QDVRWidget
 from common.tabLayout import tabLayout
 from .video import QCameraPropertyWidget, QVideoFilterWidget
-from tasks.taskmanager import taskmanager
+from tasks.taskmanager import Taskmanager
 from help.QHelpBrowser import QHelpBrowser
 
 
@@ -26,7 +26,7 @@ class QJansenWidget(QtGui.QWidget):
         self.filters = QVideoFilterWidget(self)
 
         # tasks are processes that are synchronized with video frames
-        self.tasks = taskmanager(self)
+        self.tasks = Taskmanager(self)
         # DVR
         self.dvr = QDVRWidget(self)
         self.dvr.recording.connect(self.handleRecording)
@@ -59,11 +59,11 @@ class QJansenWidget(QtGui.QWidget):
         and certainly less than a third of the screen"""
         desktop = QtGui.QDesktopWidget()
         rect = desktop.screenGeometry(0)
-        width = min(rect.width() // 3, int(7*desktop.logicalDpiX()))
+        width = min(rect.width() // 3, int(7 * desktop.logicalDpiX()))
         self.tabs.setMaximumWidth(width)
         self.tabs.setFixedWidth(self.tabs.width())
         width = self.screen.video.camera.width()
-        self.setMinimumWidth(width+self.tabs.width())
+        self.setMinimumWidth(width + self.tabs.width())
         return self
 
     def videoTab(self):
