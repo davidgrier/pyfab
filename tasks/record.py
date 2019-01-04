@@ -13,11 +13,10 @@ class record(task):
         self.fn = fn
         
     def initialize(self, frame):
+        self.dvr = self.parent.dvr
         if self.fn is not None:
-            self.dvr = self.parent.dvr
             self.dvr.filename = self.fn
-            self.dvr.brecord.animateClick()
+        self.dvr.brecord.animateClick()
 
     def dotask(self):
-        if self.fn is not None:
-            self.dvr.bstop.animateClick()
+        self.dvr.bstop.animateClick()

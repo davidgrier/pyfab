@@ -13,8 +13,9 @@ import itertools
 
 class assemble(parameterize):
 
-    def __init__(self, **kwargs):
+    def __init__(self, vertices=None, **kwargs):
         super(assemble, self).__init__(**kwargs)
+        self.vertices = vertices
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
@@ -42,7 +43,7 @@ class assemble(parameterize):
             OR
             list of ndarray vertex locations
         '''
-        return None
+        return self.vertices
 
     def parameterize(self, traps, vertices=None):
         '''

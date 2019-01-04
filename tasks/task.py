@@ -26,9 +26,9 @@ class task(object):
     """
 
     def __init__(self,
+                 nframes=0,
                  parent=None,
                  delay=0,
-                 nframes=0,
                  skip=0):
         self.parent = parent
         self.skip = skip

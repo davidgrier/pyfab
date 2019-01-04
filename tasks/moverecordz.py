@@ -37,6 +37,7 @@ class moverecordz(task):
                               format(int(z_nom)))
                 self.register('moveto', x=self.r[0], y=self.r[1], z=None)
                 self.register('delay', delay=60)
-                self.register('record', nframes=100,
-                              fn=fn0+'{:03d}.avi'.format(int(z_nom)))
+                self.register('record', fn=fn0+'{:03d}.avi'.
+                              format(int(z_nom)),
+                              nframes=100)
                 self.register('translate', traps=self.traps, dr=dr)
