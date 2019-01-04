@@ -36,6 +36,15 @@ def findTasks():
     return tasks
 
 
+def pauseTasks(parent):
+    """Menu item to toggle pause state of task manager"""
+    action = QtGui.QAction('&Pause', parent)
+    action.setShortcut('Ctrl+P')
+    action.setStatusTip('Pause/resume tasks')
+    action.triggered.connect(parent.instrument.tasks.togglePause)
+    return action
+
+
 def taskMenu(parent):
     """Build menu of available tasks
 
@@ -56,8 +65,9 @@ def taskMenu(parent):
     tasks = findTasks()
     if len(tasks) == 0:
         return
-    globals = {'register': parent.instrument.tasks.registerTask}
     menu = parent.menuBar().addMenu('&Tasks')
+    menu.addAction(pauseTasks(parent))
+    globals = {'register': parent.instrument.tasks.registerTask}
     submenus = dict()
     for task in tasks:
         action = QtGui.QAction(task['title'], parent)

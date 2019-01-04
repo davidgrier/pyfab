@@ -56,6 +56,9 @@ class Taskmanager(object):
         if self.task is None:
             self.source.sigNewFrame.connect(self.handleTask)
 
-    def toggle_pause(self):
+    def togglePause(self):
         """Toggle the pause state of the task manager"""
         self._paused = not self._paused
+        msg = 'Tasks paused' if self._paused else 'Tasks running'
+        self.parent.parent().statusBar().showMessage(msg)
+        logger.debug(msg)
