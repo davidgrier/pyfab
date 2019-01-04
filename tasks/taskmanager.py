@@ -62,3 +62,10 @@ class Taskmanager(object):
         msg = 'Tasks paused' if self._paused else 'Tasks running'
         self.parent.parent().statusBar().showMessage(msg)
         logger.debug(msg)
+
+    def emptyQueue(self):
+        """Empty task queue"""
+        self.queue.clear()
+        msg = 'Empty task queue'
+        self.parent.parent().statusBar().showMessage(msg)
+        logger.debug(msg)

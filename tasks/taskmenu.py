@@ -45,6 +45,14 @@ def pauseTasks(parent):
     return action
 
 
+def stopTasks(parent):
+    """Menu item to empty task queue"""
+    action = QtGui.QAction('&Stop', parent)
+    action.setStatusTip('Reset tasks')
+    action.triggered.connect(parent.instrument.tasks.emptyQueue)
+    return action
+
+
 def taskMenu(parent):
     """Build menu of available tasks
 
@@ -67,6 +75,7 @@ def taskMenu(parent):
         return
     menu = parent.menuBar().addMenu('&Tasks')
     menu.addAction(pauseTasks(parent))
+    menu.addAction(stopTasks(parent))
     globals = {'register': parent.instrument.tasks.registerTask}
     submenus = dict()
     for task in tasks:
