@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Assemble circle
 
-from .assemble import assemble
+from .guidedmove import guidedmove
 import numpy as np
 
 
-class circle(assemble):
+class circle(guidedmove):
     """Demonstration of traps assembling a circle."""
 
     def __init__(self, **kwargs):
         super(circle, self).__init__(**kwargs)
 
-    def structure(self, traps):
+    def calculate_targets(self, traps):
         vertices = []
         R = 200
         xc = self.parent.cgh.xc

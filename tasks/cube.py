@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Assemble cube
 
-from .assemble import assemble
+from .guidedmove import guidedmove
 import numpy as np
 
 
-class cube(assemble):
+class cube(guidedmove):
     """Demonstration of traps assembling a body-centered cube."""
 
     def __init__(self, **kwargs):
         super(cube, self).__init__(**kwargs)
 
-    def structure(self, traps):
+    def calculate_targets(self, traps):
         if len(traps.flatten()) != 9:
             vertices = None
             print("9 traps are needed for body centered cube")

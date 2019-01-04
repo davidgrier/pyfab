@@ -3,37 +3,39 @@
 
 """
 Brownian molecular dynamics simulation for moving
-a set of traps to a set of vertices
+a set of traps to a set of targets
 """
 
-from .parameterize import parameterize, Curve
+from .move import move, Trajectory
 import numpy as np
 import itertools
 
 
-class assemble(parameterize):
+class guidedmove(move):
 
-    def __init__(self, vertices=None, **kwargs):
-        super(assemble, self).__init__(**kwargs)
-        self.vertices = vertices
+    def __init__(self, targets=None, **kwargs):
+        super(guidedmove, self).__init__(**kwargs)
+        self.targets = targets
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
-        self.vertices = self.structure(self.traps)
+        self.targets = self.calculate_targets(self.traps)
         self.trajectories = self.parameterize(self.traps,
-                                              vertices=self.vertices)
+                                              targets=self.targets)
         self.N = None
         self.n = 0
         if self.traps.count() > 0:
             if self.trajectories is not None:
-                self.N = list(self.trajectories.values())[0].curve.shape[0]
+                self.N = list(self.trajectories.values())[0].trajectory.shape[0]
                 self.n = 0
                 self.traps.select(True)
 
-    def structure(self, traps):
+    def calculate_targets(self, traps):
         '''
-        Returns vertices of shape to assemble. Overwrite
-        in subclass to assemble specific structure.
+        Returns desired destinations of current traps. Overwrite
+        in subclass to calculate specific destinations.
+
+        Example: calculate a list of vertices to assemble a structure
 
         Args:
             traps: QTrapGroup of all traps in QTrappingPattern
@@ -43,33 +45,33 @@ class assemble(parameterize):
             OR
             list of ndarray vertex locations
         '''
-        return self.vertices
+        return self.targets
 
-    def parameterize(self, traps, vertices=None):
+    def parameterize(self, traps, targets=None):
         '''
         Returns dictionary where Keys are QTraps and Values
-        are Curve objects leading to each trap's respective
+        are Trajectory objects leading to each trap's respective
         vertex.
 
         Args:
             traps: QTrapGroup of all traps in QTrappingPattern.
         Keywords:
-            vertices: Dictionary where Keys are QTraps and Values
+            targets: Dictionary where Keys are QTraps and Values
                       are 3D ndarray position vectors.
         '''
         trajectories = None
-        if vertices is not None:
-            if type(vertices) is list:
-                vertices = self.pair(vertices, traps)
+        if targets is not None:
+            if type(targets) is list:
+                targets = self.pair(targets, traps)
             # Initialize trajectories, status
             trajectories = {}
             for trap in traps.flatten():
                 r_i = (trap.r.x(), trap.r.y(), trap.r.z())
-                trajectories[trap] = Curve(r_i)
+                trajectories[trap] = Trajectory(r_i)
             precision = 3
-            status, done, close = self.status(trajectories, vertices,
+            status, done, close = self.status(trajectories, targets,
                                               precision=precision)
-            # Calculate curves
+            # Calculate trajectories
             while not (done and close):
                 # Move each trap a single step
                 for trap in trajectories.keys():
@@ -80,7 +82,7 @@ class assemble(parameterize):
                     if status[trap] is 'far':
                         # Take a step towards final position with noise
                         dr = self.direct(trap,
-                                         vertices[trap],
+                                         targets[trap],
                                          trajectories,
                                          precision=precision) + noise
                     elif status[trap] is 'close+jiggling':
@@ -90,14 +92,14 @@ class assemble(parameterize):
                     elif status[trap] is 'close':
                         # If everyone is close, go to goal without noise
                         dr = self.direct(trap,
-                                         vertices[trap],
+                                         targets[trap],
                                          trajectories,
                                          precision=precision)
                     elif status[trap] is 'done':
                         # Don't move if the trap has made it
                         dr = np.zeros(3, dtype=np.float_)
                     trajectory.step(dr)
-                status, done, close = self.status(trajectories, vertices,
+                status, done, close = self.status(trajectories, targets,
                                                   precision=precision)
         return trajectories
 
@@ -111,7 +113,7 @@ class assemble(parameterize):
             r_v: ndarray 3D position vector. trap's
                  target position
             trajectories: dictionary where keys are QTraps
-                          and values are Curve objects
+                          and values are Trajectory objects
         '''
         # Initialize variables
         padding = 7.
@@ -144,15 +146,15 @@ class assemble(parameterize):
             dr *= precision*.9
         return dr
 
-    def status(self, trajectories, vertices, precision=.1):
+    def status(self, trajectories, targets, precision=.1):
         '''
         Routine to evaluate whether trajectories have reached
-        their respective vertices or not.
+        their respective targets or not.
 
         Args:
             trajectories: dictionary where Keys are QTraps and Values
-                          are Curve objects.
-            vertices: dictionary where Keys are QTraps and Values are
+                          are Trajectory objects.
+            targets: dictionary where Keys are QTraps and Values are
                       ndarray cartesian position vectors.
         Returns:
             status: Dictionary where keys are QTraps and values are
@@ -173,7 +175,7 @@ class assemble(parameterize):
         for trap in trajectories.keys():
             # If not everyone has made it to range defined by
             # precision, set state to jiggling
-            x_v, y_v, z_v = vertices[trap]
+            x_v, y_v, z_v = targets[trap]
             x_f, y_f, z_f = trajectories[trap].r_f
             p = precision*50
             x_cond = x_v - p <= x_f <= x_v + p
@@ -189,7 +191,7 @@ class assemble(parameterize):
             for trap in trajectories.keys():
                 # If everyone is close enough to jiggle around
                 # their goal, everyone go toward the goal
-                x_v, y_v, z_v = vertices[trap]
+                x_v, y_v, z_v = targets[trap]
                 x_f, y_f, z_f = trajectories[trap].r_f
                 p = precision
                 x_cond = x_v - p <= x_f <= x_v + p
@@ -202,7 +204,7 @@ class assemble(parameterize):
                     done = False
         return status, done, close
 
-    def pair(self, vertex_list, traps):
+    def pair(self, target_list, traps):
         '''
         Wrapper method that determines which way to pair
         traps to vertex locaitons. Searches all possibilities
@@ -210,38 +212,38 @@ class assemble(parameterize):
         for large trap number.
         
         Returns: 
-            vertices: dictionary where keys are QTraps and 
+            targets: dictionary where keys are QTraps and 
                       values are their vertex pairing
         '''
         trap_list = traps.flatten()
-        # Initialize matrices of vertices and trap locations
+        # Initialize matrices of targets and trap locations
         t = []
         for idx, trap in enumerate(trap_list):
             r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
             t.append(r_t)
-        v = np.vstack(vertex_list)
+        v = np.vstack(target_list)
         t = np.vstack(t)
         # Determine when to switch algorithms
         limit = 8
-        # Find best trap-vertex pairings
+        # Find best trap-target pairings
         if len(trap_list) < limit:
             best_pairing = self._pair_search(v, t, trap_limit=limit)
         else:
             best_pairing = self._pair_genetic(v, t)
-        vertices = {}
+        targets = {}
         for idx, trap in enumerate(trap_list):
-            vertices[trap] = best_pairing[idx]
-        return vertices
+            targets[trap] = best_pairing[idx]
+        return targets
 
     def _pair_search(self, v, t, trap_limit=8):
         '''
-        Algorithm that finds best trap-vertex pairings for
+        Algorithm that finds best trap-target pairings for
         small trap limit, and tries to find the best by
         generating random permutations for large trap limit
 
         Args:
             t: matrix of trap locations
-            v: matrix of vertices
+            v: matrix of targets
         Keywords:
             trap_limit: the trap number where the algorithm
                         searches through random permutations
@@ -269,11 +271,11 @@ class assemble(parameterize):
 
     def _pair_genetic(self, v, t):
         '''
-        Genetic algorithm that finds best trap-vertex pairings.
+        Genetic algorithm that finds best trap-target pairings.
         
         Args:
             t: matrix of trap locations
-            v: matrix of vertices
+            v: matrix of targets
         Returns:
             permutation of v's rows that best minimizes
             total distance traveled
@@ -307,32 +309,31 @@ class assemble(parameterize):
             gen = gen[:gen_size]
         return gen[0]
     '''
-    def pair_greedy(self, vertices_list, trap_list):
+    def pair_greedy(self, target_list, trap_list):
          
-         Greedy algorithm that pairs traps to vertices.
+         Greedy algorithm that pairs traps to targets.
  
          Args:
              traps: QTrapGroup of all traps in QTrappingPattern
-             vertices: list of vertices
+             target_list: list of targets
          Returns:
-             vertices: dictionary where keys are QTraps and values are
-                       their vertex pairing
-         
+             targets: dictionary where keys are QTraps and values are
+                       their target pairing
          traps = traps.flatten()
-         vertices = {}
-         while len(trap_list) > 0 and len(vertices_list) > 0:
+         targets = {}
+         while len(trap_list) > 0 and len(target_list) > 0:
              # Initialize min distance and indeces where min occurs
              d_min = np.inf
              idx_t = None
              idx_v = None
              for i, trap in enumerate(trap_list):
                  r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
-                 for j, r_v in enumerate(vertices_list):
+                 for j, r_v in enumerate(target_list):
                      d = np.linalg.norm(r_t - r_v)
                      if d < d_min:
                          d_min = d
                          idx_t = i
                          idx_v = j
-            vertices[trap_list.pop(idx_t)] = vertices_list.pop(idx_v)
-        return vertices
+            targets[trap_list.pop(idx_t)] = target_list.pop(idx_v)
+        return targets
     '''
