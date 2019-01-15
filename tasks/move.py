@@ -11,9 +11,9 @@ class move(task):
 
     def __init__(self, **kwargs):
         super(move, self).__init__(delay=100,
-                                           skip=3,
-                                           nframes=10**6,
-                                           **kwargs)
+                                   skip=3,
+                                   nframes=10**6,
+                                   **kwargs)
         self.traps = None
 
     def initialize(self, frame):
@@ -74,8 +74,9 @@ class Trajectory(object):
 
     def step(self, d):
         self.last_step = d
-        self.trajectory = np.concatenate((self.trajectory, np.array([self.r_f + d])),
-                                    axis=0)
+        self.trajectory = np.concatenate((self.trajectory,
+                                          np.array([self.r_f + d])),
+                                         axis=0)
 
     def __str__(self):
         np.set_printoptions(

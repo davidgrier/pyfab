@@ -118,7 +118,7 @@ class guidedmove(move):
         # Initialize variables
         padding = 7.
         max_step = 20.
-        speed = 12.
+        speed = 8.
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
         dx, dy, dz = d_v / np.linalg.norm(d_v)
