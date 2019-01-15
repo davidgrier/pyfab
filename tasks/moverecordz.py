@@ -25,23 +25,20 @@ class moverecordz(task):
 
     def dotask(self):
         self.traps = self.parent.pattern.pattern
-        r_i = {}
-        for trap in self.traps.flatten():
-            r_i[trap] = (trap.r.x(), trap.r.y(), trap.r.z())
         if self.traps.count() > 0:
             fn0, fn_ext = os.path.splitext(self.parent.dvr.filename)
             z = self.traps.r.z()
             dz = -10
             dr = QtGui.QVector3D(0, 0, dz)
-            for n in range(0, 25):
+            for n in range(0, 2):
                 z_nom = np.absolute(z + dz*n)
                 if self.measure_bg:
-                    self.register('movetopoint',
+                    self.register('movetocoordinate',
                                   x=self.r_bg[0], y=self.r_bg[1], z=None)
                     self.register('delay', delay=50)
                     self.register('record', fn=fn0+'bg_{:03d}.avi'.
                                   format(int(z_nom)), nframes=50)
-                    self.register('movetopoint',
+                    self.register('movetocoordinate',
                                   x=self.r[0], y=self.r[1], z=None)
                 self.register('delay', delay=50)
                 self.register('record', fn=fn0+'{:03d}.avi'.
@@ -49,5 +46,4 @@ class moverecordz(task):
                               nframes=50)
                 self.register('delay', delay=10)
                 self.register('translate', traps=self.traps, dr=dr)
-            self.register('guidedmove', targets=r_i)
-            self.register('correct', positions=r_i)
+            self.register('movetocoordinate')
