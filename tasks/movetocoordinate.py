@@ -10,11 +10,12 @@ class movetocoordinate(guidedmove):
     can move one trap to a fixed point.
     By default this task brings all traps to the focal plane."""
 
-    def __init__(self, x=None, y=None, z=0, **kwargs):
+    def __init__(self, x=None, y=None, z=0, correct=True, **kwargs):
         super(movetocoordinate, self).__init__(**kwargs)
         self.x = x
         self.y = y
         self.z = z
+        self.correct = correct
 
     def calculate_targets(self, traps):
         targets = {}
@@ -27,5 +28,6 @@ class movetocoordinate(guidedmove):
             if z is None:
                 z = trap.r.z()
             targets[trap] = np.array((x, y, z))
-        self.register('correct', positions=targets)
+        if self.correct:
+            self.register('correct', positions=targets)
         return targets
