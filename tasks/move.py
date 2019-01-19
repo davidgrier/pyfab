@@ -10,11 +10,12 @@ from PyQt4.QtGui import QVector3D
 class move(task):
 
     def __init__(self, **kwargs):
-        super(move, self).__init__(delay=100,
-                                   skip=3,
+        super(move, self).__init__(delay=20,
                                    nframes=10**6,
                                    **kwargs)
         self.traps = None
+        self.wait = 4
+        self.count = self.wait
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
@@ -26,22 +27,34 @@ class move(task):
                 self.N = list(self.trajectories.values())[0].trajectory.shape[0]
                 self.n = 0
                 self.traps.select(True)
+        self.initialize_more(frame)
+
+    def initialize_more(self, frame):
+        pass
 
     def doprocess(self, frame):
-        if self.n < self.N:
-            new_positions = {}
-            traps = self.trajectories.keys()
-            for trap in traps:
-                trajectory = self.trajectories[trap].trajectory
-                r = QVector3D(trajectory[self.n][0],
-                              trajectory[self.n][1],
-                              trajectory[self.n][2])
-                new_positions[trap] = r
-                trap.moveTo(new_positions[trap])
-            self.n += 1
+        self.process_more(frame)
+        if self.count == 0:
+            if self.n < self.N:
+                new_positions = {}
+                traps = self.trajectories.keys()
+                for trap in traps:
+                    trajectory = self.trajectories[trap].trajectory
+                    r = QVector3D(trajectory[self.n][0],
+                                  trajectory[self.n][1],
+                                  trajectory[self.n][2])
+                    new_positions[trap] = r
+                    trap.moveTo(new_positions[trap])
+                self.n += 1
+            else:
+                self.nframes = 0
+            self.count = self.wait
         else:
-            self.nframes = 0
+            self.count -= 1
 
+    def process_more(self, frame):
+        pass
+    
     def parameterize(self, traps):
         """
         Returns a dictionary of traps corresponding to their
@@ -77,6 +90,12 @@ class Trajectory(object):
         self.trajectory = np.concatenate((self.trajectory,
                                           np.array([self.r_f + d])),
                                          axis=0)
+
+    def stitch(self, trajectory):
+        '''Adds another trajectory to the end of the trajectory
+        '''
+        self.trajectory = np.append(self.trajectory,
+                                    trajectory.trajectory, axis=0)
 
     def __str__(self):
         np.set_printoptions(

@@ -13,15 +13,27 @@ import itertools
 
 class guidedmove(move):
 
-    def __init__(self, targets=None, **kwargs):
+    def __init__(self, targets=None, travel_back=False, **kwargs):
         super(guidedmove, self).__init__(**kwargs)
         self.targets = targets
+        self.travel_back = travel_back
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
         self.targets = self.calculate_targets(self.traps)
         self.trajectories = self.parameterize(self.traps,
                                               targets=self.targets)
+        if self.travel_back is True:
+            return_targets = {}
+            for trap in self.traps.flatten():
+                return_targets[trap] = (trap.r.x(),
+                                        trap.r.y(),
+                                        trap.r.z())
+            return_trajectories = self.parameterize(self.traps,
+                                                    targets=return_targets,
+                                                    r_is=self.targets)
+            for trap in self.trajectories.keys():
+                self.trajectories[trap].stitch(return_trajectories[trap])
         self.N = None
         self.n = 0
         if self.traps.count() > 0:
@@ -29,6 +41,7 @@ class guidedmove(move):
                 self.N = list(self.trajectories.values())[0].trajectory.shape[0]
                 self.n = 0
                 self.traps.select(True)
+        self.initialize_more(frame)
 
     def calculate_targets(self, traps):
         '''
@@ -47,7 +60,8 @@ class guidedmove(move):
         '''
         return self.targets
 
-    def parameterize(self, traps, targets=None):
+    def parameterize(self, traps, targets=None,
+                     r_is=None):
         '''
         Returns dictionary where Keys are QTraps and Values
         are Trajectory objects leading to each trap's respective
@@ -66,7 +80,10 @@ class guidedmove(move):
             # Initialize trajectories, status
             trajectories = {}
             for trap in traps.flatten():
-                r_i = (trap.r.x(), trap.r.y(), trap.r.z())
+                if type(r_is) is dict:
+                    r_i = r_is[trap]
+                else:
+                    r_i = (trap.r.x(), trap.r.y(), trap.r.z())
                 trajectories[trap] = Trajectory(r_i)
             precision = 3
             status, done, close = self.status(trajectories, targets,
