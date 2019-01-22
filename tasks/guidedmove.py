@@ -17,26 +17,29 @@ class guidedmove(move):
         super(guidedmove, self).__init__(**kwargs)
         self.targets = targets
         self.travel_back = travel_back
+        # Set movement parameters
+        self.precision = 3.
+        self.speed = 5.
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
         self.targets = self.calculate_targets(self.traps)
-        self.trajectories = self.parameterize(self.traps,
+        self.trajectories = self.parameterize(self.targets.keys(),
                                               targets=self.targets)
         if self.travel_back is True:
             return_targets = {}
-            for trap in self.traps.flatten():
+            for trap in self.targets.keys():
                 return_targets[trap] = (trap.r.x(),
                                         trap.r.y(),
                                         trap.r.z())
-            return_trajectories = self.parameterize(self.traps,
+            return_trajectories = self.parameterize(self.targets.keys(),
                                                     targets=return_targets,
                                                     r_is=self.targets)
             for trap in self.trajectories.keys():
                 self.trajectories[trap].stitch(return_trajectories[trap])
         self.N = None
         self.n = 0
-        if self.traps.count() > 0:
+        if len(self.targets.keys()) > 0:
             if self.trajectories is not None:
                 self.N = list(self.trajectories.values())[0].trajectory.shape[0]
                 self.n = 0
@@ -79,15 +82,13 @@ class guidedmove(move):
                 targets = self.pair(targets, traps)
             # Initialize trajectories, status
             trajectories = {}
-            for trap in traps.flatten():
+            for trap in traps:
                 if type(r_is) is dict:
                     r_i = r_is[trap]
                 else:
                     r_i = (trap.r.x(), trap.r.y(), trap.r.z())
                 trajectories[trap] = Trajectory(r_i)
-            precision = 3
-            status, done, close = self.status(trajectories, targets,
-                                              precision=precision)
+            status, done, close = self.status(trajectories, targets)
             # Calculate trajectories
             while not (done and close):
                 # Move each trap a single step
@@ -100,8 +101,7 @@ class guidedmove(move):
                         # Take a step towards final position with noise
                         dr = self.direct(trap,
                                          targets[trap],
-                                         trajectories,
-                                         precision=precision) + noise
+                                         trajectories) + noise
                     elif status[trap] is 'close+jiggling':
                         # If you're close enough but others aren't,
                         # jiggle around the goal
@@ -110,17 +110,15 @@ class guidedmove(move):
                         # If everyone is close, go to goal without noise
                         dr = self.direct(trap,
                                          targets[trap],
-                                         trajectories,
-                                         precision=precision)
+                                         trajectories)
                     elif status[trap] is 'done':
                         # Don't move if the trap has made it
                         dr = np.zeros(3, dtype=np.float_)
                     trajectory.step(dr)
-                status, done, close = self.status(trajectories, targets,
-                                                  precision=precision)
+                status, done, close = self.status(trajectories, targets)
         return trajectories
 
-    def direct(self, trap, r_v, trajectories, precision=.1):
+    def direct(self, trap, r_v, trajectories):
         '''
         Returns a displacement vector directing trap toward
         its vertex but away from other traps
@@ -134,8 +132,7 @@ class guidedmove(move):
         '''
         # Initialize variables
         padding = 7.
-        max_step = 20.
-        speed = 8.
+        max_step = 15.
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
         dx, dy, dz = d_v / np.linalg.norm(d_v)
@@ -151,7 +148,7 @@ class guidedmove(move):
                 dy += ((np.sin(theta) * np.sin(phi)) / r) * p
                 dz += (np.cos(phi) / r) * p
         # Scale step size by dimensionless speed
-        dr = np.array([dx, dy, dz])*speed
+        dr = np.array([dx, dy, dz])*self.speed
         step_size = np.linalg.norm(dr)
         # Fix step size if it gets too large
         if step_size > max_step:
@@ -160,10 +157,10 @@ class guidedmove(move):
         # When close to goal, scale down by below desired precision
         if np.linalg.norm(d_v) <= max_step:
             dr /= step_size
-            dr *= precision*.9
+            dr *= self.precision*.9
         return dr
 
-    def status(self, trajectories, targets, precision=.1):
+    def status(self, trajectories, targets):
         '''
         Routine to evaluate whether trajectories have reached
         their respective targets or not.
@@ -194,7 +191,7 @@ class guidedmove(move):
             # precision, set state to jiggling
             x_v, y_v, z_v = targets[trap]
             x_f, y_f, z_f = trajectories[trap].r_f
-            p = precision*50
+            p = self.precision*50
             x_cond = x_v - p <= x_f <= x_v + p
             y_cond = y_v - p <= y_f <= y_v + p
             z_cond = z_v - p <= z_f <= z_v + p
@@ -210,7 +207,7 @@ class guidedmove(move):
                 # their goal, everyone go toward the goal
                 x_v, y_v, z_v = targets[trap]
                 x_f, y_f, z_f = trajectories[trap].r_f
-                p = precision
+                p = self.precision
                 x_cond = x_v - p <= x_f <= x_v + p
                 y_cond = y_v - p <= y_f <= y_v + p
                 z_cond = z_v - p <= z_f <= z_v + p
