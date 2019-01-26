@@ -15,11 +15,24 @@ class guidedmove(move):
 
     def __init__(self, targets=None, travel_back=False, **kwargs):
         super(guidedmove, self).__init__(**kwargs)
+        '''
+        Keywords:
+            targets: Allow option to pass in targets without subclassing.
+                     This may be desired if adding guidedmove to task queue.
+            travel_back: Option to travel back to starting point.
+        Fields / Parameters of motion:
+            self.precision: Controls how close to target trap gets
+            self.speed: Step size is scaled by this amount.
+            self.padding: Separation between traps when avoiding each other
+            self.wait: Number of frames skipped between steps.
+        '''
         self.targets = targets
         self.travel_back = travel_back
-        # Set movement parameters
+        # Movement parameters. Play around with these for desired motion
         self.precision = 3.
-        self.speed = 5.
+        self.speed = 4.
+        self.padding = 7.
+        self.wait = 10
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
@@ -131,7 +144,6 @@ class guidedmove(move):
                           and values are Trajectory objects
         '''
         # Initialize variables
-        padding = 7.
         max_step = 15.
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
@@ -143,7 +155,7 @@ class guidedmove(move):
                 r = np.linalg.norm(d_n)
                 theta = np.arctan2(d_n[1], d_n[0])
                 phi = np.arccos(d_n[2] / r)
-                p = padding ** 2
+                p = self.padding ** 2
                 dx += ((np.cos(theta) * np.sin(phi)) / r) * p
                 dy += ((np.sin(theta) * np.sin(phi)) / r) * p
                 dz += (np.cos(phi) / r) * p
