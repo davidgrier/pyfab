@@ -37,7 +37,7 @@ class guidedmove(move):
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
         self.targets = self.calculate_targets(self.traps)
-        if self.targets is dict:
+        if type(self.targets) is dict:
             self.moving_traps = self.targets.keys()
         else:
             self.moving_traps = self.traps.flatten()
