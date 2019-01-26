@@ -15,31 +15,48 @@ class guidedmove(move):
 
     def __init__(self, targets=None, travel_back=False, **kwargs):
         super(guidedmove, self).__init__(**kwargs)
+        '''
+        Keywords:
+            targets: Allow option to pass in targets without subclassing.
+                     This may be desired if adding guidedmove to task queue.
+            travel_back: Option to travel back to starting point.
+        Fields / Parameters of motion:
+            self.precision: Controls how close to target trap gets
+            self.speed: Step size is scaled by this amount.
+            self.padding: Separation between traps when avoiding each other
+            self.wait: Number of frames skipped between steps.
+        '''
         self.targets = targets
         self.travel_back = travel_back
-        # Set movement parameters
+        # Movement parameters. Play around with these for desired motion
         self.precision = 3.
-        self.speed = 5.
+        self.speed = 4.
+        self.padding = 7.
+        self.wait = 10
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
         self.targets = self.calculate_targets(self.traps)
-        self.trajectories = self.parameterize(self.targets.keys(),
+        if self.targets is dict:
+            self.moving_traps = self.targets.keys()
+        else:
+            self.moving_traps = self.traps.flatten()
+        self.trajectories = self.parameterize(self.moving_traps,
                                               targets=self.targets)
         if self.travel_back is True:
             return_targets = {}
-            for trap in self.targets.keys():
+            for trap in self.moving_traps:
                 return_targets[trap] = (trap.r.x(),
                                         trap.r.y(),
                                         trap.r.z())
-            return_trajectories = self.parameterize(self.targets.keys(),
+            return_trajectories = self.parameterize(self.moving_traps,
                                                     targets=return_targets,
                                                     r_is=self.targets)
             for trap in self.trajectories.keys():
                 self.trajectories[trap].stitch(return_trajectories[trap])
         self.N = None
         self.n = 0
-        if len(self.targets.keys()) > 0:
+        if len(self.moving_traps) > 0:
             if self.trajectories is not None:
                 self.N = list(self.trajectories.values())[0].trajectory.shape[0]
                 self.n = 0
@@ -131,7 +148,6 @@ class guidedmove(move):
                           and values are Trajectory objects
         '''
         # Initialize variables
-        padding = 7.
         max_step = 15.
         d_v = r_v - trajectories[trap].r_f
         # Direct to vertex
@@ -143,7 +159,7 @@ class guidedmove(move):
                 r = np.linalg.norm(d_n)
                 theta = np.arctan2(d_n[1], d_n[0])
                 phi = np.arccos(d_n[2] / r)
-                p = padding ** 2
+                p = self.padding ** 2
                 dx += ((np.cos(theta) * np.sin(phi)) / r) * p
                 dy += ((np.sin(theta) * np.sin(phi)) / r) * p
                 dz += (np.cos(phi) / r) * p
@@ -218,7 +234,7 @@ class guidedmove(move):
                     done = False
         return status, done, close
 
-    def pair(self, target_list, traps):
+    def pair(self, target_list, trap_list):
         '''
         Wrapper method that determines which way to pair
         traps to vertex locaitons. Searches all possibilities
@@ -229,7 +245,6 @@ class guidedmove(move):
             targets: dictionary where keys are QTraps and 
                       values are their vertex pairing
         '''
-        trap_list = traps.flatten()
         # Initialize matrices of targets and trap locations
         t = []
         for idx, trap in enumerate(trap_list):
