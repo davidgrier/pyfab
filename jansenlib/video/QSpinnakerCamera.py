@@ -66,12 +66,13 @@ class QSpinnakerCamera(QtCore.QObject):
              'x0': 'OffsetX',
              'y0': 'OffsetY',
              'acquisitionmode': 'AcquisitionMode',
+             'pixelformat': 'PixelFormat',
              'exposure': 'ExposureTime',
              'framerate': 'AcquisitionFrameRate',
              'blacklevel': 'BlackLevel',
              'gain': 'Gain',
-             'mirror': 'ReverseX',
-             'flip': 'ReverseY'}
+             'mirrored': 'ReverseX',
+             'flipped': 'ReverseY'}
 
     def _noattribute(self, name):
         msg = "'{0}' object has no attribute '{1}'"
@@ -100,6 +101,17 @@ class QSpinnakerCamera(QtCore.QObject):
     def setProperty(self, name, value):
         if hasattr(self, name):
             setattr(self, name, value)
+
+    @property
+    def gray(self):
+        return self.pixelformat == 'mono8'
+
+    @gray.setter
+    def gray(self, state):
+        if (state):
+            self.pixelformat = 'Mono8'
+        else:
+            self.pixelformat = 'RGB8'
 
     def read(self):
         res = self.camera.GetNextImage()

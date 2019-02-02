@@ -4,7 +4,6 @@
 
 from pyqtgraph.Qt import QtCore
 from QSpinnakerCamera import QSpinnakerCamera
-import cv2
 import numpy as np
 
 import logging
@@ -82,25 +81,21 @@ class QSpinnakerThread(QtCore.QThread):
 
     @frame.setter
     def frame(self, image):
-        if image.ndim == 3:
-            image = cv2.cvtColor(image, self._conversion)
         (self._height, self._width) = image.shape[:2]
         self._frame = image
 
     def width(self):
-        # width = int(self.camera.get(self._WIDTH))
-        return self._width
+        return self.camera.width
 
     def setWidth(self, width):
-        self.camera.set(self._WIDTH, width)
+        self.camera.width = width
         logger.info('Setting camera width: {}'.format(width))
 
     def height(self):
-        # height = int(self.camera.get(self._HEIGHT))
-        return self._height
+        return self.camera.height
 
     def setHeight(self, height):
-        self.camera.set(self._HEIGHT, height)
+        self.camera.height = height
         logger.info('Setting camera height: {}'.format(height))
 
     @property
@@ -120,7 +115,9 @@ class QSpinnakerThread(QtCore.QThread):
 
     @property
     def roi(self):
-        return QtCore.QRectF(0., 0., self.width(), self.height())
+        x0 = float(self.camera.x0)
+        y0 = float(self.camera.y0)
+        return QtCore.QRectF(x0, y0, self.width(), self.height())
 
     @property
     def gray(self):
