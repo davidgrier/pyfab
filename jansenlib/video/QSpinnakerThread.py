@@ -45,6 +45,7 @@ class QSpinnakerThread(QtCore.QThread):
         self.read = self.camera.read
         self.mirrored = self.camera.mirrored
         self.flipped = self.camera.flipped
+        self.gray = self.camera.gray
 
         # camera properties
 
@@ -118,11 +119,3 @@ class QSpinnakerThread(QtCore.QThread):
         x0 = float(self.camera.x0)
         y0 = float(self.camera.y0)
         return QtCore.QRectF(x0, y0, self.width(), self.height())
-
-    @property
-    def gray(self):
-        return (self._conversion == self._toGRAY)
-
-    @gray.setter
-    def gray(self, gray):
-        self._conversion = self._toGRAY if gray else self._toRGB
