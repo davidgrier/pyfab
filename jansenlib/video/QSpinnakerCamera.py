@@ -16,29 +16,39 @@ class QSpinnakerCamera(QtCore.QObject):
 
     Properties
     ----------
-    system : object
-        Spinnaker system
-    cameras : object
-        List of cameras attached to Spinnaker system
     camera : CameraPtr
-        First camera on the list
-    tldevice : INodeMap
-        inodemap for the transport layer
-    nodes : INodeMap
-        Camera GenICam nodemap
+        camera device in Spinnaker system
+    properties : list
+        strings containing names of adjustable properties
+        Each named property may be treated like a python property
+        and also can be accessed with getProperty() and setProperty()
+
+    Methods
+    -------
+    getProperty(name):
+        Get named property
+    setProperty(name, value):
+        Set named property to value
+    frame(): numpy.ndarray
+        Return next available video frame
     '''
 
     def __init__(self, **kwargs):
         super(QSpinnakerCamera, self).__init__(**kwargs)
 
-        self.system = PySpin.System.GetInstance()
-        self.cameras = self.system.GetCameras()
-        if self.cameras.GetSize() < 1:
+        # Initialize Spinnaker and get list of cameras
+        self._system = PySpin.System.GetInstance()
+        self._cameras = self._system.GetCameras()
+        if self._cameras.GetSize() < 1:
             logger.error('No Spinnaker cameras found')
-        self.properties = self._pmap.keys
-        self.camera = self.cameras[0]
+        # Work with first attached camera.  This can be generalized
+        self.camera = self._cameras[0]
         self.camera.Init()
-        self.nodes = self.camera.GetNodeMap()
+        # Get list of inodes in camera device.
+        # These provide access to camera properties
+        self._nodes = self.camera.GetNodeMap()
+        self.properties = self._pmap.keys
+        # Start acquisition
         self.acquisitionmode = 'Continuous'
         self.camera.BeginAcquisition()
 
@@ -47,8 +57,8 @@ class QSpinnakerCamera(QtCore.QObject):
         self.camera.EndAcquisition()
         self.camera.DeInit()
         del self.camera
-        self.cameras.Clear()
-        self.system.ReleaseInstance()
+        self._cameras.Clear()
+        self._system.ReleaseInstance()
 
     # Dynamically mapping to GenICam properties
     _pmap = {'width': 'Width',
@@ -79,14 +89,12 @@ class QSpinnakerCamera(QtCore.QObject):
         except KeyError:
             super(QSpinnakerCamera, self).__setattr__(name, value)
 
-    @QtCore.pyqtSlot(object)
     def getProperty(self, name):
         if hasattr(self, name):
             return getattr(self, name)
         else:
             return None
 
-    @QtCore.pyqtSlot(object, object)
     def setProperty(self, name, value):
         if hasattr(self, name):
             setattr(self, name, value)
@@ -111,7 +119,7 @@ class QSpinnakerCamera(QtCore.QObject):
              PySpin.intfIEnumeration: PySpin.CEnumerationPtr}
 
     def _feature(self, fname):
-        node = self.nodes.GetNode(fname)
+        node = self._nodes.GetNode(fname)
         type = node.GetPrincipalInterfaceType()
         feature = self._fmap[type](node)
         return feature
@@ -159,7 +167,7 @@ class QSpinnakerCamera(QtCore.QObject):
     # Methods for introspection
     #
     def cameraInfo(self):
-        root = PySpin.CCategoryPtr(self.nodes.GetNode('Root'))
+        root = PySpin.CCategoryPtr(self._nodes.GetNode('Root'))
         categories = dict()
         for category in root.GetFeatures():
             if self._isCategory(category):
@@ -188,14 +196,10 @@ class QSpinnakerCamera(QtCore.QObject):
         except PySpin.SpinnakerException as ex:
             logger.warning('{}'.format(ex))
 
-if __name__ == '__main__':
-    import json
 
+if __name__ == '__main__':
     cam = QSpinnakerCamera()
     print(cam.width)
-    # print(json.dumps(cam.cameraInfo(), sort_keys=True, indent=4))
-    # print(cam.framerate, cam.exposure)
-    # print(cam.blacklevel, cam.gain)
     img = cam.frame()
     print(img.shape)
     del cam
