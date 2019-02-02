@@ -29,7 +29,7 @@ class QSpinnakerCamera(QtCore.QObject):
         Get named property
     setProperty(name, value):
         Set named property to value
-    frame(): numpy.ndarray
+    read(): numpy.ndarray
         Return next available video frame
     '''
 
@@ -60,7 +60,7 @@ class QSpinnakerCamera(QtCore.QObject):
         self._cameras.Clear()
         self._system.ReleaseInstance()
 
-    # Dynamically mapping to GenICam properties
+    # Dynamic mapping for GenICam properties
     _pmap = {'width': 'Width',
              'height': 'Height',
              'x0': 'OffsetX',
@@ -69,7 +69,9 @@ class QSpinnakerCamera(QtCore.QObject):
              'exposure': 'ExposureTime',
              'framerate': 'AcquisitionFrameRate',
              'blacklevel': 'BlackLevel',
-             'gain': 'Gain'}
+             'gain': 'Gain',
+             'mirror': 'ReverseX',
+             'flip': 'ReverseY'}
 
     def _noattribute(self, name):
         msg = "'{0}' object has no attribute '{1}'"
@@ -99,13 +101,15 @@ class QSpinnakerCamera(QtCore.QObject):
         if hasattr(self, name):
             setattr(self, name, value)
 
-    def frame(self):
+    def read(self):
         res = self.camera.GetNextImage()
-        if res.IsIncomplete():
+        error = res.IsIncomplete()
+        if error:
             status = res.GetImageStatus()
-            logger.warning('Incomplete Image: {}'.format(status))
+            error_msg = res.GetImageStatusDescription(status)
+            logger.warning('Incomplete Image: ' + error_msg)
         shape = (res.GetHeight(), res.GetWidth())
-        return res.GetData().reshape(shape)
+        return not error, res.GetData().reshape(shape)
 
     #
     # private methods for handling interactions with GenICam
