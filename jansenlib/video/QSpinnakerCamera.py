@@ -104,7 +104,7 @@ class QSpinnakerCamera(QtCore.QObject):
 
     @property
     def gray(self):
-        return self.pixelformat == 'mono8'
+        return self.pixelformat == 'Mono8'
 
     @gray.setter
     def gray(self, state):
@@ -153,12 +153,13 @@ class QSpinnakerCamera(QtCore.QObject):
 
     def _setFValue(self, fname, value):
         feature = self._feature(fname)
+        if not self._isWritable(feature):
+            logger.warning('Property {} is not writable'.format(fname))
+            return
         if self._isEnum(feature) or self._isCommand(feature):
             feature.FromString(value)
-        elif self._isWritable(feature):
-            feature.SetValue(value)
         else:
-            logger.warning('Could not set {} to {}'.format(fname, value))
+            feature.SetValue(value)
 
     def _isReadable(self, feature):
         return PySpin.IsAvailable(feature) and PySpin.IsReadable(feature)
@@ -216,6 +217,6 @@ class QSpinnakerCamera(QtCore.QObject):
 if __name__ == '__main__':
     cam = QSpinnakerCamera()
     print(cam.width)
-    img = cam.frame()
+    _, img = cam.read()
     print(img.shape)
     del cam
