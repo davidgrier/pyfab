@@ -50,6 +50,8 @@ class QSpinnakerCamera(QtCore.QObject):
         self.properties = self._pmap.keys
         # Start acquisition
         self.acquisitionmode = 'Continuous'
+        self.exposureauto = 'Off'
+        self.gainauto = 'Off'
         self.camera.BeginAcquisition()
 
     def __del__(self):
@@ -66,11 +68,13 @@ class QSpinnakerCamera(QtCore.QObject):
              'x0': 'OffsetX',
              'y0': 'OffsetY',
              'acquisitionmode': 'AcquisitionMode',
-             'pixelformat': 'PixelFormat',
-             'exposure': 'ExposureTime',
              'framerate': 'AcquisitionFrameRate',
+             'pixelformat': 'PixelFormat',
              'blacklevel': 'BlackLevel',
+             'exposure': 'ExposureTime',
              'gain': 'Gain',
+             'exposureauto': 'ExposureAuto',     # 'Off', 'Once', 'Continuous'
+             'gainauto': 'GainAuto',
              'mirrored': 'ReverseX',
              'flipped': 'ReverseY'}
 
@@ -148,7 +152,7 @@ class QSpinnakerCamera(QtCore.QObject):
         elif self._isReadable(feature):
             value = feature.GetValue()
         else:
-            logger.warning('Could not get {}'.format(fname))
+            logger.warning('Could not access property: {}'.format(fname))
         return value
 
     def _setFValue(self, fname, value):
