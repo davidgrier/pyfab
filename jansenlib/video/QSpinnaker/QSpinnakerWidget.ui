@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>QSpinnakerWidget</string>
   </property>
   <property name="statusTip">
    <string>Control Spinnaker camera</string>
@@ -307,7 +307,6 @@
   <zorder>frameExposure</zorder>
   <zorder>frameFlip</zorder>
   <zorder>frameGeometry</zorder>
-  <zorder>labelwidth</zorder>
  </widget>
  <resources/>
  <connections/>
