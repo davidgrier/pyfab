@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pyqtgraph.Qt import QtCore
 import PySpin
 
 import logging
@@ -10,13 +9,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class QSpinnakerCamera(QtCore.QObject):
+class SpinnakerCamera(object):
 
     '''Abstraction of FLiR camera for PyFab/Jansen
 
     Properties
     ----------
-    camera : CameraPtr
+    camera : PySpin.CameraPtr
         camera device in Spinnaker system
     properties : list
         strings containing names of adjustable properties
@@ -245,7 +244,7 @@ class QSpinnakerCamera(QtCore.QObject):
 
 
 if __name__ == '__main__':
-    cam = QSpinnakerCamera()
+    cam = SpinnakerCamera()
     print(cam.width)
     _, img = cam.read()
     print(img.shape)

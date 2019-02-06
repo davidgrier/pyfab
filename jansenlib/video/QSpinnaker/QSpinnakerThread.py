@@ -3,7 +3,7 @@
 """QSpinnakerThread.py: Spinnaker video camera running in a QThread"""
 
 from pyqtgraph.Qt import QtCore
-from QSpinnakerCamera import QSpinnakerCamera
+from SpinnakerCamera import SpinnakerCamera as Camera
 import numpy as np
 import cv2
 
@@ -43,7 +43,7 @@ class QSpinnakerThread(QtCore.QThread):
                  gray=False):
         super(QSpinnakerThread, self).__init__(parent)
 
-        self.camera = QSpinnakerCamera()
+        self.camera = Camera()
         self.read = self.camera.read
         # camera properties
         self.mirrored = bool(mirrored)
