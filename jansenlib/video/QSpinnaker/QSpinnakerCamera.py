@@ -78,8 +78,8 @@ class QSpinnakerCamera(QtCore.QObject):
     # Dynamic mapping for GenICam properties
     _pmap = {'width': 'Width',
              'height': 'Height',
-             'maxwidth': 'MaxWidth',
-             'maxheight': 'MaxHeight',
+             'widthmax': 'WidthMax',
+             'heightmax': 'HeightMax',
              'sensorwidth': 'SensorWidth',
              'sensorheight': 'SensorHeight',
              'x0': 'OffsetX',
