@@ -5,7 +5,7 @@
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
-from .QCameraThread import QCameraThread
+from .QSpinnakerThread import QSpinnakerThread as Camera
 from collections import deque
 
 
@@ -35,6 +35,7 @@ class QFPS(QtCore.QObject):
 
 
 class QVideoItem(pg.ImageItem):
+
     """Video source for pyqtgraph applications.
     Acts like a pyqtgraph ImageItem whose images are updated
     automatically.  Optionally applies filters to modify
@@ -43,7 +44,11 @@ class QVideoItem(pg.ImageItem):
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, parent=None, source=None, **kwargs):
+    def __init__(self,
+                 parent=None,
+                 source=None,
+                 camera=None,
+                 **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QVideoItem, self).__init__(parent=parent, **kwargs)
         self._filters = list()
@@ -54,7 +59,11 @@ class QVideoItem(pg.ImageItem):
         self.fps = self._fps.value
 
         # default source is a camera
-        self.camera = QCameraThread(parent=self, **kwargs)
+        if camera is None:
+            self.camera = Camera(parent=self, **kwargs)
+        else:
+            camera.setParent(parent)
+            self.camera = camera
         self.source = self.camera
         self.camera.start()
         self.gray = self.camera.gray

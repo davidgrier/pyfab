@@ -23,13 +23,21 @@ class QSpinnakerCamera(QtCore.QObject):
         Each named property may be treated like a python property
         and also can be accessed with getProperty() and setProperty()
 
+    GenICam Properties
+    ------------------
+    exposureauto: 'Off', 'Once', 'Continuous'
+    exposuremode: 'Off', 'Timed', 'TriggerWidth', 'TriggerControlled'
+    framerateauto: 'Off', 'Continuous'
+    framerateenabled: bool
+    gainauto: 'Off', 'Once', 'Continuous'
+
     Methods
     -------
     getProperty(name):
         Get named property
     setProperty(name, value):
         Set named property to value
-    read(): numpy.ndarray
+    read(): (bool, numpy.ndarray)
         Return next available video frame
     '''
 
@@ -50,8 +58,13 @@ class QSpinnakerCamera(QtCore.QObject):
         self.properties = self._pmap.keys
         # Start acquisition
         self.acquisitionmode = 'Continuous'
+        self.exposuremode = 'Timed'
         self.exposureauto = 'Off'
+        self.framerateauto = 'Off'
+        self.framerateenabled = True
         self.gainauto = 'Off'
+        self.flipped = False
+        self.mirrored = False
         self.camera.BeginAcquisition()
 
     def __del__(self):
@@ -65,6 +78,10 @@ class QSpinnakerCamera(QtCore.QObject):
     # Dynamic mapping for GenICam properties
     _pmap = {'width': 'Width',
              'height': 'Height',
+             'maxwidth': 'MaxWidth',
+             'maxheight': 'MaxHeight',
+             'sensorwidth': 'SensorWidth',
+             'sensorheight': 'SensorHeight',
              'x0': 'OffsetX',
              'y0': 'OffsetY',
              'acquisitionmode': 'AcquisitionMode',
@@ -73,10 +90,12 @@ class QSpinnakerCamera(QtCore.QObject):
              'blacklevel': 'BlackLevel',
              'exposure': 'ExposureTime',
              'gain': 'Gain',
-             'exposureauto': 'ExposureAuto',     # 'Off', 'Once', 'Continuous'
+             'exposureauto': 'ExposureAuto',
+             'exposuremode': 'ExposureMode',
+             'framerateauto': 'AcquisitionFrameRateAuto',
+             'framerateenabled': 'AcquisitionFrameRateEnabled',
              'gainauto': 'GainAuto',
-             'mirrored': 'ReverseX',
-             'flipped': 'ReverseY'}
+             'mirrored': 'ReverseX'}
 
     def _noattribute(self, name):
         msg = "'{0}' object has no attribute '{1}'"
@@ -139,9 +158,14 @@ class QSpinnakerCamera(QtCore.QObject):
              PySpin.intfIEnumeration: PySpin.CEnumerationPtr}
 
     def _feature(self, fname):
-        node = self._nodes.GetNode(fname)
-        type = node.GetPrincipalInterfaceType()
-        feature = self._fmap[type](node)
+        '''Return inode for named feature'''
+        feature = None
+        try:
+            node = self._nodes.GetNode(fname)
+            type = node.GetPrincipalInterfaceType()
+            feature = self._fmap[type](node)
+        except AttributeError:
+            logger.warn('Could not access Property: {}'.format(fname))
         return feature
 
     def _getFValue(self, fname):
@@ -151,8 +175,6 @@ class QSpinnakerCamera(QtCore.QObject):
             value = feature.ToString()
         elif self._isReadable(feature):
             value = feature.GetValue()
-        else:
-            logger.warning('Could not access property: {}'.format(fname))
         return value
 
     def _setFValue(self, fname, value):
@@ -160,10 +182,13 @@ class QSpinnakerCamera(QtCore.QObject):
         if not self._isWritable(feature):
             logger.warning('Property {} is not writable'.format(fname))
             return
-        if self._isEnum(feature) or self._isCommand(feature):
-            feature.FromString(value)
-        else:
-            feature.SetValue(value)
+        try:
+            if self._isEnum(feature) or self._isCommand(feature):
+                feature.FromString(value)
+            else:
+                feature.SetValue(value)
+        except PySpin.SpinnakerException as ex:
+            logger.warning('Could not set {}: {}'.format(fname, ex))
 
     def _isReadable(self, feature):
         return PySpin.IsAvailable(feature) and PySpin.IsReadable(feature)
@@ -188,6 +213,7 @@ class QSpinnakerCamera(QtCore.QObject):
     # Methods for introspection
     #
     def cameraInfo(self):
+        '''Return dict of camera inodes and values'''
         root = PySpin.CCategoryPtr(self._nodes.GetNode('Root'))
         categories = dict()
         for category in root.GetFeatures():

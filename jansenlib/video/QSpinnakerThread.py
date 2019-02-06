@@ -5,6 +5,7 @@
 from pyqtgraph.Qt import QtCore
 from QSpinnakerCamera import QSpinnakerCamera
 import numpy as np
+import cv2
 
 import logging
 logging.basicConfig()
@@ -13,6 +14,7 @@ logger.setLevel(logging.WARNING)
 
 
 class QSpinnakerThread(QtCore.QThread):
+
     """Spinnaker camera
 
     Continuously captures frames from a video camera,
@@ -43,18 +45,12 @@ class QSpinnakerThread(QtCore.QThread):
 
         self.camera = QSpinnakerCamera()
         self.read = self.camera.read
-        self.mirrored = self.camera.mirrored
-        self.flipped = self.camera.flipped
-        self.gray = self.camera.gray
-
         # camera properties
-
         self.mirrored = bool(mirrored)
         self.flipped = bool(flipped)
-        self.transposed = bool(transposed)
+        # self.transposed = bool(transposed)
         self.gray = bool(gray)
-
-        self.frame = self.read()
+        ready, self.frame = self.read()
 
     def run(self):
         self.running = True
@@ -66,6 +62,30 @@ class QSpinnakerThread(QtCore.QThread):
 
     def stop(self):
         self.running = False
+
+    @property
+    def gray(self):
+        return self.camera.gray
+
+    @gray.setter
+    def gray(self, state):
+        self.camera.gray = bool(state)
+
+    @property
+    def mirrored(self):
+        return self.camera.mirrored
+
+    @mirrored.setter
+    def mirrored(self, state):
+        self.camera.mirrored = bool(state)
+
+    @property
+    def flipped(self):
+        return self._flipped
+
+    @flipped.setter
+    def flipped(self, state):
+        self._flipped = bool(state)
 
     @property
     def transposed(self):
@@ -83,6 +103,8 @@ class QSpinnakerThread(QtCore.QThread):
     @frame.setter
     def frame(self, image):
         (self._height, self._width) = image.shape[:2]
+        if self.flipped:
+            image = cv2.flip(image, 0)
         self._frame = image
 
     def width(self):
