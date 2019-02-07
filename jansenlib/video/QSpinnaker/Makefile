@@ -6,6 +6,8 @@ PYUIC = pyuic5
 .PHONY: all test
 
 all: $(PYFILE)
+
+test: $(PYFILE)
 	$(PYTHON) $(PYFILE)
 
 %.py: %.ui
