@@ -124,7 +124,7 @@ class SpinnakerCamera(object):
             fname = _amap[name]
             return self._get_feature(fname)
         except KeyError:
-            pass
+            raise AttributeError
 
     def __setattr__(self, name, value):
         if name in _amap.keys():

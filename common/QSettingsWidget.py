@@ -120,6 +120,14 @@ class QSettingsWidget(QWidget):
         else:
             logger.warning('unknown property: {}'.format(name))
 
+    def waitForDevice(self):
+        '''Wait until device is done processing last instruction'''
+        if hasattr(self.device, 'busy'):
+            print('got here')
+            while self.device.busy():
+                if self.device.error:
+                    logger.warn('device error')
+
     def setDeviceProperty(self, name, value):
         '''Set device property and wait for operation to complete
 
@@ -133,9 +141,7 @@ class QSettingsWidget(QWidget):
         if hasattr(self.device, name):
             setattr(self.device, name, value)
             logger.info('Setting {}: {}'.format(name, value))
-            while self.device.busy():
-                if self.device.error:
-                    logger.warn('device error')
+            self.waitForDevice()
 
     def setUiProperty(self, name, value):
         '''Set UI property
@@ -219,12 +225,11 @@ class QSettingsWidget(QWidget):
 
     @pyqtSlot(bool)
     def autoUpdateDevice(self, flag):
+        logger.debug('autoUpdateDevice')
         autosetproperty = self.sender.objectName()
         autosetmethod = getattr(self.device, autosetproperty)
         autosetmethod()
-        while self.device.busy():
-            if self.device.error:
-                logger.warn('device error')
+        self.waitForDevice()
         self.updateUi
 
     def connectSignals(self):
