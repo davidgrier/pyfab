@@ -12,6 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 class QSettingsWidget(QWidget):
+
     '''A glue class that connects a device with a GUI
 
     An object of this class associates properties of a device
@@ -185,7 +186,10 @@ class QSettingsWidget(QWidget):
         Valid properties appear in both the device and the ui.
         Do not include private properties denoted with an underscore.
         '''
-        dprops = [name for name, _ in inspect.getmembers(self.device)]
+        if hasattr(self.device, 'properties'):
+            dprops = self.device.properties
+        else:
+            dprops = [name for name, _ in inspect.getmembers(self.device)]
         uprops = [name for name, _ in inspect.getmembers(self.ui)]
         props = [name for name in dprops if name in uprops]
         self._properties = [name for name in props if '_' not in name]
