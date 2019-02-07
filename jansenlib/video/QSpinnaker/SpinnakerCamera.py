@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import PySpin
+import cv2
 
 import logging
 logging.basicConfig()
@@ -13,22 +14,29 @@ class SpinnakerCamera(object):
 
     '''Abstraction of FLiR camera for PyFab/Jansen
 
-    Properties
+    Attributes
     ----------
-    camera : PySpin.CameraPtr
+    device: PySpin.CameraPtr
         camera device in Spinnaker system
-    properties : list
+    properties: list
         strings containing names of adjustable properties
         Each named property may be treated like a python property
         and also can be accessed with getProperty() and setProperty()
 
-    GenICam Properties
-    ------------------
-    exposureauto: 'Off', 'Once', 'Continuous'
-    exposuremode: 'Off', 'Timed', 'TriggerWidth', 'TriggerControlled'
-    framerateauto: 'Off', 'Continuous'
+    Attributes
+    ----------
+    exposureauto: str: 'Off', 'Once', 'Continuous'
+        Enable automatic control of exposure time
+    exposuremode: str: 'Off', 'Timed', 'TriggerWidth', 'TriggerControlled'
+        Method for initiating exposure
+    framerateauto: str: 'Off', 'Continuous'
+        Enable automatic control of frame rate
     framerateenabled: bool
+        Enable manual control of frame rate
     gainauto: 'Off', 'Once', 'Continuous'
+        Enable automatic control of gain
+    gray: bool
+        read() returns single-channel (grayscale) image if True
 
     Methods
     -------
@@ -40,20 +48,29 @@ class SpinnakerCamera(object):
         Return next available video frame
     '''
 
-    def __init__(self, **kwargs):
-        super(QSpinnakerCamera, self).__init__(**kwargs)
+    def __init__(self,
+                 acquisitionmode='Continuous',
+                 exposuremode='Timed',
+                 exposureauto='Off',
+                 flipped=False,
+                 framerateauto='Off',
+                 framerateenabled='True',
+                 gainauto='Off',
+                 gray=True,
+                 mirrored=False):
+        # super(SpinnakerCamera, self).__init__()
 
         # Initialize Spinnaker and get list of cameras
         self._system = PySpin.System.GetInstance()
-        self._cameras = self._system.GetCameras()
-        if self._cameras.GetSize() < 1:
+        self._devices = self._system.GetCameras()
+        if self._devices.GetSize() < 1:
             logger.error('No Spinnaker cameras found')
         # Work with first attached camera.  This can be generalized
-        self.camera = self._cameras[0]
-        self.camera.Init()
+        self.device = self._devices[0]
+        self.device.Init()
         # Get list of inodes in camera device.
         # These provide access to camera properties
-        self._nodes = self.camera.GetNodeMap()
+        self._nodes = self.device.GetNodeMap()
         self.properties = self._pmap.keys
         # Start acquisition
         self.acquisitionmode = 'Continuous'
@@ -64,14 +81,14 @@ class SpinnakerCamera(object):
         self.gainauto = 'Off'
         self.flipped = False
         self.mirrored = False
-        self.camera.BeginAcquisition()
+        self.device.BeginAcquisition()
 
     def __del__(self):
         logger.debug('Cleaning up')
-        self.camera.EndAcquisition()
-        self.camera.DeInit()
-        del self.camera
-        self._cameras.Clear()
+        self.device.EndAcquisition()
+        self.device.DeInit()
+        del self.device
+        self._devices.Clear()
         self._system.ReleaseInstance()
 
     # Dynamic mapping for GenICam properties
@@ -105,14 +122,14 @@ class SpinnakerCamera(object):
             sname = self._pmap[name]
             return self._getFValue(sname)
         except KeyError:
-            super(QSpinnakerCamera, self).__getattr__(name)
+            object.__getattr__(self, name)
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value=None):
         try:
             pname = self._pmap[name]
             self._setFValue(pname, value)
         except KeyError:
-            super(QSpinnakerCamera, self).__setattr__(name, value)
+            object.__setattr__(self, name, value)
 
     def getProperty(self, name):
         if hasattr(self, name):
@@ -123,6 +140,14 @@ class SpinnakerCamera(object):
     def setProperty(self, name, value):
         if hasattr(self, name):
             setattr(self, name, value)
+
+    @property
+    def flipped(self):
+        return self._flipped
+
+    @flipped.setter
+    def flipped(self, state):
+        self._flipped = bool(state)
 
     @property
     def gray(self):
@@ -136,14 +161,17 @@ class SpinnakerCamera(object):
             self.pixelformat = 'RGB8'
 
     def read(self):
-        res = self.camera.GetNextImage()
+        res = self.device.GetNextImage()
         error = res.IsIncomplete()
         if error:
             status = res.GetImageStatus()
             error_msg = res.GetImageStatusDescription(status)
             logger.warning('Incomplete Image: ' + error_msg)
         shape = (res.GetHeight(), res.GetWidth())
-        return not error, res.GetData().reshape(shape)
+        image = res.GetData().reshape(shape)
+        if self.flipped:
+            image = cv2.flip(image, 0)
+        return not error, image
 
     #
     # private methods for handling interactions with GenICam
@@ -229,7 +257,7 @@ class SpinnakerCamera(object):
         return categories
 
     def TLDeviceInfo(self):
-        nodemap = self.camera.GetTLDeviceNodeMap()  # Transport layer
+        nodemap = self.device.GetTLDeviceNodeMap()  # Transport layer
         try:
             info = PySpin.CCategoryPtr(nodemap.GetNode('DeviceInformation'))
             if self._isReadable(info):
