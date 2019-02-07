@@ -126,7 +126,7 @@ class SpinnakerCamera(object):
         except KeyError:
             pass
 
-   def __setattr__(self, name, value):
+    def __setattr__(self, name, value):
         if name in _amap.keys():
             fname = _amap[name]
             self._set_feature(fname, value)
@@ -260,7 +260,7 @@ class SpinnakerCamera(object):
                 categories[cname] = features
         return categories
 
-   def transport_info(self):
+    def transport_info(self):
         '''Return dict of Transport Layer Device inodes and values'''
         nodemap = self.device.GetTLDeviceNodeMap()  # Transport layer
         try:
