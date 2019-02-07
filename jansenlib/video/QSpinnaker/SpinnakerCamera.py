@@ -9,6 +9,28 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+# Dynamic mapping for GenICam attributes
+_amap = {'width': 'Width',
+         'height': 'Height',
+         'widthmax': 'WidthMax',
+         'heightmax': 'HeightMax',
+         'sensorwidth': 'SensorWidth',
+         'sensorheight': 'SensorHeight',
+         'x0': 'OffsetX',
+         'y0': 'OffsetY',
+         'acquisitionmode': 'AcquisitionMode',
+         'framerate': 'AcquisitionFrameRate',
+         'pixelformat': 'PixelFormat',
+         'blacklevel': 'BlackLevel',
+         'exposure': 'ExposureTime',
+         'gain': 'Gain',
+         'exposureauto': 'ExposureAuto',
+         'exposuremode': 'ExposureMode',
+         'framerateauto': 'AcquisitionFrameRateAuto',
+         'framerateenabled': 'AcquisitionFrameRateEnabled',
+         'gainauto': 'GainAuto',
+         'mirrored': 'ReverseX'}
+
 
 class SpinnakerCamera(object):
 
@@ -40,9 +62,9 @@ class SpinnakerCamera(object):
 
     Methods
     -------
-    getProperty(name):
+    get(name):
         Get named property
-    setProperty(name, value):
+    set(name, value):
         Set named property to value
     read(): (bool, numpy.ndarray)
         Return next available video frame
@@ -68,10 +90,9 @@ class SpinnakerCamera(object):
         # Work with first attached camera.  This can be generalized
         self.device = self._devices[0]
         self.device.Init()
-        # Get list of inodes in camera device.
-        # These provide access to camera properties
+        # Camera inodes provide access to device properties
         self._nodes = self.device.GetNodeMap()
-        self.properties = self._pmap.keys
+        self._register_properties()
         # Start acquisition
         self.acquisitionmode = 'Continuous'
         self.exposuremode = 'Timed'
@@ -91,53 +112,35 @@ class SpinnakerCamera(object):
         self._devices.Clear()
         self._system.ReleaseInstance()
 
-    # Dynamic mapping for GenICam properties
-    _pmap = {'width': 'Width',
-             'height': 'Height',
-             'widthmax': 'WidthMax',
-             'heightmax': 'HeightMax',
-             'sensorwidth': 'SensorWidth',
-             'sensorheight': 'SensorHeight',
-             'x0': 'OffsetX',
-             'y0': 'OffsetY',
-             'acquisitionmode': 'AcquisitionMode',
-             'framerate': 'AcquisitionFrameRate',
-             'pixelformat': 'PixelFormat',
-             'blacklevel': 'BlackLevel',
-             'exposure': 'ExposureTime',
-             'gain': 'Gain',
-             'exposureauto': 'ExposureAuto',
-             'exposuremode': 'ExposureMode',
-             'framerateauto': 'AcquisitionFrameRateAuto',
-             'framerateenabled': 'AcquisitionFrameRateEnabled',
-             'gainauto': 'GainAuto',
-             'mirrored': 'ReverseX'}
-
-    def _noattribute(self, name):
-        msg = "'{0}' object has no attribute '{1}'"
-        return msg.format(type(self).__name__, name)
+    def _register_properties(self):
+        '''Return list of camera properties that can be controlled'''
+        self.properties = _amap.keys()
+        self.properties.append('flipped')
+        self.properties.append('gray')
 
     def __getattr__(self, name):
         try:
-            sname = self._pmap[name]
-            return self._getFValue(sname)
+            fname = _amap[name]
+            return self._get_feature(fname)
         except KeyError:
-            object.__getattr__(self, name)
+            pass
 
     def __setattr__(self, name, value=None):
-        try:
-            pname = self._pmap[name]
-            self._setFValue(pname, value)
-        except KeyError:
+        if name in _amap.keys():
+            fname = _amap[name]
+            self._set_feature(fname, value)
+        else:
             object.__setattr__(self, name, value)
 
-    def getProperty(self, name):
+    def get(self, name):
+        '''Return value of named property'''
         if hasattr(self, name):
             return getattr(self, name)
         else:
             return None
 
-    def setProperty(self, name, value):
+    def set(self, name, value):
+        '''Set named property to specified value'''
         if hasattr(self, name):
             setattr(self, name, value)
 
@@ -195,72 +198,73 @@ class SpinnakerCamera(object):
             logger.warn('Could not access Property: {}'.format(fname))
         return feature
 
-    def _getFValue(self, fname):
+    def _get_feature(self, fname):
         feature = self._feature(fname)
         value = None
-        if self._isEnum(feature) or self._isCommand(feature):
+        if self._is_enum(feature) or self._is_command(feature):
             value = feature.ToString()
-        elif self._isReadable(feature):
+        elif self._is_readable(feature):
             value = feature.GetValue()
         return value
 
-    def _setFValue(self, fname, value):
+    def _set_feature(self, fname, value):
         feature = self._feature(fname)
-        if not self._isWritable(feature):
+        if not self._is_writable(feature):
             logger.warning('Property {} is not writable'.format(fname))
             return
         try:
-            if self._isEnum(feature) or self._isCommand(feature):
+            if self._is_enum(feature) or self._is_command(feature):
                 feature.FromString(value)
             else:
                 feature.SetValue(value)
         except PySpin.SpinnakerException as ex:
             logger.warning('Could not set {}: {}'.format(fname, ex))
 
-    def _isReadable(self, feature):
+    def _is_readable(self, feature):
         return PySpin.IsAvailable(feature) and PySpin.IsReadable(feature)
 
-    def _isWritable(self, feature):
+    def _is_writable(self, feature):
         return PySpin.IsAvailable(feature) and PySpin.IsWritable(feature)
 
-    def _isType(self, feature, typevalue):
-        return (self._isReadable(feature) and
+    def _is_type(self, feature, typevalue):
+        return (self._is_readable(feature) and
                 feature.GetPrincipalInterfaceType() == typevalue)
 
-    def _isCategory(self, feature):
-        return self._isType(feature, PySpin.intfICategory)
+    def _is_category(self, feature):
+        return self._is_type(feature, PySpin.intfICategory)
 
-    def _isEnum(self, feature):
-        return self._isType(feature, PySpin.intfIEnumeration)
+    def _is_enum(self, feature):
+        return self._is_type(feature, PySpin.intfIEnumeration)
 
-    def _isCommand(self, feature):
-        return self._isType(feature, PySpin.intfICommand)
+    def _is_command(self, feature):
+        return self._is_type(feature, PySpin.intfICommand)
 
     #
     # Methods for introspection
     #
-    def cameraInfo(self):
+    def camera_info(self):
         '''Return dict of camera inodes and values'''
         root = PySpin.CCategoryPtr(self._nodes.GetNode('Root'))
         categories = dict()
         for category in root.GetFeatures():
-            if self._isCategory(category):
+            if self._is_category(category):
                 cname = category.GetName()
                 cnode = self._feature(cname)
                 features = dict()
                 for node in cnode.GetFeatures():
-                    if not self._isReadable(node):
+                    if not self._is_readable(node):
                         continue
                     fname = node.GetName()
-                    features[fname] = self._getFValue(fname)
+                    features[fname] = self._get_feature(fname)
                 categories[cname] = features
         return categories
 
-    def TLDeviceInfo(self):
+    def transport_info(self):
+        '''Return dict of Transport Layer Device inodes and values'''
         nodemap = self.device.GetTLDeviceNodeMap()  # Transport layer
         try:
             info = PySpin.CCategoryPtr(nodemap.GetNode('DeviceInformation'))
-            if self._isReadable(info):
+            if self._is_readable(info):
                 features = info.GetFeatures()
                 for feature in features:
                     this = PySpin.CValuePtr(feature)
