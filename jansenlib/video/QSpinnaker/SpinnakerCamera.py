@@ -10,26 +10,27 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # Dynamic mapping for GenICam attributes
-_amap = {'width': 'Width',
-         'height': 'Height',
-         'widthmax': 'WidthMax',
-         'heightmax': 'HeightMax',
-         'sensorwidth': 'SensorWidth',
-         'sensorheight': 'SensorHeight',
-         'x0': 'OffsetX',
-         'y0': 'OffsetY',
-         'acquisitionmode': 'AcquisitionMode',
-         'framerate': 'AcquisitionFrameRate',
-         'pixelformat': 'PixelFormat',
+_amap = {'acquisitionmode': 'AcquisitionMode',
          'blacklevel': 'BlackLevel',
          'exposure': 'ExposureTime',
-         'gain': 'Gain',
          'exposureauto': 'ExposureAuto',
          'exposuremode': 'ExposureMode',
+         'framerate': 'AcquisitionFrameRate',
          'framerateauto': 'AcquisitionFrameRateAuto',
          'framerateenabled': 'AcquisitionFrameRateEnabled',
+         'gain': 'Gain',
          'gainauto': 'GainAuto',
-         'mirrored': 'ReverseX'}
+         'height': 'Height',
+         'heightmax': 'HeightMax',
+         'mirrored': 'ReverseX',
+         'pixelformat': 'PixelFormat',
+         'sensorwidth': 'SensorWidth',
+         'sensorheight': 'SensorHeight',
+         'videomode': 'VideoMode',
+         'width': 'Width',
+         'widthmax': 'WidthMax',
+         'x0': 'OffsetX',
+         'y0': 'OffsetY'}
 
 
 class SpinnakerCamera(object):
