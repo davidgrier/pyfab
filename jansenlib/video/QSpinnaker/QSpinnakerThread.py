@@ -26,10 +26,6 @@ class QSpinnakerThread(QtCore.QThread):
     while other methods and properties remain available in
     the calling thread.  This simplifies getting and setting
     the camera's properties.
-
-    NOTE: This implementation only moves the camera's read()
-    method into a separate thread, not the entire camera.
-    FIXME: Confirm that this is acceptable practice.
     """
 
     sigNewFrame = QtCore.pyqtSignal(np.ndarray)
@@ -42,19 +38,19 @@ class QSpinnakerThread(QtCore.QThread):
         ready, self.frame = self.read()
 
     def run(self):
-        self.running = True
-        while self.running:
+        self._running = True
+        while self._running:
             ready, frame = self.read()
             if ready:
                 self.sigNewFrame.emit(frame)
         del self.camera
 
     def stop(self):
-        self.running = False
+        self._running = False
 
-    def getProperty(self, name):
+    def get(self, name):
         return self.camera.getProperty(name)
 
     @QtCore.pySlot(object, object)
-    def setProperty(self, name, value):
-        self.camera.setProperty(name, value)
+    def set(self, name, value):
+        self.camera.set(name, value)

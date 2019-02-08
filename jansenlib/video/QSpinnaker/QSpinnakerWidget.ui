@@ -133,7 +133,7 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="autoexposure">
+       <widget class="QPushButton" name="exposureauto">
         <property name="statusTip">
          <string>Camera: Optimize exposure time</string>
         </property>
@@ -172,7 +172,7 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QPushButton" name="autogain">
+       <widget class="QPushButton" name="gainauto">
         <property name="statusTip">
          <string>Camera: Optimize gain</string>
         </property>
@@ -357,9 +357,9 @@
   <tabstop>flipped</tabstop>
   <tabstop>mirrored</tabstop>
   <tabstop>exposure</tabstop>
-  <tabstop>autoexposure</tabstop>
+  <tabstop>exposureauto</tabstop>
   <tabstop>gain</tabstop>
-  <tabstop>autogain</tabstop>
+  <tabstop>gainauto</tabstop>
   <tabstop>framerate</tabstop>
   <tabstop>x0</tabstop>
   <tabstop>y0</tabstop>

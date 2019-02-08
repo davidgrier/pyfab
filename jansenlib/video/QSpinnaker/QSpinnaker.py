@@ -15,6 +15,14 @@ class QSpinnaker(QSettingsWidget):
                                          device=device,
                                          ui=ui)
 
+    def configureUi(self):
+        self.ui.autoexposure.clicked.connect(
+            lambda: self.device.set('autoexposure', 'Once'))
+        self.ui.autogain.clicked.connect(
+            lambda: self.device.set('autogain', 'Once'))
+        # limits on widgets
+
+
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     import sys
