@@ -17,6 +17,8 @@ USB 3.x communication on Ubuntu 16.04 requires
 
 # Dynamic mapping for GenICam attributes
 _amap = {'acquisitionmode': 'AcquisitionMode',
+         'acquisitionstart': 'AcquisitionStart',
+         'acquisitionstop': 'AcquisitionStop',
          'blacklevel': 'BlackLevel',
          'exposure': 'ExposureTime',
          'exposureauto': 'ExposureAuto',
@@ -83,7 +85,7 @@ class SpinnakerCamera(object):
                  exposureauto='Off',
                  flipped=False,
                  framerateauto='Off',
-                 framerateenabled='True',
+                 framerateenabled=True,
                  gainauto='Off',
                  gray=True,
                  mirrored=False):
@@ -102,14 +104,15 @@ class SpinnakerCamera(object):
         self._nodes = self.device.GetNodeMap()
         self._register_properties()
         # Start acquisition
-        self.acquisitionmode = 'Continuous'
-        self.exposuremode = 'Timed'
-        self.exposureauto = 'Off'
-        self.framerateauto = 'Off'
-        self.framerateenabled = True
-        self.gainauto = 'Off'
-        self.flipped = False
-        self.mirrored = False
+        self.acquisitionmode = acquisitionmode
+        self.exposureauto = exposureauto
+        self.exposuremode = exposuremode
+        self.flipped = flipped
+        self.framerateauto = framerateauto
+        self.framerateenabled = framerateenabled
+        self.gainauto = gainauto
+        self.gray = gray
+        self.mirrored = mirrored
         self.device.BeginAcquisition()
 
     def __del__(self):
@@ -162,12 +165,12 @@ class SpinnakerCamera(object):
 
     @property
     def gray(self):
-        return self.pixelformat == 'Mono8'
+        return self.pixelformat == 'Raw8'
 
     @gray.setter
     def gray(self, state):
         if (state):
-            self.pixelformat = 'Mono8'
+            self.pixelformat = 'Raw8'
         else:
             self.pixelformat = 'RGB8'
 
