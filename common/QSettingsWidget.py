@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import (
-    QWidget, QComboBox, QSpinBox, QDoubleSpinBox, QPushButton)
+from PyQt5.QtCore import (pyqtSlot, pyqtProperty)
+from PyQt5.QtWidgets import (QWidget, QComboBox, QSpinBox,
+                             QDoubleSpinBox, QCheckBox, QPushButton)
 import inspect
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 class QSettingsWidget(QWidget):
@@ -65,7 +65,7 @@ class QSettingsWidget(QWidget):
         self._properties = []
         self.device = device
 
-    @property
+    @pyqtProperty(object)
     def device(self):
         '''Object representation of device to be controlled'''
         return self._device
@@ -160,12 +160,17 @@ class QSettingsWidget(QWidget):
             wid.setValue(value)
         elif isinstance(wid, QComboBox):
             wid.setCurrentIndex(value)
+        elif isinstance(wid, QCheckBox):
+            if wid.isTristate():
+                wid.setCheckState(value)
+            else:
+                wid.setCheckState(2*value)
         elif isinstance(wid, QPushButton):
             pass
         else:
             logger.warn('Unknown property: {}: {}'.format(name, type(wid)))
 
-    @property
+    @pyqtProperty(dict)
     def settings(self):
         '''Dictionary of properties and their values'''
         values = dict()
@@ -181,7 +186,7 @@ class QSettingsWidget(QWidget):
             self.setDeviceProperty(name, values[name])
         self.updateUi()
 
-    @property
+    @pyqtProperty(list)
     def properties(self):
         '''List of properties managed by this object'''
         return self._properties
@@ -241,6 +246,8 @@ class QSettingsWidget(QWidget):
                 wid.valueChanged.connect(self.updateDevice)
             elif isinstance(wid, QComboBox):
                 wid.currentIndexChanged.connect(self.updateDevice)
+            elif isinstance(wid, QCheckBox):
+                wid.stateChanged.connect(self.updateDevice)
             elif isinstance(wid, QPushButton):
                 wid.clicked.connect(self.autoUpdateDevice)
             else:
@@ -255,6 +262,8 @@ class QSettingsWidget(QWidget):
                 wid.valueChanged.disconnect(self.updateDevice)
             elif isinstance(wid, QComboBox):
                 wid.currentIndexChanged.disconnect(self.updateDevice)
+            elif isinstance(wid, QCheckBox):
+                wid.stateChanged.disconnect(self.updateDevice)
             elif isinstance(wid, QPushButton):
                 wid.clicked.disconnect(self.autoUpdateDevice)
             else:

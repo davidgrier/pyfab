@@ -128,6 +128,7 @@ class SpinnakerCamera(object):
         self.properties = _amap.keys()
         self.properties.append('flipped')
         self.properties.append('gray')
+        self.properties.append('videomode')
 
     def __getattr__(self, name):
         try:

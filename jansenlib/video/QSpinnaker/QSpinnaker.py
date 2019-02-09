@@ -26,10 +26,10 @@ class QSpinnaker(QSettingsWidget):
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     import sys
-    from SpinnakerCamera import SpinnakerCamera
+    from QSpinnakerThread import QSpinnakerThread
 
     app = QApplication(sys.argv)
-    device = SpinnakerCamera()
+    device = QSpinnakerThread()
     wid = QSpinnaker(device=device)
     wid.show()
     sys.exit(app.exec_())
