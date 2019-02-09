@@ -5,7 +5,7 @@ import os
 import io
 import platform
 from datetime import datetime
-from PyQt4 import QtGui
+from PyQt5.QtWidgets import QMessageBox
 
 import logging
 logging.basicConfig()
@@ -72,12 +72,12 @@ class fabconfig(object):
 
     def query_save(self, object):
         query = 'Save current configuration?'
-        reply = QtGui.QMessageBox.question(self.parent,
-                                           'Confirmation',
-                                           query,
-                                           QtGui.QMessageBox.Yes,
-                                           QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
+        reply = QMessageBox.question(self.parent,
+                                     'Confirmation',
+                                     query,
+                                     QMessageBox.Yes,
+                                     QMessageBox.No)
+        if reply == QMessageBox.Yes:
             self.save(object)
         else:
             pass
