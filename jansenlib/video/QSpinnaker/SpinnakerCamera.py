@@ -34,7 +34,7 @@ _amap = {'acquisitionmode': 'AcquisitionMode',
          'pixelformat': 'PixelFormat',
          'sensorwidth': 'SensorWidth',
          'sensorheight': 'SensorHeight',
-         'videomode': 'VideoMode',
+         '_videomode': 'VideoMode',
          'width': 'Width',
          'widthmax': 'WidthMax',
          'x0': 'OffsetX',
@@ -113,8 +113,7 @@ class SpinnakerCamera(object):
         self.gainauto = gainauto
         self.gray = gray
         self.mirrored = mirrored
-	self.videomode = 'Mode1'
-        self.device.BeginAcquisition()
+        self.start()
 
     def __del__(self):
         logger.debug('Cleaning up')
@@ -156,6 +155,12 @@ class SpinnakerCamera(object):
         if hasattr(self, name):
             setattr(self, name, value)
 
+    def start(self):
+        self.device.BeginAcquisition()
+
+    def stop(self):
+        self.device.EndAcquisition()
+
     @property
     def flipped(self):
         return self._flipped
@@ -171,9 +176,19 @@ class SpinnakerCamera(object):
     @gray.setter
     def gray(self, state):
         if (state):
-            self.pixelformat = 'Mono8' 
+            self.pixelformat = 'Mono8'
         else:
-	    self.pixelformat = 'RGB8'
+            self.pixelformat = 'RGB8'
+
+    @property
+    def videomode(self):
+        return self._videomode
+
+    @videomode.setter
+    def videomode(self, mode):
+        self.stop()
+        self._videomode = mode
+        self.start()
 
     def read(self):
         res = self.device.GetNextImage()
