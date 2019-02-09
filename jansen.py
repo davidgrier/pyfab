@@ -20,9 +20,9 @@
 
 """Jansen is a video-capture GUI intended for holographic video microscopy"""
 
-from PyQt4 import QtGui
-from jansenlib.QJansenWidget import QJansenWidget
-from common.fabconfig import fabconfig
+from PyQt5 import QtGui
+from pyfab.jansenlib.QJansenWidget import QJansenWidget
+from pyfab.common.fabconfig import fabconfig
 import sys
 
 

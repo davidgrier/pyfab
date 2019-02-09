@@ -2,14 +2,15 @@
 
 """QJansenWidget.py: GUI for holographic video microscopy."""
 
-from pyqtgraph.Qt import QtGui, QtCore
-from .QJansenScreen import QJansenScreen
-from .QHistogramTab import QHistogramTab
-from .QDVRWidget import QDVRWidget
-from common.tabLayout import tabLayout
-from .video import QCameraPropertyWidget, QVideoFilterWidget
-from tasks.taskmanager import Taskmanager
-from help.QHelpBrowser import QHelpBrowser
+from PyQt5 import QtGui, QtCore
+from pyfab.jansenlib.QJansenScreen import QJansenScreen
+from pyfab.jansenlib.QHistogramTab import QHistogramTab
+from pyfab.jansenlib.QDVRWidget import QDVRWidget
+from pyfab.common.tabLayout import tabLayout
+from pyfab.jansenlib.video import QVideoFilterWidget
+from pyfab.jansenlib.video.QOpenCV import QOpenCV
+from pyfab.tasks.taskmanager import Taskmanager
+from pyfab.help.QHelpBrowser import QHelpBrowser
 
 
 class QJansenWidget(QtGui.QWidget):
@@ -20,13 +21,16 @@ class QJansenWidget(QtGui.QWidget):
         self.init_ui()
 
     def init_components(self):
+        # video source
+        self.wcamera = QOpenCV()
+
         # video screen
-        self.screen = QJansenScreen(self, gray=True)
-        self.wcamera = QCameraPropertyWidget(self, self.screen.video.camera)
+        self.screen = QJansenScreen(self, camera=self.wcamera)
         self.filters = QVideoFilterWidget(self)
 
         # tasks are processes that are synchronized with video frames
         self.tasks = Taskmanager(self)
+
         # DVR
         self.dvr = QDVRWidget(self)
         self.dvr.recording.connect(self.handleRecording)

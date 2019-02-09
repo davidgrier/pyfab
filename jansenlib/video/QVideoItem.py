@@ -2,14 +2,17 @@
 
 """QVideoItem.py: pyqtgraph module for OpenCV video camera."""
 
+import PyQt5
+from PyQt5.QtCore import (QObject, QTime,
+                          pyqtSignal, pyqtSlot, pyqtProperty)
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore
+
+from QOpenCV.QOpenCV import QOpenCV
 import numpy as np
-from .QSpinnakerThread import QSpinnakerThread as Camera
 from collections import deque
 
 
-class QFPS(QtCore.QObject):
+class QFPS(QObject):
 
     def __init__(self, depth=24):
         super(QFPS, self).__init__()
@@ -18,9 +21,9 @@ class QFPS(QtCore.QObject):
         self._fps = 24.
         self._pause = False
 
-    @QtCore.pyqtSlot(np.ndarray)
+    @pyqtSlot(np.ndarray)
     def update(self, image):
-        now = QtCore.QTime.currentTime()
+        now = QTime.currentTime()
         self.fifo.appendleft(now)
         if len(self.fifo) <= self.depth:
             return
@@ -42,11 +45,10 @@ class QVideoItem(pg.ImageItem):
     images obtained from source.
     """
 
-    sigNewFrame = QtCore.pyqtSignal(np.ndarray)
+    sigNewFrame = pyqtSignal(np.ndarray)
 
     def __init__(self,
                  parent=None,
-                 source=None,
                  camera=None,
                  **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
@@ -60,15 +62,14 @@ class QVideoItem(pg.ImageItem):
 
         # default source is a camera
         if camera is None:
-            self.camera = Camera(parent=self, **kwargs)
+            self.camera = QOpenCV(**kwargs)
         else:
             camera.setParent(parent)
             self.camera = camera
         self.source = self.camera
         self.camera.start()
-        self.gray = self.camera.gray
 
-    @property
+    @pyqtProperty
     def source(self):
         return self._source
 
@@ -83,6 +84,15 @@ class QVideoItem(pg.ImageItem):
         source.sigNewFrame.connect(self.updateImage)
         self._source = source
 
+    def width(self):
+        return self.source.width
+
+    def height(self):
+        return self.source.height
+
+    def gray(self):
+        return self.source.gray
+
     def close(self):
         self.camera.stop()
         self.camera.quit()
@@ -92,7 +102,7 @@ class QVideoItem(pg.ImageItem):
         print('closeEvent')
         self.close()
 
-    @QtCore.pyqtSlot(np.ndarray)
+    @pyqtSlot(np.ndarray)
     def updateImage(self, image):
         self.source.blockSignals(True)
         for filter in self._filters:

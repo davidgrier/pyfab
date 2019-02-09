@@ -2,6 +2,7 @@
 
 """Control panel for standard video filters."""
 
+import PyQt5
 from pyqtgraph.Qt import QtGui, QtCore
 from .vmedian import vmedian
 from .vmax import vmax
@@ -10,7 +11,7 @@ import numpy as np
 import cv2
 from matplotlib.pylab import cm
 try:
-    from PyQt4.QtCore import QString
+    from PyQt5.QtCore import QString
 except ImportError:
     QString = str
 

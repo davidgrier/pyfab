@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtWebKit
+from PyQt5 import QtCore, QtWebKit
 import os
 
 

@@ -2,9 +2,11 @@
 
 """QJansenScreen.py: PyQt GUI for live video with graphical overlay."""
 
+import PyQt5
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
+from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
+from pyfab.jansenlib.video.QVideoItem import QVideoItem
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
-from .video.QVideoItem import QVideoItem
 import numpy as np
 
 
@@ -16,25 +18,52 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     as overlays over the video stream.
     Interaction with graphical items is facilitated
     by custom signals that correspond to mouse events.
-    """
-    sigMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    sigMouseWheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
-    sigNewFrame = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, parent=None, **kwargs):
+    ...
+
+    Attributes
+    ----------
+    parent:
+    camera: pyfab.jansenlib.video.QVideoItem
+
+    Methods
+    -------
+    width(): int
+        Width of video feed [pixels]
+    height(): int
+        Height of video feed [pixels]
+
+    Signals
+    -------
+    sigMousePress(QMouseEvent)
+    sigMouseRelease(QMouseEvent)
+    sigMouseMove(QMouseEvent)
+    sigMouseWheel(QMouseEvent)
+    sigNewFrame(numpy.ndarray)
+
+    Slots
+    -----
+    """
+    sigMousePress = pyqtSignal(QMouseEvent)
+    sigMouseRelease = pyqtSignal(QMouseEvent)
+    sigMouseMove = pyqtSignal(QMouseEvent)
+    sigMouseWheel = pyqtSignal(QWheelEvent)
+    sigNewFrame = pyqtSignal(np.ndarray)
+
+    def __init__(self, parent=None, camera=None):
         super(QJansenScreen, self).__init__(parent)
         self.ci.layout.setContentsMargins(0, 0, 0, 0)
         # VideoItem displays video feed
-        self.video = QVideoItem(self, **kwargs)
+        self.videoItem = QVideoItem(parent=self, camera=camera)
         # ViewBox presents video and contains overlays
         self.viewbox = self.addViewBox(enableMenu=False,
                                        enableMouse=False,
                                        invertY=False,
                                        lockAspect=True)
-        self.viewbox.setRange(self.video.camera.roi, padding=0, update=True)
-        self.viewbox.addItem(self.video)
+        self.viewbox.setRange(xRange=(0, self.videoItem.width),
+                              yRange=(0, self.videoItem.height),
+                              padding=0, update=True)
+        self.viewbox.addItem(self.videoItem)
         self._pause = False
 
     def addOverlay(self, graphicsItem):
@@ -48,7 +77,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     def close(self):
         self.video.close()
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def pauseSignals(self, pause):
         self._pause = bool(pause)
 

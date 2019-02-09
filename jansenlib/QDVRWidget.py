@@ -2,8 +2,8 @@
 
 """Control panel for DVR functionality."""
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt5 import QtGui, QtCore
+from PyQt5.QtCore import Qt
 from .video.QVideoPlayer import QVideoPlayer
 from .QScreenshot import QScreenshot
 import cv2
