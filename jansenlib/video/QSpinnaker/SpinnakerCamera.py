@@ -113,6 +113,7 @@ class SpinnakerCamera(object):
         self.gainauto = gainauto
         self.gray = gray
         self.mirrored = mirrored
+	self.videomode = 'Mode1'
         self.device.BeginAcquisition()
 
     def __del__(self):
@@ -165,14 +166,14 @@ class SpinnakerCamera(object):
 
     @property
     def gray(self):
-        return self.pixelformat == 'Raw8'
+        return self.pixelformat == 'Mono8'
 
     @gray.setter
     def gray(self, state):
         if (state):
-            self.pixelformat = 'Raw8'
+            self.pixelformat = 'Mono8' 
         else:
-            self.pixelformat = 'RGB8'
+	    self.pixelformat = 'RGB8'
 
     def read(self):
         res = self.device.GetNextImage()
