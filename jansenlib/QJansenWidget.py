@@ -5,7 +5,8 @@
 from PyQt5 import QtGui, QtCore
 from QJansenScreen import QJansenScreen
 from QHistogramTab import QHistogramTab
-from QDVRWidget import QDVRWidget
+#from QDVRWidget import QDVRWidget
+from .QDVR.QDVR import QDVR as QDVRWidget
 from common.tabLayout import tabLayout
 from .video.QVideoFilterWidget import QVideoFilterWidget
 from .video.QOpenCV.QOpenCV import QOpenCV

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import pyqtProperty
 from common.QSettingsWidget import QSettingsWidget
 from QOpenCVWidget import Ui_QOpenCVWidget
 from QOpenCVThread import QOpenCVThread
@@ -22,6 +23,12 @@ class QOpenCV(QSettingsWidget):
         self.ui.width.setMaximum(self.device.width)
         self.ui.height.setMaximum(self.device.height)
 
+    @pyqtProperty(int)
+    def shape(self):
+        if self.device.gray:
+            return (self.device.height, self.device.width)
+        return (self.device.height, self.device.width, 3)
+
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
@@ -31,4 +38,5 @@ if __name__ == '__main__':
     device = QOpenCVThread()
     wid = QOpenCV(device=device)
     wid.show()
+    print(wid.shape)
     sys.exit(app.exec_())
