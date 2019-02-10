@@ -2,8 +2,11 @@
 
 """Control panel for DVR functionality."""
 
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QFrame, QLabel, QLineEdit, QLCDNumber,
+                             QRadioButton, QButtonGroup, QPushButton,
+                             QFileDialog, QGridLayout, QStyle)
+from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QSize)
+from PyQt5.QtGui import QColor
 from .video.QVideoPlayer import QVideoPlayer
 from .QScreenshot import QScreenshot
 import cv2
@@ -17,9 +20,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class QDVRWidget(QtGui.QFrame):
+class QDVRWidget(QFrame):
 
-    recording = QtCore.pyqtSignal(bool)
+    recording = pyqtSignal(bool)
 
     def __init__(self,
                  parent=None,
@@ -43,7 +46,7 @@ class QDVRWidget(QtGui.QFrame):
 
         self.screen = self.parent().screen
         self.screenshot = QScreenshot(self, self.screen)
-        self.video = self.screen.video
+        self.video = self.screen.videoItem
         self.camera = self.video.camera
         self.stream = self.camera
 
@@ -52,33 +55,33 @@ class QDVRWidget(QtGui.QFrame):
         self.initUI()
 
     def initUI(self):
-        self.setFrameShape(QtGui.QFrame.Box)
+        self.setFrameShape(QFrame.Box)
         # Create layout
-        layout = QtGui.QGridLayout(self)
-        layout.setMargin(1)
+        layout = QGridLayout(self)
+        layout.setContentsMargins(1, 1, 1, 1)
         layout.setHorizontalSpacing(6)
         layout.setVerticalSpacing(3)
         # Widgets
-        self.iconSize = QtCore.QSize(24, 24)
+        self.iconSize = QSize(24, 24)
         self.stdIcon = self.style().standardIcon
-        title = QtGui.QLabel('Video Recorder')
+        title = QLabel('Video Recorder')
         # video source selection
-        self.bcamera = QtGui.QRadioButton('camera')
-        self.bvideo = QtGui.QRadioButton('video')
-        self.bscreen = QtGui.QRadioButton('screen')
+        self.bcamera = QRadioButton('camera')
+        self.bvideo = QRadioButton('video')
+        self.bscreen = QRadioButton('screen')
         self.brecord = self.recordButton()
         self.bstop = self.stopButton()
         self.bcamera.setChecked(True)
-        self.gsource = QtGui.QButtonGroup()
+        self.gsource = QButtonGroup()
         self.gsource.addButton(self.bcamera, 1)
         self.gsource.addButton(self.bvideo, 2)
         self.gsource.addButton(self.bscreen, 3)
         self.gsource.buttonClicked[int].connect(self.setSource)
         self.wframe = self.framecounterWidget()
-        wsavelabel = QtGui.QLabel('Save As')
+        wsavelabel = QLabel('Save As')
         wsavelabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.wsavename = self.saveFilenameWidget()
-        wplaylabel = QtGui.QLabel('Play')
+        wplaylabel = QLabel('Play')
         wplaylabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.wplayname = self.playFilenameWidget()
         # Place widgets in layout
@@ -99,35 +102,35 @@ class QDVRWidget(QtGui.QFrame):
         self.setLayout(layout)
 
     def recordButton(self):
-        b = QtGui.QPushButton('Record', self)
+        b = QPushButton('Record', self)
         b.clicked.connect(self.record)
-        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPlay))
+        b.setIcon(self.stdIcon(QStyle.SP_MediaPlay))
         b.setIconSize(self.iconSize)
         b.setToolTip('Start recording video')
         return b
 
     def stopButton(self):
-        b = QtGui.QPushButton('Stop', self)
+        b = QPushButton('Stop', self)
         b.clicked.connect(self.stop)
-        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaStop))
+        b.setIcon(self.stdIcon(QStyle.SP_MediaStop))
         b.setIconSize(self.iconSize)
         b.setToolTip('Stop recording video')
         return b
 
     def framecounterWidget(self):
-        lcd = QtGui.QLCDNumber(self)
+        lcd = QLCDNumber(self)
         lcd.setNumDigits(5)
-        lcd.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        lcd.setSegmentStyle(QLCDNumber.Flat)
         palette = lcd.palette()
-        palette.setColor(palette.WindowText, QtGui.QColor(0, 0, 0))
-        palette.setColor(palette.Background, QtGui.QColor(255, 255, 255))
+        palette.setColor(palette.WindowText, QColor(0, 0, 0))
+        palette.setColor(palette.Background, QColor(255, 255, 255))
         lcd.setPalette(palette)
         lcd.setAutoFillBackground(True)
         lcd.setToolTip('Frame counter')
         return lcd
 
     def saveFilenameWidget(self):
-        line = QtGui.QLineEdit()
+        line = QLineEdit()
         line.setText(self.filename)
         line.setReadOnly(True)
         clickable(line).connect(self.getSaveFilename)
@@ -137,7 +140,7 @@ class QDVRWidget(QtGui.QFrame):
     def getSaveFilename(self):
         if self.is_recording():
             return
-        filename = QtGui.QFileDialog.getSaveFileName(
+        filename = QFileDialog.getSaveFileName(
             self, 'Video File Name', self.filename, 'Video files (*.avi)')
         if filename:
             self.filename = str(filename)
@@ -145,31 +148,31 @@ class QDVRWidget(QtGui.QFrame):
             self.wplayname.setText(self.filename)
 
     def rewindButton(self):
-        b = QtGui.QPushButton('Rewind', self)
+        b = QPushButton('Rewind', self)
         b.clicked.connect(self.rewind)
-        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaSkipBackward))
+        b.setIcon(self.stdIcon(QStyle.SP_MediaSkipBackward))
         b.setIconSize(self.iconSize)
         b.setToolTip('Rewind video')
         return b
 
     def playButton(self):
-        b = QtGui.QPushButton('Play', self)
+        b = QPushButton('Play', self)
         b.clicked.connect(self.play)  # FIXME
-        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPlay))
+        b.setIcon(self.stdIcon(QStyle.SP_MediaPlay))
         b.setIconSize(self.iconSize)
         b.setToolTip('Play video')
         return b
 
     def pauseButton(self):
-        b = QtGui.QPushButton('Pause', self)
+        b = QPushButton('Pause', self)
         b.clicked.connect(self.pause)
-        b.setIcon(self.stdIcon(QtGui.QStyle.SP_MediaPause))
+        b.setIcon(self.stdIcon(QStyle.SP_MediaPause))
         b.setIconSize(self.iconSize)
         b.setToolTip('Pause video')
         return b
 
     def playFilenameWidget(self):
-        line = QtGui.QLineEdit()
+        line = QLineEdit()
         line.setText(self.playname)
         line.setReadOnly(True)
         clickable(line).connect(self.getPlayFilename)
@@ -179,7 +182,7 @@ class QDVRWidget(QtGui.QFrame):
     def getPlayFilename(self):
         if self.is_recording():
             return
-        filename = QtGui.QFileDialog.getOpenFileName(
+        filename = QFileDialog.getOpenFileName(
             self, 'Video File Name', self.filename, 'Video files (*.avi)')
         if filename:
             self._playname = str(filename)
@@ -187,7 +190,7 @@ class QDVRWidget(QtGui.QFrame):
 
     # Recording functionality
 
-    @QtCore.pyqtSlot(int)
+    @pyqtSlot(int)
     def setSource(self, button):
         try:
             self.camera.sigNewFrame.disconnect(self.screenshot.takeScreenshot)
@@ -202,7 +205,7 @@ class QDVRWidget(QtGui.QFrame):
             self.camera.sigNewFrame.connect(self.screenshot.takeScreenshot)
             self.stream = self.screenshot
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def record(self, nframes=10000):
         if (self.is_recording() or self.is_playing() or
                 (nframes <= 0)):
@@ -223,7 +226,7 @@ class QDVRWidget(QtGui.QFrame):
         self.stream.sigNewFrame.connect(self.write)
         self.recording.emit(True)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def stop(self):
         if self.is_recording():
             self.stream.sigNewFrame.disconnect(self.write)
@@ -251,7 +254,7 @@ class QDVRWidget(QtGui.QFrame):
 
     # Playback functionality
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def play(self):
         if self.is_recording():
             return
@@ -264,13 +267,13 @@ class QDVRWidget(QtGui.QFrame):
         self._player.start()
         self.video.source = self._player
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def rewind(self):
         if self.is_playing():
             self._player.rewind()
             self.framenumber = 0
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def pause(self):
         if self.is_playing():
             state = self._player.isPaused()
@@ -312,6 +315,6 @@ class QDVRWidget(QtGui.QFrame):
         self._framenumber = number
         self.wframe.display(self._framenumber)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def stepFramenumber(self):
         self.framenumber += 1

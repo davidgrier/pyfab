@@ -7,7 +7,7 @@ from QJansenScreen import QJansenScreen
 from QHistogramTab import QHistogramTab
 from QDVRWidget import QDVRWidget
 from common.tabLayout import tabLayout
-from .video import QVideoFilterWidget
+from .video.QVideoFilterWidget import QVideoFilterWidget
 from .video.QOpenCV.QOpenCV import QOpenCV
 from tasks.taskmanager import Taskmanager
 from help.QHelpBrowser import QHelpBrowser
@@ -48,7 +48,7 @@ class QJansenWidget(QtGui.QWidget):
         self.tabs.setUsesScrollButtons(True)
         index = self.tabs.addTab(self.videoTab(), 'Video')
         self.tabs.setTabToolTip(index, 'Video')
-        tab = QHistogramTab(self.screen.video)
+        tab = QHistogramTab(self.screen.videoItem)
         tab.index = self.tabs.addTab(tab, 'Histogram')
         self.tabs.setTabToolTip(tab.index, 'Histogram')
         self.tabs.currentChanged.connect(tab.expose)
@@ -66,8 +66,8 @@ class QJansenWidget(QtGui.QWidget):
         width = min(rect.width() // 3, int(7 * desktop.logicalDpiX()))
         self.tabs.setMaximumWidth(width)
         self.tabs.setFixedWidth(self.tabs.width())
-        width = self.screen.video.camera.width()
-        self.setMinimumWidth(width + self.tabs.width())
+        #width = self.screen.videoItem.camera.width
+        #self.setMinimumWidth(width + self.tabs.width())
         return self
 
     def videoTab(self):

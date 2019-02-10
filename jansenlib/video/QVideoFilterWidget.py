@@ -20,7 +20,7 @@ class QVideoFilterWidget(QtGui.QFrame):
 
     def __init__(self, parent):
         super(QVideoFilterWidget, self).__init__(parent)
-        video = self.parent().screen.video
+        video = self.parent().screen.videoItem
         self.register = video.registerFilter
         self.unregister = video.unregisterFilter
         self.init_filters()
@@ -34,7 +34,7 @@ class QVideoFilterWidget(QtGui.QFrame):
     def init_ui(self):
         self.setFrameShape(QtGui.QFrame.Box)
         layout = QtGui.QVBoxLayout(self)
-        layout.setMargin(1)
+        layout.setContentsMargins(1, 1, 1, 1)
         title = QtGui.QLabel('Video Filters')
         bmedian = QtGui.QCheckBox(QString('Median'))
         bdeflicker = QtGui.QCheckBox(QString('Deflicker'))

@@ -60,9 +60,9 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                                        enableMouse=False,
                                        invertY=False,
                                        lockAspect=True)
-        self.viewbox.setRange(xRange=(0, self.videoItem.width),
-                              yRange=(0, self.videoItem.height),
-                              padding=0, update=True)
+#        self.viewbox.setRange(xRange=(0, self.videoItem.width),
+#                              yRange=(0, self.videoItem.height),
+#                              padding=0, update=True)
         self.viewbox.addItem(self.videoItem)
         self._pause = False
 
@@ -75,7 +75,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.viewbox.removeItem(graphicsItem)
 
     def close(self):
-        self.video.close()
+        self.videoItem.close()
 
     @pyqtSlot(bool)
     def pauseSignals(self, pause):

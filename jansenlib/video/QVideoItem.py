@@ -84,12 +84,6 @@ class QVideoItem(pg.ImageItem):
         source.sigNewFrame.connect(self.updateImage)
         self._source = source
 
-    def width(self):
-        return self.source.width
-
-    def height(self):
-        return self.source.height
-
     def gray(self):
         return self.source.gray
 
