@@ -13,6 +13,8 @@ class QOpenCV(QSettingsWidget):
         ui = Ui_QOpenCVWidget()
         if device is None:
             device = QOpenCVThread(**kwargs)
+        self.sigNewFrame = device.sigNewFrame
+        self.start = device.start
         super(QOpenCV, self).__init__(parent,
                                       device=device,
                                       ui=ui)
