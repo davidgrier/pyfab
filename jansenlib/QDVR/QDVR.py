@@ -1,0 +1,238 @@
+# -*- coding: utf-8 -*-
+
+from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QEvent)
+from PyQt5.QtWidgets import (QWidget, QStyle, QFileDialog)
+from QDVRWidget import Ui_QDVRWidget
+from jansenlib.video.QVideoPlayer import QVideoPlayer
+import cv2
+import numpy as np
+import os
+import platform
+
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def clickable(widget):
+    """Adds a clicked signal to a widget such as QLineEdit that
+    ordinarily does not provide notifications of clicks."""
+
+    class Filter(QObject):
+
+        clicked = pyqtSignal()
+
+        def eventFilter(self, obj, event):
+            if obj == widget:
+                if event.type() == QEvent.MouseButtonRelease:
+                    if obj.rect().contains(event.pos()):
+                        self.clicked.emit()
+                        return True
+            return False
+
+    filter = Filter(widget)
+    widget.installEventFilter(filter)
+    return filter.clicked
+
+
+class QDVR(QWidget):
+
+    recording = pyqtSignal(bool)
+
+    def __init__(self,
+                 parent=None,
+                 filename='~/data/fabdvr.avi',
+                 codec=None):
+        super(QDVR, self).__init__(parent)
+
+        self._writer = None
+        self._player = None
+        if codec is None:
+            if platform.system() == 'Linux':
+                codec = 'HFYU'
+            else:
+                codec = 'X264'
+        if cv2.__version__.startswith('2.'):
+            self._fourcc = cv2.cv.CV_FOURCC(*codec)
+        else:
+            self._fourcc = cv2.VideoWriter_fourcc(*codec)
+        self._framenumber = 0
+        self._nframes = 0
+
+        self.screen = self.parent().screen
+        self.video = self.screen.videoItem
+        self.camera = self.video.camera
+        self.stream = self.camera
+
+        self.ui = Ui_QDVRWidget()
+        self.ui.setupUi(self)
+        self.configureUi()
+        self.connectSignals()
+
+        self.filename = filename
+
+    def configureUi(self):
+        icon = self.style().standardIcon
+        self.ui.recordButton.setIcon(icon(QStyle.SP_MediaPlay))
+        self.ui.stopButton.setIcon(icon(QStyle.SP_MediaStop))
+        self.ui.rewindButton.setIcon(icon(QStyle.SP_MediaSkipBackward))
+        self.ui.playButton.setIcon(icon(QStyle.SP_MediaPlay))
+        self.ui.pauseButton.setIcon(icon(QStyle.SP_MediaPause))
+
+    def connectSignals(self):
+        clickable(self.ui.playEdit).connect(self.getPlayFilename)
+        clickable(self.ui.saveEdit).connect(self.getSaveFilename)
+        self.ui.recordButton.clicked.connect(self.record)
+        self.ui.stopButton.clicked.connect(self.stop)
+        self.ui.rewindButton.clicked.connect(self.rewind)
+        self.ui.pauseButton.clicked.connect(self.pause)
+        self.ui.playButton.clicked.connect(self.play)
+
+    def is_recording(self):
+        return (self._writer is not None)
+
+    def is_playing(self):
+        return (self._player is not None)
+
+    # =====
+    # Slots
+    #
+
+    @pyqtSlot()
+    def getPlayFilename(self):
+        if self.is_recording():
+            return
+        filename, _filter = QFileDialog.getOpenFileName(
+            self, 'Video File Name', self.filename, 'Video files (*.avi)')
+        if filename:
+            self.playname = str(filename)
+
+    @pyqtSlot()
+    def getSaveFilename(self):
+        if self.is_recording():
+            return
+        filename, _filter = QFileDialog.getSaveFileName(
+            self, 'Video File Name', self.filename, 'Video files (*.avi)')
+        if filename:
+            self.filename = str(filename)
+
+    # Record functionality
+
+    @pyqtSlot(bool)
+    def record(self, state, nframes=10000):
+        if (self.is_recording() or self.is_playing() or
+                (nframes <= 0)):
+            return
+        self._nframes = nframes
+        self.framenumber = 0
+        fps = self.video.fps()
+        self._shape = self.stream.shape
+        color = (len(self._shape) == 3)
+        h, w = self._shape[0:2]
+        msg = 'Recording: {}x{}, color: {}, fps: {}'
+        logger.info(msg.format(w, h, color, fps))
+        self._writer = cv2.VideoWriter(self.filename, self._fourcc,
+                                       fps, (w, h), color)
+        self.stream.sigNewFrame.connect(self.write)
+        self.recording.emit(True)
+
+    @pyqtSlot()
+    def stop(self):
+        if self.is_recording():
+            self.stream.sigNewFrame.disconnect(self.write)
+            self._writer.release()
+            self._writer = None
+        if self.is_playing():
+            self._player.stop()
+            self._player = None
+            self.video.source = self.video.camera
+        self.framenumber = 0
+        self._nframes = 0
+        self.recording.emit(False)
+
+    @pyqtSlot(np.ndarray)
+    def write(self, frame):
+        if frame.shape != self._shape:
+            msg = 'Frame is wrong shape: {}, expecting: {}'
+            logger.warn(msg.format(frame.shape, self._shape))
+            self.stop()
+            return
+        self._writer.write(frame)
+        self.framenumber += 1
+        if self.framenumber >= self._nframes:
+            self.stop()
+
+    # Playback functionality
+
+    @pyqtSlot()
+    def play(self):
+        if self.is_recording():
+            return
+        if self.is_playing():
+            self._player.pause(False)
+            return
+        print('playing')
+        self.framenumber = 0
+        self._player = QVideoPlayer(self, self.playname)
+        self._player.sigNewFrame.connect(self.stepFramenumber)
+        self._player.start()
+        self.video.source = self._player
+
+    @pyqtSlot()
+    def rewind(self):
+        if self.is_playing():
+            self._player.rewind()
+            self.framenumber = 0
+
+    @pyqtSlot()
+    def pause(self):
+        if self.is_playing():
+            state = self._player.isPaused()
+            self._player.pause(not state)
+
+    @pyqtSlot()
+    def stepFramenumber(self):
+        self.framenumber += 1
+
+    # ==========
+    # Properties
+    #
+
+    @property
+    def filename(self):
+        return str(self.ui.saveEdit.text())
+
+    @filename.setter
+    def filename(self, filename):
+        if not (self.is_recording() or self.is_playing()):
+            self.ui.saveEdit.setText(os.path.expanduser(filename))
+            self.playname = self.filename
+
+    @property
+    def playname(self):
+        return str(self.ui.playEdit.text())
+
+    @playname.setter
+    def playname(self, filename):
+        if not (self.is_playing()):
+            self.ui.playEdit.setText(os.path.expanduser(filename))
+
+    @property
+    def framenumber(self):
+        return self._framenumber
+
+    @framenumber.setter
+    def framenumber(self, number):
+        self._framenumber = number
+        self.ui.frameNumber.display(self._framenumber)
+
+
+if __name__ == '__main__':
+    from PyQt5.QtWidgets import QApplication
+    import sys
+
+    app = QApplication(sys.argv)
+    wid = QDVR()
+    wid.show()
+    sys.exit(app.exec_())
