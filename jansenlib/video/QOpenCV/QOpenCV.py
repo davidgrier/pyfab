@@ -14,7 +14,6 @@ class QOpenCV(QSettingsWidget):
         if device is None:
             device = QOpenCVThread(**kwargs)
         self.sigNewFrame = device.sigNewFrame
-        self.start = device.start
         super(QOpenCV, self).__init__(parent,
                                       device=device,
                                       ui=ui)
@@ -22,9 +21,6 @@ class QOpenCV(QSettingsWidget):
     def configureUi(self):
         self.ui.width.setMaximum(self.device.width)
         self.ui.height.setMaximum(self.device.height)
-
-    def stop(self):
-        self.device.stop()
 
 
 if __name__ == '__main__':

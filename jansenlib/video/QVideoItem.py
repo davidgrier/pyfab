@@ -67,7 +67,7 @@ class QVideoItem(pg.ImageItem):
             camera.setParent(parent)
             self.camera = camera
         self.source = self.camera
-        self.camera.start()
+        self.camera.device.start()
 
     @pyqtProperty(object)
     def source(self):
@@ -88,9 +88,9 @@ class QVideoItem(pg.ImageItem):
         return self.source.gray
 
     def close(self):
-        self.camera.stop()
-        self.camera.quit()
-        self.camera.wait()
+        self.camera.device.stop()
+        self.camera.device.quit()
+        self.camera.device.wait()
 
     def closeEvent(self):
         self.close()
