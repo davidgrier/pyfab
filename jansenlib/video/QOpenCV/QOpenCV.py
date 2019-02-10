@@ -23,6 +23,9 @@ class QOpenCV(QSettingsWidget):
         self.ui.width.setMaximum(self.device.width)
         self.ui.height.setMaximum(self.device.height)
 
+    def stop(self):
+        self.device.stop()
+
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication

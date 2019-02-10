@@ -93,7 +93,6 @@ class QVideoItem(pg.ImageItem):
         self.camera.wait()
 
     def closeEvent(self):
-        print('closeEvent')
         self.close()
 
     @pyqtSlot(np.ndarray)

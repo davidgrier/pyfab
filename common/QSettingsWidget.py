@@ -123,7 +123,6 @@ class QSettingsWidget(QWidget):
     def waitForDevice(self):
         '''Wait until device is done processing last instruction'''
         if hasattr(self.device, 'busy'):
-            print('got here')
             while self.device.busy():
                 if self.device.error:
                     logger.warn('device error')

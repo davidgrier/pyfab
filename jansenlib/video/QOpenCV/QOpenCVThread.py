@@ -43,7 +43,6 @@ class QOpenCVThread(QThread):
             ready, frame = self.read()
             if ready:
                 self.sigNewFrame.emit(frame)
-                print('.')
             else:
                 logger.warn('Failed to read frame')
 
