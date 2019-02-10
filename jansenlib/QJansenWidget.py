@@ -3,14 +3,14 @@
 """QJansenWidget.py: GUI for holographic video microscopy."""
 
 from PyQt5 import QtGui, QtCore
-from pyfab.jansenlib.QJansenScreen import QJansenScreen
-from pyfab.jansenlib.QHistogramTab import QHistogramTab
-from pyfab.jansenlib.QDVRWidget import QDVRWidget
-from pyfab.common.tabLayout import tabLayout
-from pyfab.jansenlib.video import QVideoFilterWidget
-from pyfab.jansenlib.video.QOpenCV import QOpenCV
-from pyfab.tasks.taskmanager import Taskmanager
-from pyfab.help.QHelpBrowser import QHelpBrowser
+from QJansenScreen import QJansenScreen
+from QHistogramTab import QHistogramTab
+from QDVRWidget import QDVRWidget
+from common.tabLayout import tabLayout
+from .video import QVideoFilterWidget
+from .video.QOpenCV import QOpenCV
+from tasks.taskmanager import Taskmanager
+from help.QHelpBrowser import QHelpBrowser
 
 
 class QJansenWidget(QtGui.QWidget):

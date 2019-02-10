@@ -69,7 +69,7 @@ class QVideoItem(pg.ImageItem):
         self.source = self.camera
         self.camera.start()
 
-    @pyqtProperty
+    @pyqtProperty(object)
     def source(self):
         return self._source
 

@@ -5,7 +5,7 @@
 import PyQt5
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
-from pyfab.jansenlib.video.QVideoItem import QVideoItem
+from .video.QVideoItem import QVideoItem
 import pyqtgraph as pg
 import numpy as np
 

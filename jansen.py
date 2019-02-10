@@ -20,13 +20,15 @@
 
 """Jansen is a video-capture GUI intended for holographic video microscopy"""
 
-from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import (QMainWindow, QAction, QFileDialog)
+from PyQt5.QtGui import QIcon
 from pyfab.jansenlib.QJansenWidget import QJansenWidget
 from pyfab.common.fabconfig import fabconfig
 import sys
 
 
-class jansen(QtGui.QMainWindow):
+class jansen(QMainWindow):
 
     def __init__(self):
         super(jansen, self).__init__()
@@ -45,22 +47,22 @@ class jansen(QtGui.QMainWindow):
     def fileMenu(self):
         menu = self.menuBar().addMenu('&File')
 
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, 'Save &Photo', self)
+        icon = QIcon.fromTheme('camera-photo')
+        action = QAction(icon, 'Save &Photo', self)
         action.setShortcut('Ctrl+S')
         action.setStatusTip('Save a snapshot')
         action.triggered.connect(self.savePhoto)
         menu.addAction(action)
 
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, 'Save Photo &As ...', self)
+        icon = QIcon.fromTheme('camera-photo')
+        action = QAction(icon, 'Save Photo &As ...', self)
         action.setShortcut('Ctrl+A')
         action.setStatusTip('Save a snapshot')
         action.triggered.connect(lambda: self.savePhoto(True))
         menu.addAction(action)
 
-        icon = QtGui.QIcon.fromTheme('application-exit')
-        action = QtGui.QAction(icon, '&Quit', self)
+        icon = QIcon.fromTheme('application-exit')
+        action = QAction(icon, '&Quit', self)
         action.setShortcut('Ctrl+Q')
         action.setStatusTip('Quit Jansen')
         action.triggered.connect(self.close)
@@ -69,7 +71,7 @@ class jansen(QtGui.QMainWindow):
     def savePhoto(self, select=False):
         filename = self.config.filename(suffix='.png')
         if select:
-            filename = QtGui.QFileDialog.getSaveFileName(
+            filename = QFileDialog.getSaveFileName(
                 self, 'Save Snapshot',
                 directory=filename,
                 filter='Image files (*.png)')
@@ -80,13 +82,15 @@ class jansen(QtGui.QMainWindow):
 
     def close(self):
         self.instrument.close()
-        QtGui.qApp.quit()
+        QtWidgets.qApp.quit()
 
     def closeEvent(self, event):
         self.close()
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    from PyQt5.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
     instrument = jansen()
     sys.exit(app.exec_())

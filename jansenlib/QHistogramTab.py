@@ -3,14 +3,14 @@
 """Visualization of image histograms."""
 
 import PyQt5
+from PyQt5.QtWidgets import (QFrame, QLabel)
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui
 from common.tabLayout import tabLayout
 import numpy as np
 import cv2
 
 
-class QHistogramTab(QtGui.QFrame):
+class QHistogramTab(QFrame):
 
     def __init__(self, video_source, parent=None):
         super(QHistogramTab, self).__init__(parent)
@@ -19,10 +19,10 @@ class QHistogramTab(QtGui.QFrame):
         self.index = -1
         self.video = video_source
 
-        self.setFrameShape(QtGui.QFrame.Box)
+        self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
 
-        title = QtGui.QLabel('Histogram')
+        title = QLabel('Histogram')
         layout.addWidget(title)
         histo = self.plotWidget('Intensity', 'N(Intensity)', height=250)
         histo.setXRange(0, 255)
@@ -34,14 +34,14 @@ class QHistogramTab(QtGui.QFrame):
         self.bplot.setPen('b', width=2)
         layout.addWidget(histo)
 
-        title = QtGui.QLabel('Horizontal Profile')
+        title = QLabel('Horizontal Profile')
         layout.addWidget(title)
         xmean = self.plotWidget('x [pixel]', 'I(x)')
         self.xplot = xmean.plot()
         self.xplot.setPen('r', width=2)
         layout.addWidget(xmean)
 
-        title = QtGui.QLabel('Vertical Profile')
+        title = QLabel('Vertical Profile')
         layout.addWidget(title)
         ymean = self.plotWidget('y [pixel]', 'I(y)')
         self.yplot = ymean.plot()

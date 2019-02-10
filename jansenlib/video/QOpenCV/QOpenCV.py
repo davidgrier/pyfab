@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pyfab.common.QSettingsWidget import QSettingsWidget
+from common.QSettingsWidget import QSettingsWidget
 from QOpenCVWidget import Ui_QOpenCVWidget
 from QOpenCVThread import QOpenCVThread
 
@@ -25,7 +25,6 @@ class QOpenCV(QSettingsWidget):
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     import sys
-    from QOpenCVThread import QOpenCVThread
 
     app = QApplication(sys.argv)
     device = QOpenCVThread()
