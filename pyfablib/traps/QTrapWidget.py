@@ -2,34 +2,34 @@
 
 """Control panel for trap properties."""
 
-from PyQt4 import QtGui, QtCore
-try:
-    from PyQt4.QtCore import QString
-except ImportError:
-    QString = str
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QRegExp)
+from PyQt5.QtWidgets import (QWidget, QFrame, QLineEdit, QLabel,
+                             QScrollArea,
+                             QHBoxLayout, QVBoxLayout)
+from PyQt5.QtGui import (QDoubleValidator, QRegExpValidator)
 from .QTrap import QTrap
 import numpy as np
 
 
-class QTrapPropertyEdit(QtGui.QLineEdit):
+class QTrapPropertyEdit(QLineEdit):
     """Control for one property of one trap"""
 
-    valueChanged = QtCore.pyqtSignal(object, float)
+    valueChanged = pyqtSignal(object, float)
 
     def __init__(self, name, value, decimals=1):
         super(QTrapPropertyEdit, self).__init__()
-        self.setAlignment(QtCore.Qt.AlignRight)
+        self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(50)
         self.setMaxLength(8)
         self.fmt = '%.{}f'.format(decimals)
-        v = QtGui.QDoubleValidator(decimals=decimals)
-        v.setNotation(QtGui.QDoubleValidator.StandardNotation)
+        v = QDoubleValidator(decimals=decimals)
+        v.setNotation(QDoubleValidator.StandardNotation)
         self.setValidator(v)
         self.name = name
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def updateValue(self):
         self.value = float(str(self.text()))
         self.valueChanged.emit(self.name, self.value)
@@ -40,30 +40,30 @@ class QTrapPropertyEdit(QtGui.QLineEdit):
 
     @value.setter
     def value(self, value):
-        self.setText(QString(self.fmt % value))
+        self.setText(self.fmt.format(value))
         self._value = value
 
 
-class QTrapListPropertyEdit(QtGui.QLineEdit):
+class QTrapListPropertyEdit(QLineEdit):
     """Control for one list-like property of one trap"""
 
-    valueChanged = QtCore.pyqtSignal(object, object)
+    valueChanged = pyqtSignal(object, object)
 
     def __init__(self, name, value):
         super(QTrapListPropertyEdit, self).__init__()
-        self.setAlignment(QtCore.Qt.AlignRight)
+        self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(50)
         numberrx = '([+-]?\d+\.?\d*)'
         listrx = '\[' + '(?:\s*'+numberrx+'\s*,)*\s*' + numberrx + '\s*\]'
         print(listrx)
-        self.rx = QtCore.QRegExp(listrx)
-        val = QtGui.QRegExpValidator(self.rx)
+        self.rx = QRegExp(listrx)
+        val = QRegExpValidator(self.rx)
         self.setValidator(val)
         self.name = name
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def updateValue(self):
         txt = str(self.text())
         self.value = np.fromstring(txt[1:-1], sep=',', dtype=np.float)
@@ -79,15 +79,15 @@ class QTrapListPropertyEdit(QtGui.QLineEdit):
         self._value = value
 
 
-class QTrapPropertyWidget(QtGui.QWidget):
+class QTrapPropertyWidget(QWidget):
     """Control for properties of one trap."""
 
     def __init__(self, trap):
         super(QTrapPropertyWidget, self).__init__()
-        layout = QtGui.QHBoxLayout()
+        layout = QHBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
-        layout.setAlignment(QtCore.Qt.AlignLeft)
+        layout.setAlignment(Qt.AlignLeft)
         self.wid = dict()
         for name in trap.properties.keys():
             self.wid[name] = self.propertyWidget(trap, name)
@@ -109,14 +109,14 @@ class QTrapPropertyWidget(QtGui.QWidget):
         wid.valueChanged.connect(trap.setProperty)
         return wid
 
-    @QtCore.pyqtSlot(QTrap)
+    @pyqtSlot(QTrap)
     def updateValues(self, trap):
         for name in trap.properties.keys():
             value = getattr(trap, name)
             self.wid[name].value = value
 
 
-class QTrapWidget(QtGui.QFrame):
+class QTrapWidget(QFrame):
     """Controls for all traps."""
 
     def __init__(self, pattern=None):
@@ -127,32 +127,32 @@ class QTrapWidget(QtGui.QFrame):
             pattern.trapAdded.connect(self.registerTrap)
 
     def init_ui(self):
-        self.setFrameShape(QtGui.QFrame.Box)
-        inner = QtGui.QWidget()
-        self.layout = QtGui.QVBoxLayout()
+        self.setFrameShape(QFrame.Box)
+        inner = QWidget()
+        self.layout = QVBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setMargin(0)
-        self.layout.setAlignment(QtCore.Qt.AlignTop)
+        self.layout.setAlignment(Qt.AlignTop)
         inner.setLayout(self.layout)
-        scroll = QtGui.QScrollArea()
-        scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        scroll = QScrollArea()
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll.setWidgetResizable(True)
         scroll.setWidget(inner)
-        layout = QtGui.QVBoxLayout(self)
+        layout = QVBoxLayout(self)
         layout.addWidget(scroll)
         self.setLayout(layout)
         self.layout.addWidget(self.labelLine())
 
     def labelLine(self):
-        widget = QtGui.QWidget()
-        layout = QtGui.QHBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignLeft)
+        widget = QWidget()
+        layout = QHBoxLayout()
+        layout.setAlignment(Qt.AlignLeft)
         layout.setSpacing(0)
         layout.setMargin(0)
         for name in ['x', 'y', 'z', 'alpha', 'phi']:
-            label = QtGui.QLabel(name)
-            label.setAlignment(QtCore.Qt.AlignCenter)
+            label = QLabel(name)
+            label.setAlignment(Qt.AlignCenter)
             label.setFixedWidth(50)
             layout.addWidget(label)
         widget.setLayout(layout)
@@ -175,9 +175,9 @@ class QTrapWidget(QtGui.QFrame):
 if __name__ == '__main__':
     import sys
     from QTrap import QTrap
-    from PyQt4 import QtGui
+    from PyQt5.QtWidgets import QApplication
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     wtrap = QTrapWidget()
     trapa = QTrap()
     trapb = QTrap()

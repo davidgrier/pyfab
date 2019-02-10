@@ -8,7 +8,7 @@ from QHistogramTab import QHistogramTab
 from QDVRWidget import QDVRWidget
 from common.tabLayout import tabLayout
 from .video import QVideoFilterWidget
-from .video.QOpenCV import QOpenCV
+from .video.QOpenCV.QOpenCV import QOpenCV
 from tasks.taskmanager import Taskmanager
 from help.QHelpBrowser import QHelpBrowser
 

@@ -2,7 +2,7 @@
 
 """Control panel for holographic trapping hardware"""
 
-from pyqtgraph.Qt import QtGui
+from PyQt5.QtWidgets import QWidget
 from .proscan.QProscan import QProscan
 from .IPG.QIPGLaser import QIPGLaser
 from common.tabLayout import tabLayout
@@ -12,7 +12,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
-class QHardwareTab(QtGui.QWidget):
+class QHardwareTab(QWidget):
 
     def __init__(self):
         super(QHardwareTab, self).__init__()

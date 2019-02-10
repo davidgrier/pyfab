@@ -2,12 +2,15 @@
 
 """Control panel for Prior Proscan stage controller."""
 
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtWidgets import (QFrame, QLabel, QPushButton,
+                             QLCDNumber, QGridLayout)
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QColor
 from .pyproscan import pyproscan
 import atexit
 
 
-class QProscan(QtGui.QFrame):
+class QProscan(QFrame):
 
     def __init__(self):
         super(QProscan, self).__init__()
@@ -15,7 +18,7 @@ class QProscan(QtGui.QFrame):
         self.initUI()
         atexit.register(self.shutdown)
 
-        self._timer = QtCore.QTimer(self)
+        self._timer = QTimer(self)
         self._timer.timeout.connect(self.update)
         self._timer.setInterval(200)
 
@@ -31,20 +34,20 @@ class QProscan(QtGui.QFrame):
         self.instrument.close()
 
     def initUI(self):
-        self.setFrameShape(QtGui.QFrame.Box)
+        self.setFrameShape(QFrame.Box)
         self.wx = self.counter_widget()
         self.wy = self.counter_widget()
         self.wz = self.counter_widget()
-        self.bstop = QtGui.QPushButton('Stop')
+        self.bstop = QPushButton('Stop')
         self.bstop.clicked.connect(self.instrument.stop)
-        layout = QtGui.QGridLayout()
+        layout = QGridLayout()
         layout.setMargin(1)
         layout.setHorizontalSpacing(1)
         layout.setVerticalSpacing(1)
-        layout.addWidget(QtGui.QLabel('Stage'), 1, 1, 1, 4)
-        layout.addWidget(QtGui.QLabel('x'), 2, 1)
-        layout.addWidget(QtGui.QLabel('y'), 2, 2)
-        layout.addWidget(QtGui.QLabel('z'), 2, 3)
+        layout.addWidget(QLabel('Stage'), 1, 1, 1, 4)
+        layout.addWidget(QLabel('x'), 2, 1)
+        layout.addWidget(QLabel('y'), 2, 2)
+        layout.addWidget(QLabel('z'), 2, 3)
         layout.addWidget(self.wx, 3, 1)
         layout.addWidget(self.wy, 3, 2)
         layout.addWidget(self.wz, 3, 3)
@@ -52,12 +55,12 @@ class QProscan(QtGui.QFrame):
         self.setLayout(layout)
 
     def counter_widget(self):
-        lcd = QtGui.QLCDNumber(self)
+        lcd = QLCDNumber(self)
         lcd.setNumDigits(9)
-        lcd.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        lcd.setSegmentStyle(QLCDNumber.Flat)
         palette = lcd.palette()
-        palette.setColor(palette.WindowText, QtGui.QColor(0, 0, 0))
-        palette.setColor(palette.Background, QtGui.QColor(255, 255, 224))
+        palette.setColor(palette.WindowText, QColor(0, 0, 0))
+        palette.setColor(palette.Background, QColor(255, 255, 224))
         lcd.setPalette(palette)
         lcd.setAutoFillBackground(True)
         return lcd
@@ -81,8 +84,9 @@ class QProscan(QtGui.QFrame):
 
 def main():
     import sys
+    from PyQt5.QtWidgets import QApplication
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     stage = QProscan()
     stage.show()
     sys.exit(app.exec_())

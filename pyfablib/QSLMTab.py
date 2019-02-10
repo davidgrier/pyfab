@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import PyQt5
+from PyQt5.QtWidgets import (QFrame, QLabel)
+from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui, QtCore
 from common.tabLayout import tabLayout
 import numpy as np
 
 
-class QSLMTab(QtGui.QFrame):
+class QSLMTab(QFrame):
 
     def __init__(self, cgh=None):
         super(QSLMTab, self).__init__()
@@ -15,10 +17,10 @@ class QSLMTab(QtGui.QFrame):
 
         self.cgh = cgh
 
-        self.setFrameShape(QtGui.QFrame.Box)
+        self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
 
-        title = QtGui.QLabel('SLM data')
+        title = QLabel('SLM data')
         layout.addWidget(title)
         graphics = pg.PlotWidget(background='w')
         graphics.getAxis('bottom').setPen(0.1)
@@ -41,6 +43,6 @@ class QSLMTab(QtGui.QFrame):
             except Exception:
                 pass
 
-    @QtCore.pyqtSlot(np.ndarray)
+    @pyqtSlot(np.ndarray)
     def update(self, hologram):
         self.image.setImage(hologram)

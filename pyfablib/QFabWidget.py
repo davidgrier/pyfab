@@ -3,7 +3,8 @@
 
 """QFabWidget.py: GUI for holographic optical trapping."""
 
-from pyqtgraph.Qt import QtGui, QtCore
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QWidget
 from jansenlib.QJansenWidget import QJansenWidget
 from .QHardwareTab import QHardwareTab
 from .QSLMTab import QSLMTab
@@ -30,7 +31,7 @@ class QFabWidget(QJansenWidget):
         self.wcgh = QCGHPropertyWidget(self)
 
         # move CGH pipeline to a separate thread to readuce latency
-        self.thread = QtCore.QThread()
+        self.thread = QThread()
         self.cgh.moveToThread(self.thread)
         self.thread.started.connect(self.cgh.start)
         self.thread.finished.connect(self.cgh.stop)
@@ -76,13 +77,13 @@ class QFabWidget(QJansenWidget):
         self.wstage = hwtab.wstage
 
     def cghTab(self):
-        wcgh = QtGui.QWidget()
+        wcgh = QWidget()
         layout = tabLayout(wcgh)
         layout.addWidget(self.wcgh)
         return wcgh
 
     def trapTab(self):
-        wtraps = QtGui.QWidget()
+        wtraps = QWidget()
         layout = tabLayout(wtraps)
         layout.addWidget(QTrapWidget(self.pattern))
         return wtraps
@@ -98,6 +99,8 @@ class QFabWidget(QJansenWidget):
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    from PyQt5.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
     QFabWidget()
     sys.exit(app.exec_())

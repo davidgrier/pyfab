@@ -23,8 +23,8 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QAction, QFileDialog)
 from PyQt5.QtGui import QIcon
-from pyfab.jansenlib.QJansenWidget import QJansenWidget
-from pyfab.common.fabconfig import fabconfig
+from jansenlib.QJansenWidget import QJansenWidget
+from common.fabconfig import fabconfig
 import sys
 
 

@@ -3,7 +3,8 @@
 """CGH.py: compute phase-only holograms for optical traps."""
 
 import numpy as np
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QPointF)
+from PyQt5.QtGui import (QVector3D, QMatrix4x4)
 from numba import jit
 from time import time
 
@@ -12,7 +13,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
-class CGH(QtCore.QObject):
+class CGH(QObject):
     """Base class for computing computer-generated holograms.
 
     For each trap, the coordinate r obtained from the fabscreen
@@ -34,11 +35,11 @@ class CGH(QtCore.QObject):
     computed holograms.
     """
 
-    sigRun = QtCore.pyqtSignal(bool)
-    sigComputing = QtCore.pyqtSignal(bool)
-    sigHologramReady = QtCore.pyqtSignal(np.ndarray)
-    sigUpdateGeometry = QtCore.pyqtSignal()
-    sigUpdateTransformationMatrix = QtCore.pyqtSignal()
+    sigRun = pyqtSignal(bool)
+    sigComputing = pyqtSignal(bool)
+    sigHologramReady = pyqtSignal(np.ndarray)
+    sigUpdateGeometry = pyqtSignal()
+    sigUpdateTransformationMatrix = pyqtSignal()
 
     def __init__(self, slm=None):
         super(CGH, self).__init__()
@@ -57,33 +58,33 @@ class CGH(QtCore.QObject):
         # Effective azial aspect ratio: lambda/4 [pixel]
         self._beta = 2.
         # Location of optical axis in SLM coordinates
-        self._rs = QtCore.QPointF(self.w / 2., self.h / 2.)
+        self._rs = QPointF(self.w / 2., self.h / 2.)
 
         # Coordinate transformation matrix for trap locations
-        self.m = QtGui.QMatrix4x4()
+        self.m = QMatrix4x4()
         # Location of optical axis in camera coordinates
-        self._rc = QtGui.QVector3D(320., 240., 0.)
+        self._rc = QVector3D(320., 240., 0.)
         # Orientation of camera relative to SLM
         self._thetac = 0.
         # Splay wavenumber
         self._k0 = 0.01
 
     # Slots for threaded operation
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def start(self):
         logger.info('starting CGH pipeline')
         self.updateGeometry()
         self.updateTransformationMatrix()
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def stop(self):
         logger.info('stopping CGH pipeline')
 
-    @QtCore.pyqtSlot(object, object)
+    @pyqtSlot(object, object)
     def setProperty(self, name, value):
         setattr(self, name, value)
 
-    @QtCore.pyqtSlot(object)
+    @pyqtSlot(object)
     def setTraps(self, traps):
         self.traps = traps
         self.compute()
@@ -122,7 +123,7 @@ class CGH(QtCore.QObject):
                 r = self.m * trap.r
                 # axial splay
                 fac = 1. / (1. + self.k0 * (r.z() - self.rc.z()))
-                r *= QtGui.QVector3D(fac, fac, 1.)
+                r *= QVector3D(fac, fac, 1.)
                 # windowing
                 # amp = trap.amp * self.window(r)
                 amp = trap.amp
@@ -200,10 +201,10 @@ class CGH(QtCore.QObject):
 
     @rs.setter
     def rs(self, rs):
-        if isinstance(rs, QtCore.QPointF):
+        if isinstance(rs, QPointF):
             self._rs = rs
         else:
-            self._rs = QtCore.QPointF(rs[0], rs[1])
+            self._rs = QPointF(rs[0], rs[1])
         self.updateGeometry()
         self.compute(all=True)
 
@@ -273,10 +274,10 @@ class CGH(QtCore.QObject):
 
     @rc.setter
     def rc(self, rc):
-        if isinstance(rc, QtGui.QVector3D):
+        if isinstance(rc, QVector3D):
             self._rc = rc
         else:
-            self._rc = QtGui.QVector3D(rc[0], rc[1], rc[2])
+            self._rc = QVector3D(rc[0], rc[1], rc[2])
         self.updateTransformationMatrix()
         self.compute(all=True)
 

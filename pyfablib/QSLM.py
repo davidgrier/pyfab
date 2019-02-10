@@ -3,19 +3,21 @@
 
 """QSLM.py: PyQt abstraction for a Spatial Light Modulator (SLM)."""
 
-from pyqtgraph.Qt import QtGui, QtCore
+from PyQt5.QtCore import (Qt, pyqtSlot)
+from PyQt5.QtWidgets import (QLabel, QDesktopWidget)
+from PyQt5.QtGui import (QImage, QPixmap)
 import numpy as np
 
 
-class QSLM(QtGui.QLabel):
+class QSLM(QLabel):
 
     def __init__(self, parent=None, fake=False):
-        desktop = QtGui.QDesktopWidget()
+        desktop = QDesktopWidget()
         if (desktop.screenCount() == 2) and not fake:
             super(QSLM, self).__init__(desktop.screen(1))
             rect = desktop.screenGeometry(1)
             self.resize(rect.width(), rect.height())
-            self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+            self.setWindowFlags(Qt.FramelessWindowHint)
         else:
             super(QSLM, self).__init__(parent)
             w, h = 640, 480
@@ -25,7 +27,7 @@ class QSLM(QtGui.QLabel):
         self.data = phi
         self.show()
 
-    @QtCore.pyqtSlot(np.ndarray)
+    @pyqtSlot(np.ndarray)
     def setData(self, data):
         self.data = data
 
@@ -36,16 +38,17 @@ class QSLM(QtGui.QLabel):
     @data.setter
     def data(self, d):
         self._data = d
-        img = QtGui.QImage(d.data, d.shape[1], d.shape[0], d.strides[0],
-                           QtGui.QImage.Format_Indexed8)
-        pix = QtGui.QPixmap.fromImage(img)
+        img = QImage(d.data, d.shape[1], d.shape[0], d.strides[0],
+                     QImage.Format_Indexed8)
+        pix = QPixmap.fromImage(img)
         self.setPixmap(pix)
 
 
 def main():
     import sys
+    from PyQt5.QtWidgets import QApplication
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     slm = QSLM()
     slm.show()
     sys.exit(app.exec_())

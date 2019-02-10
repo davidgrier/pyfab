@@ -2,7 +2,10 @@
 
 """Control panel for an IPG fiber laser."""
 
-from PyQt4 import QtCore, QtGui
+from PyQt5.QtCore import (Qt, QTimer)
+from PyQt5.QtGui import (QPixmap, QDoubleValidator)
+from PyQt5.QtWidgets import (QWidget, QFrame, QPushButton, QLabel,
+                             QLineEdit, QHBoxLayout, QVBoxLayout)
 import os
 import numpy as np
 from .ipglaser import ipglaser as ipg
@@ -13,10 +16,10 @@ def led(name):
     led_size = 24
     dir = os.path.dirname(__file__)
     filename = os.path.join(dir, 'icons/' + name + '.png')
-    return QtGui.QPixmap(filename).scaledToWidth(led_size)
+    return QPixmap(filename).scaledToWidth(led_size)
 
 
-class indicator(QtGui.QWidget):
+class indicator(QWidget):
 
     def __init__(self, title, states=None, button=False, **kwargs):
         super(indicator, self).__init__(**kwargs)
@@ -29,18 +32,18 @@ class indicator(QtGui.QWidget):
         self.init_ui(button)
 
     def init_ui(self, button):
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
         layout.setMargin(0)
         layout.setSpacing(1)
         if button:
-            self.button = QtGui.QPushButton(self.title, self)
+            self.button = QPushButton(self.title, self)
             layout.addWidget(self.button)
         else:
-            w = QtGui.QLabel(self.title)
-            w.setAlignment(QtCore.Qt.AlignCenter)
+            w = QLabel(self.title)
+            w.setAlignment(Qt.AlignCenter)
             layout.addWidget(w)
-        self.led = QtGui.QLabel()
-        self.led.setAlignment(QtCore.Qt.AlignCenter)
+        self.led = QLabel()
+        self.led.setAlignment(Qt.AlignCenter)
         self.led.setPixmap(self.states[0])
         layout.addWidget(self.led)
         self.setLayout(layout)
@@ -49,15 +52,15 @@ class indicator(QtGui.QWidget):
         self.led.setPixmap(self.states[state])
 
 
-class status_widget(QtGui.QFrame):
+class status_widget(QFrame):
 
     def __init__(self):
         super(status_widget, self).__init__()
         self.init_ui()
 
     def init_ui(self):
-        self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
-        layout = QtGui.QHBoxLayout()
+        self.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+        layout = QHBoxLayout()
         self.led_key = indicator('keyswitch')
         self.led_aim = indicator('  aiming ',
                                  [led('amber-led-off'), led('amber-led-on')],
@@ -86,7 +89,7 @@ class status_widget(QtGui.QFrame):
         self.led_flt.set(flt)
 
 
-class power_widget(QtGui.QWidget):
+class power_widget(QWidget):
 
     def __init__(self, **kwargs):
         super(power_widget, self).__init__(**kwargs)
@@ -96,17 +99,17 @@ class power_widget(QtGui.QWidget):
         self.value = 0
 
     def init_ui(self):
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
         layout.setMargin(2)
         layout.setSpacing(1)
-        title = QtGui.QLabel('power [W]')
-        title.setAlignment(QtCore.Qt.AlignCenter)
+        title = QLabel('power [W]')
+        title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
-        v = QtGui.QDoubleValidator(self.min, self.max, 4.)
-        v.setNotation(QtGui.QDoubleValidator.StandardNotation)
-        self.wvalue = QtGui.QLineEdit()
+        v = QDoubleValidator(self.min, self.max, 4.)
+        v.setNotation(QDoubleValidator.StandardNotation)
+        self.wvalue = QLineEdit()
         self.wvalue.setValidator(v)
-        self.wvalue.setAlignment(QtCore.Qt.AlignRight)
+        self.wvalue.setAlignment(Qt.AlignRight)
         self.wvalue.setMaxLength(6)
         self.wvalue.setReadOnly(True)
         layout.addWidget(self.wvalue)
@@ -120,10 +123,10 @@ class power_widget(QtGui.QWidget):
     def value(self, _value):
         value = np.clip(float(_value), self.min, self.max)
         self._value = value
-        self.wvalue.setText(QtCore.QString('%.4f' % value))
+        self.wvalue.setText('{0:.4f}'.format(value))
 
 
-class QIPGLaser(QtGui.QFrame):
+class QIPGLaser(QFrame):
 
     def __init__(self):
         super(QIPGLaser, self).__init__()
@@ -131,7 +134,7 @@ class QIPGLaser(QtGui.QFrame):
         self.init_ui()
         atexit.register(self.shutdown)
 
-        self._timer = QtCore.QTimer(self)
+        self._timer = QTimer(self)
         self._timer.timeout.connect(self.update)
         self._timer.setInterval(1000)
 
@@ -147,19 +150,19 @@ class QIPGLaser(QtGui.QFrame):
         self.instrument.close()
 
     def init_ui(self):
-        self.setFrameShape(QtGui.QFrame.Box)
-        layout = QtGui.QVBoxLayout()
+        self.setFrameShape(QFrame.Box)
+        layout = QVBoxLayout()
         layout.setMargin(0)
         layout.setSpacing(0)
-        layout.addWidget(QtGui.QLabel(' Trapping Laser'))
+        layout.addWidget(QLabel(' Trapping Laser'))
         layout.addWidget(self.display_widget())
         self.setLayout(layout)
 
     def display_widget(self):
         self.wstatus = status_widget()
         self.wpower = power_widget()
-        w = QtGui.QWidget()
-        layout = QtGui.QHBoxLayout()
+        w = QWidget()
+        layout = QHBoxLayout()
         layout.setSpacing(1)
         layout.addWidget(self.wstatus)
         layout.addWidget(self.wpower)
@@ -188,8 +191,9 @@ class QIPGLaser(QtGui.QFrame):
 
 def main():
     import sys
+    from PyQt5.QtWidgets import QApplication
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     w = status_widget()
     w.show()
     sys.exit(app.exec_())

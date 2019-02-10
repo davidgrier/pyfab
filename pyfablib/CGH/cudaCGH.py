@@ -2,7 +2,7 @@
 
 """CUDA-accelerated CGH computation pipeline"""
 
-from PyQt4 import QtCore
+from PyQt5.QtCore import pyqtSlot
 from CGH import CGH
 import numpy as np
 
@@ -20,7 +20,7 @@ class cudaCGH(CGH):
     def __init__(self, **kwargs):
         super(cudaCGH, self).__init__(**kwargs)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def start(self):
         self.device = cuda.Device(0)
         self.context = self.device.make_context()
@@ -143,7 +143,7 @@ class cudaCGH(CGH):
         self._phase(a, out, np.int32(a.shape[0]), np.int32(a.shape[1]),
                     block=self.block, grid=self.grid)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def stop(self):
         super(cudaCGH, self).stop()
         self.context.pop()
