@@ -1,6 +1,6 @@
 try:
     from PyQt5.QtWebEngineWidgets import QWebEngineView as Browser
-except:
+except ImportError:
     from PyQt5.QtWebKitWidgets import QWebView as Browser
 from PyQt5.QtCore import QUrl
 import os
