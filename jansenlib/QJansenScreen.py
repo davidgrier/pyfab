@@ -60,9 +60,10 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                                        enableMouse=False,
                                        invertY=False,
                                        lockAspect=True)
-#        self.viewbox.setRange(xRange=(0, self.videoItem.width),
-#                              yRange=(0, self.videoItem.height),
-#                              padding=0, update=True)
+        width = self.videoItem.camera.device.width
+        height = self.videoItem.camera.device.height
+        self.viewbox.setRange(xRange=(0, width), yRange=(0, height),
+                              padding=0, update=True)
         self.viewbox.addItem(self.videoItem)
         self._pause = False
 
