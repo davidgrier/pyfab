@@ -1,9 +1,12 @@
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+try:
+    from PyQt5.QtWebEngineWidgets import QWebEngineView as Browser
+except:
+    from PyQt5.QtWebKitWidgets import QWebView as Browser
 from PyQt5.QtCore import QUrl
 import os
 
 
-class QHelpBrowser(QWebEngineView):
+class QHelpBrowser(Browser):
 
     def __init__(self, basename):
         super(QHelpBrowser, self).__init__()
