@@ -2,21 +2,18 @@
 
 """Control panel for standard video filters."""
 
-import PyQt5
-from pyqtgraph.Qt import QtGui, QtCore
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, QCheckBox)
 from .vmedian import vmedian
 from .vmax import vmax
 from .QDetector import QDetector
 import numpy as np
 import cv2
 from matplotlib.pylab import cm
-try:
-    from PyQt5.QtCore import QString
-except ImportError:
-    QString = str
 
 
-class QVideoFilterWidget(QtGui.QFrame):
+class QVideoFilterWidget(QFrame):
 
     def __init__(self, parent):
         super(QVideoFilterWidget, self).__init__(parent)
@@ -32,16 +29,17 @@ class QVideoFilterWidget(QtGui.QFrame):
         self.detector = QDetector(parent=self.parent().screen)
 
     def init_ui(self):
-        self.setFrameShape(QtGui.QFrame.Box)
-        layout = QtGui.QVBoxLayout(self)
+        self.setFrameShape(QFrame.Box)
+        layout = QVBoxLayout(self)
         layout.setContentsMargins(1, 1, 1, 1)
-        title = QtGui.QLabel('Video Filters')
-        bmedian = QtGui.QCheckBox(QString('Median'))
-        bdeflicker = QtGui.QCheckBox(QString('Deflicker'))
-        bnormalize = QtGui.QCheckBox(QString('Normalize'))
-        bsample = QtGui.QCheckBox(QString('Sample and Hold'))
-        bndvi = QtGui.QCheckBox(QString('NDVI'))
-        bdetect = QtGui.QCheckBox(QString('Detect'))
+        title = QLabel('Video Filters')
+        title.setFont(QFont('Arial', weight=QFont.Bold))
+        bmedian = QCheckBox('Median')
+        bdeflicker = QCheckBox('Deflicker')
+        bnormalize = QCheckBox('Normalize')
+        bsample = QCheckBox('Sample and Hold')
+        bndvi = QCheckBox('NDVI')
+        bdetect = QCheckBox('Detect')
         layout.addWidget(title)
         layout.addWidget(bmedian)
         layout.addWidget(bdeflicker)
@@ -56,7 +54,7 @@ class QVideoFilterWidget(QtGui.QFrame):
         bndvi.clicked.connect(self.handleNDVI)
         bdetect.clicked.connect(self.handleDetect)
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def handleMedian(self, selected):
         if selected:
             self.register(self.median.filter)
@@ -76,7 +74,7 @@ class QVideoFilterWidget(QtGui.QFrame):
         nrm = frame.astype(float) / med
         return np.clip(100 * nrm, 0, 255).astype(np.uint8)
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def handleNormalize(self, selected):
         if selected:
             self.register(self.normalize)
@@ -92,7 +90,7 @@ class QVideoFilterWidget(QtGui.QFrame):
         nrm = frame.astype(float) / self.background
         return np.clip(100 * nrm, 0, 255).astype(np.uint8)
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def handleSample(self, selected):
         if selected:
             self.median.reset()
@@ -113,14 +111,14 @@ class QVideoFilterWidget(QtGui.QFrame):
         ndx = cv2.cvtColor(ndx, cv2.COLOR_BGRA2BGR)
         return ndx
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def handleNDVI(self, selected):
         if selected:
             self.register(self.ndvi)
         else:
             self.unregister(self.ndvi)
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def handleDetect(self, selected):
         if selected:
             self.register(self.detector.detect)
