@@ -12,12 +12,12 @@ import cv2
 
 class QHistogramTab(QFrame):
 
-    def __init__(self, video_source, parent=None):
+    def __init__(self, video, parent=None):
         super(QHistogramTab, self).__init__(parent)
 
         self.title = 'Histogram'
         self.index = -1
-        self.video = video_source
+        self.video = video
 
         self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
@@ -66,7 +66,7 @@ class QHistogramTab(QFrame):
             self.video.unregisterFilter(self.histogramFilter)
 
     def histogramFilter(self, frame):
-        if self.video.source.gray:
+        if self.video.gray:
             y = np.bincount(frame.flat, minlength=256)
             self.rplot.setData(y=y)
             self.gplot.setData(y=[0, 0])

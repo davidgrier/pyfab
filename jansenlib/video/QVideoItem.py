@@ -84,9 +84,6 @@ class QVideoItem(pg.ImageItem):
         source.sigNewFrame.connect(self.updateImage)
         self._source = source
 
-    def gray(self):
-        return self.source.gray
-
     def close(self):
         self.camera.device.stop()
         self.camera.device.quit()
@@ -95,12 +92,21 @@ class QVideoItem(pg.ImageItem):
     def closeEvent(self):
         self.close()
 
+    @pyqtProperty(bool)
+    def gray(self):
+        return self._gray
+
+    @pyqtProperty(object)
+    def shape(self):
+        return self._shape
+
     @pyqtSlot(np.ndarray)
     def updateImage(self, image):
         self.source.blockSignals(True)
         for filter in self._filters:
             image = filter(image)
-        self.gray = (image.ndim == 2)
+        self._shape = image.shape
+        self._gray = (len(self._shape) == 2)
         self.source.blockSignals(False)
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)
