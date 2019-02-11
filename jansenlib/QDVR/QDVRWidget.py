@@ -11,12 +11,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_QDVRWidget(object):
     def setupUi(self, QDVRWidget):
         QDVRWidget.setObjectName("QDVRWidget")
-        QDVRWidget.resize(227, 148)
+        QDVRWidget.resize(233, 156)
         font = QtGui.QFont()
         font.setFamily("Arial")
         QDVRWidget.setFont(font)
+        QDVRWidget.setFrameShape(QtWidgets.QFrame.Box)
         self.verticalLayout = QtWidgets.QVBoxLayout(QDVRWidget)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setContentsMargins(2, 2, 2, 4)
         self.verticalLayout.setSpacing(1)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(QDVRWidget)
@@ -47,7 +48,7 @@ class Ui_QDVRWidget(object):
         self.widgetRecord = QtWidgets.QWidget(QDVRWidget)
         self.widgetRecord.setObjectName("widgetRecord")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.widgetRecord)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 6, 0)
         self.horizontalLayout_2.setSpacing(2)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.recordButton = QtWidgets.QPushButton(self.widgetRecord)
@@ -146,7 +147,7 @@ class Ui_QDVRWidget(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QDVRWidget = QtWidgets.QWidget()
+    QDVRWidget = QtWidgets.QFrame()
     ui = Ui_QDVRWidget()
     ui.setupUi(QDVRWidget)
     QDVRWidget.show()

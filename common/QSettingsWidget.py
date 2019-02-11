@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import (pyqtSlot, pyqtProperty)
-from PyQt5.QtWidgets import (QWidget, QComboBox, QSpinBox,
+from PyQt5.QtWidgets import (QFrame, QComboBox, QSpinBox,
                              QDoubleSpinBox, QCheckBox, QPushButton)
 import inspect
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARN)
 
 
-class QSettingsWidget(QWidget):
+class QSettingsWidget(QFrame):
 
     '''A glue class that connects a device with a GUI
 

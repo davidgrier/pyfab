@@ -11,10 +11,10 @@ class QOpenCV(QSettingsWidget):
     '''Camera widget based on OpenCV'''
 
     def __init__(self, parent=None, device=None, **kwargs):
-        ui = Ui_QOpenCVWidget()
         if device is None:
             device = QOpenCVThread(**kwargs)
         self.sigNewFrame = device.sigNewFrame
+        ui = Ui_QOpenCVWidget()
         super(QOpenCV, self).__init__(parent,
                                       device=device,
                                       ui=ui)
