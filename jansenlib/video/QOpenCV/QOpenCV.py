@@ -23,7 +23,7 @@ class QOpenCV(QSettingsWidget):
         self.ui.width.setMaximum(self.device.width)
         self.ui.height.setMaximum(self.device.height)
 
-    @pyqtProperty(int)
+    @pyqtProperty(object)
     def shape(self):
         if self.device.gray:
             return (self.device.height, self.device.width)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>QSpinnakerWidget</class>
- <widget class="QWidget" name="QSpinnakerWidget">
+ <widget class="QFrame" name="QSpinnakerWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

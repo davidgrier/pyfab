@@ -7,7 +7,13 @@ from PyQt5.QtCore import (QObject, QTime,
                           pyqtSignal, pyqtSlot, pyqtProperty)
 import pyqtgraph as pg
 
-from QOpenCV.QOpenCV import QOpenCV
+from QSpinnaker.QSpinnaker import QSpinnaker as Camera
+# try:
+#    from QSpinnaker.QSpinnaker import QSpinnaker as Camera
+# except ImportError as ex:
+#    print('falling back to OpenCV', ex)
+#    from QOpenCV.QOpenCV import QOpenCV as Camera
+
 import numpy as np
 from collections import deque
 
@@ -62,7 +68,7 @@ class QVideoItem(pg.ImageItem):
 
         # default source is a camera
         if camera is None:
-            self.camera = QOpenCV(**kwargs)
+            self.camera = Camera(**kwargs)
         else:
             camera.setParent(parent)
             self.camera = camera
@@ -117,3 +123,15 @@ class QVideoItem(pg.ImageItem):
     def unregisterFilter(self, filter):
         if filter in self._filters:
             self._filters.remove(filter)
+
+
+if __name__ == '__main__':
+    import sys
+    from PyQt5.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    item = QVideoItem()
+    wid = pg.GraphicsLayoutWidget()
+    wid.addItem(item)
+    wid.show()
+    sys.exit(app.exec_())

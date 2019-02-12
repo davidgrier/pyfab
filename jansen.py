@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2018 David G. Grier and Michael O'Brien
+# Copyright 2018-2019 David G. Grier and Michael O'Brien
 #
 # This file is part of pyfab
 #
@@ -28,10 +28,10 @@ from common.fabconfig import fabconfig
 import sys
 
 
-class jansen(QMainWindow):
+class Jansen(QMainWindow):
 
     def __init__(self):
-        super(jansen, self).__init__()
+        super(Jansen, self).__init__()
         self.instrument = QJansenWidget(self)
         self.init_ui()
         self.config = fabconfig(self)
@@ -92,5 +92,5 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    instrument = jansen()
+    instrument = Jansen()
     sys.exit(app.exec_())

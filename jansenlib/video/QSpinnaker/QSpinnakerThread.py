@@ -2,7 +2,7 @@
 
 """QSpinnakerThread.py: Spinnaker video camera running in a QThread"""
 
-from pyqtgraph.Qt import QtCore
+from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot)
 from SpinnakerCamera import SpinnakerCamera as Camera
 import numpy as np
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 
-class QSpinnakerThread(QtCore.QThread):
+class QSpinnakerThread(QThread):
 
     """Spinnaker camera
 
@@ -28,7 +28,7 @@ class QSpinnakerThread(QtCore.QThread):
     the camera's properties.
     """
 
-    sigNewFrame = QtCore.pyqtSignal(np.ndarray)
+    sigNewFrame = pyqtSignal(np.ndarray)
 
     def __init__(self, parent=None, **kwargs):
         super(QSpinnakerThread, self).__init__(parent)
@@ -51,6 +51,6 @@ class QSpinnakerThread(QtCore.QThread):
     def get(self, name):
         return self.camera.getProperty(name)
 
-    @QtCore.pySlot(object, object)
+    @pyqtSlot(object, object)
     def set(self, name, value):
         self.camera.set(name, value)
