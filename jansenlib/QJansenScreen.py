@@ -5,12 +5,13 @@
 import PyQt5
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
-from .video.QVideoItem import QVideoItem
+from video.QVideoItem import QVideoItem
 import pyqtgraph as pg
 import numpy as np
 
 
 class QJansenScreen(pg.GraphicsLayoutWidget):
+
     """Interactive display for pyfab system.
 
     QJansenScreen incorporates a QVideoItem to display live video.
@@ -25,13 +26,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     ----------
     parent:
     camera: pyfab.jansenlib.video.QVideoItem
-
-    Methods
-    -------
-    width(): int
-        Width of video feed [pixels]
-    height(): int
-        Height of video feed [pixels]
 
     Signals
     -------
@@ -60,8 +54,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                                        enableMouse=False,
                                        invertY=False,
                                        lockAspect=True)
-        width = self.videoItem.camera.device.width
-        height = self.videoItem.camera.device.height
+        height, width = self.videoItem.shape()
         self.viewbox.setRange(xRange=(0, width), yRange=(0, height),
                               padding=0, update=True)
         self.viewbox.addItem(self.videoItem)

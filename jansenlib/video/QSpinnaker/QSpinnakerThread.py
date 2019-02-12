@@ -49,7 +49,7 @@ class QSpinnakerThread(QThread):
         self._running = False
 
     def get(self, name):
-        return self.camera.getProperty(name)
+        return self.camera.get(name)
 
     @pyqtSlot(object, object)
     def set(self, name, value):

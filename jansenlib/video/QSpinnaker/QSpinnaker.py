@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtProperty
-from pyfab.common.QSettingsWidget import QSettingsWidget
+from common.QSettingsWidget import QSettingsWidget
 from QSpinnakerWidget import Ui_QSpinnakerWidget
 from QSpinnakerThread import QSpinnakerThread
 
@@ -28,17 +27,21 @@ class QSpinnaker(QSettingsWidget):
             lambda: self.device.set('gainauto', 'Once'))
         # limits on widgets
 
-    @pyqtProperty(object)
+    def gray(self):
+        return self.device.get('gray')
+
     def shape(self):
-        if self.device.gray:
-            return(self.device.height, self.device.width)
-        return (self.device.height, self.device.width, 3)
+        height = self.device.get('height')
+        width = self.device.get('width')
+        if self.gray():
+            return (height, width)
+        else:
+            return (height, width, 3)
 
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     import sys
-    from QSpinnakerThread import QSpinnakerThread
 
     app = QApplication(sys.argv)
     device = QSpinnakerThread()

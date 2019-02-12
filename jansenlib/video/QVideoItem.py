@@ -7,6 +7,7 @@ from PyQt5.QtCore import (QObject, QTime,
                           pyqtSignal, pyqtSlot, pyqtProperty)
 import pyqtgraph as pg
 
+# from QOpenCV.QOpenCV import QOpenCV as Camera
 from QSpinnaker.QSpinnaker import QSpinnaker as Camera
 # try:
 #    from QSpinnaker.QSpinnaker import QSpinnaker as Camera
@@ -72,6 +73,7 @@ class QVideoItem(pg.ImageItem):
         else:
             camera.setParent(parent)
             self.camera = camera
+        self._shape = self.camera.shape()
         self.source = self.camera
         self.camera.device.start()
 
@@ -98,13 +100,11 @@ class QVideoItem(pg.ImageItem):
     def closeEvent(self):
         self.close()
 
-    @pyqtProperty(bool)
-    def gray(self):
-        return self._gray
-
-    @pyqtProperty(object)
     def shape(self):
         return self._shape
+
+    def gray(self):
+        return len(self.shape()) == 2
 
     @pyqtSlot(np.ndarray)
     def updateImage(self, image):
@@ -112,7 +112,6 @@ class QVideoItem(pg.ImageItem):
         for filter in self._filters:
             image = filter(image)
         self._shape = image.shape
-        self._gray = (len(self._shape) == 2)
         self.source.blockSignals(False)
         self.setImage(image, autoLevels=False)
         self.sigNewFrame.emit(image)
