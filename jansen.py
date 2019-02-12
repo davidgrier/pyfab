@@ -24,7 +24,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QAction, QFileDialog)
 from PyQt5.QtGui import QIcon
 from jansenlib.QJansenWidget import QJansenWidget
-from common.fabconfig import fabconfig
+from common.FabConfig import FabConfig
 import sys
 
 
@@ -34,7 +34,7 @@ class Jansen(QMainWindow):
         super(Jansen, self).__init__()
         self.instrument = QJansenWidget(self)
         self.init_ui()
-        self.config = fabconfig(self)
+        self.config = FabConfig(self)
         self.show()
 
     def init_ui(self):

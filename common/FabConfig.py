@@ -12,7 +12,8 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
-class fabconfig(object):
+class FabConfig(object):
+
     """Save and restore configuration of objects for pyfab/jansen.
 
     The configuration object also includes utility functions for
