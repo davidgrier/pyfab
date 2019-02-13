@@ -33,7 +33,7 @@ class QJansenWidget(QWidget):
 
     @pyqtSlot(bool)
     def handleRecording(self, recording):
-        self.screen.videoItem.camera.enabled = not recording
+        self.screen.camera.enabled = not recording
 
     def init_ui(self):
         layout = QHBoxLayout(self)
@@ -44,7 +44,7 @@ class QJansenWidget(QWidget):
         self.tabs.setUsesScrollButtons(True)
         index = self.tabs.addTab(self.videoTab(), 'Video')
         self.tabs.setTabToolTip(index, 'Video')
-        tab = QHistogramTab(self.screen.videoItem)
+        tab = QHistogramTab(self.screen)
         tab.index = self.tabs.addTab(tab, 'Histogram')
         self.tabs.setTabToolTip(tab.index, 'Histogram')
         self.tabs.currentChanged.connect(tab.expose)
@@ -62,7 +62,7 @@ class QJansenWidget(QWidget):
         width = min(rect.width() // 3, int(7 * desktop.logicalDpiX()))
         self.tabs.setMaximumWidth(width)
         self.tabs.setFixedWidth(self.tabs.width())
-        vwidth, _ = self.screen.videoItem.shape()
+        _, vwidth = self.screen.camera.device.size()
         width = vwidth + self.tabs.width()
         self.setMinimumWidth(min(width, rect.width()))
         self.setMaximumWidth(rect.width())
@@ -72,7 +72,7 @@ class QJansenWidget(QWidget):
         wvideo = QWidget()
         layout = tabLayout(wvideo)
         layout.addWidget(self.dvr)
-        layout.addWidget(self.screen.videoItem.camera)
+        layout.addWidget(self.screen.camera)
         layout.addWidget(self.filters)
         return wvideo
 

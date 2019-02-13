@@ -61,8 +61,7 @@ class QDVR(QFrame):
         self._nframes = 0
 
         self.screen = self.parent().screen
-        self.video = self.screen.videoItem
-        self.camera = self.video.camera
+        self.camera = self.screen.camera
         self.stream = self.camera
 
         self.ui = Ui_QDVRWidget()
@@ -126,7 +125,7 @@ class QDVR(QFrame):
             return
         self._nframes = nframes
         self.framenumber = 0
-        fps = self.video.fps()
+        fps = 24.  # self.screen.fps()
         self._shape = self.stream.shape
         color = (len(self._shape) == 3)
         h, w = self._shape[0:2]
@@ -146,7 +145,7 @@ class QDVR(QFrame):
         if self.is_playing():
             self._player.stop()
             self._player = None
-            self.video.source = self.video.camera
+            self.screen.source = self.screen.camera
         self.framenumber = 0
         self._nframes = 0
         self.recording.emit(False)
@@ -177,7 +176,7 @@ class QDVR(QFrame):
         self._player = QVideoPlayer(self, self.playname)
         self._player.sigNewFrame.connect(self.stepFramenumber)
         self._player.start()
-        self.video.source = self._player
+        self.screen.source = self._player
 
     @pyqtSlot()
     def rewind(self):

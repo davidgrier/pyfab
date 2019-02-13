@@ -22,7 +22,7 @@ class Taskmanager(object):
 
     def __init__(self, parent):
         self.parent = parent
-        self.source = parent.screen.videoItem
+        self.source = parent.screen.camera
         self.task = None
         self.queue = deque()
         self._paused = False

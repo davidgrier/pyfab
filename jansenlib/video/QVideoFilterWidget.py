@@ -17,7 +17,7 @@ class QVideoFilterWidget(QFrame):
 
     def __init__(self, parent):
         super(QVideoFilterWidget, self).__init__(parent)
-        video = self.parent().screen.videoItem
+        video = self.parent().screen
         self.register = video.registerFilter
         self.unregister = video.unregisterFilter
         self.init_filters()

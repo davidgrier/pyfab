@@ -54,3 +54,6 @@ class QSpinnakerThread(QThread):
     @pyqtSlot(object, object)
     def set(self, name, value):
         self.camera.set(name, value)
+
+    def size(self):
+        return (self.get('height'), self.get('width'))
