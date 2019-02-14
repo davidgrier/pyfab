@@ -137,6 +137,7 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value to set
         '''
+        logger.debug('Setting device: {}: {}'.format(name, value))
         if hasattr(self.device, name):
             setattr(self.device, name, value)
             logger.info('Setting {}: {}'.format(name, value))
@@ -152,7 +153,7 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value to set
         '''
-        logger.debug('{}: {}'.format(name, value))
+        logger.debug('Setting UI: {}: {}'.format(name, value))
         wid = getattr(self.ui, name)
         if isinstance(wid, QDoubleSpinBox):
             wid.setValue(value)

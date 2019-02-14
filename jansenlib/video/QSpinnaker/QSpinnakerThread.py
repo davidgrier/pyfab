@@ -29,6 +29,7 @@ class QSpinnakerThread(QThread):
     """
 
     sigNewFrame = pyqtSignal(np.ndarray)
+    sigProperty = pyqtSignal(object, object)
 
     def __init__(self, parent=None, **kwargs):
         super(QSpinnakerThread, self).__init__(parent)
@@ -49,8 +50,10 @@ class QSpinnakerThread(QThread):
     def stop(self):
         self._running = False
 
+    @pyqtSlot(str)
     def get(self, name):
-        return getattr(self.camera, name)
+        value = getattr(self.camera, name)
+        self.sigProperty.emit(name, value)
 
     @pyqtSlot(object, object)
     def set(self, name, value):
