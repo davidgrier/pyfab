@@ -13,17 +13,18 @@ class QSpinnaker(QSettingsWidget):
     def __init__(self, parent=None, device=None, **kwargs):
         if device is None:
             device = QSpinnakerThread(**kwargs)
-        self.sigNewFrame = device.sigNewFrame
         ui = Ui_QSpinnakerWidget()
         super(QSpinnaker, self).__init__(parent=parent,
-                                         device=device,
+                                         device=device.camera,
                                          ui=ui)
 
     def configureUi(self):
+        '''
         self.ui.exposureauto.clicked.connect(
             lambda: self.device.set('exposureauto', 'Once'))
         self.ui.gainauto.clicked.connect(
             lambda: self.device.set('gainauto', 'Once'))
+        '''
         # limits on widgets
 
     def close(self):

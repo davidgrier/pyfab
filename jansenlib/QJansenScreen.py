@@ -33,7 +33,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseRelease(QMouseEvent)
     sigMouseMove(QMouseEvent)
     sigMouseWheel(QMouseEvent)
-    sigNewFrame(numpy.ndarray)
 
     Slots
     -----
@@ -42,21 +41,23 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseRelease = pyqtSignal(QMouseEvent)
     sigMouseMove = pyqtSignal(QMouseEvent)
     sigMouseWheel = pyqtSignal(QWheelEvent)
-    sigNewFrame = pyqtSignal(np.ndarray)
 
     def __init__(self, parent=None, camera=None, **kwargs):
         pg.setConfigOptions(imageAxisOrder='row-major')
         super(QJansenScreen, self).__init__(parent)
         self.ci.layout.setContentsMargins(0, 0, 0, 0)
 
+        print('ok')
         if camera is None:
             self.camera = Camera(self, **kwargs)
         else:
             camera.setParent(self)
             self.camera = camera
+        print('got camera')
         self.source = self.camera
-        self.camera.device.start()
+        # self.camera.device.start()
         height, width = self.camera.device.size()
+        print(height, width)
 
         # ImageItem displays video feed
         self.imageItem = pg.ImageItem()
@@ -83,17 +84,21 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     @source.setter
     def source(self, source):
+        print('connecting source')
         try:
-            self.source.sigNewFrame.disconnect(self.updateImage)
+            self.source.device.sigNewFrame.disconnect(self.updateImage)
         except AttributeError:
             pass
         if source is None:
             source = self.camera
-        source.sigNewFrame.connect(self.updateImage)
+        print('connect update')
+        source.device.sigNewFrame.connect(self.updateImage)
+        print('ok')
         self._source = source
 
     @pyqtSlot(np.ndarray)
     def updateImage(self, image):
+        print('updateImage')
         self.source.blockSignals(True)
         for filter in self._filters:
             image = filter(image)

@@ -8,7 +8,7 @@ import inspect
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARN)
+logger.setLevel(logging.DEBUG)
 
 
 class QSettingsWidget(QFrame):
@@ -152,6 +152,7 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value to set
         '''
+        logger.debug('{}: {}'.format(name, value))
         wid = getattr(self.ui, name)
         if isinstance(wid, QDoubleSpinBox):
             wid.setValue(value)
@@ -163,7 +164,7 @@ class QSettingsWidget(QFrame):
             if wid.isTristate():
                 wid.setCheckState(value)
             else:
-                wid.setCheckState(2*value)
+                wid.setCheckState(2 * value)
         elif isinstance(wid, QPushButton):
             pass
         else:

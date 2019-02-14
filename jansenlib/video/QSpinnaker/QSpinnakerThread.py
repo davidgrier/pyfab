@@ -2,14 +2,14 @@
 
 """QSpinnakerThread.py: Spinnaker video camera running in a QThread"""
 
-from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot)
+from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot, pyqtProperty)
 from SpinnakerCamera import SpinnakerCamera as Camera
 import numpy as np
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 
 class QSpinnakerThread(QThread):
@@ -38,6 +38,7 @@ class QSpinnakerThread(QThread):
         ready, self.frame = self.read()
 
     def run(self):
+        logger.debug('Starting acquisition loop')
         self._running = True
         while self._running:
             ready, frame = self.read()
