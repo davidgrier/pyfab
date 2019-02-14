@@ -34,7 +34,7 @@ _amap = {'acquisitionmode': 'AcquisitionMode',
          'pixelformat': 'PixelFormat',
          'sensorwidth': 'SensorWidth',
          'sensorheight': 'SensorHeight',
-         '_videomode': 'VideoMode',
+         'videomode': 'VideoMode',
          'width': 'Width',
          'widthmax': 'WidthMax',
          'x0': 'OffsetX',
@@ -49,10 +49,6 @@ class SpinnakerCamera(object):
     ----------
     device: PySpin.CameraPtr
         camera device in Spinnaker system
-    properties: list
-        strings containing names of adjustable properties
-        Each named property may be treated like a python property
-        and also can be accessed with getProperty() and setProperty()
 
     Attributes
     ----------
@@ -102,7 +98,6 @@ class SpinnakerCamera(object):
         self.device.Init()
         # Camera inodes provide access to device properties
         self._nodes = self.device.GetNodeMap()
-        self._register_properties()
         # Start acquisition
         self.acquisitionmode = acquisitionmode
         self.exposureauto = exposureauto
@@ -117,50 +112,65 @@ class SpinnakerCamera(object):
 
     def __del__(self):
         logger.debug('Cleaning up')
-        self.device.EndAcquisition()
+        self.stop()
         self.device.DeInit()
         del self.device
         self._devices.Clear()
         self._system.ReleaseInstance()
 
-    def _register_properties(self):
-        '''Return list of camera properties that can be controlled'''
-        self.properties = _amap.keys()
-        self.properties.append('flipped')
-        self.properties.append('gray')
-        self.properties.append('videomode')
-
-    def __getattr__(self, name):
-        try:
-            fname = _amap[name]
-            return self._get_feature(fname)
-        except KeyError:
-            raise AttributeError
-
-    def __setattr__(self, name, value):
-        if name in _amap.keys():
-            fname = _amap[name]
-            self._set_feature(fname, value)
-        else:
-            object.__setattr__(self, name, value)
-
-    def get(self, name):
-        '''Return value of named property'''
-        if hasattr(self, name):
-            return getattr(self, name)
-        else:
-            return None
-
-    def set(self, name, value):
-        '''Set named property to specified value'''
-        if hasattr(self, name):
-            setattr(self, name, value)
-
     def start(self):
+        '''Start image acquisition'''
         self.device.BeginAcquisition()
 
     def stop(self):
+        '''Stop image acquisition'''
         self.device.EndAcquisition()
+
+    def read(self):
+        '''The whole point of the thing: Gimme da piccy'''
+        res = self.device.GetNextImage()
+        error = res.IsIncomplete()
+        if error:
+            status = res.GetImageStatus()
+            error_msg = res.GetImageStatusDescription(status)
+            logger.warning('Incomplete Image: ' + error_msg)
+        shape = (res.GetHeight(), res.GetWidth())
+        image = res.GetData().reshape(shape)
+        if self.flipped:
+            image = cv2.flip(image, 0)
+        return not error, image
+
+    @property
+    def acquisitionmode(self):
+        return self._get_feature('AcquisitionMode')
+
+    @acquisitionmode.setter
+    def acquisitionmode(self, mode):
+        self._set_feature('AcquisitionMode', mode)
+
+    @property
+    def exposure(self):
+        return self._get_feature('Exposure')
+
+    @exposure.setter
+    def exposure(self, value):
+        self._set_feature('Exposure', value)
+
+    @property
+    def exposureauto(self):
+        return self._get_feature('ExposureAuto')
+
+    @exposureauto.setter
+    def exposureauto(self, value):
+        self._set_feature('ExposureAuto', value)
+
+    @property
+    def exposuremode(self):
+        return self._get_feature('ExposureMode')
+
+    @exposuremode.setter
+    def exposuremode(self, value):
+        self._set_feature('ExposureMode', value)
 
     @property
     def flipped(self):
@@ -169,6 +179,46 @@ class SpinnakerCamera(object):
     @flipped.setter
     def flipped(self, state):
         self._flipped = bool(state)
+
+    @property
+    def framerate(self):
+        return self._get_feature('AcquisitionFrameRate')
+
+    @framerate.setter
+    def framerate(self, value):
+        self._set_feature('AcquisitionFrameRate', value)
+
+    @property
+    def framerateauto(self):
+        return self._get_feature('AcquisitionFrameRateAuto')
+
+    @framerateauto.setter
+    def framerateauto(self, state):
+        self._set_feature('AcquisitionFrameRateAuto', state)
+
+    @property
+    def framerateenabled(self):
+        return self._get_feature('AcquisitionFrameRateEnabled')
+
+    @framerateenabled.setter
+    def framerateenabled(self, state):
+        self._set_feature('AcquisitionFrameRateEnabled', state)
+
+    @property
+    def gain(self):
+        return self._get_feature('Gain')
+
+    @gain.setter
+    def gain(self, value):
+        self._set_feature('Gain', value)
+
+    @property
+    def gainauto(self):
+        return self._get_feature('GainAuto')
+
+    @gainauto.setter
+    def gainauto(self, value):
+        self._set_feature('GainAuto', value)
 
     @property
     def gray(self):
@@ -182,27 +232,54 @@ class SpinnakerCamera(object):
             self.pixelformat = 'RGB8'
 
     @property
+    def height(self):
+        return self._get_feature('Height')
+
+    @height.setter
+    def height(self, value):
+        self._set_feature('Height', value)
+
+    @property
+    def heightmax(self):
+        return self._get_feature('HeightMax')
+
+    @property
+    def mirrored(self):
+        return self._get_feature('ReverseX')
+
+    @mirrored.setter
+    def mirrored(self, state):
+        self._set_feature('ReverseX', state)
+
+    @property
+    def pixelformat(self):
+        return self._get_feature('PixelFormat')
+
+    @pixelformat.setter
+    def pixelformat(self, value):
+        self._set_feature('PixelFormat', value)
+
+    @property
     def videomode(self):
-        return self._videomode
+        return self._get_feature('VideoMode')
 
     @videomode.setter
     def videomode(self, mode):
         self.stop()
-        self._videomode = mode
+        self._set_feature('VideoMode', mode)
         self.start()
 
-    def read(self):
-        res = self.device.GetNextImage()
-        error = res.IsIncomplete()
-        if error:
-            status = res.GetImageStatus()
-            error_msg = res.GetImageStatusDescription(status)
-            logger.warning('Incomplete Image: ' + error_msg)
-        shape = (res.GetHeight(), res.GetWidth())
-        image = res.GetData().reshape(shape)
-        if self.flipped:
-            image = cv2.flip(image, 0)
-        return not error, image
+    @property
+    def width(self):
+        return self._get_feature('Width')
+
+    @width.setter
+    def width(self, value):
+        self._set_feature('Width', value)
+
+    @property
+    def widthmax(self):
+        return self._get_feature('WidthMax')
 
     #
     # private methods for handling interactions with GenICam
@@ -233,9 +310,11 @@ class SpinnakerCamera(object):
             value = feature.ToString()
         elif self._is_readable(feature):
             value = feature.GetValue()
+        logger.debug('Getting {}: {}'.format(fname, value))
         return value
 
     def _set_feature(self, fname, value):
+        logger.debug('Setting {}: {}'.format(fname, value))
         feature = self._feature(fname)
         if not self._is_writable(feature):
             logger.warning('Property {} is not writable'.format(fname))
