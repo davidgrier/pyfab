@@ -2,7 +2,7 @@
 
 """QSpinnakerThread.py: Spinnaker video camera running in a QThread"""
 
-from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot, pyqtProperty)
+from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot)
 from SpinnakerCamera import SpinnakerCamera as Camera
 import numpy as np
 
@@ -50,11 +50,11 @@ class QSpinnakerThread(QThread):
         self._running = False
 
     def get(self, name):
-        return self.camera.get(name)
+        return getattr(self.camera, name)
 
     @pyqtSlot(object, object)
     def set(self, name, value):
-        self.camera.set(name, value)
+        setattr(self.camera, name, value)
 
     def size(self):
         return (self.get('height'), self.get('width'))

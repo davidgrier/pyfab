@@ -150,11 +150,11 @@ class SpinnakerCamera(object):
 
     @property
     def exposure(self):
-        return self._get_feature('Exposure')
+        return self._get_feature('ExposureTime')
 
     @exposure.setter
     def exposure(self, value):
-        self._set_feature('Exposure', value)
+        self._set_feature('ExposureTime', value)
 
     @property
     def exposureauto(self):

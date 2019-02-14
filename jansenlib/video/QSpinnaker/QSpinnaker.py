@@ -15,7 +15,7 @@ class QSpinnaker(QSettingsWidget):
             device = QSpinnakerThread(**kwargs)
         ui = Ui_QSpinnakerWidget()
         super(QSpinnaker, self).__init__(parent=parent,
-                                         device=device.camera,
+                                         device=device,
                                          ui=ui)
 
     def configureUi(self):
