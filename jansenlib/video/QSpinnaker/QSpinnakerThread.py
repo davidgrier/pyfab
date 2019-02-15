@@ -29,20 +29,17 @@ class QSpinnakerThread(QThread):
     """
 
     sigNewFrame = pyqtSignal(np.ndarray)
-    sigProperty = pyqtSignal(object, object)
 
     def __init__(self, parent=None, **kwargs):
         super(QSpinnakerThread, self).__init__(parent)
 
         self.camera = Camera(**kwargs)
-        self.read = self.camera.read
-        ready, self.frame = self.read()
 
     def run(self):
         logger.debug('Starting acquisition loop')
         self._running = True
         while self._running:
-            ready, frame = self.read()
+            ready, frame = self.camera.read()
             if ready:
                 self.sigNewFrame.emit(frame)
         del self.camera
@@ -50,14 +47,5 @@ class QSpinnakerThread(QThread):
     def stop(self):
         self._running = False
 
-    @pyqtSlot(str)
-    def get(self, name):
-        value = getattr(self.camera, name)
-        self.sigProperty.emit(name, value)
-
-    @pyqtSlot(object, object)
-    def set(self, name, value):
-        setattr(self.camera, name, value)
-
     def size(self):
-        return (self.get('height'), self.get('width'))
+        return (self.camera.height, self.camera.width)

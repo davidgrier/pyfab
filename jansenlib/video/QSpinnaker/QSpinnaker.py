@@ -5,6 +5,11 @@ from common.QSettingsWidget import QSettingsWidget
 from QSpinnakerThread import QSpinnakerThread
 from QSpinnakerWidget import Ui_QSpinnakerWidget
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class QSpinnaker(QSettingsWidget):
 
@@ -17,6 +22,7 @@ class QSpinnaker(QSettingsWidget):
         super(QSpinnaker, self).__init__(parent=parent,
                                          device=device,
                                          ui=ui)
+        device.start()
 
     def configureUi(self):
         '''
@@ -25,7 +31,7 @@ class QSpinnaker(QSettingsWidget):
         self.ui.gainauto.clicked.connect(
             lambda: self.device.set('gainauto', 'Once'))
         '''
-        # limits on widgets
+        pass
 
     def close(self):
         self.device.stop()
