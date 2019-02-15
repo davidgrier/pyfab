@@ -65,26 +65,9 @@ class QSettingsWidget(QFrame):
         self._properties = []
         self.device = device
 
-    @pyqtProperty(object)
-    def device(self):
-        '''Object representation of device to be controlled'''
-        return self._device
-
-    @device.setter
-    def device(self, device):
-        if device is None:
-            self.setEnabled(False)
-            self._device = None
-            return
-        if hasattr(self, 'device'):
-            self.disconnectSignals()
-        self._device = device
-        self.getProperties()
-        self.configureUi()
-        self.updateUi()
-        self.connectSignals()
-        self.setEnabled(True)
-        logger.info('device connected')
+    def configureUi(self):
+        '''Special-purpose widget settings'''
+        logger.debug('configureUi should be overridden')
 
     def set(self, name, value):
         '''Set parameter on both device and UI
@@ -97,8 +80,8 @@ class QSettingsWidget(QFrame):
             Value of property
         '''
         if name in self.properties:
-            self.setDeviceProperty(name, value)
-            self.setUiProperty(name, value)
+            self._setDeviceProperty(name, value)
+            self._setUiProperty(name, value)
         else:
             logger.warning('unknown property: {}'.format(name))
 
@@ -120,14 +103,7 @@ class QSettingsWidget(QFrame):
         else:
             logger.warning('unknown property: {}'.format(name))
 
-    def waitForDevice(self):
-        '''Wait until device is done processing last instruction'''
-        if hasattr(self.device, 'busy'):
-            while self.device.busy():
-                if self.device.error:
-                    logger.warn('device error')
-
-    def setDeviceProperty(self, name, value):
+    def _setDeviceProperty(self, name, value):
         '''Set device property and wait for operation to complete
 
         Parameters
@@ -137,13 +113,21 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value to set
         '''
+
+        def waitForDevice(self):
+            '''Wait until device is done processing last instruction'''
+            if hasattr(self.device, 'busy'):
+                while self.device.busy():
+                    if self.device.error:
+                        logger.warn('device error')
+
         logger.debug('Setting device: {}: {}'.format(name, value))
         if hasattr(self.device, name):
             setattr(self.device, name, value)
             logger.info('Setting {}: {}'.format(name, value))
-            self.waitForDevice()
+            waitForDevice()
 
-    def setUiProperty(self, name, value):
+    def _setUiProperty(self, name, value):
         '''Set UI property
 
         Parameters
@@ -171,6 +155,11 @@ class QSettingsWidget(QFrame):
         else:
             logger.warn('Unknown property: {}: {}'.format(name, type(wid)))
 
+    @pyqtProperty(list)
+    def properties(self):
+        '''List of properties managed by this object'''
+        return self._properties
+
     @pyqtProperty(dict)
     def settings(self):
         '''Dictionary of properties and their values'''
@@ -186,29 +175,6 @@ class QSettingsWidget(QFrame):
         for name in values:
             self.setDeviceProperty(name, values[name])
         self.updateUi()
-
-    @pyqtProperty(list)
-    def properties(self):
-        '''List of properties managed by this object'''
-        return self._properties
-
-    def getProperties(self):
-        '''Create list of properties
-
-        Valid properties appear in both the device and the ui.
-        Do not include private properties denoted with an underscore.
-        '''
-        if hasattr(self.device, 'properties'):
-            dprops = self.device.properties
-        else:
-            dprops = [name for name, _ in inspect.getmembers(self.device)]
-        uprops = [name for name, _ in inspect.getmembers(self.ui)]
-        props = [name for name in dprops if name in uprops]
-        self._properties = [name for name in props if '_' not in name]
-        logger.debug(self._properties)
-
-    def configureUi(self):
-        logger.debug('configureUi should be overridden')
 
     @pyqtSlot()
     def updateUi(self):
@@ -227,7 +193,7 @@ class QSettingsWidget(QFrame):
         with the UI.
         '''
         name = str(self.sender().objectName())
-        self.setDeviceProperty(name, value)
+        self._setDeviceProperty(name, value)
 
     @pyqtSlot(bool)
     def autoUpdateDevice(self, flag):
@@ -237,6 +203,26 @@ class QSettingsWidget(QFrame):
         autosetmethod()
         self.waitForDevice()
         self.updateUi
+
+    @pyqtProperty(object)
+    def device(self):
+        '''Object representation of device to be controlled'''
+        return self._device
+
+    @device.setter
+    def device(self, device):
+        self.disconnectSignals()
+        self._properties = []
+        self._device = device
+        if device is None:
+            self.setEnabled(False)
+            return
+        self.getProperties()
+        self.configureUi()
+        self.updateUi()
+        self.connectSignals()
+        self.setEnabled(True)
+        logger.info('device connected')
 
     def connectSignals(self):
         for prop in self.properties:
@@ -269,3 +255,15 @@ class QSettingsWidget(QFrame):
                 wid.clicked.disconnect(self.autoUpdateDevice)
             else:
                 logger.warn('Unknown property: {}: {}'.format(prop, type(wid)))
+
+    def getProperties(self):
+        '''Create list of properties
+
+        Valid properties appear in both the device and the ui,
+        excluding private properties denoted with an underscore.
+        '''
+        dprops = [name for name, _ in inspect.getmembers(self.device)]
+        uprops = [name for name, _ in inspect.getmembers(self.ui)]
+        props = [name for name in dprops if name in uprops]
+        self._properties = [name for name in props if '_' not in name]
+        logger.debug(self._properties)
