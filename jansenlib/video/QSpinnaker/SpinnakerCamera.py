@@ -281,6 +281,9 @@ class SpinnakerCamera(object):
     def widthmax(self):
         return self._get_feature('WidthMax')
 
+    def size(self):
+        return (self.height, self.width)
+
     #
     # private methods for handling interactions with GenICam
     #

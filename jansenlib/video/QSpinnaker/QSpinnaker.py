@@ -18,11 +18,13 @@ class QSpinnaker(QSettingsWidget):
     def __init__(self, parent=None, device=None, **kwargs):
         if device is None:
             device = QSpinnakerThread(**kwargs)
+        self.thread = device
+        self.sigNewFrame = self.thread.sigNewFrame
         ui = Ui_QSpinnakerWidget()
         super(QSpinnaker, self).__init__(parent=parent,
-                                         device=device,
+                                         device=device.camera,
                                          ui=ui)
-        device.start()
+        self.thread.start()
 
     def configureUi(self):
         '''
@@ -34,9 +36,9 @@ class QSpinnaker(QSettingsWidget):
         pass
 
     def close(self):
-        self.device.stop()
-        self.device.quit()
-        self.device.wait()
+        self.thread.stop()
+        self.thread.quit()
+        self.thread.wait()
 
 
 if __name__ == '__main__':

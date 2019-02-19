@@ -125,7 +125,7 @@ class QSettingsWidget(QFrame):
         if hasattr(self.device, name):
             setattr(self.device, name, value)
             logger.info('Setting {}: {}'.format(name, value))
-            waitForDevice()
+            waitForDevice(self)
 
     def _setUiProperty(self, name, value):
         '''Set UI property
@@ -181,7 +181,7 @@ class QSettingsWidget(QFrame):
         '''Update widgets with current values from device'''
         for prop in self.properties:
             val = getattr(self.device, prop)
-            self.setUiProperty(prop, val)
+            self._setUiProperty(prop, val)
 
     @pyqtSlot(int)
     @pyqtSlot(float)
@@ -193,6 +193,7 @@ class QSettingsWidget(QFrame):
         with the UI.
         '''
         name = str(self.sender().objectName())
+        logger.debug('Updating: {}: {}'.format(name, value))
         self._setDeviceProperty(name, value)
 
     @pyqtSlot(bool)
@@ -212,6 +213,7 @@ class QSettingsWidget(QFrame):
     @device.setter
     def device(self, device):
         self.disconnectSignals()
+        logger.debug('Setting device: {}'.format(device))
         self._properties = []
         self._device = device
         if device is None:
@@ -226,6 +228,7 @@ class QSettingsWidget(QFrame):
 
     def connectSignals(self):
         for prop in self.properties:
+            logger.debug('Connecting {}'.format(prop))
             wid = getattr(self.ui, prop)
             if isinstance(wid, QDoubleSpinBox):
                 wid.valueChanged.connect(self.updateDevice)
@@ -262,8 +265,11 @@ class QSettingsWidget(QFrame):
         Valid properties appear in both the device and the ui,
         excluding private properties denoted with an underscore.
         '''
+        logger.debug('Getting Properties')
         dprops = [name for name, _ in inspect.getmembers(self.device)]
+        logger.debug('Device Properties: {}'.format(dprops))
         uprops = [name for name, _ in inspect.getmembers(self.ui)]
+        logger.debug('UI Properties: {}'.format(uprops))
         props = [name for name in dprops if name in uprops]
         self._properties = [name for name in props if '_' not in name]
-        logger.debug(self._properties)
+        logger.debug('Common Properties: {}'.format(self._properties))

@@ -53,7 +53,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
             camera.setParent(self)
             self.camera = camera
         self.source = self.camera
-        # self.camera.device.start()
         height, width = self.camera.device.size()
 
         # ImageItem displays video feed
@@ -82,12 +81,12 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     @source.setter
     def source(self, source):
         try:
-            self.source.device.sigNewFrame.disconnect(self.updateImage)
+            self.source.sigNewFrame.disconnect(self.updateImage)
         except AttributeError:
             pass
         if source is None:
             source = self.camera
-        source.device.sigNewFrame.connect(self.updateImage)
+        source.sigNewFrame.connect(self.updateImage)
         self._source = source
 
     @pyqtSlot(np.ndarray)
