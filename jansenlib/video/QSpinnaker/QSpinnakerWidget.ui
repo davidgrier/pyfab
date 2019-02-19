@@ -48,7 +48,7 @@
        <number>1</number>
       </property>
       <item>
-       <widget class="QCheckBox" name="flipped">
+       <widget class="QCheckBox" name="mirrored">
         <property name="statusTip">
          <string>Camera: Flip image around vertical axis</string>
         </property>
@@ -71,7 +71,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QCheckBox" name="mirrored">
+       <widget class="QCheckBox" name="flipped">
         <property name="statusTip">
          <string>Camera: Flip image about horizontal axis</string>
         </property>
@@ -354,8 +354,8 @@
   <zorder>frameGeometry</zorder>
  </widget>
  <tabstops>
-  <tabstop>flipped</tabstop>
   <tabstop>mirrored</tabstop>
+  <tabstop>flipped</tabstop>
   <tabstop>exposure</tabstop>
   <tabstop>autoexposure</tabstop>
   <tabstop>gain</tabstop>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (pyqtSlot, pyqtProperty)
+from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QTimer)
 from PyQt5.QtWidgets import (QFrame, QComboBox, QSpinBox,
                              QDoubleSpinBox, QCheckBox, QPushButton)
 import inspect
@@ -198,8 +198,9 @@ class QSettingsWidget(QFrame):
         autosetproperty = self.sender().objectName()
         autosetmethod = getattr(self.device, autosetproperty)
         autosetmethod()
-        self.waitForDevice()
-        self.updateUi()
+        QTimer.singleShot(1000, self.updateUi)
+        # self.waitForDevice()
+        # self.updateUi()
 
     @pyqtProperty(object)
     def device(self):

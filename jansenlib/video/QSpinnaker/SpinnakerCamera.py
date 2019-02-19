@@ -249,7 +249,7 @@ class SpinnakerCamera(object):
 
     @mirrored.setter
     def mirrored(self, state):
-        self._set_feature('ReverseX', state)
+        self._set_feature('ReverseX', bool(state))
 
     @property
     def pixelformat(self):
