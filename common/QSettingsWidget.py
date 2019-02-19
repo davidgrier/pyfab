@@ -79,7 +79,7 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value of property
         '''
-        if name in self.properties:
+        if name in self._properties:
             self._setDeviceProperty(name, value)
             self._setUiProperty(name, value)
         else:
@@ -98,7 +98,7 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value of property
         '''
-        if name in self.properties:
+        if name in self._properties:
             return getattr(self.device, name)
         else:
             logger.warning('unknown property: {}'.format(name))
@@ -113,19 +113,15 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value to set
         '''
-
-        def waitForDevice(self):
-            '''Wait until device is done processing last instruction'''
-            if hasattr(self.device, 'busy'):
-                while self.device.busy():
-                    if self.device.error:
-                        logger.warn('device error')
-
         logger.debug('Setting device: {}: {}'.format(name, value))
         if hasattr(self.device, name):
             setattr(self.device, name, value)
+            self.waitForDevice()
             logger.info('Setting {}: {}'.format(name, value))
-            waitForDevice(self)
+
+    def waitForDevice(self):
+        '''Should be overridden by subclass'''
+        pass
 
     def _setUiProperty(self, name, value):
         '''Set UI property
@@ -164,7 +160,7 @@ class QSettingsWidget(QFrame):
     def settings(self):
         '''Dictionary of properties and their values'''
         values = dict()
-        for prop in self.properties:
+        for prop in self._properties:
             value = getattr(self.device, prop)
             if not inspect.ismethod(value):
                 values[prop] = value
@@ -179,7 +175,7 @@ class QSettingsWidget(QFrame):
     @pyqtSlot()
     def updateUi(self):
         '''Update widgets with current values from device'''
-        for prop in self.properties:
+        for prop in self._properties:
             val = getattr(self.device, prop)
             self._setUiProperty(prop, val)
 
@@ -199,11 +195,11 @@ class QSettingsWidget(QFrame):
     @pyqtSlot(bool)
     def autoUpdateDevice(self, flag):
         logger.debug('autoUpdateDevice')
-        autosetproperty = self.sender.objectName()
+        autosetproperty = self.sender().objectName()
         autosetmethod = getattr(self.device, autosetproperty)
         autosetmethod()
         self.waitForDevice()
-        self.updateUi
+        self.updateUi()
 
     @pyqtProperty(object)
     def device(self):
@@ -227,7 +223,7 @@ class QSettingsWidget(QFrame):
         logger.info('device connected')
 
     def connectSignals(self):
-        for prop in self.properties:
+        for prop in self._properties:
             logger.debug('Connecting {}'.format(prop))
             wid = getattr(self.ui, prop)
             if isinstance(wid, QDoubleSpinBox):
@@ -244,7 +240,7 @@ class QSettingsWidget(QFrame):
                 logger.warn('Unknown property: {}: {}'.format(prop, type(wid)))
 
     def disconnectSignals(self):
-        for prop in self.properties:
+        for prop in self._properties:
             wid = getattr(self.ui, prop)
             if isinstance(wid, QDoubleSpinBox):
                 wid.valueChanged.disconnect(self.updateDevice)

@@ -281,6 +281,12 @@ class SpinnakerCamera(object):
     def widthmax(self):
         return self._get_feature('WidthMax')
 
+    def autoexposure(self):
+        self.exposureauto = 'Once'
+
+    def autogain(self):
+        self.gainauto = 'Once'
+
     def size(self):
         return (self.height, self.width)
 
