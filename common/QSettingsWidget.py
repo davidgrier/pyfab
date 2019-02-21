@@ -62,11 +62,21 @@ class QSettingsWidget(QFrame):
         super(QSettingsWidget, self).__init__(parent)
         self.ui = ui
         self.ui.setupUi(self)
+        self.ui.closeEvent = self.closeEvent
         self._properties = []
         self.device = device
 
+    def closeEvent(self):
+        '''catch closeEvent to shut down device, if needed'''
+        logger.debug('closeEvent should be overridden')
+
     def configureUi(self):
-        '''Special-purpose widget settings'''
+        '''Special-purpose widget settings
+
+        Called when device is set. Used to handle
+        device-specific configuration of UI elements,
+        including setting limits on parameter widgets.
+        '''
         logger.debug('configureUi should be overridden')
 
     def set(self, name, value):

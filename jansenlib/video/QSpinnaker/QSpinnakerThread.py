@@ -42,6 +42,7 @@ class QSpinnakerThread(QThread):
             ready, frame = self.camera.read()
             if ready:
                 self.sigNewFrame.emit(frame)
+        logger.debug('Stopping acquisition')
         del self.camera
 
     def stop(self):

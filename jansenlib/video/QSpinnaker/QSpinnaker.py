@@ -33,12 +33,19 @@ class QSpinnaker(QSettingsWidget):
         self.ui.gainauto.clicked.connect(
             lambda: self.device.set('gainauto', 'Once'))
         '''
-        pass
+        logger.debug('configuring UI')
 
     def close(self):
+        logger.debug('Closing camera interface')
+        # remove reference to camera device so that it can close
+        self.device = None
+        # shut down acquisition thread
         self.thread.stop()
         self.thread.quit()
         self.thread.wait()
+
+    def closeEvent(self):
+        self.close()
 
 
 if __name__ == '__main__':
