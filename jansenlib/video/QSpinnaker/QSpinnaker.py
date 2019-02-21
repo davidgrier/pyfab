@@ -27,13 +27,10 @@ class QSpinnaker(QSettingsWidget):
         self.thread.start()
 
     def configureUi(self):
-        '''
-        self.ui.exposureauto.clicked.connect(
-            lambda: self.device.set('exposureauto', 'Once'))
-        self.ui.gainauto.clicked.connect(
-            lambda: self.device.set('gainauto', 'Once'))
-        '''
         logger.debug('configuring UI')
+        self.ui.exposure.setRange(self.device.exposuremin,
+                                  self.device.exposuremax)
+        self.ui.gain.setRange(self.device.gainmin, self.device.gainmax)
 
     def close(self):
         logger.debug('Closing camera interface')

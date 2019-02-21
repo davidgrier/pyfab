@@ -22,12 +22,16 @@ _amap = {'acquisitionmode': 'AcquisitionMode',
          'blacklevel': 'BlackLevel',
          'exposure': 'ExposureTime',
          'exposureauto': 'ExposureAuto',
+         'exposuremax': 'AutoExposureTimeUpperLimit',
+         'exposuremin': 'AutoExposureTimeLowerLimit',
          'exposuremode': 'ExposureMode',
          'framerate': 'AcquisitionFrameRate',
          'framerateauto': 'AcquisitionFrameRateAuto',
          'framerateenabled': 'AcquisitionFrameRateEnabled',
          'gain': 'Gain',
          'gainauto': 'GainAuto',
+         'gainmax': 'AutoGainLowerLimit',
+         'gainmin': 'AutoGainUpperLimit',
          'height': 'Height',
          'heightmax': 'HeightMax',
          'mirrored': 'ReverseX',
@@ -165,6 +169,14 @@ class SpinnakerCamera(object):
         self._set_feature('ExposureAuto', value)
 
     @property
+    def exposuremax(self):
+        return self._get_feature('AutoExposureTimeUpperLimit')
+
+    @property
+    def exposuremin(self):
+        return self._get_feature('AutoExposureTimeLowerLimit')
+
+    @property
     def exposuremode(self):
         return self._get_feature('ExposureMode')
 
@@ -219,6 +231,14 @@ class SpinnakerCamera(object):
     @gainauto.setter
     def gainauto(self, value):
         self._set_feature('GainAuto', value)
+
+    @property
+    def gainmax(self):
+        return self._get_feature('AutoGainUpperLimit')
+
+    @property
+    def gainmin(self):
+        return self._get_feature('AutoGainLowerLimit')
 
     @property
     def gray(self):
