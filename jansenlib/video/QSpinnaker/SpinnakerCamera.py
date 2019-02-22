@@ -347,12 +347,12 @@ class SpinnakerCamera(object):
 
     @property
     def videomode(self):
-        return self._get_feature('VideoMode')
+        return self._feature('VideoMode').GetValue()
 
     @videomode.setter
     def videomode(self, mode):
         self.stop()
-        self._set_feature('VideoMode', mode)
+        self._feature('VideoMode').SetValue(mode)
         self.start()
 
     @property
