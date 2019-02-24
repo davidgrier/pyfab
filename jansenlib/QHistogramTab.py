@@ -66,7 +66,7 @@ class QHistogramTab(QFrame):
             self.video.unregisterFilter(self.histogramFilter)
 
     def histogramFilter(self, frame):
-        if self.video.gray:
+        if frame.ndim == 2:
             y = np.bincount(frame.flat, minlength=256)
             self.rplot.setData(y=y)
             self.gplot.setData(y=[0, 0])

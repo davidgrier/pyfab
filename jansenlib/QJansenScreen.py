@@ -112,11 +112,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         """Convenience routine for removing overlays."""
         self.viewBox.removeItem(graphicsItem)
 
-    '''
-    def close(self):
-        self.videoItem.close()
-    '''
-
     @pyqtSlot(bool)
     def pauseSignals(self, pause):
         self._pause = bool(pause)
