@@ -22,14 +22,14 @@ class QOpenCV(QSettingsWidget):
         self.sigNewFrame = self.thread.sigNewFrame
         ui = Ui_QOpenCVWidget()
         super(QOpenCV, self).__init__(parent,
-                                      device=device,
+                                      device=device.camera,
                                       ui=ui)
         self.thread.start()
 
     def configureUi(self):
         logger.debug('configuring UI')
-        self.ui.width.setMaximum(self.thread.camera.width)
-        self.ui.height.setMaximum(self.thread.camera.height)
+        self.ui.width.setMaximum(self.device.width)
+        self.ui.height.setMaximum(self.device.height)
 
     def close(self):
         logger.debug('Closing camera interface')

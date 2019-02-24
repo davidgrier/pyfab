@@ -91,11 +91,17 @@ class OpenCVCamera(object):
 
     @property
     def gray(self):
-        return (self._conversion == self._toGRAY)
+        gray = self._conversion == self._toGRAY
+        logger.debug('Getting gray: {}'.format(gray))
+        return gray
 
     @gray.setter
     def gray(self, gray):
+        logger.debug('Setting gray: {}'.format(gray))
         self._conversion = self._toGRAY if gray else self._toRGB
+
+    def size(self):
+        return (self.height, self.width)
 
 
 if __name__ == '__main__':
