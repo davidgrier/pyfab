@@ -2,7 +2,7 @@
 
 """QSpinnakerThread.py: Spinnaker video camera running in a QThread"""
 
-from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot)
+from PyQt5.QtCore import (QThread, pyqtSignal)
 from SpinnakerCamera import SpinnakerCamera as Camera
 import numpy as np
 
@@ -32,7 +32,6 @@ class QSpinnakerThread(QThread):
 
     def __init__(self, parent=None, **kwargs):
         super(QSpinnakerThread, self).__init__(parent)
-
         self.camera = Camera(**kwargs)
 
     def run(self):

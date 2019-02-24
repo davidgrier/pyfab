@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""QOpenCVCamera: OpenCV video camera."""
+'''QOpenCVCamera: OpenCV video camera'''
 
 import cv2
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 class OpenCVCamera(object):
-    """OpenCV camera
+    '''OpenCV camera
 
     Attributes
     ----------
@@ -22,7 +22,7 @@ class OpenCVCamera(object):
     read():
         Returns image as numpy.ndarray
 
-    """
+    '''
 
     def __init__(self,
                  cameraID=0,

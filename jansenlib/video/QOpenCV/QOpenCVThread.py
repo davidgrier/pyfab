@@ -2,14 +2,14 @@
 
 """QOpenCVThread: OpenCV video camera running in a QThread"""
 
-from OpenCVCamera import OpenCVCamera
-from PyQt5.QtCore import (QThread, pyqtSignal, pyqtProperty)
+from PyQt5.QtCore import (QThread, pyqtSignal)
+from OpenCVCamera import OpenCVCamera as Camera
 import numpy as np
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 
 class QOpenCVThread(QThread):
@@ -31,60 +31,21 @@ class QOpenCVThread(QThread):
 
     def __init__(self, parent=None, **kwargs):
         super(QOpenCVThread, self).__init__(parent)
-        self.device = OpenCVCamera(**kwargs)
-        self.read = self.device.read
-
-    def __del__(self):
-        del self.device
+        self.camera = Camera(**kwargs)
 
     def run(self):
         self.running = True
         while self.running:
-            ready, frame = self.read()
+            ready, frame = self.camera.read()
             if ready:
                 self.sigNewFrame.emit(frame)
             else:
                 logger.warn('Failed to read frame')
+        logger.debug('Stopping acquisition')
+        del self.camera
 
     def stop(self):
         self.running = False
 
-    @pyqtProperty(bool)
-    def flipped(self):
-        return self.device.flipped
-
-    @flipped.setter
-    def flipped(self, state):
-        self.device.flipped = state
-
-    @pyqtProperty(bool)
-    def mirrored(self):
-        return self.device.mirrored
-
-    @mirrored.setter
-    def mirrored(self, state):
-        self.device.mirrored = state
-
-    @pyqtProperty(bool)
-    def gray(self):
-        return self.device.gray
-
-    @gray.setter
-    def gray(self, state):
-        self.device.gray = state
-
-    @pyqtProperty(int)
-    def width(self):
-        return self.device.width
-
-    @width.setter
-    def width(self, value):
-        self.device.width = value
-
-    @pyqtProperty(int)
-    def height(self):
-        return self.device.height
-
-    @height.setter
-    def height(self, value):
-        self.device.height = value
+    def size(self):
+        return (self.camera.height, self.camera.width)

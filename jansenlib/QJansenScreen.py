@@ -6,7 +6,8 @@ import PyQt5
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
 import pyqtgraph as pg
-from video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
+# from video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
+from video.QOpenCV.QOpenCV import QOpenCV as Camera
 import numpy as np
 
 
