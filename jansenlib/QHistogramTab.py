@@ -9,6 +9,11 @@ from common.tabLayout import tabLayout
 import numpy as np
 import cv2
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class QHistogramTab(QFrame):
 
@@ -61,8 +66,10 @@ class QHistogramTab(QFrame):
 
     def expose(self, index):
         if index == self.index:
+            logger.debug('Registering filter')
             self.video.registerFilter(self.histogramFilter)
         else:
+            logger.debug('Unregistering filter')
             self.video.unregisterFilter(self.histogramFilter)
 
     def histogramFilter(self, frame):
