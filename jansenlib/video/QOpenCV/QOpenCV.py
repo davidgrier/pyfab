@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from common.QSettingsWidget import QSettingsWidget
-from QOpenCVWidget import Ui_QOpenCVWidget
-from QOpenCVThread import QOpenCVThread
+from .QOpenCVWidget import Ui_QOpenCVWidget
+from .QOpenCVThread import QOpenCVThread
 
 import logging
 logging.basicConfig()

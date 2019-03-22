@@ -5,11 +5,11 @@
 from PyQt5.QtCore import (Qt, pyqtSlot)
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QPushButton,
                              QTabWidget, QDesktopWidget)
-from QJansenScreen import QJansenScreen
-from QHistogramTab import QHistogramTab
-from QDVR.QDVR import QDVR
+from .QJansenScreen import QJansenScreen
+from .QHistogramTab import QHistogramTab
+from .QDVR.QDVR import QDVR
 from common.tabLayout import tabLayout
-from video.QVideoFilterWidget import QVideoFilterWidget
+from .video.QVideoFilterWidget import QVideoFilterWidget
 from tasks.taskmanager import Taskmanager
 from help.QHelpBrowser import QHelpBrowser
 

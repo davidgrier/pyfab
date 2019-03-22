@@ -3,7 +3,7 @@
 """QOpenCVThread: OpenCV video camera running in a QThread"""
 
 from PyQt5.QtCore import (QThread, pyqtSignal)
-from OpenCVCamera import OpenCVCamera as Camera
+from .OpenCVCamera import OpenCVCamera as Camera
 import numpy as np
 
 import logging

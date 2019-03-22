@@ -2,7 +2,7 @@
 
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QEvent)
 from PyQt5.QtWidgets import (QFrame, QStyle, QFileDialog)
-from QDVRWidget import Ui_QDVRWidget
+from .QDVRWidget import Ui_QDVRWidget
 from jansenlib.video.QVideoPlayer import QVideoPlayer
 import cv2
 import numpy as np
