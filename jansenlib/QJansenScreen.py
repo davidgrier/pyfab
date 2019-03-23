@@ -3,7 +3,7 @@
 """QJansenScreen.py: PyQt GUI for live video with graphical overlay."""
 
 import PyQt5
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, QThread)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
 import pyqtgraph as pg
 try:
@@ -11,6 +11,37 @@ try:
 except:
     from .video.QOpenCV.QOpenCV import QOpenCV as Camera
 import numpy as np
+
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
+class QCameraThread(QThread):
+
+    '''Class for reducing latency by moving cameras to separate thread'''
+
+    sigNewFrame = pyqtSignal(np.ndarray)
+
+    def __init__(self, parent=None):
+        super(QCameraThread, self).__init__(parent)
+        self.camera = self.parent().camera
+
+    def run(self):
+        logger.debug('Starting acquisition loop')
+        self._running = True
+        while self._running:
+            ready, frame = self.camera.read()
+            if ready:
+                self.sigNewFrame.emit(frame)
+            else:
+                logger.warn('Failed to read frame')
+        logger.debug('Stopping acquisition loop')
+        self.camera.close()
+
+    def stop(self):
+        self._running = False
 
 
 class QJansenScreen(pg.GraphicsLayoutWidget):
@@ -55,7 +86,8 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         else:
             camera.setParent(self)
             self.camera = camera
-        self.source = self.camera
+        self._thread = QCameraThread(self)
+        self.source = self._thread
         height, width = self.camera.device.size()
 
         # ImageItem displays video feed
@@ -70,9 +102,12 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.viewBox.addItem(self.imageItem)
         self._filters = []
         self._pause = False
+        self._thread.start()
 
     def close(self):
-        self.camera.close()
+        self._thread.stop()
+        self._thread.quit()
+        self._thread.wait()
 
     def closeEvent(self):
         self.close()
@@ -88,7 +123,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         except AttributeError:
             pass
         if source is None:
-            source = self.camera
+            source = self._thread
         source.sigNewFrame.connect(self.updateImage)
         self._source = source
 

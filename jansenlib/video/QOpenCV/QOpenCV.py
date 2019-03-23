@@ -3,7 +3,7 @@
 
 from common.QSettingsWidget import QSettingsWidget
 from .QOpenCVWidget import Ui_QOpenCVWidget
-from .QOpenCVThread import QOpenCVThread
+from .OpenCVCamera import OpenCVCamera
 
 import logging
 logging.basicConfig()
@@ -17,14 +17,12 @@ class QOpenCV(QSettingsWidget):
 
     def __init__(self, parent=None, device=None, **kwargs):
         if device is None:
-            device = QOpenCVThread(**kwargs)
-        self.thread = device
-        self.sigNewFrame = self.thread.sigNewFrame
+            device = OpenCVCamera(**kwargs)
         ui = Ui_QOpenCVWidget()
         super(QOpenCV, self).__init__(parent,
-                                      device=device.camera,
+                                      device=device,
                                       ui=ui)
-        self.thread.start()
+        self.read = self.device.read
 
     def configureUi(self):
         logger.debug('configuring UI')
@@ -34,12 +32,9 @@ class QOpenCV(QSettingsWidget):
     def close(self):
         logger.debug('Closing camera interface')
         self.device = None
-        self.thread.stop()
-        self.thread.quit()
-        self.thread.wait()
 
     def closeEvent(self):
-        self.close
+        self.close()
 
 
 if __name__ == '__main__':
