@@ -102,9 +102,6 @@ class OpenCVCamera(object):
     def shape(self):
         return self._shape
 
-    # def size(self):
-    #    return (self.height, self.width)
-
 
 if __name__ == '__main__':
     cam = OpenCVCamera()

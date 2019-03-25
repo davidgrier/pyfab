@@ -152,6 +152,7 @@ class SpinnakerCamera(object):
         image = res.GetData().reshape(shape)
         if self.flipped:
             image = cv2.flip(image, 0)
+        self._shape = image.shape
         return not error, image
 
     @property
@@ -373,8 +374,9 @@ class SpinnakerCamera(object):
     def autogain(self):
         self.gainauto = 'Once'
 
-    def size(self):
-        return (self.height, self.width)
+    @property
+    def shape(self):
+        return self._shape
 
     #
     # private methods for handling interactions with GenICam
