@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from common.QSettingsWidget import QSettingsWidget
-from QSpinnakerThread import QSpinnakerThread
-from QSpinnakerWidget import Ui_QSpinnakerWidget
+from .QSpinnakerWidget import Ui_QSpinnakerWidget
+from .SpinnakerCamera import SpinnakerCamera
+
 
 import logging
 logging.basicConfig()
@@ -17,14 +18,12 @@ class QSpinnaker(QSettingsWidget):
 
     def __init__(self, parent=None, device=None, **kwargs):
         if device is None:
-            device = QSpinnakerThread(**kwargs)
-        self.thread = device
-        self.sigNewFrame = self.thread.sigNewFrame
+            device = SpinnakerCamera(**kwargs)
         ui = Ui_QSpinnakerWidget()
         super(QSpinnaker, self).__init__(parent=parent,
                                          device=device.camera,
                                          ui=ui)
-        self.thread.start()
+        self.read = self.device.read
 
     def configureUi(self):
         logger.debug('configuring UI')
@@ -34,12 +33,7 @@ class QSpinnaker(QSettingsWidget):
 
     def close(self):
         logger.debug('Closing camera interface')
-        # remove reference to camera device so that it can close
         self.device = None
-        # shut down acquisition thread
-        self.thread.stop()
-        self.thread.quit()
-        self.thread.wait()
 
     def closeEvent(self):
         self.close()
@@ -50,7 +44,6 @@ if __name__ == '__main__':
     import sys
 
     app = QApplication(sys.argv)
-    device = QSpinnakerThread()
-    wid = QSpinnaker(device=device)
+    wid = QSpinnaker()
     wid.show()
     sys.exit(app.exec_())
