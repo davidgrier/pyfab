@@ -40,20 +40,8 @@ class QOpenCV(QSettingsWidget):
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     import sys
+
     app = QApplication(sys.argv)
-    device = QOpenCVThread()
-    wid = QOpenCV(device=device)
+    wid = QOpenCV()
     wid.show()
     sys.edit(app.exec_())
-
-
-if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication
-    import sys
-
-    app = QApplication(sys.argv)
-    device = QOpenCVThread()
-    wid = QOpenCV(device=device)
-    wid.show()
-    print(wid.shape)
-    sys.exit(app.exec_())
