@@ -27,6 +27,8 @@ class QJansenWidget(QWidget):
 
         # DVR
         self.dvr = QDVR(self)
+        self.dvr.source = self.screen.source
+        self.dvr.screen = self.screen
         self.dvr.recording.connect(self.handleRecording)
 
         self.init_ui()
@@ -62,7 +64,7 @@ class QJansenWidget(QWidget):
         width = min(rect.width() // 3, int(7 * desktop.logicalDpiX()))
         self.tabs.setMaximumWidth(width)
         self.tabs.setFixedWidth(self.tabs.width())
-        _, vwidth = self.screen.camera.device.size()
+        vwidth = self.screen.camera.device.shape[1]
         width = vwidth + self.tabs.width()
         self.setMinimumWidth(min(width, rect.width()))
         self.setMaximumWidth(rect.width())

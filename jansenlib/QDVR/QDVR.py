@@ -42,6 +42,8 @@ class QDVR(QFrame):
 
     def __init__(self,
                  parent=None,
+                 source=None,
+                 screen=None,
                  filename='~/data/fabdvr.avi',
                  codec=None):
         super(QDVR, self).__init__(parent)
@@ -60,15 +62,16 @@ class QDVR(QFrame):
         self._framenumber = 0
         self._nframes = 0
 
-        self.screen = self.parent().screen
-        self.camera = self.screen.camera
-        self.stream = self.camera
-
+        #self.screen = self.parent().screen
+        #self.camera = self.screen.camera
+        #self.source = self.camera
         self.ui = Ui_QDVRWidget()
         self.ui.setupUi(self)
         self.configureUi()
         self.connectSignals()
 
+        self.source = source
+        self.screen = screen
         self.filename = filename
 
     def configureUi(self):
@@ -126,20 +129,20 @@ class QDVR(QFrame):
         self._nframes = nframes
         self.framenumber = 0
         fps = 24.  # self.screen.fps()
-        self._shape = self.stream.shape
+        self._shape = self.source.shape
         color = (len(self._shape) == 3)
         h, w = self._shape[0:2]
         msg = 'Recording: {}x{}, color: {}, fps: {}'
         logger.info(msg.format(w, h, color, fps))
         self._writer = cv2.VideoWriter(self.filename, self._fourcc,
                                        fps, (w, h), color)
-        self.stream.sigNewFrame.connect(self.write)
+        self.source.sigNewFrame.connect(self.write)
         self.recording.emit(True)
 
     @pyqtSlot()
     def stop(self):
         if self.is_recording():
-            self.stream.sigNewFrame.disconnect(self.write)
+            self.source.sigNewFrame.disconnect(self.write)
             self._writer.release()
             self._writer = None
         if self.is_playing():
@@ -197,6 +200,24 @@ class QDVR(QFrame):
     # ==========
     # Properties
     #
+
+    @property
+    def source(self):
+        return self._source
+
+    @source.setter
+    def source(self, source):
+        self._source = source
+        self.ui.recordButton.setEnabled(source is not None)
+
+    @property
+    def screen(self):
+        return self._screen
+
+    @screen.setter
+    def screen(self, screen):
+        self._screen = screen
+        self.ui.playButton.setEnabled(screen is not None)
 
     @property
     def filename(self):

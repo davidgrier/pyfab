@@ -27,6 +27,7 @@ class QCameraThread(QThread):
     def __init__(self, parent=None):
         super(QCameraThread, self).__init__(parent)
         self.camera = self.parent().camera
+        self.shape = self.camera.shape
 
     def run(self):
         logger.debug('Starting acquisition loop')
@@ -88,7 +89,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
             self.camera = camera
         self._thread = QCameraThread(self)
         self.source = self._thread
-        height, width = self.camera.device.size()
+        shape = self.camera.device.shape
 
         # ImageItem displays video feed
         self.imageItem = pg.ImageItem()
@@ -97,7 +98,8 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                                        enableMouse=False,
                                        invertY=False,
                                        lockAspect=True)
-        self.viewBox.setRange(xRange=(0, width), yRange=(0, height),
+        self.viewBox.setRange(xRange=(0, shape[1]),
+                              yRange=(0, shape[0]),
                               padding=0, update=True)
         self.viewBox.addItem(self.imageItem)
         self._filters = []
