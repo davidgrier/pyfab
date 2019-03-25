@@ -123,6 +123,7 @@ class SpinnakerCamera(object):
         self.sharpnessauto = 'Off'
         self.sharpnessenabled = True
         self.start()
+        ready, frame = self.read()
 
     def __del__(self):
         logger.debug('Cleaning up')
