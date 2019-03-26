@@ -95,19 +95,8 @@ class SpinnakerCamera(object):
                  gainauto='Off',
                  gray=True,
                  mirrored=False):
-        # super(SpinnakerCamera, self).__init__()
+        self.open()
 
-        # Initialize Spinnaker and get list of cameras
-        self._system = PySpin.System.GetInstance()
-        self._devices = self._system.GetCameras()
-        if self._devices.GetSize() < 1:
-            logger.error('No Spinnaker cameras found')
-
-        # Work with first attached camera.  This can be generalized
-        self.device = self._devices[0]
-        self.device.Init()
-        # Camera inodes provide access to device properties
-        self._nodes = self.device.GetNodeMap()
         # Start acquisition
         self.acquisitionmode = acquisitionmode
         self.blacklevelenabled = True
@@ -126,6 +115,22 @@ class SpinnakerCamera(object):
         ready, frame = self.read()
 
     def __del__(self):
+        self.close()
+
+    def open(self, index=0):
+        # Initialize Spinnaker and get list of cameras
+        self._system = PySpin.System.GetInstance()
+        self._devices = self._system.GetCameras()
+        if self._devices.GetSize() < 1:
+            logger.error('No Spinnaker cameras found')
+
+        # Work with first attached camera.  This can be generalized
+        self.device = self._devices[index]
+        self.device.Init()
+        # Camera inodes provide access to device properties
+        self._nodes = self.device.GetNodeMap()
+
+    def close(self):
         logger.debug('Cleaning up')
         self.stop()
         self.device.DeInit()

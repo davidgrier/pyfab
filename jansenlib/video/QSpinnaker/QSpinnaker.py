@@ -33,6 +33,7 @@ class QSpinnaker(QSettingsWidget):
 
     def close(self):
         logger.debug('Closing camera interface')
+        self.device.close()
         self.device = None
 
     def closeEvent(self):
