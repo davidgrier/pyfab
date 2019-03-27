@@ -17,12 +17,14 @@ logger.setLevel(logging.DEBUG)
 
 class QHistogramTab(QFrame):
 
-    def __init__(self, video, parent=None):
+    def __init__(self, screen, parent=None, nskip=3):
         super(QHistogramTab, self).__init__(parent)
 
         self.title = 'Histogram'
         self.index = -1
-        self.video = video
+        self.screen = screen
+        self._n = 0
+        self._nskip = nskip
 
         self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
@@ -66,13 +68,16 @@ class QHistogramTab(QFrame):
 
     def expose(self, index):
         if index == self.index:
-            logger.debug('Registering filter')
-            self.video.registerFilter(self.histogramFilter)
+            logger.debug('Registering histogram filter')
+            self.screen.registerFilter(self.histogramFilter)
         else:
-            logger.debug('Unregistering filter')
-            self.video.unregisterFilter(self.histogramFilter)
+            logger.debug('Unregistering histogram filter')
+            self.screen.unregisterFilter(self.histogramFilter)
 
     def histogramFilter(self, frame):
+        self._n = (self._n + 1) % self._nskip
+        if self._n > 0:
+            return
         if frame.ndim == 2:
             y = np.bincount(frame.flat, minlength=256)
             self.rplot.setData(y=y)
@@ -82,11 +87,11 @@ class QHistogramTab(QFrame):
             self.yplot.setData(y=np.mean(frame, 1))
         else:
             b, g, r = cv2.split(frame)
-            y = np.bincount(r.flat, minlength=256)
+            y = np.bincount(r.ravel(), minlength=256)
             self.rplot.setData(y=y)
-            y = np.bincount(g.flat, minlength=256)
+            y = np.bincount(g.ravel(), minlength=256)
             self.gplot.setData(y=y)
-            y = np.bincount(b.flat, minlength=256)
+            y = np.bincount(b.ravel(), minlength=256)
             self.bplot.setData(y=y)
             self.xplot.setData(y=np.mean(r, 0))
             self.yplot.setData(y=np.mean(r, 1))
