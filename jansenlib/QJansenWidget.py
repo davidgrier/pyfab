@@ -9,7 +9,7 @@ from .QJansenScreen import QJansenScreen
 from .QHistogramTab import QHistogramTab
 from .QDVR.QDVR import QDVR
 from common.tabLayout import tabLayout
-from .video.QVideoFilterWidget import QVideoFilterWidget
+from .video.QVideoFilter.QVideoFilter import QVideoFilter
 from tasks.taskmanager import Taskmanager
 from help.QHelpBrowser import QHelpBrowser
 
@@ -20,7 +20,7 @@ class QJansenWidget(QWidget):
         super(QJansenWidget, self).__init__(parent)
         # video screen
         self.screen = QJansenScreen(self, camera=camera)
-        self.filters = QVideoFilterWidget(self)
+        self.filters = QVideoFilter(self)
 
         # tasks are processes that are synchronized with video frames
         self.tasks = Taskmanager(self)
