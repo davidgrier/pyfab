@@ -78,19 +78,12 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseWheel = pyqtSignal(QWheelEvent)
 
     def __init__(self, parent=None, camera=None, **kwargs):
+
         pg.setConfigOptions(imageAxisOrder='row-major')
+
         super(QJansenScreen, self).__init__(parent)
+
         self.ci.layout.setContentsMargins(0, 0, 0, 0)
-
-        if camera is None:
-            self.camera = Camera(self, **kwargs)
-        else:
-            camera.setParent(self)
-            self.camera = camera
-        self._thread = QCameraThread(self)
-        self.source = self._thread
-        shape = self.camera.device.shape
-
         # ImageItem displays video feed
         self.imageItem = pg.ImageItem()
         # ViewBox presents video and contains overlays
@@ -98,13 +91,13 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                                        enableMouse=False,
                                        invertY=False,
                                        lockAspect=True)
-        self.viewBox.setRange(xRange=(0, shape[1]),
-                              yRange=(0, shape[0]),
-                              padding=0, update=True)
+
         self.viewBox.addItem(self.imageItem)
+
         self._filters = []
-        self._pause = False
-        self._thread.start()
+        self.pauseSignals(False)
+
+        self.camera = camera
 
     def close(self):
         self._thread.stop()
@@ -113,6 +106,25 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     def closeEvent(self):
         self.close()
+
+    @pyqtProperty(object)
+    def camera(self):
+        return self._camera
+
+    @camera.setter
+    def camera(self, camera):
+        if camera is None:
+            self._camera = Camera(self)
+        else:
+            camera.setParent(self)
+            self._camera = camera
+        shape = self._camera.shape
+        self.viewBox.setRange(xRange=(0, shape[1]),
+                              yRange=(0, shape[0]),
+                              padding=0, update=True)
+        self._thread = QCameraThread(self)
+        self._thread.start()
+        self.source = self._thread
 
     @pyqtProperty(object)
     def source(self):
