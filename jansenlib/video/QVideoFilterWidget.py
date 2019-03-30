@@ -5,9 +5,9 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, QCheckBox)
-from .vmedian import vmedian
-from .vmax import vmax
-from .QDetector import QDetector
+from .QVideoFilter.vmedian import vmedian
+from .QVideoFilter.vmax import vmax
+from .QVideoFilter.QDetector import QDetector
 import numpy as np
 import cv2
 from matplotlib.pylab import cm
