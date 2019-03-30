@@ -6,10 +6,6 @@ import PyQt5
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, QThread)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
 import pyqtgraph as pg
-try:
-    from .video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
-except:
-    from .video.QOpenCV.QOpenCV import QOpenCV as Camera
 import numpy as np
 
 import logging
@@ -113,11 +109,11 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     @camera.setter
     def camera(self, camera):
+        logger.debug('Setting Camera: {}'.format(type(camera)))
+        self._camera = camera
         if camera is None:
-            self._camera = Camera(self)
-        else:
-            camera.setParent(self)
-            self._camera = camera
+            return
+
         shape = self._camera.shape
         self.viewBox.setRange(xRange=(0, shape[1]),
                               yRange=(0, shape[0]),

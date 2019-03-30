@@ -24,15 +24,19 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QAction, QFileDialog)
 from PyQt5.QtGui import QIcon
 from jansenlib.QJansenWidget import QJansenWidget
-# from common.FabConfig import FabConfig
-import sys
+
+try:
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
+except:
+    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as Camera
 
 
 class Jansen(QMainWindow):
 
     def __init__(self):
         super(Jansen, self).__init__()
-        self.instrument = QJansenWidget(self)
+        camera = Camera()
+        self.instrument = QJansenWidget(self, camera=camera)
         self.init_ui()
         # self.config = FabConfig(self)
         self.show()
@@ -89,6 +93,7 @@ class Jansen(QMainWindow):
 
 
 if __name__ == '__main__':
+    import sys
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
