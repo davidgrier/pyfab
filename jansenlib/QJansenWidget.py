@@ -20,7 +20,7 @@ class QJansenWidget(QWidget):
         super(QJansenWidget, self).__init__(parent)
         # video screen
         self.screen = QJansenScreen(self, camera=camera)
-        self.filters = QVideoFilter(self)
+        self.filters = QVideoFilter(self, screen=self.screen)
 
         # tasks are processes that are synchronized with video frames
         self.tasks = Taskmanager(self)
@@ -83,13 +83,13 @@ class QJansenWidget(QWidget):
         self.browser = QHelpBrowser('jansen')
         bback = QPushButton('Back')
         bback.clicked.connect(self.browser.back)
-        layout = tabLayout(whelp)
+        layout=tabLayout(whelp)
         layout.addWidget(bback)
         layout.addWidget(self.browser)
         return whelp
 
     def keyPressEvent(self, event):
-        key = event.text()
+        key=event.text()
         if key == 'r':
             if self.dvr.is_recording():
                 self.dvr.bstop.animateClick(100)
