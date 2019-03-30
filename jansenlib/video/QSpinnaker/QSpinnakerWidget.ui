@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>247</width>
-    <height>262</height>
+    <width>248</width>
+    <height>244</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,19 +32,6 @@
    <property name="bottomMargin">
     <number>1</number>
    </property>
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Video Camera</string>
-     </property>
-    </widget>
-   </item>
    <item>
     <widget class="QFrame" name="frameFlip">
      <property name="frameShape">
@@ -576,7 +563,6 @@
   <zorder>frameFlip</zorder>
   <zorder>frameGeometry</zorder>
   <zorder>frameGamma</zorder>
-  <zorder>label</zorder>
   <zorder>frameMode</zorder>
  </widget>
  <tabstops>

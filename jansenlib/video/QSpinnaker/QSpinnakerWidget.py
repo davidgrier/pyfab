@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'QSpinnakerWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,18 +11,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_QSpinnakerWidget(object):
     def setupUi(self, QSpinnakerWidget):
         QSpinnakerWidget.setObjectName("QSpinnakerWidget")
-        QSpinnakerWidget.resize(247, 262)
+        QSpinnakerWidget.resize(248, 244)
         self.verticalLayout = QtWidgets.QVBoxLayout(QSpinnakerWidget)
         self.verticalLayout.setContentsMargins(3, 1, 3, 1)
         self.verticalLayout.setSpacing(1)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.label = QtWidgets.QLabel(QSpinnakerWidget)
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        self.label.setFont(font)
-        self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
         self.frameFlip = QtWidgets.QFrame(QSpinnakerWidget)
         self.frameFlip.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frameFlip.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -193,7 +186,6 @@ class Ui_QSpinnakerWidget(object):
         self.frameFlip.raise_()
         self.frameGeometry.raise_()
         self.frameGamma.raise_()
-        self.label.raise_()
         self.frameMode.raise_()
         self.gainLabel.setBuddy(self.gain)
         self.labelblacklevel.setBuddy(self.blacklevel)
@@ -226,7 +218,6 @@ class Ui_QSpinnakerWidget(object):
         _translate = QtCore.QCoreApplication.translate
         QSpinnakerWidget.setWindowTitle(_translate("QSpinnakerWidget", "QSpinnakerWidget"))
         QSpinnakerWidget.setStatusTip(_translate("QSpinnakerWidget", "Control Spinnaker camera"))
-        self.label.setText(_translate("QSpinnakerWidget", "Video Camera"))
         self.mirrored.setStatusTip(_translate("QSpinnakerWidget", "Camera: Flip image around vertical axis"))
         self.mirrored.setText(_translate("QSpinnakerWidget", "&Mirrored"))
         self.flipped.setStatusTip(_translate("QSpinnakerWidget", "Camera: Flip image about horizontal axis"))

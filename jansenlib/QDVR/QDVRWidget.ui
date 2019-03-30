@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>233</width>
-    <height>156</height>
+    <width>215</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="font">
@@ -40,75 +40,6 @@
    <property name="bottomMargin">
     <number>4</number>
    </property>
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>13</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Video Recorder</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="widgetSource" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="spacing">
-       <number>-1</number>
-      </property>
-      <property name="leftMargin">
-       <number>6</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>6</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QRadioButton" name="cameraButton">
-        <property name="statusTip">
-         <string>Record from raw camera stream</string>
-        </property>
-        <property name="text">
-         <string>Camera</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="videoButton">
-        <property name="statusTip">
-         <string>Record from filtered video stream</string>
-        </property>
-        <property name="text">
-         <string>Video</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="screenButton">
-        <property name="statusTip">
-         <string>Record from screen</string>
-        </property>
-        <property name="text">
-         <string>Screen</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item>
     <widget class="QWidget" name="widgetRecord" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
