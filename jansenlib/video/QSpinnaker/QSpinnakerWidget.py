@@ -12,6 +12,7 @@ class Ui_QSpinnakerWidget(object):
     def setupUi(self, QSpinnakerWidget):
         QSpinnakerWidget.setObjectName("QSpinnakerWidget")
         QSpinnakerWidget.resize(248, 244)
+        QSpinnakerWidget.setMinimumSize(QtCore.QSize(248, 244))
         self.verticalLayout = QtWidgets.QVBoxLayout(QSpinnakerWidget)
         self.verticalLayout.setContentsMargins(3, 1, 3, 1)
         self.verticalLayout.setSpacing(1)

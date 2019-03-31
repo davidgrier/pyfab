@@ -11,7 +11,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_QVideoFilterWidget(object):
     def setupUi(self, QVideoFilterWidget):
         QVideoFilterWidget.setObjectName("QVideoFilterWidget")
-        QVideoFilterWidget.resize(126, 102)
+        QVideoFilterWidget.resize(126, 126)
+        QVideoFilterWidget.setMinimumSize(QtCore.QSize(102, 126))
         QVideoFilterWidget.setFrameShape(QtWidgets.QFrame.Box)
         self.verticalLayout = QtWidgets.QVBoxLayout(QVideoFilterWidget)
         self.verticalLayout.setContentsMargins(2, 2, 2, 2)
