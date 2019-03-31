@@ -3,7 +3,8 @@
 """QJansenScreen.py: PyQt GUI for live video with graphical overlay."""
 
 import PyQt5
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, QThread)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
+                          QThread, QSize)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
 import pyqtgraph as pg
 import numpy as np
@@ -102,6 +103,13 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     def closeEvent(self):
         self.close()
+
+    def sizeHint(self):
+        if self.camera is None:
+            return QSize(640, 480)
+        else:
+            shape = self.camera.shape
+            return QSize(shape[1], shape[0])
 
     @pyqtProperty(object)
     def camera(self):

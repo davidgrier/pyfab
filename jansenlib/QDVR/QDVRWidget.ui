@@ -10,6 +10,12 @@
     <height>120</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>215</width>
+    <height>120</height>
+   </size>
+  </property>
   <property name="font">
    <font>
     <family>Arial</family>

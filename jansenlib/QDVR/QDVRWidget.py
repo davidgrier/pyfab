@@ -12,6 +12,7 @@ class Ui_QDVRWidget(object):
     def setupUi(self, QDVRWidget):
         QDVRWidget.setObjectName("QDVRWidget")
         QDVRWidget.resize(215, 120)
+        QDVRWidget.setMinimumSize(QtCore.QSize(215, 120))
         font = QtGui.QFont()
         font.setFamily("Arial")
         QDVRWidget.setFont(font)
