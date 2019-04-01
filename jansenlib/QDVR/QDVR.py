@@ -36,6 +36,39 @@ def clickable(widget):
     return filter.clicked
 
 
+class Writer(QObject):
+    '''NOTE: Move writing to separate thread'''
+
+    sigFramenumber = pyqtSignal(int)
+    sigFinished = pyqtSignal()
+
+    def __init__(self, parent, nframes=10000):
+        super(Writer, self).__init__(parent)
+        self.shape = self.parent().source.shape
+        color = (len(self.shape) == 3)
+        h, w = self.shape[0:2]
+        fps = 24
+        msg = 'Recording: {}x{}, color: {}, fps: {}'
+        logger.info(msg.format(w, h, color, fps))
+        self.writer = cv2.VideoWriter(self.parent().filename,
+                                      self.parent()._fourcc,
+                                      fps, (w, h), color)
+        self.framenumber = 0
+        self.target = nframes
+        self.sigFramenumber.emit(self.framenumber)
+
+    @pyqtSlot(np.ndarray)
+    def write(self, frame):
+        self.writer.write(frame)
+        self.framenumber += 1
+        self.sigFramenumber.emit(self.framenumber)
+        if (self.framenumber >= self.target):
+            self.sigFinished.emit()
+
+    def stop(self):
+        self.writer.release()
+
+
 class QDVR(QFrame):
 
     recording = pyqtSignal(bool)
@@ -62,9 +95,6 @@ class QDVR(QFrame):
         self._framenumber = 0
         self._nframes = 0
 
-        #self.screen = self.parent().screen
-        #self.camera = self.screen.camera
-        #self.source = self.camera
         self.ui = Ui_QDVRWidget()
         self.ui.setupUi(self)
         self.configureUi()
@@ -181,7 +211,7 @@ class QDVR(QFrame):
         if self.is_playing():
             self._player.pause(False)
             return
-        print('playing')
+        logger.debug('Starting Playback')
         self.framenumber = 0
         self._player = QVideoPlayer(self, self.playname)
         self._player.sigNewFrame.connect(self.stepFramenumber)
