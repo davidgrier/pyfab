@@ -12,7 +12,7 @@ import platform
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 def clickable(widget):
@@ -126,6 +126,7 @@ class QDVR(QFrame):
         if (self.is_recording() or self.is_playing() or
                 (nframes <= 0)):
             return
+        logger.debug('Starting Recording')
         self._nframes = nframes
         self.framenumber = 0
         fps = 24.  # self.screen.fps()
@@ -142,10 +143,12 @@ class QDVR(QFrame):
     @pyqtSlot()
     def stop(self):
         if self.is_recording():
+            logger.debug('Stopping Recording')
             self.source.sigNewFrame.disconnect(self.write)
             self._writer.release()
             self._writer = None
         if self.is_playing():
+            logger.debug('Stopping Playing')
             self._player.stop()
             self._player = None
             self.screen.source = self.screen.camera
@@ -155,11 +158,15 @@ class QDVR(QFrame):
 
     @pyqtSlot(np.ndarray)
     def write(self, frame):
+        if not self.is_recording():
+            logger.debug('Tried to write past end of video')
+            return
         if frame.shape != self._shape:
             msg = 'Frame is wrong shape: {}, expecting: {}'
             logger.warn(msg.format(frame.shape, self._shape))
             self.stop()
             return
+        logger.debug('Frame: {}'.format(frame.shape))
         self._writer.write(frame)
         self.framenumber += 1
         if self.framenumber >= self._nframes:

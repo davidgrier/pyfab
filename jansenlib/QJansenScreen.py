@@ -131,6 +131,10 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.source = self._thread
 
     @pyqtProperty(object)
+    def defaultSource(self):
+        return self._thread
+
+    @pyqtProperty(object)
     def source(self):
         return self._source
 
@@ -141,7 +145,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         except AttributeError:
             pass
         if source is None:
-            source = self._thread
+            source = self.defaultSource
         source.sigNewFrame.connect(self.updateImage)
         self._source = source
 
