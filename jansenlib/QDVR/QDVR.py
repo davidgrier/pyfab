@@ -106,11 +106,11 @@ class QDVR(QFrame):
 
     def configureUi(self):
         icon = self.style().standardIcon
-        self.ui.recordButton.setIcon(icon(QStyle.SP_MediaPlay))
-        self.ui.stopButton.setIcon(icon(QStyle.SP_MediaStop))
-        self.ui.rewindButton.setIcon(icon(QStyle.SP_MediaSkipBackward))
-        self.ui.playButton.setIcon(icon(QStyle.SP_MediaPlay))
-        self.ui.pauseButton.setIcon(icon(QStyle.SP_MediaPause))
+        # self.ui.recordButton.setIcon(icon(QStyle.SP_MediaPlay))
+        # self.ui.stopButton.setIcon(icon(QStyle.SP_MediaStop))
+        # self.ui.rewindButton.setIcon(icon(QStyle.SP_MediaSkipBackward))
+        # self.ui.playButton.setIcon(icon(QStyle.SP_MediaPlay))
+        # self.ui.pauseButton.setIcon(icon(QStyle.SP_MediaPause))
 
     def connectSignals(self):
         clickable(self.ui.playEdit).connect(self.getPlayFilename)
