@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QEvent)
+from PyQt5.QtCore import (QObject, QThread, pyqtSignal, pyqtSlot, QEvent)
 from PyQt5.QtWidgets import (QFrame, QFileDialog)
 from .QDVRWidget import Ui_QDVRWidget
 from jansenlib.video.QVideoPlayer import QVideoPlayer
@@ -42,16 +42,16 @@ class Writer(QObject):
     sigFrameNumber = pyqtSignal(int)
     sigFinished = pyqtSignal()
 
-    def __init__(self, parent, nframes=10000):
+    def __init__(self, parent=None, dvr=None, nframes=10000):
         super(Writer, self).__init__(parent)
-        self.shape = self.parent().source.shape
+        self.shape = dvr.source.shape
         color = (len(self.shape) == 3)
         h, w = self.shape[0:2]
         fps = 24
         msg = 'Recording: {}x{}, color: {}, fps: {}'
         logger.info(msg.format(w, h, color, fps))
-        self.writer = cv2.VideoWriter(self.parent().filename,
-                                      self.parent()._fourcc,
+        self.writer = cv2.VideoWriter(dvr.filename,
+                                      dvr._fourcc,
                                       fps, (w, h), color)
         self.framenumber = 0
         self.target = nframes
@@ -61,7 +61,7 @@ class Writer(QObject):
     def write(self, frame):
         self.writer.write(frame)
         self.framenumber += 1
-        self.sigFramenumber.emit(self.framenumber)
+        self.sigFrameNumber.emit(self.framenumber)
         if (self.framenumber >= self.target):
             self.sigFinished.emit()
 
@@ -156,13 +156,13 @@ class QDVR(QFrame):
         if (self.is_recording() or self.is_playing() or (nframes <= 0)):
             return
         logger.debug('Starting Threaded Recording')
-        self._writer = Writer(self)
+        self._writer = Writer(dvr=self)
         self.source.sigNewFrame.connect(self._writer.write)
         self._writer.sigFrameNumber.connect(self.setFrameNumber)
         self._writer.sigFinished.connect(self.stopThread)
         self._thread = QThread()
-        self._writer.moveToThread(self._thread)
         self._thread.start()
+        self._writer.moveToThread(self._thread)
         self.recording.emit(True)
 
     @pyqtSlot()
@@ -172,9 +172,11 @@ class QDVR(QFrame):
             self.source.sigNewFrame.disconnect(self._writer.write)
             self._writer.sigFrameNumber.disconnect(self.setFrameNumber)
             self._writer.sigFinished.disconnect(self.stopThread)
-            self._thread.stop()
-            del self._writer
+            self._writer.stop()
             self._writer = None
+            self._thread.quit()
+            self._thread.wait()
+            self._thread = None
         if self.is_playing():
             logger.debug('Stopping Playing')
             self._player.stop()
