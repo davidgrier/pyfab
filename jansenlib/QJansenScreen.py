@@ -65,6 +65,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseRelease(QMouseEvent)
     sigMouseMove(QMouseEvent)
     sigMouseWheel(QMouseEvent)
+    sigNewFrame(np.ndarray)
 
     Slots
     -----
@@ -73,6 +74,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseRelease = pyqtSignal(QMouseEvent)
     sigMouseMove = pyqtSignal(QMouseEvent)
     sigMouseWheel = pyqtSignal(QWheelEvent)
+    sigNewFrame = pyqtSignal(np.ndarray)
 
     def __init__(self, parent=None, camera=None, **kwargs):
 
@@ -155,6 +157,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         for filter in self._filters:
             image = filter(image)
         self.source.blockSignals(False)
+        self.sigNewFrame.emit(image)
         self.imageItem.setImage(image, autoLevels=False)
 
     def registerFilter(self, filter):
