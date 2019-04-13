@@ -36,14 +36,13 @@ def clickable(widget):
     return filter.clicked
 
 
-class Writer(QObject):
-    '''NOTE: Move writing to separate thread'''
+class QWriter(QObject):
 
     sigFrameNumber = pyqtSignal(int)
     sigFinished = pyqtSignal()
 
-    def __init__(self, parent=None, dvr=None, nframes=10000):
-        super(Writer, self).__init__(parent)
+    def __init__(self, dvr, nframes=10000):
+        super(QWriter, self).__init__()
         self.shape = dvr.source.shape
         color = (len(self.shape) == 3)
         h, w = self.shape[0:2]
@@ -59,13 +58,16 @@ class Writer(QObject):
 
     @pyqtSlot(np.ndarray)
     def write(self, frame):
+        if ((frame.shape != self.shape) or
+                (self.framenumber >= self.target)):
+            self.sigFinished.emit()
+            return
         self.writer.write(frame)
         self.framenumber += 1
         self.sigFrameNumber.emit(self.framenumber)
-        if (self.framenumber >= self.target):
-            self.sigFinished.emit()
 
-    def stop(self):
+    @pyqtSlot()
+    def close(self):
         self.writer.release()
 
 
@@ -156,32 +158,29 @@ class QDVR(QFrame):
         if (self.is_recording() or self.is_playing() or (nframes <= 0)):
             return
         logger.debug('Starting Threaded Recording')
-        self._writer = Writer(dvr=self)
-        self.source.sigNewFrame.connect(self._writer.write)
+        self._writer = QWriter(self)
         self._writer.sigFrameNumber.connect(self.setFrameNumber)
         self._writer.sigFinished.connect(self.stopThread)
         self._thread = QThread()
-        self._thread.start()
+        self._thread.finished.connect(self._writer.close)
+        self.source.sigNewFrame.connect(self._writer.write)
         self._writer.moveToThread(self._thread)
+        self._thread.start()
         self.recording.emit(True)
 
     @pyqtSlot()
     def stopThread(self):
         if self.is_recording():
             logger.debug('Stopping Threaded Recording')
-            self.source.sigNewFrame.disconnect(self._writer.write)
-            self._writer.sigFrameNumber.disconnect(self.setFrameNumber)
-            self._writer.sigFinished.disconnect(self.stopThread)
-            self._writer.stop()
-            self._writer = None
             self._thread.quit()
             self._thread.wait()
             self._thread = None
+            self._writer = None
         if self.is_playing():
             logger.debug('Stopping Playing')
             self._player.stop()
             self._player = None
-            self.screen.source = self.screen.camera
+            self.screen.source = None  # use default source
         self.framenumber = 0
         self._nframes = 0
         self.recording.emit(False)
