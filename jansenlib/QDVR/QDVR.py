@@ -117,8 +117,8 @@ class QDVR(QFrame):
     def connectSignals(self):
         clickable(self.ui.playEdit).connect(self.getPlayFilename)
         clickable(self.ui.saveEdit).connect(self.getSaveFilename)
-        self.ui.recordButton.clicked.connect(self.recordThread)
-        self.ui.stopButton.clicked.connect(self.stopThread)
+        self.ui.recordButton.clicked.connect(self.record)
+        self.ui.stopButton.clicked.connect(self.stop)
         self.ui.rewindButton.clicked.connect(self.rewind)
         self.ui.pauseButton.clicked.connect(self.pause)
         self.ui.playButton.clicked.connect(self.play)
@@ -154,13 +154,13 @@ class QDVR(QFrame):
     # Record functionality
 
     @pyqtSlot()
-    def recordThread(self, nframes=10000):
+    def record(self, nframes=10000):
         if (self.is_recording() or self.is_playing() or (nframes <= 0)):
             return
-        logger.debug('Starting Threaded Recording')
+        logger.debug('Starting Recording')
         self._writer = QWriter(self)
         self._writer.sigFrameNumber.connect(self.setFrameNumber)
-        self._writer.sigFinished.connect(self.stopThread)
+        self._writer.sigFinished.connect(self.stop)
         self._thread = QThread()
         self._thread.finished.connect(self._writer.close)
         self.source.sigNewFrame.connect(self._writer.write)
@@ -169,9 +169,9 @@ class QDVR(QFrame):
         self.recording.emit(True)
 
     @pyqtSlot()
-    def stopThread(self):
+    def stop(self):
         if self.is_recording():
-            logger.debug('Stopping Threaded Recording')
+            logger.debug('Stopping Recording')
             self._thread.quit()
             self._thread.wait()
             self._thread = None
@@ -188,57 +188,6 @@ class QDVR(QFrame):
     @pyqtSlot(int)
     def setFrameNumber(self, framenumber):
         self.framenumber = framenumber
-
-    @pyqtSlot(bool)
-    def record(self, state, nframes=10000):
-        if (self.is_recording() or self.is_playing() or
-                (nframes <= 0)):
-            return
-        logger.debug('Starting Recording')
-        self._nframes = nframes
-        self.framenumber = 0
-        fps = 24.  # self.screen.fps()
-        self._shape = self.source.shape
-        color = (len(self._shape) == 3)
-        h, w = self._shape[0:2]
-        msg = 'Recording: {}x{}, color: {}, fps: {}'
-        logger.info(msg.format(w, h, color, fps))
-        self._writer = cv2.VideoWriter(self.filename, self._fourcc,
-                                       fps, (w, h), color)
-        self.source.sigNewFrame.connect(self.write)
-        self.recording.emit(True)
-
-    @pyqtSlot()
-    def stop(self):
-        if self.is_recording():
-            logger.debug('Stopping Recording')
-            self.source.sigNewFrame.disconnect(self.write)
-            self._writer.release()
-            self._writer = None
-        if self.is_playing():
-            logger.debug('Stopping Playing')
-            self._player.stop()
-            self._player = None
-            self.screen.source = self.screen.camera
-        self.framenumber = 0
-        self._nframes = 0
-        self.recording.emit(False)
-
-    @pyqtSlot(np.ndarray)
-    def write(self, frame):
-        if not self.is_recording():
-            logger.debug('Tried to write past end of video')
-            return
-        if frame.shape != self._shape:
-            msg = 'Frame is wrong shape: {}, expecting: {}'
-            logger.warn(msg.format(frame.shape, self._shape))
-            self.stop()
-            return
-        logger.debug('Frame: {}'.format(frame.shape))
-        self._writer.write(frame)
-        self.framenumber += 1
-        if self.framenumber >= self._nframes:
-            self.stop()
 
     # Playback functionality
 
