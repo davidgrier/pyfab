@@ -152,9 +152,8 @@ class QDVR(QFrame):
     # Record functionality
 
     @pyqtSlot()
-    def recordThread(self):
-         if (self.is_recording() or self.is_playing() or
-                (nframes <= 0)):
+    def recordThread(self, nframes=10000):
+        if (self.is_recording() or self.is_playing() or (nframes <= 0)):
             return
         logger.debug('Starting Threaded Recording')
         self._writer = Writer(self)
@@ -184,7 +183,7 @@ class QDVR(QFrame):
         self.framenumber = 0
         self._nframes = 0
         self.recording.emit(False)
-        
+
     @pyqtSlot(int)
     def setFrameNumber(self, framenumber):
         self.framenumber = framenumber
