@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 try:
     from PyQt5.QtWebEngineWidgets import QWebEngineView as Browser
 except ImportError:
@@ -7,6 +9,18 @@ import os
 
 
 class QHelpBrowser(Browser):
+    '''HTML Widget for reading documentation
+
+    Methods
+    -------
+    load(document)
+        Load the specified document
+
+        Arguments
+        ---------
+        document: str
+            name of the html document stored in the help directory
+    '''
 
     def __init__(self, basename):
         super(QHelpBrowser, self).__init__()
