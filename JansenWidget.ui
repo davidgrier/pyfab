@@ -303,22 +303,25 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionSave_Snapshot"/>
-    <addaction name="actionSave_Snapshot_As"/>
+    <addaction name="actionSavePhoto"/>
+    <addaction name="actionSavePhotoAs"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionSave_Snapshot">
+  <action name="actionSavePhoto">
    <property name="text">
-    <string>Save Snapshot</string>
+    <string>Save Photo</string>
    </property>
   </action>
-  <action name="actionSave_Snapshot_As">
+  <action name="actionSavePhotoAs">
    <property name="text">
-    <string>Save Snapshot As ...</string>
+    <string>Save Photo As ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
   </action>
   <action name="actionQuit">

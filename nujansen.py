@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from JansenWidget import Ui_MainWindow
+from common.Configuration import Configuration
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger('nujansen')
@@ -23,6 +25,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.installCamera(Camera())
         self.configureUi()
         self.connectSignals()
+        self.configuration = Configuration(self)
 
     def closeEvent(self, event):
         self.screen.close()
@@ -46,9 +49,24 @@ class Jansen(QMainWindow, Ui_MainWindow):
             lambda: self.setDvrSource(self.screen.defaultSource))
         self.bfilters.clicked.connect(
             lambda: self.setDvrSource(self.screen))
+        self.actionSavePhoto.triggered.connect(self.savePhoto)
+        self.actionSavePhotoAs.triggered.connect(
+            lambda: self.savePhoto(True))
 
     def setDvrSource(self, source):
         self.dvr.source = source
+
+    def savePhoto(self, select=False):
+        filename = self.configuration.filename(suffix='.png')
+        if select:
+            getname = QFileDialog.getSaveFileName
+            filename, _ = getname(self, 'Save Snapshot',
+                                  directory=filename,
+                                  filter='Image files (*.png)')
+        if filename:
+            qimage = self.screen.imageItem.qimage
+            qimage.mirrored(vertical=True).save(filename)
+            self.statusBar().showMessage('Saved ' + filename)
 
 
 if __name__ == '__main__':
