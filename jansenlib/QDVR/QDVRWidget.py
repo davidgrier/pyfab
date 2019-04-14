@@ -2,16 +2,17 @@
 
 # Form implementation generated from reading ui file 'QDVRWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_QDVRWidget(object):
     def setupUi(self, QDVRWidget):
         QDVRWidget.setObjectName("QDVRWidget")
-        QDVRWidget.resize(215, 120)
+        QDVRWidget.resize(275, 120)
         QDVRWidget.setMinimumSize(QtCore.QSize(215, 120))
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -28,13 +29,15 @@ class Ui_QDVRWidget(object):
         self.horizontalLayout_2.setSpacing(2)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.recordButton = QtWidgets.QPushButton(self.widgetRecord)
-        icon = QtGui.QIcon.fromTheme("media-record")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/icons/media-record.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.recordButton.setIcon(icon)
         self.recordButton.setObjectName("recordButton")
         self.horizontalLayout_2.addWidget(self.recordButton)
         self.stopButton = QtWidgets.QPushButton(self.widgetRecord)
-        icon = QtGui.QIcon.fromTheme("media-playback-stop")
-        self.stopButton.setIcon(icon)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/icons/icons/media-playback-stop.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.stopButton.setIcon(icon1)
         self.stopButton.setObjectName("stopButton")
         self.horizontalLayout_2.addWidget(self.stopButton)
         self.frameNumber = QtWidgets.QLCDNumber(self.widgetRecord)
@@ -68,12 +71,21 @@ class Ui_QDVRWidget(object):
         self.horizontalLayout_4.setSpacing(2)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.rewindButton = QtWidgets.QPushButton(self.widgetPlay)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(":/icons/icons/media-skip-backward.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.rewindButton.setIcon(icon2)
         self.rewindButton.setObjectName("rewindButton")
         self.horizontalLayout_4.addWidget(self.rewindButton)
         self.pauseButton = QtWidgets.QPushButton(self.widgetPlay)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(":/icons/icons/media-playback-pause.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.pauseButton.setIcon(icon3)
         self.pauseButton.setObjectName("pauseButton")
         self.horizontalLayout_4.addWidget(self.pauseButton)
         self.playButton = QtWidgets.QPushButton(self.widgetPlay)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(":/icons/icons/media-playback-start.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.playButton.setIcon(icon4)
         self.playButton.setObjectName("playButton")
         self.horizontalLayout_4.addWidget(self.playButton)
         self.verticalLayout.addWidget(self.widgetPlay)
@@ -117,6 +129,9 @@ class Ui_QDVRWidget(object):
         self.playEdit.setStatusTip(_translate("QDVRWidget", "Video file"))
 
 
+from . import icons_rc
+
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -125,4 +140,3 @@ if __name__ == "__main__":
     ui.setupUi(QDVRWidget)
     QDVRWidget.show()
     sys.exit(app.exec_())
-

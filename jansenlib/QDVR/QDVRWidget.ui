@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>279</width>
+    <width>275</width>
     <height>120</height>
    </rect>
   </property>
@@ -73,8 +73,8 @@
          <string>Record</string>
         </property>
         <property name="icon">
-         <iconset resource="../../icons/icons.qrc">
-          <normaloff>:/media-record.svg</normaloff>:/media-record.svg</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/icons/icons/media-record.svg</normaloff>:/icons/icons/media-record.svg</iconset>
         </property>
        </widget>
       </item>
@@ -87,8 +87,8 @@
          <string>Stop</string>
         </property>
         <property name="icon">
-         <iconset resource="../../icons/icons.qrc">
-          <normaloff>:/media-playback-stop.svg</normaloff>:/media-playback-stop.svg</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/icons/icons/media-playback-stop.svg</normaloff>:/icons/icons/media-playback-stop.svg</iconset>
         </property>
        </widget>
       </item>
@@ -179,8 +179,8 @@
          <string>Rewind</string>
         </property>
         <property name="icon">
-         <iconset resource="../../icons/icons.qrc">
-          <normaloff>:/media-skip-backward.svg</normaloff>:/media-skip-backward.svg</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/icons/icons/media-skip-backward.svg</normaloff>:/icons/icons/media-skip-backward.svg</iconset>
         </property>
        </widget>
       </item>
@@ -193,8 +193,8 @@
          <string>Pause</string>
         </property>
         <property name="icon">
-         <iconset resource="../../icons/icons.qrc">
-          <normaloff>:/media-playback-pause.svg</normaloff>:/media-playback-pause.svg</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/icons/icons/media-playback-pause.svg</normaloff>:/icons/icons/media-playback-pause.svg</iconset>
         </property>
        </widget>
       </item>
@@ -207,8 +207,8 @@
          <string>Play</string>
         </property>
         <property name="icon">
-         <iconset resource="../../icons/icons.qrc">
-          <normaloff>:/media-playback-start.svg</normaloff>:/media-playback-start.svg</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/icons/icons/media-playback-start.svg</normaloff>:/icons/icons/media-playback-start.svg</iconset>
         </property>
        </widget>
       </item>
@@ -259,7 +259,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../icons/icons.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>
