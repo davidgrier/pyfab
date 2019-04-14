@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>215</width>
+    <width>279</width>
     <height>120</height>
    </rect>
   </property>
@@ -72,6 +72,10 @@
         <property name="text">
          <string>Record</string>
         </property>
+        <property name="icon">
+         <iconset resource="../../icons/icons.qrc">
+          <normaloff>:/media-record.svg</normaloff>:/media-record.svg</iconset>
+        </property>
        </widget>
       </item>
       <item>
@@ -81,6 +85,10 @@
         </property>
         <property name="text">
          <string>Stop</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../icons/icons.qrc">
+          <normaloff>:/media-playback-stop.svg</normaloff>:/media-playback-stop.svg</iconset>
         </property>
        </widget>
       </item>
@@ -170,6 +178,10 @@
         <property name="text">
          <string>Rewind</string>
         </property>
+        <property name="icon">
+         <iconset resource="../../icons/icons.qrc">
+          <normaloff>:/media-skip-backward.svg</normaloff>:/media-skip-backward.svg</iconset>
+        </property>
        </widget>
       </item>
       <item>
@@ -180,6 +192,10 @@
         <property name="text">
          <string>Pause</string>
         </property>
+        <property name="icon">
+         <iconset resource="../../icons/icons.qrc">
+          <normaloff>:/media-playback-pause.svg</normaloff>:/media-playback-pause.svg</iconset>
+        </property>
        </widget>
       </item>
       <item>
@@ -189,6 +205,10 @@
         </property>
         <property name="text">
          <string>Play</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../icons/icons.qrc">
+          <normaloff>:/media-playback-start.svg</normaloff>:/media-playback-start.svg</iconset>
         </property>
        </widget>
       </item>
@@ -238,6 +258,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

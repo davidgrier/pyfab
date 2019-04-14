@@ -2,27 +2,29 @@
 
 # Form implementation generated from reading ui file 'JansenWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1076, 610)
+        MainWindow.resize(1120, 610)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
-        self.horizontalLayout.setContentsMargins(0, 2, 0, 2)
-        self.horizontalLayout.setSpacing(0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.horizontalLayout_2.setSpacing(2)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.screen = QJansenScreen(self.centralwidget)
         self.screen.setMinimumSize(QtCore.QSize(640, 480))
         self.screen.setObjectName("screen")
-        self.horizontalLayout.addWidget(self.screen)
+        self.horizontalLayout_2.addWidget(self.screen)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setMinimumSize(QtCore.QSize(440, 0))
         self.tabWidget.setAccessibleName("")
         self.tabWidget.setObjectName("tabWidget")
         self.tabVideo = QtWidgets.QWidget()
@@ -31,14 +33,30 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabVideo.sizePolicy().hasHeightForWidth())
         self.tabVideo.setSizePolicy(sizePolicy)
+        self.tabVideo.setMinimumSize(QtCore.QSize(440, 0))
         self.tabVideo.setAccessibleName("")
         self.tabVideo.setAccessibleDescription("")
         self.tabVideo.setObjectName("tabVideo")
-        self.tabVideoLayout = QtWidgets.QVBoxLayout(self.tabVideo)
-        self.tabVideoLayout.setContentsMargins(2, 2, 2, 2)
-        self.tabVideoLayout.setSpacing(1)
-        self.tabVideoLayout.setObjectName("tabVideoLayout")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.tabVideo)
+        self.verticalLayout.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayout.setSpacing(2)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.groupSource = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupSource.setObjectName("groupSource")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupSource)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.bcamera = QtWidgets.QRadioButton(self.groupSource)
+        self.bcamera.setChecked(True)
+        self.bcamera.setObjectName("bcamera")
+        self.horizontalLayout.addWidget(self.bcamera)
+        self.bfilters = QtWidgets.QRadioButton(self.groupSource)
+        self.bfilters.setObjectName("bfilters")
+        self.horizontalLayout.addWidget(self.bfilters)
+        spacerItem = QtWidgets.QSpacerItem(283, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.verticalLayout.addWidget(self.groupSource)
         self.groupDvr = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupDvr.setMinimumSize(QtCore.QSize(436, 0))
         self.groupDvr.setObjectName("groupDvr")
         self.dvrLayout = QtWidgets.QVBoxLayout(self.groupDvr)
         self.dvrLayout.setContentsMargins(2, 2, 2, 2)
@@ -54,8 +72,9 @@ class Ui_MainWindow(object):
         self.dvr.setFrameShadow(QtWidgets.QFrame.Raised)
         self.dvr.setObjectName("dvr")
         self.dvrLayout.addWidget(self.dvr)
-        self.tabVideoLayout.addWidget(self.groupDvr)
+        self.verticalLayout.addWidget(self.groupDvr)
         self.groupCamera = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupCamera.setMinimumSize(QtCore.QSize(436, 0))
         self.groupCamera.setObjectName("groupCamera")
         self.cameraLayout = QtWidgets.QVBoxLayout(self.groupCamera)
         self.cameraLayout.setContentsMargins(2, 2, 2, 2)
@@ -71,8 +90,9 @@ class Ui_MainWindow(object):
         self.camera.setFrameShadow(QtWidgets.QFrame.Raised)
         self.camera.setObjectName("camera")
         self.cameraLayout.addWidget(self.camera)
-        self.tabVideoLayout.addWidget(self.groupCamera)
+        self.verticalLayout.addWidget(self.groupCamera)
         self.groupFilters = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupFilters.setMinimumSize(QtCore.QSize(436, 0))
         self.groupFilters.setObjectName("groupFilters")
         self.filterLayout = QtWidgets.QVBoxLayout(self.groupFilters)
         self.filterLayout.setContentsMargins(2, 2, 2, 2)
@@ -88,7 +108,9 @@ class Ui_MainWindow(object):
         self.filters.setFrameShadow(QtWidgets.QFrame.Raised)
         self.filters.setObjectName("filters")
         self.filterLayout.addWidget(self.filters)
-        self.tabVideoLayout.addWidget(self.groupFilters)
+        self.verticalLayout.addWidget(self.groupFilters)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 338, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem1)
         self.tabWidget.addTab(self.tabVideo, "")
         self.tabHistogram = QtWidgets.QWidget()
         self.tabHistogram.setObjectName("tabHistogram")
@@ -96,10 +118,10 @@ class Ui_MainWindow(object):
         self.tabHelp = QtWidgets.QWidget()
         self.tabHelp.setObjectName("tabHelp")
         self.tabWidget.addTab(self.tabHelp, "")
-        self.horizontalLayout.addWidget(self.tabWidget)
+        self.horizontalLayout_2.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1076, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1120, 22))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -127,6 +149,12 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.tabWidget.setStatusTip(_translate("MainWindow", "Record from video camera directly"))
+        self.groupSource.setTitle(_translate("MainWindow", "Recording Source"))
+        self.bcamera.setStatusTip(_translate("MainWindow", "Record raw video from camera"))
+        self.bcamera.setText(_translate("MainWindow", "Camera"))
+        self.bfilters.setStatusTip(_translate("MainWindow", "Record filtered video stream"))
+        self.bfilters.setText(_translate("MainWindow", "Filters"))
         self.groupDvr.setTitle(_translate("MainWindow", "Video Recorder"))
         self.groupCamera.setTitle(_translate("MainWindow", "Video Camera"))
         self.groupFilters.setTitle(_translate("MainWindow", "Video Filters"))
@@ -138,9 +166,11 @@ class Ui_MainWindow(object):
         self.actionSave_Snapshot_As.setText(_translate("MainWindow", "Save Snapshot As ..."))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
 
+
 from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
+
 
 if __name__ == "__main__":
     import sys
@@ -150,4 +180,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

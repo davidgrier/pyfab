@@ -99,9 +99,12 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.camera = camera
 
     def close(self):
+        logger.debug('Shutting down camera thread')
         self._thread.stop()
         self._thread.quit()
         self._thread.wait()
+        self._thread = None
+        self._camera = None
 
     def closeEvent(self):
         self.close()
@@ -157,6 +160,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         for filter in self._filters:
             image = filter(image)
         self.source.blockSignals(False)
+        self.shape = image.shape
         self.sigNewFrame.emit(image)
         self.imageItem.setImage(image, autoLevels=False)
 
