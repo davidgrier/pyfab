@@ -179,6 +179,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHelp), _translate("MainWindow", "Help"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionSavePhoto.setText(_translate("MainWindow", "Save Photo"))
+        self.actionSavePhoto.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actionSavePhotoAs.setText(_translate("MainWindow", "Save Photo As ..."))
         self.actionSavePhotoAs.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))

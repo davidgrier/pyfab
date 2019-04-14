@@ -22,20 +22,22 @@ class Jansen(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
+        self.configuration = Configuration(self)
         self.installCamera(Camera())
         self.configureUi()
         self.connectSignals()
-        self.configuration = Configuration(self)
 
     def closeEvent(self, event):
+        self.saveConfiguration()
         self.screen.close()
         self.deleteLater()
 
     def installCamera(self, camera):
-        self.camera.close()
+        self.camera.close()  # remove placeholder widget
         self.camera = camera
         self.cameraLayout.addWidget(camera)
         self.screen.camera = camera
+        self.configuration.restore(self.camera)
 
     def configureUi(self):
         self.filters.screen = self.screen
@@ -67,6 +69,9 @@ class Jansen(QMainWindow, Ui_MainWindow):
             qimage = self.screen.imageItem.qimage
             qimage.mirrored(vertical=True).save(filename)
             self.statusBar().showMessage('Saved ' + filename)
+
+    def saveConfiguration(self):
+        self.configuration.save(self.camera)
 
 
 if __name__ == '__main__':

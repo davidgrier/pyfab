@@ -315,6 +315,9 @@
    <property name="text">
     <string>Save Photo</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actionSavePhotoAs">
    <property name="text">

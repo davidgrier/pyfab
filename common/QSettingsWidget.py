@@ -179,7 +179,7 @@ class QSettingsWidget(QFrame):
     @settings.setter
     def settings(self, values):
         for name in values:
-            self.setDeviceProperty(name, values[name])
+            self._setDeviceProperty(name, values[name])
         self.updateUi()
 
     @pyqtSlot()
