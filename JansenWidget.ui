@@ -18,16 +18,7 @@
     <property name="spacing">
      <number>2</number>
     </property>
-    <property name="leftMargin">
-     <number>2</number>
-    </property>
-    <property name="topMargin">
-     <number>2</number>
-    </property>
-    <property name="rightMargin">
-     <number>2</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>2</number>
     </property>
     <item>
@@ -55,7 +46,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabVideo">
        <property name="sizePolicy">
@@ -83,16 +74,7 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>2</number>
         </property>
         <item>
@@ -155,16 +137,7 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>2</number>
            </property>
            <item>
@@ -201,16 +174,7 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>2</number>
            </property>
            <item>
@@ -247,16 +211,7 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>2</number>
            </property>
            <item>
@@ -302,6 +257,34 @@
        <attribute name="title">
         <string>Help</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="bback">
+          <property name="text">
+           <string>Back</string>
+          </property>
+          <property name="icon">
+           <iconset resource="help.qrc">
+            <normaloff>:/icons/icons/go-previous.svg</normaloff>:/icons/icons/go-previous.svg</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWebView" name="browser">
+          <property name="url">
+           <url>
+            <string>qrc:/help/help/jansen.html</string>
+           </url>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -346,6 +329,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+  <customwidget>
    <class>QDVR</class>
    <extends>QFrame</extends>
    <header>jansenlib.QDVR.QDVR</header>
@@ -364,7 +352,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="help.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionQuit</sender>
@@ -379,6 +369,22 @@
     <hint type="destinationlabel">
      <x>537</x>
      <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bback</sender>
+   <signal>clicked()</signal>
+   <receiver>browser</receiver>
+   <slot>back()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>880</x>
+     <y>71</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>880</x>
+     <y>329</y>
     </hint>
    </hints>
   </connection>

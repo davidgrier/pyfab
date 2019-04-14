@@ -117,6 +117,20 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tabHistogram, "")
         self.tabHelp = QtWidgets.QWidget()
         self.tabHelp.setObjectName("tabHelp")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.tabHelp)
+        self.verticalLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayout_2.setSpacing(4)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.bback = QtWidgets.QPushButton(self.tabHelp)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/icons/go-previous.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.bback.setIcon(icon)
+        self.bback.setObjectName("bback")
+        self.verticalLayout_2.addWidget(self.bback)
+        self.browser = QtWebKitWidgets.QWebView(self.tabHelp)
+        self.browser.setUrl(QtCore.QUrl("qrc:/help/help/jansen.html"))
+        self.browser.setObjectName("browser")
+        self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
         self.horizontalLayout_2.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -142,8 +156,9 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         self.actionQuit.triggered.connect(MainWindow.close)
+        self.bback.clicked.connect(self.browser.back)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -160,6 +175,7 @@ class Ui_MainWindow(object):
         self.groupFilters.setTitle(_translate("MainWindow", "Video Filters"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVideo), _translate("MainWindow", "Video"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHistogram), _translate("MainWindow", "Histogram"))
+        self.bback.setText(_translate("MainWindow", "Back"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHelp), _translate("MainWindow", "Help"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionSave_Snapshot.setText(_translate("MainWindow", "Save Snapshot"))
@@ -167,9 +183,11 @@ class Ui_MainWindow(object):
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
 
 
+from PyQt5 import QtWebKitWidgets
 from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
+import help_rc
 
 
 if __name__ == "__main__":
