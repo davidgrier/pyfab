@@ -114,6 +114,15 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tabVideo, "")
         self.tabHistogram = QtWidgets.QWidget()
         self.tabHistogram.setObjectName("tabHistogram")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.tabHistogram)
+        self.verticalLayout_3.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayout_3.setSpacing(2)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.histogram = QHistogramTab(self.tabHistogram)
+        self.histogram.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.histogram.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.histogram.setObjectName("histogram")
+        self.verticalLayout_3.addWidget(self.histogram)
         self.tabWidget.addTab(self.tabHistogram, "")
         self.tabHelp = QtWidgets.QWidget()
         self.tabHelp.setObjectName("tabHelp")
@@ -128,7 +137,7 @@ class Ui_MainWindow(object):
         self.bback.setObjectName("bback")
         self.verticalLayout_2.addWidget(self.bback)
         self.browser = QtWebKitWidgets.QWebView(self.tabHelp)
-        self.browser.setUrl(QtCore.QUrl("qrc:/help/help/jansen.html"))
+        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/jansen.html"))
         self.browser.setObjectName("browser")
         self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
@@ -159,6 +168,9 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(0)
         self.actionQuit.triggered.connect(MainWindow.close)
         self.bback.clicked.connect(self.browser.back)
+        self.tabWidget.currentChanged['int'].connect(self.histogram.expose)
+        self.dvr.recording['bool'].connect(self.camera.setDisabled)
+        self.dvr.recording['bool'].connect(self.filters.setDisabled)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -187,6 +199,7 @@ class Ui_MainWindow(object):
 
 from PyQt5 import QtWebKitWidgets
 from jansenlib.QDVR.QDVR import QDVR
+from jansenlib.QHistogramTab import QHistogramTab
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 import help_rc

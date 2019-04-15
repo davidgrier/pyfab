@@ -41,12 +41,11 @@ class Jansen(QMainWindow, Ui_MainWindow):
 
     def configureUi(self):
         self.filters.screen = self.screen
+        self.histogram.screen = self.screen
         self.dvr.source = self.screen.defaultSource
         self.dvr.screen = self.screen
 
     def connectSignals(self):
-        self.dvr.recording.connect(self.camera.setDisabled)
-        self.dvr.recording.connect(self.filters.setDisabled)
         self.bcamera.clicked.connect(
             lambda: self.setDvrSource(self.screen.defaultSource))
         self.bfilters.clicked.connect(

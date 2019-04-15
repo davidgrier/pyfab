@@ -4,6 +4,7 @@
 
 import PyQt5
 from PyQt5.QtWidgets import (QFrame, QLabel)
+from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
 from common.tabLayout import tabLayout
 import numpy as np
@@ -17,12 +18,12 @@ logger.setLevel(logging.DEBUG)
 
 class QHistogramTab(QFrame):
 
-    def __init__(self, screen, parent=None, nskip=3):
+    def __init__(self, parent=None, nskip=3):
         super(QHistogramTab, self).__init__(parent)
 
         self.title = 'Histogram'
-        self.index = -1
-        self.screen = screen
+        self.index = 1
+        self.screen = None
         self._n = 0
         self._nskip = nskip
 
@@ -66,7 +67,9 @@ class QHistogramTab(QFrame):
         wid.setLabel('left', ylabel)
         return wid
 
+    @pyqtSlot(int)
     def expose(self, index):
+        logger.debug('{}: {}'.format(index, self.index))
         if index == self.index:
             logger.debug('Registering histogram filter')
             self.screen.registerFilter(self.histogramFilter)
@@ -77,7 +80,7 @@ class QHistogramTab(QFrame):
     def histogramFilter(self, frame):
         self._n = (self._n + 1) % self._nskip
         if self._n > 0:
-            return
+            return frame
         if frame.ndim == 2:
             y = np.bincount(frame.flat, minlength=256)
             self.rplot.setData(y=y)

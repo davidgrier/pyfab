@@ -18,7 +18,16 @@
     <property name="spacing">
      <number>2</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
      <number>2</number>
     </property>
     <item>
@@ -74,7 +83,16 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="margin">
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
          <number>2</number>
         </property>
         <item>
@@ -137,7 +155,16 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="margin">
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
             <number>2</number>
            </property>
            <item>
@@ -174,7 +201,16 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="margin">
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
             <number>2</number>
            </property>
            <item>
@@ -211,7 +247,16 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="margin">
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
             <number>2</number>
            </property>
            <item>
@@ -252,6 +297,33 @@
        <attribute name="title">
         <string>Histogram</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QHistogramTab" name="histogram">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tabHelp">
        <attribute name="title">
@@ -261,7 +333,16 @@
         <property name="spacing">
          <number>4</number>
         </property>
-        <property name="margin">
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
          <number>2</number>
         </property>
         <item>
@@ -276,8 +357,8 @@
          </widget>
         </item>
         <item>
-         <widget class="QWebView" name="browser">
-          <property name="url">
+         <widget class="QWebView" name="browser" native="true">
+          <property name="url" stdset="0">
            <url>
             <string>qrc:/help/help/jansen.html</string>
            </url>
@@ -344,6 +425,9 @@
    <extends>QFrame</extends>
    <header>jansenlib.QDVR.QDVR</header>
    <container>1</container>
+   <slots>
+    <signal>recording(bool)</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>QVideoFilter</class>
@@ -356,6 +440,15 @@
    <extends>QWidget</extends>
    <header>jansenlib.QJansenScreen</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QHistogramTab</class>
+   <extends>QFrame</extends>
+   <header>jansenlib.QHistogramTab</header>
+   <container>1</container>
+   <slots>
+    <slot>expose(int)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources>
@@ -391,6 +484,54 @@
     <hint type="destinationlabel">
      <x>880</x>
      <y>329</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>histogram</receiver>
+   <slot>expose(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>880</x>
+     <y>301</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>880</x>
+     <y>312</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dvr</sender>
+   <signal>recording(bool)</signal>
+   <receiver>camera</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>880</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>880</x>
+     <y>181</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dvr</sender>
+   <signal>recording(bool)</signal>
+   <receiver>filters</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>880</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>880</x>
+     <y>219</y>
     </hint>
    </hints>
   </connection>
