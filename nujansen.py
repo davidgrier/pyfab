@@ -87,8 +87,9 @@ def main():
     from PyQt5.QtWidgets import QApplication
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--noconfig', dest='noconfig', action='store_true')
-    parser.set_defaults(noconfig=False)
+    parser.add_argument('-x', '--noconfig',
+                        dest='noconfig', action='store_true',
+                        description='Do not use saved configuration data')
 
     args, unparsed = parser.parse_known_args()
     qt_args = sys.argv[:1] + unparsed
