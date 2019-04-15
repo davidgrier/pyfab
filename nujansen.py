@@ -19,13 +19,17 @@ except Exception as ex:
 
 class Jansen(QMainWindow, Ui_MainWindow):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, noconfig=False):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
-        self.configuration = Configuration(self)
         self.installCamera(Camera())
         self.configureUi()
         self.connectSignals()
+
+        self.doconfig = not noconfig
+        if self.doconfig:
+            self.configuration = Configuration(self)
+            self.restoreConfiguration()
 
     def closeEvent(self, event):
         self.saveConfiguration()
@@ -37,7 +41,6 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.camera = camera
         self.cameraLayout.addWidget(camera)
         self.screen.camera = camera
-        self.configuration.restore(self.camera)
 
     def configureUi(self):
         self.filters.screen = self.screen
@@ -69,15 +72,32 @@ class Jansen(QMainWindow, Ui_MainWindow):
             qimage.mirrored(vertical=True).save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
+    def restoreConfiguration(self):
+        if self.doconfig:
+            self.configuration.restore(self.camera)
+
     def saveConfiguration(self):
-        self.configuration.save(self.camera)
+        if self.doconfig:
+            self.configuration.save(self.camera)
+
+
+def main():
+    import sys
+    import argparse
+    from PyQt5.QtWidgets import QApplication
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--noconfig', dest='noconfig', action='store_true')
+    parser.set_defaults(noconfig=False)
+
+    args, unparsed = parser.parse_known_args()
+    qt_args = sys.argv[:1] + unparsed
+
+    app = QApplication(qt_args)
+    win = Jansen(noconfig=args.noconfig)
+    win.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
-    win = Jansen()
-    win.show()
-    sys.exit(app.exec_())
+    main()
