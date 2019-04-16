@@ -32,6 +32,7 @@ class QCameraThread(QThread):
         while self._running:
             ready, frame = self.camera.read()
             if ready:
+                self.shape = frame.shape
                 self.sigNewFrame.emit(frame)
             else:
                 logger.warn('Failed to read frame')
