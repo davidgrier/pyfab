@@ -45,7 +45,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
     def configureUi(self):
         self.filters.screen = self.screen
         self.histogram.screen = self.screen
-        self.dvr.source = self.screen.defaultSource
+        self.dvr.source = self.screen.default
         self.dvr.screen = self.screen
 
     def connectSignals(self):
