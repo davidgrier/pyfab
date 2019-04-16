@@ -50,7 +50,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
 
     def connectSignals(self):
         self.bcamera.clicked.connect(
-            lambda: self.setDvrSource(self.screen.defaultSource))
+            lambda: self.setDvrSource(self.screen.default))
         self.bfilters.clicked.connect(
             lambda: self.setDvrSource(self.screen))
         self.actionSavePhoto.triggered.connect(self.savePhoto)
@@ -89,7 +89,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-x', '--noconfig',
                         dest='noconfig', action='store_true',
-                        description='Do not use saved configuration data')
+                        help='Do not use saved configuration data')
 
     args, unparsed = parser.parse_known_args()
     qt_args = sys.argv[:1] + unparsed
