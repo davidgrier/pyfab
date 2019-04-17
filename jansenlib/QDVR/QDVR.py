@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (QObject, QThread, pyqtSignal, pyqtSlot, QEvent)
+from PyQt5.QtCore import (QObject, QThread, QEvent,
+                          pyqtSignal, pyqtSlot, pyqtProperty)
 from PyQt5.QtWidgets import (QFrame, QStyle, QFileDialog)
 from .QDVRWidget import Ui_QDVRWidget
 from jansenlib.video.QVideoPlayer import QVideoPlayer
@@ -99,20 +100,11 @@ class QDVR(QFrame):
 
         self.ui = Ui_QDVRWidget()
         self.ui.setupUi(self)
-        self.configureUi()
         self.connectSignals()
 
         self.source = source
         self.screen = screen
         self.filename = filename
-
-    def configureUi(self):
-        icon = self.style().standardIcon
-        # self.ui.recordButton.setIcon(icon(QStyle.SP_MediaPlay))
-        # self.ui.stopButton.setIcon(icon(QStyle.SP_MediaStop))
-        # self.ui.rewindButton.setIcon(icon(QStyle.SP_MediaSkipBackward))
-        # self.ui.playButton.setIcon(icon(QStyle.SP_MediaPlay))
-        # self.ui.pauseButton.setIcon(icon(QStyle.SP_MediaPause))
 
     def connectSignals(self):
         clickable(self.ui.playEdit).connect(self.getPlayFilename)
@@ -225,7 +217,7 @@ class QDVR(QFrame):
     # Properties
     #
 
-    @property
+    @pyqtProperty(QObject)
     def source(self):
         return self._source
 
@@ -234,7 +226,7 @@ class QDVR(QFrame):
         self._source = source
         self.ui.recordButton.setEnabled(source is not None)
 
-    @property
+    @pyqtProperty(QObject)
     def screen(self):
         return self._screen
 
@@ -243,7 +235,7 @@ class QDVR(QFrame):
         self._screen = screen
         self.ui.playButton.setEnabled(screen is not None)
 
-    @property
+    @pyqtProperty(str)
     def filename(self):
         return str(self.ui.saveEdit.text())
 
@@ -253,7 +245,7 @@ class QDVR(QFrame):
             self.ui.saveEdit.setText(os.path.expanduser(filename))
             self.playname = self.filename
 
-    @property
+    @pyqtProperty(str)
     def playname(self):
         return str(self.ui.playEdit.text())
 
@@ -262,7 +254,7 @@ class QDVR(QFrame):
         if not (self.is_playing()):
             self.ui.playEdit.setText(os.path.expanduser(filename))
 
-    @property
+    @pyqtProperty(int)
     def framenumber(self):
         return self._framenumber
 

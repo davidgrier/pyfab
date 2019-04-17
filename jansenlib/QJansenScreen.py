@@ -134,7 +134,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                               padding=0, update=True)
         self._thread = QCameraThread(self)
         self._thread.start()
-        self.source = self._thread
+        self.source = self.default
 
     @pyqtProperty(object)
     def default(self):

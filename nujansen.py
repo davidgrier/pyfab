@@ -22,13 +22,13 @@ class Jansen(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None, noconfig=False):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
+        self.configuration = Configuration(self)
         self.installCamera(Camera())
         self.configureUi()
         self.connectSignals()
 
         self.doconfig = not noconfig
         if self.doconfig:
-            self.configuration = Configuration(self)
             self.restoreConfiguration()
 
     def closeEvent(self, event):
@@ -45,8 +45,9 @@ class Jansen(QMainWindow, Ui_MainWindow):
     def configureUi(self):
         self.filters.screen = self.screen
         self.histogram.screen = self.screen
-        self.dvr.source = self.screen.default
         self.dvr.screen = self.screen
+        self.dvr.source = self.screen.default
+        self.dvr.filename = self.configuration.datadir + 'jansen.avi'
 
     def connectSignals(self):
         self.bcamera.clicked.connect(

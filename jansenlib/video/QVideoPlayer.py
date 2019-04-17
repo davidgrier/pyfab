@@ -3,18 +3,19 @@
 """QVideoPlayer.py: pyqtgraph module for OpenCV video playback."""
 
 import cv2
-from pyqtgraph.Qt import QtCore
+from PyQt5.QtCore import (QObject, QTimer, QSize, QRectF,
+                          pyqtSignal, pyqtSlot, pyqtProperty)
 import numpy as np
 
 
-class QVideoPlayer(QtCore.QObject):
+class QVideoPlayer(QObject):
     """OpenCV video player
 
     Continuously reads frames from a video file,
     emitting sigNewFrame when each frame becomes available.
     """
 
-    sigNewFrame = QtCore.pyqtSignal(np.ndarray)
+    sigNewFrame = pyqtSignal(np.ndarray)
 
     def __init__(self, parent=None, filename=None):
         super(QVideoPlayer, self).__init__(parent)
@@ -49,7 +50,7 @@ class QVideoPlayer(QtCore.QObject):
     def seek(self, frame):
         self.capture.set(self._SEEK, frame)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def emit(self):
         if not self.running:
             self.close()
@@ -63,9 +64,9 @@ class QVideoPlayer(QtCore.QObject):
                 self.sigNewFrame.emit(self.frame)
             else:
                 self.emitting = False
-        QtCore.QTimer.singleShot(self.delay, self.emit)
+        QTimer.singleShot(self.delay, self.emit)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def start(self):
         if self.running:
             return
@@ -74,43 +75,43 @@ class QVideoPlayer(QtCore.QObject):
         self.rewinding = False
         self.emit()
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def stop(self):
         self.running = False
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def rewind(self):
         self.rewinding = True
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def pause(self, paused):
         self.emitting = not paused
 
     def isPaused(self):
         return not self.emitting
 
-    @property
+    @pyqtProperty(QSize)
     def size(self):
-        return QtCore.QSize(self.width, self.height)
+        return QSize(self.width, self.height)
 
-    @property
+    @pyqtProperty(int)
     def length(self):
         return int(self.capture.get(self._LENGTH))
 
-    @property
+    @pyqtProperty(int)
     def fps(self):
         return int(self.capture.get(self._FPS))
 
-    @property
+    @pyqtProperty(QRectF)
     def roi(self):
-        return QtCore.QRectF(0., 0., self.width, self.height)
+        return QRectF(0., 0., self.width, self.height)
 
 
 if __name__ == '__main__':
     import sys
-    from PyQt4 import QtGui
+    from PyQt5.QtWidgets import QApplication
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     fn = '/Users/grier/data/fabdvr.avi'
     a = QVideoPlayer(fn)
     a.start()
