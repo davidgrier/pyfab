@@ -4,10 +4,11 @@
 
 import PyQt5
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
-                          QThread, QSize)
+                          QObject, QThread, QSize)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
 import pyqtgraph as pg
 import numpy as np
+import time
 
 import logging
 logging.basicConfig()
@@ -97,6 +98,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self._filters = []
         self.pauseSignals(False)
 
+        self._now = time.time()
         self.camera = camera
 
     def close(self):
@@ -164,6 +166,20 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.shape = image.shape
         self.sigNewFrame.emit(image)
         self.imageItem.setImage(image, autoLevels=False)
+        self.tick()
+
+    def tick(self):
+        now = time.time()
+        self._interval = now - self._now
+        self._now = now
+
+    @pyqtProperty(float)
+    def interval(self):
+        return self._interval
+
+    @pyqtProperty(float)
+    def fps(self):
+        return 1./self._interval
 
     def registerFilter(self, filter):
         self._filters.append(filter)
