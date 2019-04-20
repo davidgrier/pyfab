@@ -2,13 +2,11 @@
 
 from PyQt5.QtCore import (QObject, QThread, QEvent,
                           pyqtSignal, pyqtSlot, pyqtProperty)
-from PyQt5.QtWidgets import (QFrame, QStyle, QFileDialog)
+from PyQt5.QtWidgets import (QFrame, QFileDialog)
 from .QDVRWidget import Ui_QDVRWidget
-from jansenlib.video.QVideoPlayer import QVideoPlayer
-import cv2
-import numpy as np
+from .QVideoWriter import QVideoWriter
+from .QVideoPlayer import QVideoPlayer
 import os
-import platform
 
 import logging
 logging.basicConfig()
@@ -37,41 +35,6 @@ def clickable(widget):
     return filter.clicked
 
 
-class QWriter(QObject):
-
-    sigFrameNumber = pyqtSignal(int)
-    sigFinished = pyqtSignal()
-
-    def __init__(self, dvr, nframes=10000):
-        super(QWriter, self).__init__()
-        self.shape = dvr.source.shape
-        color = (len(self.shape) == 3)
-        h, w = self.shape[0:2]
-        fps = 24
-        msg = 'Recording: {}x{}, color: {}, fps: {}'
-        logger.info(msg.format(w, h, color, fps))
-        self.writer = cv2.VideoWriter(dvr.filename,
-                                      dvr._fourcc,
-                                      fps, (w, h), color)
-        self.framenumber = 0
-        self.target = nframes
-        self.sigFrameNumber.emit(self.framenumber)
-
-    @pyqtSlot(np.ndarray)
-    def write(self, frame):
-        if ((frame.shape != self.shape) or
-                (self.framenumber >= self.target)):
-            self.sigFinished.emit()
-            return
-        self.writer.write(frame)
-        self.framenumber += 1
-        self.sigFrameNumber.emit(self.framenumber)
-
-    @pyqtSlot()
-    def close(self):
-        self.writer.release()
-
-
 class QDVR(QFrame):
 
     recording = pyqtSignal(bool)
@@ -80,21 +43,11 @@ class QDVR(QFrame):
                  parent=None,
                  source=None,
                  screen=None,
-                 filename='~/data/fabdvr.avi',
-                 codec=None):
+                 filename='~/data/fabdvr.avi'):
         super(QDVR, self).__init__(parent)
 
         self._writer = None
         self._player = None
-        if codec is None:
-            if platform.system() == 'Linux':
-                codec = 'HFYU'
-            else:
-                codec = 'X264'
-        if cv2.__version__.startswith('2.'):
-            self._fourcc = cv2.cv.CV_FOURCC(*codec)
-        else:
-            self._fourcc = cv2.VideoWriter_fourcc(*codec)
         self._framenumber = 0
         self._nframes = 0
 
@@ -150,7 +103,7 @@ class QDVR(QFrame):
         if (self.is_recording() or self.is_playing() or (nframes <= 0)):
             return
         logger.debug('Starting Recording')
-        self._writer = QWriter(self)
+        self._writer = QVideoWriter(self, nframes=nframes)
         self._writer.sigFrameNumber.connect(self.setFrameNumber)
         self._writer.sigFinished.connect(self.stop)
         self._thread = QThread()
