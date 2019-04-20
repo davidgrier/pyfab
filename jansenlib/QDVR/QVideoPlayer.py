@@ -17,10 +17,11 @@ class QVideoPlayer(QObject):
 
     sigNewFrame = pyqtSignal(np.ndarray)
 
-    def __init__(self, parent=None, filename=None):
+    def __init__(self,
+                 parent=None,
+                 filename=None):
         super(QVideoPlayer, self).__init__(parent)
 
-        self.filename = filename
         self.running = False
 
         if cv2.__version__.startswith('2.'):
@@ -36,16 +37,20 @@ class QVideoPlayer(QObject):
             self._LENGTH = cv2.CAP_PROP_FRAME_COUNT
             self._FPS = cv2.CAP_PROP_FPS
 
-        self.open()
+        self.capture = cv2.VideoCapture(filename)
+        if self.capture.isOpened():
+            self.delay = 1000. / self.fps
+            self.width = int(self.capture.get(self._WIDTH))
+            self.height = int(self.capture.get(self._HEIGHT))
+        else:
+            self.close()
 
-    def open(self):
-        self.capture = cv2.VideoCapture(self.filename)
-        self.delay = 1000. / self.fps
-        self.width = int(self.capture.get(self._WIDTH))
-        self.height = int(self.capture.get(self._HEIGHT))
+    def isOpened(self):
+        return self.capture is not None
 
     def close(self):
         self.capture.release()
+        self.capture = None
 
     def seek(self, frame):
         self.capture.set(self._SEEK, frame)

@@ -146,9 +146,12 @@ class QDVR(QFrame):
         logger.debug('Starting Playback')
         self.framenumber = 0
         self._player = QVideoPlayer(self, self.playname)
-        self._player.sigNewFrame.connect(self.stepFrameNumber)
-        self._player.start()
-        self.screen.source = self._player
+        if self._player.isOpened():
+            self._player.sigNewFrame.connect(self.stepFrameNumber)
+            self._player.start()
+            self.screen.source = self._player
+        else:
+            self._player = None
 
     @pyqtSlot()
     def rewind(self):
