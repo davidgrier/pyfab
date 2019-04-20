@@ -114,10 +114,12 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     def sizeHint(self):
         if self.camera is None:
-            return QSize(640, 480)
+            shape = (640, 480)
         else:
             shape = self.camera.shape
-            return QSize(shape[1], shape[0])
+        size = QSize(shape[1], shape[0])
+        logger.debug('Size hint: {}'.format(size))
+        return size
 
     @pyqtProperty(object)
     def camera(self):
@@ -134,6 +136,8 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.viewBox.setRange(xRange=(0, shape[1]),
                               yRange=(0, shape[0]),
                               padding=0, update=True)
+        self.setMinimumSize(0.75*self.sizeHint())
+
         self._thread = QCameraThread(self)
         self._thread.start()
         self.source = self.default
