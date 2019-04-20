@@ -17,10 +17,8 @@ class QVideoPlayer(QObject):
 
     sigNewFrame = pyqtSignal(np.ndarray)
 
-    def __init__(self,
-                 parent=None,
-                 filename=None):
-        super(QVideoPlayer, self).__init__(parent)
+    def __init__(self, filename=None):
+        super(QVideoPlayer, self).__init__()
 
         self.running = False
 

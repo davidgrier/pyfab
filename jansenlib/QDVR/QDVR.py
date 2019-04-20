@@ -5,7 +5,9 @@ from PyQt5.QtCore import (QObject, QThread, QEvent,
 from PyQt5.QtWidgets import (QFrame, QFileDialog)
 from .QDVRWidget import Ui_QDVRWidget
 from .QVideoWriter import QVideoWriter
+from .QHDF5Writer import QHDF5Writer
 from .QVideoPlayer import QVideoPlayer
+from .QHDF5Player import QHDF5Player
 import os
 
 import logging
@@ -82,8 +84,9 @@ class QDVR(QFrame):
     def getPlayFilename(self):
         if self.is_recording():
             return
-        filename, _filter = QFileDialog.getOpenFileName(
-            self, 'Video File Name', self.filename, 'Video files (*.avi)')
+        filename, filter = QFileDialog.getOpenFileName(
+            self, 'Video File Name', self.filename,
+            'Video files (*.avi, *.h5)')
         if filename:
             self.playname = str(filename)
 
@@ -91,8 +94,9 @@ class QDVR(QFrame):
     def getSaveFilename(self):
         if self.is_recording():
             return
-        filename, _filter = QFileDialog.getSaveFileName(
-            self, 'Video File Name', self.filename, 'Video files (*.avi)')
+        filename, filter = QFileDialog.getSaveFileName(
+            self, 'Video File Name', self.filename,
+            'Video files (*.avi *.h5)')
         if filename:
             self.filename = str(filename)
 
@@ -103,7 +107,11 @@ class QDVR(QFrame):
         if (self.is_recording() or self.is_playing() or (nframes <= 0)):
             return
         logger.debug('Starting Recording')
-        self._writer = QVideoWriter(self, nframes=nframes)
+        if os.path.splitext(self.filename) == 'avi':
+            self._writer = QVideoWriter(self.filename, self.source.shape,
+                                        nframes=nframes)
+        else:
+            self._writer = QHDF5Writer(self.filename, nframes=nframes)
         self._writer.sigFrameNumber.connect(self.setFrameNumber)
         self._writer.sigFinished.connect(self.stop)
         self._thread = QThread()
@@ -145,7 +153,10 @@ class QDVR(QFrame):
             return
         logger.debug('Starting Playback')
         self.framenumber = 0
-        self._player = QVideoPlayer(self, self.playname)
+        if os.path.splitext(self.playname) == 'avi':
+            self._player = QVideoPlayer(self.playname)
+        else:
+            self._player = QHDF5Player(self.playname)
         if self._player.isOpened():
             self._player.sigNewFrame.connect(self.stepFrameNumber)
             self._player.start()
