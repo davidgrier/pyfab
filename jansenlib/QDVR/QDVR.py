@@ -86,7 +86,7 @@ class QDVR(QFrame):
             return
         filename, filter = QFileDialog.getOpenFileName(
             self, 'Video File Name', self.filename,
-            'Video files (*.avi, *.h5)')
+            'Video files (*.avi);;HDF5 files (*.h5)')
         if filename:
             self.playname = str(filename)
 
@@ -96,7 +96,7 @@ class QDVR(QFrame):
             return
         filename, filter = QFileDialog.getSaveFileName(
             self, 'Video File Name', self.filename,
-            'Video files (*.avi *.h5)')
+            'Video files (*.avi);;HDF5 files (*.h5)')
         if filename:
             self.filename = str(filename)
 

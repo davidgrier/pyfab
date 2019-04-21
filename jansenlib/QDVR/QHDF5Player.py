@@ -31,8 +31,8 @@ class QHDF5Player(QObject):
     def timestamp(self):
         return float(self.keys[self.framenumber])
 
-    def seek(self, frame):
-        self.framenumber = frame
+    def seek(self, framenumber):
+        self.framenumber = framenumber
         self.now = self.timestamp()
 
     @pyqtSlot()
