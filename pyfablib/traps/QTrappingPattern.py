@@ -19,6 +19,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.setParent(parent)  # this is not set by ScatterPlotItem
+        self.setPxMode(False)   # scale plot symbols with window
         # Rubberband selection
         self.selection = QtGui.QRubberBand(
             QtGui.QRubberBand.Rectangle, self.parent())
