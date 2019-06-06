@@ -88,8 +88,11 @@ class QVideoFilterWidget(QtGui.QFrame):
         if not self.median.initialized:
             self.median.add(frame)
             self.background = np.clip(self.median.get(), 1, 255)
-        nrm = frame.astype(float) / self.background
-        return np.clip(100 * nrm, 0, 255).astype(np.uint8)
+        nrm = (frame.astype(float) - 13) / (self.background - 13)
+        n = np.clip(100 * nrm, 0, 255).astype(np.uint8)
+        if np.amax(n) == 255:
+            print('There is saturation!' + np.random.choice(['!', '?']))
+        return n
 
     @QtCore.pyqtSlot(bool)
     def handleSample(self, selected):

@@ -16,4 +16,4 @@ class translate(task):
     def initialize(self, frame):
         if self.traps is not None:
             self.traps.select(True)
-            self.traps.moveBy(self.dr)
+            self.traps.flatten()[0].moveBy(self.dr)

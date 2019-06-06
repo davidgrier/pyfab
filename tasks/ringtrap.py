@@ -13,5 +13,5 @@ class ringtrap(task):
         super(ringtrap, self).__init__(**kwargs)
 
     def dotask(self):
-        trap = QRingTrap(r=QtGui.QVector3D(970, 682, 500))
+        trap = QRingTrap(r=QtGui.QVector3D(970, 682, 0))
         self.parent.pattern.addTrap(trap)

@@ -13,7 +13,7 @@ class circle(guidedmove):
 
     def calculate_targets(self, traps):
         vertices = []
-        R = 200
+        R = 400
         xc = self.parent.cgh.xc
         yc = self.parent.cgh.yc
         trap_list = traps.flatten()

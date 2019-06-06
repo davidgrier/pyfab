@@ -30,7 +30,7 @@ class moverecordz(task):
             z = self.traps.r.z()
             dz = -10
             dr = QtGui.QVector3D(0, 0, dz)
-            for n in range(0, 2):
+            for n in range(0, 15):
                 z_nom = np.absolute(z + dz*n)
                 if self.measure_bg:
                     self.register('movetocoordinate',
@@ -40,10 +40,10 @@ class moverecordz(task):
                                   format(int(z_nom)), nframes=50)
                     self.register('movetocoordinate',
                                   x=self.r[0], y=self.r[1], z=None)
-                self.register('delay', delay=50)
+                self.register('delay', delay=15)
                 self.register('record', fn=fn0+'{:03d}.avi'.
                               format(int(z_nom)),
-                              nframes=50)
-                self.register('delay', delay=10)
+                              nframes=20)
+                self.register('delay', delay=5)
                 self.register('translate', traps=self.traps, dr=dr)
-            self.register('movetocoordinate')
+            #self.register('movetocoordinate')

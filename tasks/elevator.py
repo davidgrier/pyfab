@@ -9,10 +9,12 @@ class elevator(movetocoordinate):
     """Automatically move traps up then down in the z direction."""
 
     def __init__(self, **kwargs):
-        super(elevator, self).__init__(z=-200,
-                                       travel_back=True,
+        super(elevator, self).__init__(z=-220,
+                                       travel_back=False,
                                        correct=False,
                                        **kwargs)
+        self.wait = 20
+        self.speed = 7.5
 
     def initialize_more(self, frame):
         self.dvr = self.parent.dvr

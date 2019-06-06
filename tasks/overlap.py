@@ -32,20 +32,20 @@ class overlap(task):
     def dotask(self):
         if self.still_trap is not None:
             b = self.r_i[1] - self.r[1]
-            d = 20.0
-            while np.absolute(b) > d:
+            d = b / 5
+            while np.absolute(b) > 5.0:
                 self.register('movetocoordinate',
                               x=self.r_f[0], y=self.r_f[1], z=None,
                               traps=[self.moving_trap],
-                              speed=15.)
+                              speed=18.)
                 self.register('movetocoordinate',
                               x=self.r_i[0], y=self.r_i[1], z=None,
                               traps=[self.moving_trap],
-                              speed=15.)
+                              speed=18.)
                 self.r_i[1] -= d
                 self.r_f[1] -= d
                 self.register('movetocoordinate',
                               x=None, y=self.r_i[1], z=None,
                               traps=[self.moving_trap],
-                              speed=10.)
+                              speed=18.)
                 b = self.r_f[1] - self.r[1]

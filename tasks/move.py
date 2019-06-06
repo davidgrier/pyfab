@@ -14,7 +14,7 @@ class move(task):
                                    nframes=10**6,
                                    **kwargs)
         self.traps = None
-        self.wait = 4
+        self.wait = 10
         self.count = self.wait
 
     def initialize(self, frame):

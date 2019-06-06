@@ -19,10 +19,11 @@ class recordbackground(guidedmove):
         targets = {}
         x_max = self.parent.screen.video.camera.width()
         y_max = self.parent.screen.video.camera.height()
+        s = 20
         for trap in traps:
             x, y, z = trap.x, trap.y, trap.z
-            d = {x: (-20, y, z), y: (x, -20, z),
-                 y_max - y: (x, y_max+20, z), x_max - x: (x_max+20, y, z)}
+            d = {x: (-s, y, z), y: (x, -s, z),
+                 y_max - y: (x, y_max+s, z), x_max - x: (x_max+s, y, z)}
             m = min(d.keys())
             targets[trap] = d[m]
             return_targets[trap] = (x, y, z)

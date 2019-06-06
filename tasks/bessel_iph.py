@@ -17,5 +17,5 @@ class bessel_iph(task):
         xc = self.parent.cgh.xc
         yc = self.parent.cgh.yc
         zc = self.parent.cgh.zc
-        trap = QBesselIPHTrap(r=QtGui.QVector3D(xc, yc, zc))
+        trap = QBesselIPHTrap(r=QtGui.QVector3D(xc+0, yc+0, zc))
         self.parent.pattern.addTrap(trap)

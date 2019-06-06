@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 """
 Brownian molecular dynamics simulation for moving
 a set of traps to a set of targets
@@ -30,9 +29,9 @@ class guidedmove(move):
         self.travel_back = travel_back
         # Movement parameters. Play around with these for desired motion
         self.precision = 3.
-        self.speed = 4.
-        self.padding = 7.
-        self.wait = 10
+        self.speed = 8.
+        self.padding = 12.
+        self.wait = 5
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern

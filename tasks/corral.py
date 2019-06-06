@@ -11,9 +11,9 @@ class corral(task):
     """Project a ring of traps"""
 
     def __init__(self,
-                 radius=200,
+                 radius=250,
                  ntraps=40,
-                 zoffset=40,
+                 zoffset=80,
                  fuzz=1,
                  **kwargs):
         super(corral, self).__init__(**kwargs)

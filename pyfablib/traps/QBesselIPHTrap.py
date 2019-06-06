@@ -13,7 +13,7 @@ import warnings
 
 class QBesselIPHTrap(QTrap):
 
-    def __init__(self, r_alpha=[480.], m=[0.], iz=820., **kwargs):
+    def __init__(self, r_alpha=[60.], m=[0.], iz=400., **kwargs):
         super(QBesselIPHTrap, self).__init__(**kwargs)
         self._r_alpha = r_alpha
         self._m = m
@@ -27,7 +27,6 @@ class QBesselIPHTrap(QTrap):
         """
         Compute electric fields after propagated by a distance z
         via Rayleigh-Sommerfeld approximation.
-
         Args:
         r: distance from the center.
         z: displacement(s) from the focal plane [pixels].
@@ -38,7 +37,7 @@ class QBesselIPHTrap(QTrap):
         """
         warnings.filterwarnings('ignore')
         ci = complex(0., 1.)
-        k = 360/lamda
+        k = 360./lamda
         real = integrate.quadrature(lambda q: q * special.jv(m, q*r_alpha) *
                                     special.jv(m, q*r) *
                                     np.cos(iz * np.sqrt(k**2 - q**2)),
@@ -67,7 +66,7 @@ class QBesselIPHTrap(QTrap):
             RealE = interpolate.splev(qr, RealESpline, der=0)
             ImagE = interpolate.splev(qr, ImagESpline, der=0)
             E_2d += np.exp(ci*m*theta) * (RealE + ci*ImagE)
-        phi = E_2d
+        phi = E_2d * np.exp(ci*-1.*(2e5*np.pi*qr**2/(self.lamda*(self.iz*1))))
         self.structure = phi
         self.refresh()
 
@@ -114,4 +113,3 @@ class QBesselIPHTrap(QTrap):
         self._iz = np.int(iz)
         self.updateStructure()
         self.valueChanged.emit(self)
-
