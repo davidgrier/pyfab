@@ -17,8 +17,8 @@ import sys
 
 class QFabWidget(QJansenWidget):
 
-    def __init__(self, parent=None):
-        super(QFabWidget, self).__init__(parent)
+    def __init__(self, parent=None, camera=None):
+        super(QFabWidget, self).__init__(parent, camera=camera)
 
     def init_components(self):
         super(QFabWidget, self).init_components()

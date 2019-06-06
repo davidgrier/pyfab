@@ -20,27 +20,35 @@
 
 """pyfab is a GUI for holographic optical trapping"""
 
-from pyqtgraph.Qt import QtGui
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QAction, qApp,
+                             QFileDialog)
+from PyQt5.QtGui import QIcon
 from pyfablib.QFabWidget import QFabWidget
-from common.fabconfig import fabconfig
+from common.FabConfig import FabConfig
 from tasks.taskmenu import taskMenu
 import sys
 
+try:
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
+except:
+    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as Camera
 
-class pyfab(QtGui.QMainWindow):
+
+class pyfab(QMainWindow):
 
     def __init__(self):
-        self.app = QtGui.QApplication(sys.argv)
+        self.app = QApplication(sys.argv)
         super(pyfab, self).__init__()
-        self.instrument = QFabWidget(self)
+        camera = Camera()
+        self.instrument = QFabWidget(self, camera=camera)
         self.init_ui()
-        self.config = fabconfig(self)
+        self.config = FabConfig(self)
         self.config.restore(self.instrument.wcgh)
         self.show()
 
     def init_ui(self):
         self.setWindowTitle('PyFab')
-        self.setWindowIcon(QtGui.QIcon('icons/pyfab.png'))
+        self.setWindowIcon(QIcon('icons/pyfab.png'))
         self.statusBar().showMessage('Ready')
         self.menuBar().setNativeMenuBar(False)
         self.fileMenu()
@@ -51,35 +59,35 @@ class pyfab(QtGui.QMainWindow):
 
     def fileMenu(self):
         menu = self.menuBar().addMenu('&File')
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, '&Save Photo', self)
+        icon = QIcon.fromTheme('camera-photo')
+        action = QAction(icon, '&Save Photo', self)
         action.setShortcut('Ctrl+S')
         action.setStatusTip('Save a snapshot')
         action.triggered.connect(self.savePhoto)
         menu.addAction(action)
 
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, 'Save Photo &As ...', self)
+        icon = QIcon.fromTheme('camera-photo')
+        action = QAction(icon, 'Save Photo &As ...', self)
         action.setShortcut('Ctrl+A')
         action.setStatusTip('Save a snapshot')
         action.triggered.connect(lambda: self.savePhoto(True))
         menu.addAction(action)
 
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, 'Save Hologram ...', self)
+        icon = QIcon.fromTheme('camera-photo')
+        action = QAction(icon, 'Save Hologram ...', self)
         action.setStatusTip('Save current hologram')
         action.triggered.connect(lambda: self.saveHologram())
         menu.addAction(action)
 
-        icon = QtGui.QIcon.fromTheme('document-save')
-        action = QtGui.QAction(icon, 'Save Settings', self)
+        icon = QIcon.fromTheme('document-save')
+        action = QAction(icon, 'Save Settings', self)
         action.setShortcut('Ctrl+T')
         action.setStatusTip('Save current settings')
         action.triggered.connect(self.saveSettings)
         menu.addAction(action)
 
-        icon = QtGui.QIcon.fromTheme('application-exit')
-        action = QtGui.QAction(icon, '&Quit', self)
+        icon = QIcon.fromTheme('application-exit')
+        action = QAction(icon, '&Quit', self)
         action.setShortcut('Ctrl+Q')
         action.setStatusTip('Quit PyFab')
         action.triggered.connect(self.close)
@@ -87,7 +95,7 @@ class pyfab(QtGui.QMainWindow):
 
     def calibrationMenu(self):
         menu = self.menuBar().addMenu('&Calibration')
-        action = QtGui.QAction('Calibrate rc', self)
+        action = QAction('Calibrate rc', self)
         action.setStatusTip('Find location of optical axis in field of view')
         action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('calibrate_rc'))
@@ -95,7 +103,7 @@ class pyfab(QtGui.QMainWindow):
 
         self.stageMenu(menu)
 
-        action = QtGui.QAction('Aberrations', self)
+        action = QAction('Aberrations', self)
         action.setStatusTip('NOT IMPLEMENTED YET')
         action.triggered.connect(
             lambda: self.instrument.tasks.registerTask('calibrate_haar'))
@@ -107,17 +115,17 @@ class pyfab(QtGui.QMainWindow):
         menu = parent.addMenu('Stage')
         tip = 'Define current position to be stage origin in %s'
 
-        action = QtGui.QAction('Set X origin', self)
+        action = QAction('Set X origin', self)
         action.setStatusTip(tip % 'X')
         action.triggered.connect(self.instrument.wstage.setXOrigin)
         menu.addAction(action)
 
-        action = QtGui.QAction('Set Y origin', self)
+        action = QAction('Set Y origin', self)
         action.setStatusTip(tip % 'Y')
         action.triggered.connect(self.instrument.wstage.setYOrigin)
         menu.addAction(action)
 
-        action = QtGui.QAction('Set Z origin', self)
+        action = QAction('Set Z origin', self)
         action.setStatusTip(tip % 'Z')
         action.triggered.connect(self.instrument.wstage.setZOrigin)
         menu.addAction(action)
@@ -125,7 +133,7 @@ class pyfab(QtGui.QMainWindow):
     def savePhoto(self, select=False):
         filename = self.config.filename(suffix='.png')
         if select:
-            filename = QtGui.QFileDialog.getSaveFileName(
+            filename = QFileDialog.getSaveFileName(
                 self, 'Save Snapshot',
                 directory=filename,
                 filter='Image files (*.png)')
@@ -136,7 +144,7 @@ class pyfab(QtGui.QMainWindow):
 
     def saveHologram(self):
         filename = self.config.filename(suffix='.png')
-        filename = QtGui.QFileDialog.getSaveFileName(
+        filename = QFileDialog.getSaveFileName(
             self, 'Save Snapshot',
             directory=filename,
             filter='Image files (*.png)')
@@ -149,7 +157,7 @@ class pyfab(QtGui.QMainWindow):
 
     def close(self):
         self.instrument.close()
-        QtGui.qApp.quit()
+        qApp.quit()
 
     def closeEvent(self, event):
         self.close()
