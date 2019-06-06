@@ -33,7 +33,7 @@ class indicator(QWidget):
 
     def init_ui(self, button):
         layout = QVBoxLayout()
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
         if button:
             self.button = QPushButton(self.title, self)
@@ -74,7 +74,7 @@ class status_widget(QFrame):
         self.led_emx.button.setToolTip('Toggle laser emission on/off')
         self.led_flt = indicator('  fault  ',
                                  [led('amber-led-off'), led('amber-led-on')])
-        layout.setMargin(2)
+        layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(1)
         layout.addWidget(self.led_key)
         layout.addWidget(self.led_aim)
@@ -100,7 +100,7 @@ class power_widget(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
-        layout.setMargin(2)
+        layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(1)
         title = QLabel('power [W]')
         title.setAlignment(Qt.AlignCenter)
@@ -152,7 +152,7 @@ class QIPGLaser(QFrame):
     def init_ui(self):
         self.setFrameShape(QFrame.Box)
         layout = QVBoxLayout()
-        layout.setMargin(0)
+        layout.setContentsMargin(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(QLabel(' Trapping Laser'))
         layout.addWidget(self.display_widget())
