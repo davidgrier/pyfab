@@ -2,9 +2,7 @@
 
 """QJansenScreen.py: PyQt GUI for live video with graphical overlay."""
 
-import PyQt5
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
-                          QObject, QThread, QSize)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, QThread, QSize)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
 import pyqtgraph as pg
 import numpy as np
@@ -136,7 +134,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.viewBox.setRange(xRange=(0, shape[1]),
                               yRange=(0, shape[0]),
                               padding=0, update=True)
-        self.setMinimumSize(0.75*self.sizeHint())
+        self.setMinimumSize(0.75 * self.sizeHint())
 
         self._thread = QCameraThread(self)
         self._thread.start()
@@ -183,7 +181,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     @pyqtProperty(float)
     def fps(self):
-        return 1./self._interval
+        return 1. / self._interval
 
     def registerFilter(self, filter):
         self._filters.append(filter)

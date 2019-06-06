@@ -12,6 +12,7 @@ import numpy as np
 
 
 class QTrapPropertyEdit(QLineEdit):
+
     """Control for one property of one trap"""
 
     valueChanged = pyqtSignal(object, float)
@@ -45,6 +46,7 @@ class QTrapPropertyEdit(QLineEdit):
 
 
 class QTrapListPropertyEdit(QLineEdit):
+
     """Control for one list-like property of one trap"""
 
     valueChanged = pyqtSignal(object, object)
@@ -54,7 +56,7 @@ class QTrapListPropertyEdit(QLineEdit):
         self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(50)
         numberrx = '([+-]?\d+\.?\d*)'
-        listrx = '\[' + '(?:\s*'+numberrx+'\s*,)*\s*' + numberrx + '\s*\]'
+        listrx = '\[' + '(?:\s*' + numberrx + '\s*,)*\s*' + numberrx + '\s*\]'
         print(listrx)
         self.rx = QRegExp(listrx)
         val = QRegExpValidator(self.rx)
@@ -80,13 +82,14 @@ class QTrapListPropertyEdit(QLineEdit):
 
 
 class QTrapPropertyWidget(QWidget):
+
     """Control for properties of one trap."""
 
     def __init__(self, trap):
         super(QTrapPropertyWidget, self).__init__()
         layout = QHBoxLayout()
         layout.setSpacing(0)
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(Qt.AlignLeft)
         self.wid = dict()
         for name in trap.properties.keys():
@@ -117,6 +120,7 @@ class QTrapPropertyWidget(QWidget):
 
 
 class QTrapWidget(QFrame):
+
     """Controls for all traps."""
 
     def __init__(self, pattern=None):
@@ -131,7 +135,7 @@ class QTrapWidget(QFrame):
         inner = QWidget()
         self.layout = QVBoxLayout()
         self.layout.setSpacing(0)
-        self.layout.setMargin(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setAlignment(Qt.AlignTop)
         inner.setLayout(self.layout)
         scroll = QScrollArea()
@@ -149,7 +153,7 @@ class QTrapWidget(QFrame):
         layout = QHBoxLayout()
         layout.setAlignment(Qt.AlignLeft)
         layout.setSpacing(0)
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         for name in ['x', 'y', 'z', 'alpha', 'phi']:
             label = QLabel(name)
             label.setAlignment(Qt.AlignCenter)

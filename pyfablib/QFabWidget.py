@@ -20,8 +20,6 @@ class QFabWidget(QJansenWidget):
     def __init__(self, parent=None, camera=None):
         super(QFabWidget, self).__init__(parent, camera=camera)
 
-    def init_components(self):
-        super(QFabWidget, self).init_components()
         # spatial light modulator
         self.slm = QSLM()
 
@@ -48,27 +46,28 @@ class QFabWidget(QJansenWidget):
         self.pattern.sigCompute.connect(self.cgh.setTraps)
         self.cgh.sigComputing.connect(self.screen.pauseSignals)
 
-    def init_ui(self):
-        super(QFabWidget, self).init_ui()
+        self.extend_ui()
+
+    def extend_ui(self):
 
         # Insert new tabs before Help tab
         hwtab = QHardwareTab()
-        index = self.tabs.insertTab(self.tabs.count()-1, hwtab, 'Hardware')
+        index = self.tabs.insertTab(self.tabs.count() - 1, hwtab, 'Hardware')
         self.tabs.setTabToolTip(index, 'Hardware')
         hwtab.index = index
         self.tabs.currentChanged.connect(hwtab.expose)
         self.tabs.setTabEnabled(index, hwtab.has_content())
 
         cghtab = self.cghTab()
-        index = self.tabs.insertTab(index+1, cghtab, 'CGH')
+        index = self.tabs.insertTab(index + 1, cghtab, 'CGH')
         self.tabs.setTabToolTip(index, 'CGH')
 
         traptab = self.trapTab()
-        index = self.tabs.insertTab(index+1, traptab, 'Traps')
+        index = self.tabs.insertTab(index + 1, traptab, 'Traps')
         self.tabs.setTabToolTip(index, 'Traps')
 
         slmtab = QSLMTab(cgh=self.cgh)
-        index = self.tabs.insertTab(index+1, slmtab, 'SLM')
+        index = self.tabs.insertTab(index + 1, slmtab, 'SLM')
         self.tabs.setTabToolTip(index, 'SLM')
         slmtab.index = index
         self.tabs.currentChanged.connect(slmtab.expose)

@@ -2,28 +2,32 @@
 
 """QTrappingPattern.py: Interactive overlay for manipulating optical traps."""
 
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt,
+                          QSize, QPoint, QRect, QRectF)
+from PyQt5.QtGui import (QVector3D, QMouseEvent, QWheelEvent)
+from PyQt5.QtWidgets import QRubberBand
+
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui, QtCore
 from .QTrap import QTrap, states
 from .QTrapGroup import QTrapGroup
 
 
 class QTrappingPattern(pg.ScatterPlotItem):
+
     """Interface between QJansenScreen GUI and CGH pipeline.
     Implements logic for manipulating traps.
     """
 
-    trapAdded = QtCore.pyqtSignal(QTrap)
-    sigCompute = QtCore.pyqtSignal(object)
+    trapAdded = pyqtSignal(QTrap)
+    sigCompute = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(QTrappingPattern, self).__init__()
         self.setParent(parent)  # this is not set by ScatterPlotItem
         self.setPxMode(False)   # scale plot symbols with window
         # Rubberband selection
-        self.selection = QtGui.QRubberBand(
-            QtGui.QRubberBand.Rectangle, self.parent())
-        self.origin = QtCore.QPoint()
+        self.selection = QRubberBand(QRubberBand.Rectangle, self.parent())
+        self.origin = QPoint()
         # traps, selected trap and active group
         self.pattern = QTrapGroup(self)
         self.trap = None
@@ -85,7 +89,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         entirely within the selection region.
         """
         self.selected = []
-        rect = self.mapFromScene(QtCore.QRectF(region)).boundingRect()
+        rect = self.mapFromScene(QRectF(region)).boundingRect()
         for child in self.pattern.children():
             if child.isWithin(rect):
                 self.selected.append(child)
@@ -155,7 +159,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         trap is at the specified position.
         """
         coords = self.mapFromScene(pos)
-        dr = QtGui.QVector3D(coords - self.trap.coords())
+        dr = QVector3D(coords - self.trap.coords())
         self.group.moveBy(dr)
 
     # Dispatch low-level events to actions
@@ -165,12 +169,12 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.group = self.clickedGroup(pos)
         # update selection rectangle
         if self.group is None:
-            self.origin = QtCore.QPoint(pos)
-            rect = QtCore.QRect(self.origin, QtCore.QSize())
+            self.origin = QPoint(pos)
+            rect = QRect(self.origin, QSize())
             self.selection.setGeometry(rect)
             self.selection.show()
         # break selected group
-        elif modifiers == QtCore.Qt.ControlModifier:
+        elif modifiers == Qt.ControlModifier:
             self.breakGroup()
         # select group
         else:
@@ -181,27 +185,27 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """Creation and destruction.
         """
         # Shift-Right Click: Add trap
-        if modifiers == QtCore.Qt.ShiftModifier:
+        if modifiers == Qt.ShiftModifier:
             self.createTrap(self.mapFromScene(pos))
         # Ctrl-Right Click: Delete trap
-        elif modifiers == QtCore.Qt.ControlModifier:
+        elif modifiers == Qt.ControlModifier:
             self.pattern.remove(self.clickedGroup(pos), delete=True)
             self.refresh()
 
     # Handlers for signals emitted by QJansenScreen
-    @QtCore.pyqtSlot(QtGui.QMouseEvent)
+    @pyqtSlot(QMouseEvent)
     def mousePress(self, event):
         """Event handler for mousePress events.
         """
         button = event.button()
         pos = event.pos()
         modifiers = event.modifiers()
-        if button == QtCore.Qt.LeftButton:
+        if button == Qt.LeftButton:
             self.leftPress(pos, modifiers)
-        elif button == QtCore.Qt.RightButton:
+        elif button == Qt.RightButton:
             self.rightPress(pos, modifiers)
 
-    @QtCore.pyqtSlot(QtGui.QMouseEvent)
+    @pyqtSlot(QMouseEvent)
     def mouseMove(self, event):
         """Event handler for mouseMove events.
         """
@@ -211,11 +215,11 @@ class QTrappingPattern(pg.ScatterPlotItem):
             self.moveGroup(pos)
         # Update selection box
         elif self.selection.isVisible():
-            region = QtCore.QRect(self.origin, QtCore.QPoint(pos)).normalized()
+            region = QRect(self.origin, QPoint(pos)).normalized()
             self.selection.setGeometry(region)
             self.selectedTraps(region)
 
-    @QtCore.pyqtSlot(QtGui.QMouseEvent)
+    @pyqtSlot(QMouseEvent)
     def mouseRelease(self, event):
         """Event handler for mouseRelease events.
         """
@@ -227,7 +231,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.selection.hide()
         self.refreshAppearance()
 
-    @QtCore.pyqtSlot(QtGui.QWheelEvent)
+    @pyqtSlot(QWheelEvent)
     def mouseWheel(self, event):
         """Event handler for mouse wheel events.
         """
@@ -235,7 +239,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         group = self.clickedGroup(pos)
         if group is not None:
             group.state = states.selected
-            dr = QtGui.QVector3D(0., 0., event.delta() / 120.)
+            dr = QVector3D(0., 0., event.delta() / 120.)
             group.moveBy(dr)
             # group.state = states.normal
         self.group = None
