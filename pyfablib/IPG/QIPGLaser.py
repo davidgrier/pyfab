@@ -152,7 +152,7 @@ class QIPGLaser(QFrame):
     def init_ui(self):
         self.setFrameShape(QFrame.Box)
         layout = QVBoxLayout()
-        layout.setContentsMargin(0, 0, 0, 0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(QLabel(' Trapping Laser'))
         layout.addWidget(self.display_widget())
