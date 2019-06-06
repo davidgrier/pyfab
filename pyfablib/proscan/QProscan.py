@@ -41,7 +41,7 @@ class QProscan(QFrame):
         self.bstop = QPushButton('Stop')
         self.bstop.clicked.connect(self.instrument.stop)
         layout = QGridLayout()
-        layout.setMargin(1)
+        layout.setContentsMargins(1, 1, 1, 1)
         layout.setHorizontalSpacing(1)
         layout.setVerticalSpacing(1)
         layout.addWidget(QLabel('Stage'), 1, 1, 1, 4)
