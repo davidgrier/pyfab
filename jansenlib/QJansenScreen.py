@@ -134,7 +134,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.viewBox.setRange(xRange=(0, shape[1]),
                               yRange=(0, shape[0]),
                               padding=0, update=True)
-        self.setMinimumSize(0.75 * self.sizeHint())
+        self.setMinimumSize(self.sizeHint())
 
         self._thread = QCameraThread(self)
         self._thread.start()
