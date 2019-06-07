@@ -122,8 +122,6 @@ class SpinnakerCamera(object):
         self._system = PySpin.System.GetInstance()
         self._devices = self._system.GetCameras()
         if self._devices.GetSize() < 1:
-            self._devices.Clear()
-            self._system.ReleaseInstance()
             raise IndexError('No Spinnaker cameras found')
 
         # Work with first attached camera.  This can be generalized

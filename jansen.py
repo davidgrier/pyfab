@@ -26,16 +26,20 @@ from PyQt5.QtGui import QIcon
 from jansenlib.QJansenWidget import QJansenWidget
 
 try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
-except:
-    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as Camera
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
+except ImportError:
+    pass
+from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 
 
 class Jansen(QMainWindow):
 
     def __init__(self):
         super(Jansen, self).__init__()
-        camera = Camera()
+        try:
+            camera = QSpinnaker()
+        except:
+            camera = QOpenCV()
         self.instrument = QJansenWidget(self, camera=camera)
         self.init_ui()
         # self.config = FabConfig(self)

@@ -18,7 +18,10 @@ class QSpinnaker(QSettingsWidget):
 
     def __init__(self, parent=None, device=None, **kwargs):
         if device is None:
-            device = SpinnakerCamera(**kwargs)
+            try:
+                device = SpinnakerCamera(**kwargs)
+            except IndexError:
+                raise IndexError('Cannot connect to camera')
         ui = Ui_QSpinnakerWidget()
         super(QSpinnaker, self).__init__(parent=parent,
                                          device=device,

@@ -29,9 +29,10 @@ from tasks.taskmenu import taskMenu
 import sys
 
 try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
-except:
-    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as Camera
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
+except ImportError:
+    pass
+from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 
 
 class pyfab(QMainWindow):
@@ -39,7 +40,10 @@ class pyfab(QMainWindow):
     def __init__(self):
         self.app = QApplication(sys.argv)
         super(pyfab, self).__init__()
-        camera = Camera()
+        try:
+            camera = QSpinnaker()
+        except:
+            camera = QOpenCV()
         self.instrument = QFabWidget(self, camera=camera)
         self.init_ui()
         self.config = FabConfig(self)

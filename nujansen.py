@@ -11,10 +11,10 @@ logger = logging.getLogger('nujansen')
 logger.setLevel(logging.DEBUG)
 
 try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as Camera
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
 except Exception as ex:
     logger.warning(ex)
-    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as Camera
+from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 
 
 class Jansen(QMainWindow, Ui_MainWindow):
@@ -23,7 +23,11 @@ class Jansen(QMainWindow, Ui_MainWindow):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
         self.configuration = Configuration(self)
-        self.installCamera(Camera())
+        try:
+            camera = QSpinnaker()
+        except:
+            camera = QOpenCV()
+        self.installCamera(camera)
         self.configureUi()
         self.connectSignals()
 
