@@ -69,13 +69,14 @@ class QHistogramTab(QFrame):
     def expose(self, index):
         logger.debug('{}: {}'.format(index, self.index))
         if index == self.index:
-            logger.debug('Registering histogram filter')
-            self.screen.registerFilter(self.histogramFilter)
+            logger.debug('Connecting histogram slot')
+            self.screen.source.sigNewFrame.connect(self.updateHistogram)
         else:
-            logger.debug('Unregistering histogram filter')
-            self.screen.unregisterFilter(self.histogramFilter)
+            logger.debug('Disconnecting histogram slot')
+            self.screen.source.sigNewFrame.disconnect(self.updateHistogram)
 
-    def histogramFilter(self, frame):
+    @pyqtSlot(np.ndarray)
+    def updateHistogram(self, frame):
         self._n = (self._n + 1) % self._nskip
         if self._n > 0:
             return frame
@@ -96,7 +97,6 @@ class QHistogramTab(QFrame):
             self.bplot.setData(y=y)
             self.xplot.setData(y=np.mean(r, 0))
             self.yplot.setData(y=np.mean(r, 1))
-        return frame
 
     @property
     def screen(self):
