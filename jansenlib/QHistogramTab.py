@@ -2,9 +2,8 @@
 
 """Visualization of image histograms."""
 
-import PyQt5
 from PyQt5.QtWidgets import (QFrame, QLabel)
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import (pyqtSlot, pyqtProperty)
 import pyqtgraph as pg
 from common.tabLayout import tabLayout
 import numpy as np
@@ -25,8 +24,6 @@ class QHistogramTab(QFrame):
         self.index = 1
         self._n = 0
         self._nskip = nskip
-
-        self.screen = self.parent().screen
 
         self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
@@ -100,3 +97,11 @@ class QHistogramTab(QFrame):
             self.xplot.setData(y=np.mean(r, 0))
             self.yplot.setData(y=np.mean(r, 1))
         return frame
+
+    @property
+    def screen(self):
+        return self._screen
+
+    @screen.setter
+    def screen(self, screen):
+        self._screen = screen

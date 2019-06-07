@@ -47,6 +47,7 @@ class QJansenWidget(QWidget):
         index = self.tabs.addTab(self.videoTab(), 'Video')
         self.tabs.setTabToolTip(index, 'Video')
         tab = QHistogramTab(self)
+        tab.screen = self.screen
         tab.index = self.tabs.addTab(tab, 'Histogram')
         self.tabs.setTabToolTip(tab.index, 'Histogram')
         self.tabs.currentChanged.connect(tab.expose)
