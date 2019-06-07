@@ -46,7 +46,7 @@ class QJansenWidget(QWidget):
         self.tabs.setUsesScrollButtons(True)
         index = self.tabs.addTab(self.videoTab(), 'Video')
         self.tabs.setTabToolTip(index, 'Video')
-        tab = QHistogramTab(self.screen)
+        tab = QHistogramTab(self)
         tab.index = self.tabs.addTab(tab, 'Histogram')
         self.tabs.setTabToolTip(tab.index, 'Histogram')
         self.tabs.currentChanged.connect(tab.expose)
@@ -83,13 +83,13 @@ class QJansenWidget(QWidget):
         self.browser = QHelpBrowser('jansen')
         bback = QPushButton('Back')
         bback.clicked.connect(self.browser.back)
-        layout=tabLayout(whelp)
+        layout = tabLayout(whelp)
         layout.addWidget(bback)
         layout.addWidget(self.browser)
         return whelp
 
     def keyPressEvent(self, event):
-        key=event.text()
+        key = event.text()
         if key == 'r':
             if self.dvr.is_recording():
                 self.dvr.bstop.animateClick(100)

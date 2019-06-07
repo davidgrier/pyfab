@@ -23,9 +23,10 @@ class QHistogramTab(QFrame):
 
         self.title = 'Histogram'
         self.index = 1
-        self.screen = None
         self._n = 0
         self._nskip = nskip
+
+        self.screen = self.parent().screen
 
         self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
