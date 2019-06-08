@@ -90,20 +90,26 @@ class CGH(QObject):
         self.compute()
 
     # Methods for computing holograms
-    @jit(parallel=True)
-    def quantize(self, psi):
+    @staticmethod
+    @jit(nopython=True)
+    def quantize(psi):
         """Compute the phase of the field, scaled to uint8"""
-        self.phi = ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
-        return self.phi
+        return ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
 
-    @jit(parallel=True)
+    @staticmethod
+    @jit
+    def _compute_displace(amp, r, buffer, iqx, iqy, iqxsq, iqysq):
+        ex = np.exp(iqx * r.x() + iqxsq * r.z())
+        ey = np.exp(iqy * r.y() + iqysq * r.z())
+        np.outer(amp * ey, ex, buffer)
+
     def compute_displace(self, amp, r, buffer):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
-        ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
-        ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
-        np.outer(amp * ey, ex, buffer)
+        self._computer_displace(amp, r, buffer,
+                                self.iqx, self.iqy,
+                                self.iqxsq, self.iqysq)
 
     def window(self, r):
         """Adjust amplitude to account for aperture size"""
@@ -111,7 +117,7 @@ class CGH(QObject):
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
-    @jit(parallel=True)
+    # @jit
     def compute(self, all=False):
         """Compute phase hologram for specified traps"""
         self.sigComputing.emit(True)
@@ -132,7 +138,8 @@ class CGH(QObject):
                 self.compute_displace(amp, r, trap.psi)
                 trap.needsUpdate = False
             self._psi += trap.structure * trap.psi
-        self.sigHologramReady.emit(self.quantize(self._psi))
+        self.phi = self.quantize(self._psi)
+        self.sigHologramReady.emit(self.phi)
         self.time = time() - start
         self.sigComputing.emit(False)
 
