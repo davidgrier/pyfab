@@ -15,7 +15,7 @@ class QTrapPropertyEdit(QLineEdit):
 
     """Control for one property of one trap"""
 
-    valueChanged = pyqtSignal(object, float)
+    valueChanged = pyqtSignal(str, float)
 
     def __init__(self, name, value, decimals=1):
         super(QTrapPropertyEdit, self).__init__()

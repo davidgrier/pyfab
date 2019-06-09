@@ -2,9 +2,10 @@
 
 """QTrap.py: Base class for an optical trap."""
 
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QObject, QPointF)
+from PyQt5.QtGui import QVector3D
 import numpy as np
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 from enum import Enum
 from collections import OrderedDict
 
@@ -16,21 +17,21 @@ class states(Enum):
     grouping = 3
 
 
-class QTrap(QtCore.QObject):
+class QTrap(QObject):
     """A trap has physical properties, including three-dimensional
     position, relative amplitude and relative phase.  A structuring
     field can change its optical properties.
     It also has an appearance as presented on the QFabScreen.
     """
 
-    valueChanged = QtCore.pyqtSignal(QtCore.QObject)
+    valueChanged = pyqtSignal(QObject)
 
     def __init__(self,
                  parent=None,
-                 r=QtGui.QVector3D(),
-                 alpha=1.,  # relative amplitude
-                 phi=None,  # relative phase
-                 cgh=None,  # computational pipeline
+                 r=QVector3D(),
+                 alpha=1.,          # relative amplitude
+                 phi=None,          # relative phase
+                 cgh=None,          # computational pipeline
                  structure=1.+0.j,  # structuring field
                  state=states.normal):
         super(QTrap, self).__init__(parent)
@@ -44,7 +45,7 @@ class QTrap(QtCore.QObject):
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 100, 100, 120),
                       states.grouping: pg.mkBrush(255, 255, 100, 120)}
-        self.spot = {'pos': QtCore.QPointF(),
+        self.spot = {'pos': QPointF(),
                      'size': 10.,
                      'pen': pg.mkPen('k', width=0.5),
                      'brush': self.brush[state],
@@ -147,7 +148,7 @@ class QTrap(QtCore.QObject):
         self.properties[name] = {'decimals': decimals,
                                  'tooltip': tooltip}
 
-    @QtCore.pyqtSlot(str, float)
+    @pyqtSlot(str, float)
     def setProperty(self, name, value):
         """Thread-safe method to change a specified property without
         emitting signals.  This is called by QTrapWidget when the
@@ -173,7 +174,7 @@ class QTrap(QtCore.QObject):
 
     @r.setter
     def r(self, r):
-        self._r = QtGui.QVector3D(r)
+        self._r = QVector3D(r)
         self.refresh()
 
     @property

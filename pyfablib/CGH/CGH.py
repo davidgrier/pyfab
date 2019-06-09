@@ -96,26 +96,20 @@ class CGH(QObject):
         """Compute the phase of the field, scaled to uint8"""
         return ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
 
-    @staticmethod
-    @jit
-    def _compute_displace(amp, r, buffer, iqx, iqy, iqxsq, iqysq):
-        ex = np.exp(iqx * r.x() + iqxsq * r.z())
-        ey = np.exp(iqy * r.y() + iqysq * r.z())
-        np.outer(amp * ey, ex, buffer)
-
-    def compute_displace(self, amp, r, buffer):
-        """Compute phase hologram to displace a trap with
-        a specified complex amplitude to a specified position
-        """
-        self._computer_displace(amp, r, buffer,
-                                self.iqx, self.iqy,
-                                self.iqxsq, self.iqysq)
-
     def window(self, r):
         """Adjust amplitude to account for aperture size"""
         x = 0.5 * np.pi * np.array([r.x() / self.w, r.y() / self.h])
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
+
+    # @jit
+    def compute_displace(self, amp, r, buffer):
+        """Compute phase hologram to displace a trap with
+        a specified complex amplitude to a specified position
+        """
+        ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
+        ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
+        np.outer(amp * ey, ex, buffer)
 
     # @jit
     def compute(self, all=False):
