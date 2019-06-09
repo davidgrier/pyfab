@@ -25,6 +25,8 @@ class QHistogramTab(QFrame):
         self._n = 0
         self._nskip = nskip
 
+        self._exposed = False
+
         self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
 
@@ -71,9 +73,11 @@ class QHistogramTab(QFrame):
         if index == self.index:
             logger.debug('Connecting histogram slot')
             self.screen.source.sigNewFrame.connect(self.updateHistogram)
-        else:
+            self._exposed = True
+        elif self._exposed:
             logger.debug('Disconnecting histogram slot')
             self.screen.source.sigNewFrame.disconnect(self.updateHistogram)
+            self._exposed = False
 
     @pyqtSlot(np.ndarray)
     def updateHistogram(self, frame):
