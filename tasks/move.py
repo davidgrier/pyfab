@@ -41,9 +41,7 @@ class move(task):
                 traps = self.trajectories.keys()
                 for trap in traps:
                     trajectory = self.trajectories[trap].trajectory
-                    r = QVector3D(trajectory[self.n][0],
-                                  trajectory[self.n][1],
-                                  trajectory[self.n][2])
+                    r = QVector3D(*trajectory[self.n])
                     new_positions[trap] = r
                     trap.moveTo(new_positions[trap])
                 self.n += 1
