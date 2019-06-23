@@ -153,6 +153,8 @@ class Ui_PyFab(object):
         self.cgh.setFrameShadow(QtWidgets.QFrame.Raised)
         self.cgh.setObjectName("cgh")
         self.verticalLayout_4.addWidget(self.cgh)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 511, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_4.addItem(spacerItem2)
         self.tabWidget.addTab(self.tabCGH, "")
         self.tabSLM = QtWidgets.QWidget()
         self.tabSLM.setObjectName("tabSLM")
