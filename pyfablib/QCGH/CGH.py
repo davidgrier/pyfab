@@ -51,21 +51,41 @@ class CGH(QObject):
         self.shape = (self.h, self.w)
         self.phi = np.zeros(self.shape).astype(np.uint8)
 
+        # Instrument properties
+        # vacuum wavelength of trapping laser [um]
+        self._wavelength = 1.064
+        # refractive index of medium
+        self._refractiveIndex = 1.340
+        # magnification of objective lens
+        self._magnification = 100.
+        # focal length of objective lens [um]
+        self._focalLength = 200.
+        # camera pitch [um/pixel]
+        self._cameraPitch = 4.8
+        # SLM pitch [um/pixel]
+        self._slmPitch = 8.
+        # SLM scale factor
+        self._scaleFactor = 3.
+
+        # Coordinate transformation matrix for trap locations
+        self._m = QMatrix4x4()
+        # Location of optical axis in camera coordinates
+        self._rc = QVector3D(320., 240., 0.)
+        # Orientation of camera relative to SLM [degrees]
+        self._thetac = 0.
+
+        # Location of optical axis in SLM coordinates
+        self._rs = QPointF(self.w / 2., self.h / 2.)
+        # Tilt of SLM relative to optical axis [degrees]
+        self._phis = 8.
+
+        # Computed calibration constants
         # Conversion from SLM pixels to wavenumbers
         self._qpp = 2. * np.pi / self.w / 10.
         # Effective aspect ratio of SLM pixels
         self._alpha = 1.
-        # Effective azial aspect ratio: lambda/4 [pixel]
+        # Effective axial aspect ratio: lambda/4 [pixel]
         self._beta = 2.
-        # Location of optical axis in SLM coordinates
-        self._rs = QPointF(self.w / 2., self.h / 2.)
-
-        # Coordinate transformation matrix for trap locations
-        self.m = QMatrix4x4()
-        # Location of optical axis in camera coordinates
-        self._rc = QVector3D(320., 240., 0.)
-        # Orientation of camera relative to SLM
-        self._thetac = 0.
         # Splay wavenumber
         self._k0 = 0.01
 
@@ -176,8 +196,150 @@ class CGH(QObject):
         self.sigUpdateTransformationMatrix.emit()
 
     # Calibration constants
+    # 1. Instrument parameters
+    @property
+    def wavelength(self):
+        '''Vacuum wavelength of trapping laser'''
+        return self._wavelength
+
+    @wavelength.setter
+    def wavelength(self, wavelength):
+        self._wavelength = wavelength
+        self.updateGeometry()
+        self.compute(all=True)
+
+    @property
+    def refractiveIndex(self):
+        '''Refractive index of medium'''
+        return self._refractiveIndex
+
+    @refractiveIndex.setter
+    def refractiveIndex(self, refractiveIndex):
+        self._refractiveIndex = refractiveIndex
+        self.updateGeometry
+        self.compute(all=True)
+
+    @property
+    def magnification(self):
+        '''Magnification of objective lens'''
+        return self._magnification
+
+    @magnification.setter
+    def magnification(self, magnification):
+        self._magnification = magnification
+        self.updateGeometry()
+        self.compute(all=True)
+
+    @property
+    def focalLength(self):
+        '''Focal length of objective lens [um]'''
+        return self._focalLength
+
+    @focalLength.setter
+    def focalLength(self, focalLength):
+        self._focalLength = focalLength
+        self.updateGeometry()
+        self.compute(all=True)
+
+    @property
+    def cameraPitch(self):
+        '''Pixel pitch of camera [um/pixel]'''
+        return self._cameraPitch
+
+    @cameraPitch.setter
+    def cameraPitch(self, cameraPitch):
+        self._cameraPitch = cameraPitch
+        self.updateGeometry()
+        self.compute(all=True)
+
+    @property
+    def slmPitch(self):
+        '''Pixel pitch of SLM [um/pixel]'''
+        return self._slmPitch
+
+    @slmPitch.setter
+    def slmPitch(self, slmPitch):
+        self._slmPitch = slmPitch
+        self.updateGeometry()
+        self.compute(all=True)
+
+    @property
+    def scaleFactor(self):
+        '''SLM scale factor'''
+        return self._scaleFactor
+
+    @scaleFactor.setter
+    def scaleFactor(self, scaleFactor):
+        self._scaleFactor = scaleFactor
+        self.updateGeometry()
+        self.compute(all=True)
+
+    # Calibration constants
+    # 2. Camera plane
+    @property
+    def xc(self):
+        '''x coordinate of optical axis in camera plane [pixels]'''
+        return self.rc.x()
+
+    @xc.setter
+    def xc(self, xc):
+        rc = self.rc
+        rc.setX(xc)
+        self.rc = rc
+
+    @property
+    def yc(self):
+        '''y coordinate of optical axis in camera plane [pixels]'''
+        return self.rc.y()
+
+    @yc.setter
+    def yc(self, yc):
+        rc = self.rc
+        rc.setY(yc)
+        self.rc = rc
+
+    @property
+    def zc(self):
+        '''Axial displacement of trapping plane
+        from camera plane [pixels]'''
+        return self.rc.z()
+
+    @zc.setter
+    def zc(self, zc):
+        rc = self.rc
+        rc.setZ(zc)
+        self.rc = rc
+
+    @property
+    def rc(self):
+        '''Location of optical axis in camera plane [pixels]'''
+        return self._rc
+
+    @rc.setter
+    def rc(self, rc):
+        if isinstance(rc, QVector3D):
+            self._rc = rc
+        else:
+            self._rc = QVector3D(rc[0], rc[1], rc[2])
+        self.updateTransformationMatrix()
+        self.compute(all=True)
+
+    @property
+    def thetac(self):
+        '''Orientation of camera relative to SLM [degrees]'''
+        return self._thetac
+
+    @thetac.setter
+    def thetac(self, thetac):
+        self._thetac = float(thetac)
+        self.updateTransformationMatrix()
+        self.compute(all=True)
+
+    # Calibration constants
+    # 3. SLM plane
     @property
     def xs(self):
+        '''x coordinate of optical axis on SLM [pixels]'''
         return self.rs.x()
 
     @xs.setter
@@ -188,6 +350,7 @@ class CGH(QObject):
 
     @property
     def ys(self):
+        '''y coordinate of optical axis on SLM [pixels]'''
         return self.rs.y()
 
     @ys.setter
@@ -198,6 +361,7 @@ class CGH(QObject):
 
     @property
     def rs(self):
+        '''Location of optical axis on SLM [pixels]'''
         return self._rs
 
     @rs.setter
@@ -206,6 +370,16 @@ class CGH(QObject):
             self._rs = rs
         else:
             self._rs = QPointF(rs[0], rs[1])
+        self.updateGeometry()
+        self.compute(all=True)
+
+    @property
+    def phis(self):
+        return self._phis
+
+    @phis.setter
+    def phis(self, phis):
+        self._phis = phis
         self.updateGeometry()
         self.compute(all=True)
 
@@ -237,59 +411,6 @@ class CGH(QObject):
     def beta(self, beta):
         self._beta = float(beta)
         self.updateGeometry()
-        self.compute(all=True)
-
-    @property
-    def xc(self):
-        return self.rc.x()
-
-    @xc.setter
-    def xc(self, xc):
-        rc = self.rc
-        rc.setX(xc)
-        self.rc = rc
-
-    @property
-    def yc(self):
-        return self.rc.y()
-
-    @yc.setter
-    def yc(self, yc):
-        rc = self.rc
-        rc.setY(yc)
-        self.rc = rc
-
-    @property
-    def zc(self):
-        return self.rc.z()
-
-    @zc.setter
-    def zc(self, zc):
-        rc = self.rc
-        rc.setZ(zc)
-        self.rc = rc
-
-    @property
-    def rc(self):
-        return self._rc
-
-    @rc.setter
-    def rc(self, rc):
-        if isinstance(rc, QVector3D):
-            self._rc = rc
-        else:
-            self._rc = QVector3D(rc[0], rc[1], rc[2])
-        self.updateTransformationMatrix()
-        self.compute(all=True)
-
-    @property
-    def thetac(self):
-        return self._thetac
-
-    @thetac.setter
-    def thetac(self, thetac):
-        self._thetac = float(thetac)
-        self.updateTransformationMatrix()
         self.compute(all=True)
 
     @property
