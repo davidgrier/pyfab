@@ -73,7 +73,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabVideo">
        <property name="sizePolicy">
@@ -380,7 +380,7 @@
          <number>2</number>
         </property>
         <item>
-         <widget class="QCGHPropertyWidget" name="frame">
+         <widget class="QCGH" name="cgh">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -546,9 +546,9 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>QCGHPropertyWidget</class>
+   <class>QCGH</class>
    <extends>QFrame</extends>
-   <header>pyfablib.CGH.QCGHPropertyWidget</header>
+   <header>pyfablib.QCGH.QCGH</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

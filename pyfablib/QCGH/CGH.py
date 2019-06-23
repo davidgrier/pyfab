@@ -41,15 +41,13 @@ class CGH(QObject):
     sigUpdateGeometry = pyqtSignal()
     sigUpdateTransformationMatrix = pyqtSignal()
 
-    def __init__(self, slm=None):
+    def __init__(self, parent=None, shape=(512, 512)):
         super(CGH, self).__init__()
         self.traps = []
+
         # SLM geometry
-        self.slm = slm
-        self.h = self.slm.height()
-        self.w = self.slm.width()
-        self.shape = (self.h, self.w)
-        self.phi = np.zeros(self.shape).astype(np.uint8)
+        self._shape = shape
+        # self.phi = np.zeros(self.shape).astype(np.uint8)
 
         # Instrument properties
         # vacuum wavelength of trapping laser [um]
@@ -75,13 +73,13 @@ class CGH(QObject):
         self._thetac = 0.
 
         # Location of optical axis in SLM coordinates
-        self._rs = QPointF(self.w / 2., self.h / 2.)
+        self._rs = QPointF(self.width/2., self.height/2.)
         # Tilt of SLM relative to optical axis [degrees]
         self._phis = 8.
 
         # Computed calibration constants
         # Conversion from SLM pixels to wavenumbers
-        self._qpp = 2. * np.pi / self.w / 10.
+        self._qpp = 2. * np.pi / self.width / 10.
         # Effective aspect ratio of SLM pixels
         self._alpha = 1.
         # Effective axial aspect ratio: lambda/4 [pixel]
@@ -118,7 +116,8 @@ class CGH(QObject):
 
     def window(self, r):
         """Adjust amplitude to account for aperture size"""
-        x = 0.5 * np.pi * np.array([r.x() / self.w, r.y() / self.h])
+        x = 0.5 * np.pi * np.array([r.x() / self.width,
+                                    r.y() / self.height])
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
@@ -174,8 +173,8 @@ class CGH(QObject):
         and allocate buffers.
         """
         self._psi = np.zeros(self.shape, dtype=np.complex_)
-        qx = np.arange(self.w) - self.rs.x()
-        qy = np.arange(self.h) - self.rs.y()
+        qx = np.arange(self.width) - self.rs.x()
+        qy = np.arange(self.height) - self.rs.y()
         qx = self._qpp * qx
         qy = self._alpha * self._qpp * qy
         self.iqx = 1j * qx
@@ -194,6 +193,24 @@ class CGH(QObject):
         self.m.rotate(self.thetac, 0., 0., 1.)
         self.m.translate(-self.rc)
         self.sigUpdateTransformationMatrix.emit()
+
+    # Hologram geometry
+    @property
+    def height(self):
+        return self.shape[0]
+
+    @property
+    def width(self):
+        return self.shape[1]
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, shape):
+        self._shape = shape
+        self.updateGeometry()
 
     # Calibration constants
     # 1. Instrument parameters

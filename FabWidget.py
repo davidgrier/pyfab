@@ -148,11 +148,11 @@ class Ui_PyFab(object):
         self.verticalLayout_4.setContentsMargins(2, 2, 2, 2)
         self.verticalLayout_4.setSpacing(2)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.frame = QCGHPropertyWidget(self.tabCGH)
-        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.verticalLayout_4.addWidget(self.frame)
+        self.cgh = QCGH(self.tabCGH)
+        self.cgh.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.cgh.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.cgh.setObjectName("cgh")
+        self.verticalLayout_4.addWidget(self.cgh)
         self.tabWidget.addTab(self.tabCGH, "")
         self.tabSLM = QtWidgets.QWidget()
         self.tabSLM.setObjectName("tabSLM")
@@ -212,7 +212,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(4)
         self.actionQuit.triggered.connect(PyFab.close)
         self.bback.clicked.connect(self.browser.back)
         self.tabWidget.currentChanged['int'].connect(self.histogram.expose)
@@ -256,7 +256,7 @@ from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QHistogramTab import QHistogramTab
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
-from pyfablib.CGH.QCGHPropertyWidget import QCGHPropertyWidget
+from pyfablib.QCGH.QCGH import QCGH
 import help_rc
 
 

@@ -27,6 +27,10 @@ class QSLM(QLabel):
         self.data = phi
         self.show()
 
+    @property
+    def shape(self):
+        return (self.width(), self.height())
+
     @pyqtSlot(np.ndarray)
     def setData(self, data):
         self.data = data

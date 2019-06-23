@@ -7,7 +7,7 @@ from FabWidget import Ui_PyFab
 from common.Configuration import Configuration
 
 from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
-from pyfablib.CGH import CGH
+from pyfablib.QCGH.CGH import CGH
 from pyfablib.QSLM import QSLM
 
 import logging
@@ -39,8 +39,9 @@ class Fab(QMainWindow, Ui_PyFab):
         self.slm = QSLM()
 
         # computation pipeline
-        self.cgh = CGH(slm=self.slm)
-        self.cgh.sigHologramReady.connect(self.slm.setData)
+        self.cgh.device = CGH(shape=self.slm.shape)
+
+        # self.cgh.sigHologramReady.connect(self.slm.setData)
 
         self.configureUi()
         self.connectSignals()

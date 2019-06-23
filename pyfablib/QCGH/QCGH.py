@@ -3,7 +3,6 @@
 
 from common.QSettingsWidget import QSettingsWidget
 from .QCGHWidget import Ui_QCGHWidget
-from .CGH import CGH
 
 
 import logging
@@ -16,9 +15,7 @@ class QCGH(QSettingsWidget):
 
     '''Widget for setting CGH calibration constants'''
 
-    def __init__(self, parent=None, device=None, **kwargs):
-        if device is None:
-            device = CGH(**kwargs)
+    def __init__(self, parent=None, device=None):
         ui = Ui_QCGHWidget()
         super(QCGH, self).__init__(parent=parent,
                                    device=device,
