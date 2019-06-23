@@ -122,6 +122,7 @@ class CGH(QObject):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
+        print(r)
         ex = np.exp(self.iqx * r.x() + self.iqxz * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
         np.outer(amp * ey, ex, buffer)
@@ -131,7 +132,7 @@ class CGH(QObject):
         """Compute phase hologram for specified traps"""
         self.sigComputing.emit(True)
         start = time()
-        self._psi.fill(0. + 0j)
+        self._psi.fill(0j)
         for trap in self.traps:
             if ((all is True) or trap.needsRefresh):
                 # map coordinates into trap space
@@ -145,7 +146,7 @@ class CGH(QObject):
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
                 self.compute_displace(amp, r, trap.psi)
-                trap.needsUpdate = False
+                trap.needsRefresh = False
             self._psi += trap.structure * trap.psi
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)
@@ -412,26 +413,6 @@ class CGH(QObject):
     @phis.setter
     def phis(self, phis):
         self._phis = phis
-        self.updateGeometry()
-        self.compute(all=True)
-
-    @property
-    def alpha(self):
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, alpha):
-        self._alpha = float(alpha)
-        self.updateGeometry()
-        self.compute(all=True)
-
-    @property
-    def beta(self):
-        return self._beta
-
-    @beta.setter
-    def beta(self, beta):
-        self._beta = float(beta)
         self.updateGeometry()
         self.compute(all=True)
 
