@@ -122,7 +122,6 @@ class CGH(QObject):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
-        print(r)
         ex = np.exp(self.iqx * r.x() + self.iqxz * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
         np.outer(amp * ey, ex, buffer)
@@ -219,14 +218,14 @@ class CGH(QObject):
         '''In-plane displacement factor [radians/(pixel phixel)]'''
         cfactor = self.cameraPitch/self.magnification  # [um/pixel]
         sfactor = self.slmPitch/self.scaleFactor       # [um/phixel]
-        return self.wavenumber/(self.focalLength*cfactor*sfactor)
+        return (self.wavenumber/self.focalLength)*cfactor*sfactor
 
     @property
     def qpar(self):
         '''Axial displacement factor [radians/(pixel phixel^2)]'''
         cfactor = self.cameraPitch/self.magnification  # [um/pixel]
         sfactor = self.slmPitch/self.scaleFactor       # [um/phixel]
-        return self.wavenumber/(2.*self.focalLength**2*cfactor*sfactor**2)
+        return (self.wavenumber/(2.*self.focalLength**2))*cfactor*sfactor**2
 
     # Calibration constants
     # 1. Instrument parameters
