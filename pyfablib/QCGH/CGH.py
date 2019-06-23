@@ -122,8 +122,8 @@ class CGH(QObject):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
-        ex = np.exp(self.iqx * r.x() + self.iqxsq * r.z())
-        ey = np.exp(self.iqy * r.y() + self.iqysq * r.z())
+        ex = np.exp(self.iqx * r.x() + self.iqxz * r.z())
+        ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
         np.outer(amp * ey, ex, buffer)
 
     # @jit
@@ -169,13 +169,13 @@ class CGH(QObject):
         and allocate buffers.
         """
         self._psi = np.zeros(self.shape, dtype=np.complex_)
-        alpha = 1./np.cos(np.radians(self.thetac))
-        x = np.arange(self.width) - self.rs.x()
+        alpha = np.cos(np.radians(self.thetac))
+        x = alpha*(np.arange(self.width) - self.rs.x())
         y = np.arange(self.height) - self.rs.y()
-        self.iqx = 1j * alpha * self.qprp * x
+        self.iqx = 1j * self.qprp * x
         self.iqy = 1j * self.qprp * y
-        self.iqxsq = 1j * alpha**2 * self.qpar * x * x
-        self.iqysq = 1j * self.qpar * y * y
+        self.iqxz = 1j * self.qpar * x * x
+        self.iqyz = 1j * self.qpar * y * y
         self.theta = np.arctan2.outer(y, x)
         self.qr = np.hypot.outer(y, x)
         self.sigUpdateGeometry.emit()
