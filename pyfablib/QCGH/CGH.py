@@ -219,7 +219,7 @@ class CGH(QObject):
         '''In-plane displacement factor [radians/(pixel phixel)]'''
         cfactor = self.cameraPitch/self.magnification  # [um/pixel]
         sfactor = self.slmPitch/self.scaleFactor       # [um/phixel]
-        return self.wavenumber/self.focalLength/cfactor/sfactor
+        return self.wavenumber/(self.focalLength*cfactor*sfactor)
 
     @property
     def qpar(self):
@@ -232,7 +232,7 @@ class CGH(QObject):
     # 1. Instrument parameters
     @property
     def wavelength(self):
-        '''Vacuum wavelength of trapping laser'''
+        '''Vacuum wavelength of trapping laser [um]'''
         return self._wavelength
 
     @wavelength.setter
@@ -372,7 +372,7 @@ class CGH(QObject):
     # 3. SLM plane
     @property
     def xs(self):
-        '''x coordinate of optical axis on SLM [pixels]'''
+        '''x coordinate of optical axis in SLM plane [pixels]'''
         return self.rs.x()
 
     @xs.setter
@@ -383,7 +383,7 @@ class CGH(QObject):
 
     @property
     def ys(self):
-        '''y coordinate of optical axis on SLM [pixels]'''
+        '''y coordinate of optical axis in SLM plane [pixels]'''
         return self.rs.y()
 
     @ys.setter
@@ -394,7 +394,7 @@ class CGH(QObject):
 
     @property
     def rs(self):
-        '''Location of optical axis on SLM [pixels]'''
+        '''Location of optical axis in SLM plane [pixels]'''
         return self._rs
 
     @rs.setter
@@ -408,6 +408,7 @@ class CGH(QObject):
 
     @property
     def phis(self):
+        '''Tilt of SLM relative to optical axis [degrees]'''
         return self._phis
 
     @phis.setter
