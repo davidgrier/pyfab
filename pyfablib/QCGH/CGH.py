@@ -212,6 +212,26 @@ class CGH(QObject):
         self._shape = shape
         self.updateGeometry()
 
+    # Derived constants
+    @property
+    def wavenumber(self):
+        '''Wavenumber of trapping light in the medium [radians/um]'''
+        return 2.*np.pi*self.refractiveIndex/self.wavelength
+
+    @property
+    def qprp(self):
+        '''In-plane displacement factor [radians/(pixel phixel)]'''
+        cfactor = self.cameraPitch/self.magnification  # [um/pixel]
+        sfactor = self.slmPitch/self.scaleFactor       # [um/phixel]
+        return self.wavenumber/self.focalLength/cfactor/sfactor
+
+    @property
+    def qpar(self):
+        '''Axial displacement factor [radians/(pixel phixel^2)]'''
+        cfactor = self.cameraPitch/self.magnification  # [um/pixel]
+        sfactor = self.slmPitch/self.scaleFactor       # [um/phixel]
+        return self.wavenumber/(2.*self.focalLength**2*cfactor*sfactor**2)
+
     # Calibration constants
     # 1. Instrument parameters
     @property

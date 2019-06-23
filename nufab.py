@@ -40,8 +40,8 @@ class Fab(QMainWindow, Ui_PyFab):
 
         # computation pipeline
         self.cgh.device = CGH(shape=self.slm.shape)
-
-        # self.cgh.sigHologramReady.connect(self.slm.setData)
+        self.cgh.device.sigHologramReady.connect(self.slm.setData)
+        print('XXX', self.cgh.device.qprp, self.cgh.device.qpar)
 
         self.configureUi()
         self.connectSignals()
