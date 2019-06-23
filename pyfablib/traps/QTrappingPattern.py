@@ -101,7 +101,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
     # Creating and deleting traps
     def addTrap(self, trap):
         trap.setParent(self)
-        trap.cgh = self.parent().cgh
+        trap.cgh = self.parent().cgh.device
         trap.state = states.selected
         self.pattern.add(trap)
         self.refresh()

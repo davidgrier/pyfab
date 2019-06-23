@@ -66,7 +66,7 @@ class CGH(QObject):
         self._scaleFactor = 3.
 
         # Coordinate transformation matrix for trap locations
-        self._m = QMatrix4x4()
+        self.m = QMatrix4x4()
         # Location of optical axis in camera coordinates
         self._rc = QVector3D(320., 240., 0.)
         # Orientation of camera relative to SLM [degrees]
@@ -79,6 +79,9 @@ class CGH(QObject):
 
         # Splay wavenumber
         self._k0 = 0.01
+
+        self.updateGeometry()
+        self.updateTransformationMatrix()
 
     # Slots for threaded operation
     @pyqtSlot()
