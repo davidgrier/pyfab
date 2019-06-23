@@ -53,6 +53,7 @@ class Fab(QMainWindow, Ui_PyFab):
     def closeEvent(self, event):
         self.saveConfiguration()
         self.screen.close()
+        self.slm.close()
         self.deleteLater()
 
     def installCamera(self, camera):
