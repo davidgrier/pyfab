@@ -9,6 +9,7 @@ from common.Configuration import Configuration
 from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 from pyfablib.QCGH.CGH import CGH
 from pyfablib.QSLM import QSLM
+from pyfablib.traps.QTrappingPattern import QTrappingPattern
 
 import logging
 logging.basicConfig()
@@ -41,7 +42,17 @@ class Fab(QMainWindow, Ui_PyFab):
         # computation pipeline
         self.cgh.device = CGH(shape=self.slm.shape)
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
-        print('XXX', self.cgh.device.qprp, self.cgh.device.qpar)
+
+        # trapping pattern is an interactive overlay
+        # that translates user actions into hologram computations
+        self.pattern = QTrappingPattern(parent=self)
+        self.screen.addOverlay(self.pattern)
+        self.screen.sigMousePress.connect(self.pattern.mousePress)
+        self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
+        self.screen.sigMouseMove.connect(self.pattern.mouseMove)
+        self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
+        self.pattern.sigCompute.connect(self.cgh.device.setTraps)
+        self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
 
         self.configureUi()
         self.connectSignals()
