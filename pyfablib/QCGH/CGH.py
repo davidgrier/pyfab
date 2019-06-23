@@ -77,13 +77,6 @@ class CGH(QObject):
         # Tilt of SLM relative to optical axis [degrees]
         self._phis = 8.
 
-        # Computed calibration constants
-        # Conversion from SLM pixels to wavenumbers
-        self._qpp = 2. * np.pi / self.width / 10.
-        # Effective aspect ratio of SLM pixels
-        self._alpha = 1.
-        # Effective axial aspect ratio: lambda/4 [pixel]
-        self._beta = 2.
         # Splay wavenumber
         self._k0 = 0.01
 
@@ -173,16 +166,15 @@ class CGH(QObject):
         and allocate buffers.
         """
         self._psi = np.zeros(self.shape, dtype=np.complex_)
-        qx = np.arange(self.width) - self.rs.x()
-        qy = np.arange(self.height) - self.rs.y()
-        qx = self._qpp * qx
-        qy = self._alpha * self._qpp * qy
-        self.iqx = 1j * qx
-        self.iqy = 1j * qy
-        self.iqxsq = 1j * self._beta * qx * qx
-        self.iqysq = 1j * self._beta * qy * qy
-        self.theta = np.arctan2.outer(qy, qx)
-        self.qr = np.hypot.outer(qy, qx)
+        alpha = 1./np.cos(np.radians(self.thetac))
+        x = np.arange(self.width) - self.rs.x()
+        y = np.arange(self.height) - self.rs.y()
+        self.iqx = 1j * alpha * self.qprp * x
+        self.iqy = 1j * self.qprp * y
+        self.iqxsq = 1j * alpha**2 * self.qpar * x * x
+        self.iqysq = 1j * self.qpar * y * y
+        self.theta = np.arctan2.outer(y, x)
+        self.qr = np.hypot.outer(y, x)
         self.sigUpdateGeometry.emit()
 
     def updateTransformationMatrix(self):
@@ -417,16 +409,6 @@ class CGH(QObject):
     @phis.setter
     def phis(self, phis):
         self._phis = phis
-        self.updateGeometry()
-        self.compute(all=True)
-
-    @property
-    def qpp(self):
-        return self._qpp * 1000.
-
-    @qpp.setter
-    def qpp(self, qpp):
-        self._qpp = float(qpp) / 1000.
         self.updateGeometry()
         self.compute(all=True)
 
