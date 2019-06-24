@@ -14,18 +14,23 @@ class QSLM(QLabel):
     def __init__(self, parent=None, fake=False):
         desktop = QDesktopWidget()
         if (desktop.screenCount() == 2) and not fake:
-            super(QSLM, self).__init__(desktop.screen(1))
-            rect = desktop.screenGeometry(1)
-            self.resize(rect.width(), rect.height())
+            super(QSLM, self).__init__()
+            # super(QSLM, self).__init__(desktop.screen(1))
+            # rect = desktop.screenGeometry(1)
+            # self.resize(rect.width(), rect.height())
             self.setWindowFlags(Qt.FramelessWindowHint)
+            self.show()
+            self.windowHandle().setScreen(desktop.screen(1))
+            self.showFullScreen()
         else:
             super(QSLM, self).__init__(parent)
             w, h = 640, 480
             self.resize(w, h)
             self.setWindowTitle('SLM')
+            self.show()
         phi = np.zeros((self.height(), self.width()), dtype=np.uint8)
         self.data = phi
-        self.show()
+        # self.show()
 
     @property
     def shape(self):
