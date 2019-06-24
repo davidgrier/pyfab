@@ -34,6 +34,7 @@ class guidedmove(move):
         self.wait = 5
 
     def initialize(self, frame):
+        self.initialize_more(frame)
         self.traps = self.parent.pattern.pattern
         self.targets = self.calculate_targets(self.traps)
         if type(self.targets) is dict:
@@ -60,7 +61,7 @@ class guidedmove(move):
                 self.N = list(self.trajectories.values())[0].trajectory.shape[0]
                 self.n = 0
                 self.traps.select(True)
-        self.initialize_more(frame)
+        #self.initialize_more(frame)
 
     def calculate_targets(self, traps):
         '''
