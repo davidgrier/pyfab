@@ -41,19 +41,11 @@ class Fab(QMainWindow, Ui_PyFab):
 
         # computation pipeline
         self.cgh.device = CGH(shape=self.slm.shape)
-        self.cgh.device.sigHologramReady.connect(self.slm.setData)
 
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
         self.pattern = QTrappingPattern(parent=self)
         self.screen.addOverlay(self.pattern)
-        self.screen.sigMousePress.connect(self.pattern.mousePress)
-        self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
-        self.screen.sigMouseMove.connect(self.pattern.mouseMove)
-        self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
-        self.pattern.sigCompute.connect(self.cgh.device.setTraps)
-        self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
-        self.pattern.trapAdded.connect(self.traps.registerTrap)
 
         self.configureUi()
         self.connectSignals()
@@ -79,7 +71,7 @@ class Fab(QMainWindow, Ui_PyFab):
         self.histogram.screen = self.screen
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
-        self.dvr.filename = self.configuration.datadir + 'jansen.avi'
+        self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
         self.adjustSize()
 
     def connectSignals(self):
@@ -90,6 +82,19 @@ class Fab(QMainWindow, Ui_PyFab):
         self.actionSavePhoto.triggered.connect(self.savePhoto)
         self.actionSavePhotoAs.triggered.connect(
             lambda: self.savePhoto(True))
+
+        # 1. Screen events trigger requests for trap updates
+        self.screen.sigMousePress.connect(self.pattern.mousePress)
+        self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
+        self.screen.sigMouseMove.connect(self.pattern.mouseMove)
+        self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
+        # 2. Updates to trapping pattern require hologram calculation
+        self.pattern.sigCompute.connect(self.cgh.device.setTraps)
+        self.pattern.trapAdded.connect(self.traps.registerTrap)
+        # 3. Suppress requests while hologram is being computed
+        self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
+        # 4. Project result when calculation is complete
+        self.cgh.device.sigHologramReady.connect(self.slm.setData)
 
     def setDvrSource(self, source):
         self.dvr.source = source
