@@ -73,7 +73,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tabVideo">
        <property name="sizePolicy">
@@ -358,6 +358,33 @@
        <attribute name="title">
         <string>Traps</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayoutTraps">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QTrapWidget" name="traps">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tabCGH">
        <attribute name="title">
@@ -562,6 +589,12 @@
    <class>QCGH</class>
    <extends>QFrame</extends>
    <header>pyfablib.QCGH.QCGH</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QTrapWidget</class>
+   <extends>QFrame</extends>
+   <header>pyfablib.traps.QTrapWidget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

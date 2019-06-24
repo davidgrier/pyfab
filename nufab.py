@@ -53,6 +53,7 @@ class Fab(QMainWindow, Ui_PyFab):
         self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
         self.pattern.sigCompute.connect(self.cgh.device.setTraps)
         self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
+        self.pattern.trapAdded.connect(self.traps.registerTrap)
 
         self.configureUi()
         self.connectSignals()

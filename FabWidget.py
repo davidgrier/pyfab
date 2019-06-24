@@ -141,6 +141,15 @@ class Ui_PyFab(object):
         self.tabWidget.addTab(self.tabHardware, "")
         self.tabTraps = QtWidgets.QWidget()
         self.tabTraps.setObjectName("tabTraps")
+        self.verticalLayoutTraps = QtWidgets.QVBoxLayout(self.tabTraps)
+        self.verticalLayoutTraps.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayoutTraps.setSpacing(2)
+        self.verticalLayoutTraps.setObjectName("verticalLayoutTraps")
+        self.traps = QTrapWidget(self.tabTraps)
+        self.traps.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.traps.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.traps.setObjectName("traps")
+        self.verticalLayoutTraps.addWidget(self.traps)
         self.tabWidget.addTab(self.tabTraps, "")
         self.tabCGH = QtWidgets.QWidget()
         self.tabCGH.setObjectName("tabCGH")
@@ -214,7 +223,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(4)
+        self.tabWidget.setCurrentIndex(3)
         self.actionQuit.triggered.connect(PyFab.close)
         self.bback.clicked.connect(self.browser.back)
         self.tabWidget.currentChanged['int'].connect(self.histogram.expose)
@@ -259,6 +268,7 @@ from jansenlib.QHistogramTab import QHistogramTab
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 from pyfablib.QCGH.QCGH import QCGH
+from pyfablib.traps.QTrapWidget import QTrapWidget
 import help_rc
 
 

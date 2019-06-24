@@ -22,7 +22,7 @@ class QTrapPropertyEdit(QLineEdit):
         self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(50)
         self.setMaxLength(8)
-        self.fmt = '%.{}f'.format(decimals)
+        self.fmt = '{{:.{0}f}}'.format(decimals)
         v = QDoubleValidator(decimals=decimals)
         v.setNotation(QDoubleValidator.StandardNotation)
         self.setValidator(v)
@@ -123,12 +123,10 @@ class QTrapWidget(QFrame):
 
     """Controls for all traps."""
 
-    def __init__(self, pattern=None):
-        super(QTrapWidget, self).__init__()
+    def __init__(self, parent=None):
+        super(QTrapWidget, self).__init__(parent)
         self.properties = dict()
         self.init_ui()
-        if pattern is not None:
-            pattern.trapAdded.connect(self.registerTrap)
 
     def init_ui(self):
         self.setFrameShape(QFrame.Box)
@@ -162,12 +160,14 @@ class QTrapWidget(QFrame):
         widget.setLayout(layout)
         return widget
 
+    @pyqtSlot(QTrap)
     def registerTrap(self, trap):
         trapWidget = QTrapPropertyWidget(trap)
         self.properties[trap] = trapWidget
         self.layout.addWidget(trapWidget)
         trap.destroyed.connect(lambda: self.unregisterTrap(trap))
 
+    @pyqtSlot(QTrap)
     def unregisterTrap(self, trap):
         self.properties[trap].deleteLater()
         del self.properties[trap]
