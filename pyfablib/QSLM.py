@@ -20,7 +20,7 @@ class QSLM(QLabel):
             # self.resize(rect.width(), rect.height())
             self.setWindowFlags(Qt.FramelessWindowHint)
             self.show()
-            self.windowHandle().setScreen(desktop.screen(1))
+            self.window().setScreen(desktop.screen(1))
             self.showFullScreen()
         else:
             super(QSLM, self).__init__(parent)
