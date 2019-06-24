@@ -239,7 +239,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         group = self.clickedGroup(pos)
         if group is not None:
             group.state = states.selected
-            dr = QVector3D(0., 0., event.delta() / 120.)
-            group.moveBy(dr)
+            dz = event.angleDelta().y()/120.
+            group.moveBy(QVector3D(0, 0, dz))
             # group.state = states.normal
         self.group = None
