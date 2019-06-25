@@ -24,7 +24,7 @@ except Exception as ex:
 
 class Fab(QMainWindow, Ui_PyFab):
 
-    def __init__(self, parent=None, noconfig=False):
+    def __init__(self, parent=None, doconfig=True):
         super(Fab, self).__init__(parent)
         self.setupUi(self)
         self.configuration = Configuration(self)
@@ -50,7 +50,7 @@ class Fab(QMainWindow, Ui_PyFab):
         self.configureUi()
         self.connectSignals()
 
-        self.doconfig = not noconfig
+        self.doconfig = doconfig
         if self.doconfig:
             self.restoreConfiguration()
 
@@ -129,14 +129,14 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-x', '--noconfig',
-                        dest='noconfig', action='store_true',
+                        dest='doconfig', action='store_false',
                         help='Do not use saved configuration data')
 
     args, unparsed = parser.parse_known_args()
     qt_args = sys.argv[:1] + unparsed
 
     app = QApplication(qt_args)
-    win = Fab(noconfig=args.noconfig)
+    win = Fab(doconfig=args.doconfig)
     win.show()
     sys.exit(app.exec_())
 
