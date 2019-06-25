@@ -5,34 +5,28 @@
 
 from PyQt5.QtCore import (Qt, pyqtSlot)
 from PyQt5.QtWidgets import QLabel
-from PyQt5.QtGui import (QImage, QPixmap, QGuiApplication)
+from PyQt5.QtGui import (QMainWindow, QImage, QPixmap, QGuiApplication)
 import numpy as np
 
 
-class QSLM(QLabel):
+class QSLM(QMainWindow):
 
     def __init__(self, parent=None, fake=False):
-        super(QSLM, self).__init__(None)
+        super(QSLM, self).__init__(None, Qt.FramelessWindowHint)
+        self.label = QLabel(self)
+        self.setCentralWidget(self.label)
         screens = QGuiApplication.screens()
-        screen = screens[1]
-        print('XXX', screen.geometry())
         if (len(screens) == 2) and not fake:
-            # super(QSLM, self).__init__(None, Qt.FramelessWindowHint)
-            # super(QSLM, self).__init__(desktop.screen(1))
-            # rect = desktop.screenGeometry(1)
-            # self.resize(rect.width(), rect.height())
-            self.show()
-            self.window().setScreen(screens[1])
+            # self.show()
+            self.setScreen(screens[1])
             self.showFullScreen()
         else:
-            # super(QSLM, self).__init__(parent)
             w, h = 640, 480
-            self.resize(w, h)
-            self.setWindowTitle('SLM')
+            self.setGeometry(100, 100, w, h)
+            self.label.resize(w, h)
             self.show()
         phi = np.zeros((self.height(), self.width()), dtype=np.uint8)
         self.data = phi
-        # self.show()
 
     @property
     def shape(self):
@@ -52,7 +46,7 @@ class QSLM(QLabel):
         img = QImage(d.data, d.shape[1], d.shape[0], d.strides[0],
                      QImage.Format_Indexed8)
         pix = QPixmap.fromImage(img)
-        self.setPixmap(pix)
+        self.label.setPixmap(pix)
 
 
 def main():

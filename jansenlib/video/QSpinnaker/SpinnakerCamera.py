@@ -154,6 +154,7 @@ class SpinnakerCamera(object):
             status = res.GetImageStatus()
             error_msg = res.GetImageStatusDescription(status)
             logger.warning('Incomplete Image: ' + error_msg)
+            return not error, None
         shape = (res.GetHeight(), res.GetWidth())
         image = res.GetData().reshape(shape)
         if self.flipped:

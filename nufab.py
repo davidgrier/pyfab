@@ -37,7 +37,7 @@ class Fab(QMainWindow, Ui_PyFab):
         self.installCamera(camera)
 
         # spatial light modulator
-        self.slm = QSLM()
+        self.slm = QSLM(self)
 
         # computation pipeline
         self.cgh.device = CGH(shape=self.slm.shape)
