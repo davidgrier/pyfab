@@ -17,8 +17,8 @@ class QSLM(QMainWindow):
         self.setCentralWidget(self.label)
         screens = QGuiApplication.screens()
         if (len(screens) == 2) and not fake:
-            # self.show()
-            self.setScreen(screens[1])
+            self.show()
+            self.windowHandle().setScreen(screens[1])
             self.showFullScreen()
         else:
             w, h = 640, 480
