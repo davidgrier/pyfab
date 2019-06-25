@@ -82,25 +82,25 @@ class QHistogramTab(QFrame):
     @pyqtSlot(np.ndarray)
     def updateHistogram(self, frame):
         self._n = (self._n + 1) % self._nskip
-        if self._n > 0:
-            return frame
-        if frame.ndim == 2:
-            y = np.bincount(frame.flat, minlength=256)
-            self.rplot.setData(y=y)
-            self.gplot.setData(y=[0, 0])
-            self.bplot.setData(y=[0, 0])
-            self.xplot.setData(y=np.mean(frame, 0))
-            self.yplot.setData(y=np.mean(frame, 1))
-        else:
-            b, g, r = cv2.split(frame)
-            y = np.bincount(r.ravel(), minlength=256)
-            self.rplot.setData(y=y)
-            y = np.bincount(g.ravel(), minlength=256)
-            self.gplot.setData(y=y)
-            y = np.bincount(b.ravel(), minlength=256)
-            self.bplot.setData(y=y)
-            self.xplot.setData(y=np.mean(r, 0))
-            self.yplot.setData(y=np.mean(r, 1))
+        if self._n == 0:
+            if frame.ndim == 2:
+                y = np.bincount(frame.flatten(), minlength=256)
+                self.rplot.setData(y=y)
+                self.gplot.setData(y=[0, 0])
+                self.bplot.setData(y=[0, 0])
+                self.xplot.setData(y=np.mean(frame, 0))
+                self.yplot.setData(y=np.mean(frame, 1))
+            else:
+                print('updating')
+                b, g, r = cv2.split(frame)
+                y = np.bincount(r.ravel(), minlength=256)
+                self.rplot.setData(y=y)
+                y = np.bincount(g.ravel(), minlength=256)
+                self.gplot.setData(y=y)
+                y = np.bincount(b.ravel(), minlength=256)
+                self.bplot.setData(y=y)
+                self.xplot.setData(y=np.mean(r, 0))
+                self.yplot.setData(y=np.mean(r, 1))
 
     @property
     def screen(self):
