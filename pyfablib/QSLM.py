@@ -5,22 +5,21 @@
 
 from PyQt5.QtCore import (Qt, pyqtSlot)
 from PyQt5.QtWidgets import (QLabel, QDesktopWidget)
-from PyQt5.QtGui import (QImage, QPixmap)
+from PyQt5.QtGui import (QImage, QPixmap, QGuiApplication)
 import numpy as np
 
 
 class QSLM(QLabel):
 
     def __init__(self, parent=None, fake=False):
-        desktop = QDesktopWidget()
-        if (desktop.screenCount() == 2) and not fake:
-            super(QSLM, self).__init__()
+        screens = QGuiApplication.screens()
+        if (len(screens) == 2) and not fake:
+            super(QSLM, self).__init__(screens[1])
             # super(QSLM, self).__init__(desktop.screen(1))
             # rect = desktop.screenGeometry(1)
             # self.resize(rect.width(), rect.height())
             self.setWindowFlags(Qt.FramelessWindowHint)
-            self.show()
-            self.windowHandle().setScreen(desktop.screen(1))
+            # self.show()
             self.showFullScreen()
         else:
             super(QSLM, self).__init__(parent)
