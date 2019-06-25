@@ -114,10 +114,12 @@ class Fab(QMainWindow, Ui_PyFab):
     def restoreConfiguration(self):
         if self.doconfig:
             self.configuration.restore(self.camera)
+            self.configuration.restore(self.cgh)
 
     def saveConfiguration(self):
         if self.doconfig:
             self.configuration.save(self.camera)
+            self.configuration.save(self.cgh)
 
 
 def main():
