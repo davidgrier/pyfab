@@ -3,7 +3,7 @@
 """Visualization of image histograms."""
 
 from PyQt5.QtWidgets import (QFrame, QLabel)
-from PyQt5.QtCore import (pyqtSlot, pyqtProperty)
+from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
 from common.tabLayout import tabLayout
 import numpy as np
@@ -64,19 +64,10 @@ class QHistogramTab(QFrame):
         wid.setLabel('left', ylabel)
         return wid
 
-    def showEvent(self, event):
-        logger.debug('Connecting histogram slot')
-        self.screen.source.sigNewFrame.connect(self.updateHistogram)
-
-    def hideEvent(self, event):
-        logger.debug('Disconnecting histogram slot')
-        try:
-            self.screen.source.sigNewFrame.disconnect(self.updateHistogram)
-        except TypeError:
-            logger.debug('No slot to disconnect')
-
     @pyqtSlot(np.ndarray)
     def updateHistogram(self, frame):
+        if not self.isVisible():
+            return
         self._n = (self._n + 1) % self._nskip
         if self._n == 0:
             if frame.ndim == 2:
@@ -97,11 +88,3 @@ class QHistogramTab(QFrame):
                 self.bplot.setData(y=y)
                 self.xplot.setData(y=np.mean(r, 0))
                 self.yplot.setData(y=np.mean(r, 1))
-
-    @property
-    def screen(self):
-        return self._screen
-
-    @screen.setter
-    def screen(self, screen):
-        self._screen = screen

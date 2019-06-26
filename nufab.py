@@ -92,6 +92,7 @@ class Fab(QMainWindow, Ui_PyFab):
         wid.addItem(self.slmImage)
 
     def connectSignals(self):
+        # Signals associated with GUI controls
         self.bcamera.clicked.connect(
             lambda: self.setDvrSource(self.screen.default))
         self.bfilters.clicked.connect(
@@ -100,6 +101,11 @@ class Fab(QMainWindow, Ui_PyFab):
         self.actionSavePhotoAs.triggered.connect(
             lambda: self.savePhoto(True))
 
+        # Signals associated with handling images
+        newFrame = self.screen.source.sigNewFrame
+        newFrame.connect(self.histogram.updateHistogram)
+
+        # Signals associated with the CGH pipeline
         # 1. Screen events trigger requests for trap updates
         self.screen.sigMousePress.connect(self.pattern.mousePress)
         self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
