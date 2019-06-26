@@ -73,7 +73,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tabVideo">
        <property name="sizePolicy">
@@ -435,6 +435,24 @@
        <attribute name="title">
         <string>SLM</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="PlotWidget" name="slmView"/>
+        </item>
+        <item>
+         <spacer name="verticalSpacerSLM">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>241</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tabHelp">
        <attribute name="title">
@@ -597,6 +615,11 @@
    <header>pyfablib.traps.QTrapWidget</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph</header>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="help.qrc"/>
@@ -631,22 +654,6 @@
     <hint type="destinationlabel">
      <x>880</x>
      <y>329</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tabWidget</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>histogram</receiver>
-   <slot>expose(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>880</x>
-     <y>301</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>880</x>
-     <y>312</y>
     </hint>
    </hints>
   </connection>

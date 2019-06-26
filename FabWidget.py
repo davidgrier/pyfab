@@ -167,6 +167,13 @@ class Ui_PyFab(object):
         self.tabWidget.addTab(self.tabCGH, "")
         self.tabSLM = QtWidgets.QWidget()
         self.tabSLM.setObjectName("tabSLM")
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.tabSLM)
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.slmView = PlotWidget(self.tabSLM)
+        self.slmView.setObjectName("slmView")
+        self.verticalLayout_5.addWidget(self.slmView)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 241, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_5.addItem(spacerItem3)
         self.tabWidget.addTab(self.tabSLM, "")
         self.tabHelp = QtWidgets.QWidget()
         self.tabHelp.setObjectName("tabHelp")
@@ -223,10 +230,9 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(5)
         self.actionQuit.triggered.connect(PyFab.close)
         self.bback.clicked.connect(self.browser.back)
-        self.tabWidget.currentChanged['int'].connect(self.histogram.expose)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
         self.dvr.recording['bool'].connect(self.filters.setDisabled)
         QtCore.QMetaObject.connectSlotsByName(PyFab)
@@ -269,6 +275,7 @@ from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 from pyfablib.QCGH.QCGH import QCGH
 from pyfablib.traps.QTrapWidget import QTrapWidget
+from pyqtgraph import PlotWidget
 import help_rc
 
 

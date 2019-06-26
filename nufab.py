@@ -11,6 +11,8 @@ from pyfablib.QCGH.CGH import CGH
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
 
+import pyqtgraph as pg
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger('nujansen')
@@ -26,6 +28,7 @@ class Fab(QMainWindow, Ui_PyFab):
 
     def __init__(self, parent=None, doconfig=True):
         super(Fab, self).__init__(parent)
+
         self.setupUi(self)
         self.configuration = Configuration(self)
 
@@ -72,7 +75,21 @@ class Fab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
+        self.slmTab()
         self.adjustSize()
+
+    def slmTab(self):
+        wid = self.slmView
+        wid.setBackground('w')
+        wid.getAxis('bottom').setPen(0.1)
+        wid.getAxis('left').setPen(0.1)
+        wid.setXRange(0, self.cgh.width())
+        wid.setYRange(0, self.cgh.height())
+        wid.setAspectLocked(True)
+        wid.enableAutoRange(enable=False)
+        self.slmImage = pg.ImageItem()
+        self.slmImage.setOpts(axisOrder='row-major')
+        wid.addItem(self.slmImage)
 
     def connectSignals(self):
         self.bcamera.clicked.connect(
@@ -95,6 +112,7 @@ class Fab(QMainWindow, Ui_PyFab):
         self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
         # 4. Project result when calculation is complete
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
+        self.cgh.device.sigHologramReady.connect(self.slmImage.setImage)
 
     def setDvrSource(self, source):
         self.dvr.source = source
