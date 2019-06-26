@@ -18,16 +18,7 @@
     <property name="spacing">
      <number>2</number>
     </property>
-    <property name="leftMargin">
-     <number>2</number>
-    </property>
-    <property name="topMargin">
-     <number>2</number>
-    </property>
-    <property name="rightMargin">
-     <number>2</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>2</number>
     </property>
     <item>
@@ -101,16 +92,7 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>2</number>
         </property>
         <item>
@@ -173,16 +155,7 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>2</number>
            </property>
            <item>
@@ -225,16 +198,7 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>2</number>
            </property>
            <item>
@@ -271,16 +235,7 @@
            <property name="spacing">
             <number>1</number>
            </property>
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>2</number>
            </property>
            <item>
@@ -325,16 +280,7 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>2</number>
         </property>
         <item>
@@ -362,16 +308,7 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>2</number>
         </property>
         <item>
@@ -394,16 +331,7 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>2</number>
         </property>
         <item>
@@ -437,7 +365,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="PlotWidget" name="slmView"/>
+         <widget class="QSLMWidget" name="slmView"/>
         </item>
         <item>
          <spacer name="verticalSpacerSLM">
@@ -462,16 +390,7 @@
         <property name="spacing">
          <number>4</number>
         </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>2</number>
         </property>
         <item>
@@ -512,7 +431,7 @@
      <x>0</x>
      <y>0</y>
      <width>1120</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -616,9 +535,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>PlotWidget</class>
+   <class>QSLMWidget</class>
    <extends>QGraphicsView</extends>
-   <header>pyqtgraph</header>
+   <header>pyfablib.QSLMWidget</header>
   </customwidget>
  </customwidgets>
  <resources>

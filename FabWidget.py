@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'FabWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_PyFab(object):
     def setupUi(self, PyFab):
@@ -169,7 +168,7 @@ class Ui_PyFab(object):
         self.tabSLM.setObjectName("tabSLM")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.tabSLM)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.slmView = PlotWidget(self.tabSLM)
+        self.slmView = QSLMWidget(self.tabSLM)
         self.slmView.setObjectName("slmView")
         self.verticalLayout_5.addWidget(self.slmView)
         spacerItem3 = QtWidgets.QSpacerItem(20, 241, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -200,7 +199,7 @@ class Ui_PyFab(object):
         self.horizontalLayout_2.addWidget(self.tabWidget)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1120, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1120, 25))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -267,17 +266,15 @@ class Ui_PyFab(object):
         self.actionSave_Hologram.setText(_translate("PyFab", "Save Hologram..."))
         self.actionSave_Settings.setText(_translate("PyFab", "Save Settings"))
 
-
 from PyQt5 import QtWebKitWidgets
 from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QHistogramTab import QHistogramTab
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 from pyfablib.QCGH.QCGH import QCGH
+from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
-from pyqtgraph import PlotWidget
 import help_rc
-
 
 if __name__ == "__main__":
     import sys
@@ -287,3 +284,4 @@ if __name__ == "__main__":
     ui.setupUi(PyFab)
     PyFab.show()
     sys.exit(app.exec_())
+

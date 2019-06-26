@@ -118,7 +118,7 @@ class Fab(QMainWindow, Ui_PyFab):
         self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
         # 4. Project result when calculation is complete
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
-        self.cgh.device.sigHologramReady.connect(self.slmImage.setImage)
+        self.cgh.device.sigHologramReady.connect(self.slmView.setData)
 
     def setDvrSource(self, source):
         self.dvr.source = source
