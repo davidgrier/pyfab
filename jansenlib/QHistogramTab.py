@@ -21,11 +21,8 @@ class QHistogramTab(QFrame):
         super(QHistogramTab, self).__init__(parent)
 
         self.title = 'Histogram'
-        self.index = 1
         self._n = 0
         self._nskip = nskip
-
-        self._exposed = False
 
         self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
@@ -67,17 +64,16 @@ class QHistogramTab(QFrame):
         wid.setLabel('left', ylabel)
         return wid
 
-    @pyqtSlot(int)
-    def expose(self, index):
-        logger.debug('{}: {}'.format(index, self.index))
-        if index == self.index:
-            logger.debug('Connecting histogram slot')
-            self.screen.source.sigNewFrame.connect(self.updateHistogram)
-            self._exposed = True
-        elif self._exposed:
-            logger.debug('Disconnecting histogram slot')
+    def showEvent(self, event):
+        logger.debug('Connecting histogram slot')
+        self.screen.source.sigNewFrame.connect(self.updateHistogram)
+
+    def hideEvent(self, event):
+        logger.debug('Disconnecting histogram slot')
+        try:
             self.screen.source.sigNewFrame.disconnect(self.updateHistogram)
-            self._exposed = False
+        except TypeError:
+            logger.debug('No slot to disconnect')
 
     @pyqtSlot(np.ndarray)
     def updateHistogram(self, frame):
