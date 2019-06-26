@@ -75,21 +75,7 @@ class Fab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
-        self.slmTab()
         self.adjustSize()
-
-    def slmTab(self):
-        wid = self.slmView
-        wid.setBackground('w')
-        wid.getAxis('bottom').setPen(0.1)
-        wid.getAxis('left').setPen(0.1)
-        wid.setXRange(0, self.cgh.width())
-        wid.setYRange(0, self.cgh.height())
-        wid.setAspectLocked(True)
-        wid.enableAutoRange(enable=False)
-        self.slmImage = pg.ImageItem()
-        self.slmImage.setOpts(axisOrder='row-major')
-        wid.addItem(self.slmImage)
 
     def connectSignals(self):
         # Signals associated with GUI controls
