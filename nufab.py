@@ -75,6 +75,8 @@ class Fab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
+        # self.slmView.setXRange(0, self.cgh.width())
+        # self.slmView.setYRange(0, self.cgh.height())
         self.adjustSize()
 
     def connectSignals(self):

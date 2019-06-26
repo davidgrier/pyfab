@@ -13,13 +13,14 @@ class QSLMWidget(pg.PlotWidget):
         self.getAxis('bottom').setPen(0.1)
         self.getAxis('left').setPen(0.1)
         # self.setRange(padding=0)
-        # graphics.setXRange(0, self.cgh.w)
-        # graphics.setYRange(0, self.cgh.h)
+        self.setXRange(0, 640)
+        self.setYRange(0, 480)
         self.setAspectLocked(True)
         self.enableAutoRange(enable=False)
         self.image = pg.ImageItem()
-        self.image.setOpts(axisOrder='row-major')
         self.addItem(self.image)
+        self.image.setOpts(axisOrder='row-major')
+        self.adjustSize()
 
     @pyqtSlot(np.ndarray)
     def setData(self, hologram):
