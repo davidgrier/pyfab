@@ -247,6 +247,8 @@ class Ui_PyFab(object):
         self.bback.clicked.connect(self.browser.back)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
         self.dvr.recording['bool'].connect(self.filters.setDisabled)
+        self.actionPauseTasks.triggered.connect(PyFab.pauseTasks)
+        self.actionStopTasks.triggered.connect(PyFab.stopTasks)
         QtCore.QMetaObject.connectSlotsByName(PyFab)
 
     def retranslateUi(self, PyFab):

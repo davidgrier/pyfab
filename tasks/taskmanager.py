@@ -56,16 +56,13 @@ class Taskmanager(object):
         if self.task is None:
             self.source.sigNewFrame.connect(self.handleTask)
 
-    def togglePause(self):
+    def paused(self):
+        return self._paused
+
+    def pauseTasks(self):
         """Toggle the pause state of the task manager"""
         self._paused = not self._paused
-        msg = 'Tasks paused' if self._paused else 'Tasks running'
-        self.parent.parent().statusBar().showMessage(msg)
-        logger.debug(msg)
 
-    def emptyQueue(self):
+    def clearTasks(self):
         """Empty task queue"""
         self.queue.clear()
-        msg = 'Empty task queue'
-        self.parent.parent().statusBar().showMessage(msg)
-        logger.debug(msg)

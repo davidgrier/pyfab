@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from FabWidget import Ui_PyFab
 from common.Configuration import Configuration
@@ -25,10 +26,10 @@ except Exception as ex:
     logger.warning(ex)
 
 
-class Fab(QMainWindow, Ui_PyFab):
+class PyFab(QMainWindow, Ui_PyFab):
 
     def __init__(self, parent=None, doconfig=True):
-        super(Fab, self).__init__(parent)
+        super(PyFab, self).__init__(parent)
 
         self.setupUi(self)
         self.configuration = Configuration(self)
@@ -112,9 +113,11 @@ class Fab(QMainWindow, Ui_PyFab):
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
         self.cgh.device.sigHologramReady.connect(self.slmView.setData)
 
+    @pyqtSlot()
     def setDvrSource(self, source):
         self.dvr.source = source
 
+    @pyqtSlot()
     def savePhoto(self, select=False):
         filename = self.configuration.filename(suffix='.png')
         if select:
@@ -127,15 +130,28 @@ class Fab(QMainWindow, Ui_PyFab):
             qimage.mirrored(vertical=True).save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
+    @pyqtSlot()
     def restoreConfiguration(self):
         if self.doconfig:
             self.configuration.restore(self.camera)
             self.configuration.restore(self.cgh)
 
+    @pyqtSlot()
     def saveConfiguration(self):
         if self.doconfig:
             self.configuration.save(self.camera)
             self.configuration.save(self.cgh)
+
+    @pyqtSlot()
+    def pauseTasks(self):
+        self.tasks.pauseTasks()
+        msg = 'Tasks paused' if self.tasks.paused() else 'Tasks running'
+        self.statusBar().showMessage(msg)
+
+    @pyqtSlot()
+    def stopTasks(self):
+        self.tasks.clearTasks()
+        self.statusBar().showMessage('Task queue cleared')
 
 
 def main():
@@ -152,7 +168,7 @@ def main():
     qt_args = sys.argv[:1] + unparsed
 
     app = QApplication(qt_args)
-    win = Fab(doconfig=args.doconfig)
+    win = PyFab(doconfig=args.doconfig)
     win.show()
     sys.exit(app.exec_())
 
