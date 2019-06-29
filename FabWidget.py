@@ -225,12 +225,19 @@ class Ui_PyFab(object):
         self.actionSave_Hologram.setObjectName("actionSave_Hologram")
         self.actionSave_Settings = QtWidgets.QAction(PyFab)
         self.actionSave_Settings.setObjectName("actionSave_Settings")
+        self.actionPauseTasks = QtWidgets.QAction(PyFab)
+        self.actionPauseTasks.setObjectName("actionPauseTasks")
+        self.actionStopTasks = QtWidgets.QAction(PyFab)
+        self.actionStopTasks.setObjectName("actionStopTasks")
         self.menuFile.addAction(self.actionSavePhoto)
         self.menuFile.addAction(self.actionSavePhotoAs)
         self.menuFile.addAction(self.actionSave_Hologram)
         self.menuFile.addAction(self.actionSave_Settings)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
+        self.menuTasks.addAction(self.actionPauseTasks)
+        self.menuTasks.addAction(self.actionStopTasks)
+        self.menuTasks.addSeparator()
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuTasks.menuAction())
 
@@ -271,6 +278,10 @@ class Ui_PyFab(object):
         self.actionQuit.setText(_translate("PyFab", "Quit"))
         self.actionSave_Hologram.setText(_translate("PyFab", "Save Hologram..."))
         self.actionSave_Settings.setText(_translate("PyFab", "Save Settings"))
+        self.actionPauseTasks.setText(_translate("PyFab", "Pause Tasks"))
+        self.actionPauseTasks.setStatusTip(_translate("PyFab", "Pause/resume tasks"))
+        self.actionStopTasks.setText(_translate("PyFab", "Stop Tasks"))
+        self.actionStopTasks.setStatusTip(_translate("PyFab", "Empty task queue"))
 
 
 from PyQt5 import QtWebKitWidgets

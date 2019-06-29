@@ -5,6 +5,7 @@
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from FabWidget import Ui_PyFab
 from common.Configuration import Configuration
+from tasks.taskmanager import Taskmanager
 
 from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 from pyfablib.QCGH.CGH import CGH
@@ -49,6 +50,9 @@ class Fab(QMainWindow, Ui_PyFab):
         # that translates user actions into hologram computations
         self.pattern = QTrappingPattern(parent=self)
         self.screen.addOverlay(self.pattern)
+
+        # process automation
+        self.tasks = Taskmanager(self)
 
         self.configureUi()
         self.connectSignals()

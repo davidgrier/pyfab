@@ -539,6 +539,9 @@
     <property name="title">
      <string>Tasks</string>
     </property>
+    <addaction name="actionPauseTasks"/>
+    <addaction name="actionStopTasks"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTasks"/>
@@ -573,6 +576,22 @@
   <action name="actionSave_Settings">
    <property name="text">
     <string>Save Settings</string>
+   </property>
+  </action>
+  <action name="actionPauseTasks">
+   <property name="text">
+    <string>Pause Tasks</string>
+   </property>
+   <property name="statusTip">
+    <string>Pause/resume tasks</string>
+   </property>
+  </action>
+  <action name="actionStopTasks">
+   <property name="text">
+    <string>Stop Tasks</string>
+   </property>
+   <property name="statusTip">
+    <string>Empty task queue</string>
    </property>
   </action>
  </widget>
