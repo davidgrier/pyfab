@@ -43,10 +43,11 @@ class QSLM(QMainWindow):
     @data.setter
     def data(self, d):
         self._data = d
-        img = QImage(d.data, d.shape[1], d.shape[0], d.strides[0],
-                     QImage.Format_Indexed8)
-        pix = QPixmap.fromImage(img)
-        self.label.setPixmap(pix)
+        self.qimage = QImage(d.data,
+                             d.shape[1], d.shape[0], d.strides[0],
+                             QImage.Format_Indexed8)
+        self.pixmap = QPixmap.fromImage(self.qimage)
+        self.label.setPixmap(self.pixmap)
 
 
 def main():

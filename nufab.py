@@ -61,10 +61,10 @@ class PyFab(QMainWindow, Ui_PyFab):
 
         self.doconfig = doconfig
         if self.doconfig:
-            self.restoreConfiguration()
+            self.restoreSettings()
 
     def closeEvent(self, event):
-        self.saveConfiguration()
+        self.saveSettings()
         self.screen.close()
         self.slm.close()
         self.deleteLater()
@@ -119,30 +119,47 @@ class PyFab(QMainWindow, Ui_PyFab):
     def setDvrSource(self, source):
         self.dvr.source = source
 
-    @pyqtSlot()
-    def savePhoto(self, select=False):
-        filename = self.configuration.filename(suffix='.png')
+    #
+    # Slots for menu actions
+    #
+    def saveImage(self, qimage, select=False):
+        if qimage is None:
+            return
         if select:
             getname = QFileDialog.getSaveFileName
-            filename, _ = getname(self, 'Save Snapshot',
+            filename, _ = getname(self, 'Save Image',
                                   directory=filename,
                                   filter='Image files (*.png)')
+        else:
+            filename = self.configuration.filename(suffix='.png')
         if filename:
-            qimage = self.screen.imageItem.qimage
-            qimage.mirrored(vertical=True).save(filename)
+            qimage.save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
     @pyqtSlot()
-    def restoreConfiguration(self):
-        if self.doconfig:
-            self.configuration.restore(self.camera)
-            self.configuration.restore(self.cgh)
+    def savePhoto(self, select=False):
+        qimage = self.screen.imageItem.qimage.mirrored(vertical=True)
+        self.saveImage(qimage, select=select)
 
     @pyqtSlot()
-    def saveConfiguration(self):
+    def savePhotoAs(self):
+        self.savePhoto(select=True)
+
+    @pyqtSlot()
+    def saveHologram(self, select=False):
+        self.saveImage(self.slm.qimage, select=select)
+
+    @pyqtSlot()
+    def saveSettings(self):
         if self.doconfig:
             self.configuration.save(self.camera)
             self.configuration.save(self.cgh)
+
+    @pyqtSlot()
+    def restoreSettings(self):
+        if self.doconfig:
+            self.configuration.restore(self.camera)
+            self.configuration.restore(self.cgh)
 
     @pyqtSlot()
     def pauseTasks(self):

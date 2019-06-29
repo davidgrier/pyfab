@@ -530,8 +530,8 @@
     </property>
     <addaction name="actionSavePhoto"/>
     <addaction name="actionSavePhotoAs"/>
-    <addaction name="actionSave_Hologram"/>
-    <addaction name="actionSave_Settings"/>
+    <addaction name="actionSaveHologram"/>
+    <addaction name="actionSaveSettings"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -568,12 +568,12 @@
     <string>Quit</string>
    </property>
   </action>
-  <action name="actionSave_Hologram">
+  <action name="actionSaveHologram">
    <property name="text">
     <string>Save Hologram...</string>
    </property>
   </action>
-  <action name="actionSave_Settings">
+  <action name="actionSaveSettings">
    <property name="text">
     <string>Save Settings</string>
    </property>
@@ -749,9 +749,78 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSaveSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>PyFab</receiver>
+   <slot>saveSettings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>559</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSavePhoto</sender>
+   <signal>triggered()</signal>
+   <receiver>PyFab</receiver>
+   <slot>savePhoto()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>559</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSavePhotoAs</sender>
+   <signal>triggered()</signal>
+   <receiver>PyFab</receiver>
+   <slot>savePhotoAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>559</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSaveHologram</sender>
+   <signal>triggered()</signal>
+   <receiver>PyFab</receiver>
+   <slot>saveHologram()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>559</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>pauseTasks()</slot>
   <slot>stopTasks()</slot>
+  <slot>saveSettings()</slot>
+  <slot>restoreSettings()</slot>
+  <slot>savePhoto()</slot>
+  <slot>savePhotoAs()</slot>
+  <slot>saveHologram()</slot>
  </slots>
 </ui>
