@@ -6,7 +6,8 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from FabWidget import Ui_PyFab
 from common.Configuration import Configuration
-from tasks.taskmanager import Taskmanager
+from tasks.Taskmanager import Taskmanager
+from tasks.taskmenu import buildTaskMenu
 
 from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 from pyfablib.QCGH.CGH import CGH
@@ -82,6 +83,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
         # self.slmView.setXRange(0, self.cgh.width())
         # self.slmView.setYRange(0, self.cgh.height())
+        buildTaskMenu(self)
         self.adjustSize()
 
     def connectSignals(self):
