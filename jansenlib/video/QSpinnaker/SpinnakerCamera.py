@@ -11,7 +11,7 @@ logger.setLevel(logging.DEBUG)
 
 '''
 NOTE
-USB 3.x communication on Ubuntu 16.04 requires
+USB 3.x communication on Ubuntu 16.04 and 18.04 requires
 > sudo sh -c 'echo 1000 > /sys/module/usbcore/parameters/usbfs_memory_mb'
 '''
 
