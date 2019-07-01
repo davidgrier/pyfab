@@ -8,6 +8,11 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import (QMainWindow, QImage, QPixmap, QGuiApplication)
 import numpy as np
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class QSLM(QMainWindow):
 
@@ -17,14 +22,19 @@ class QSLM(QMainWindow):
         self.setCentralWidget(self.label)
         screens = QGuiApplication.screens()
         if (len(screens) == 2) and not fake:
+            logger.debug('Opening SLM on secondary screen')
+            screen = screens[1]
+            geometry = screen.availableGeometry()
+            self.setGeometry(geometry)
             self.show()
-            self.windowHandle().setScreen(screens[1])
+            self.windowHandle().setScreen(screen)
             self.showFullScreen()
         else:
             w, h = 640, 480
             self.setGeometry(100, 100, w, h)
             self.label.resize(w, h)
             self.show()
+        logger.debug(self.size())
         phi = np.zeros((self.height(), self.width()), dtype=np.uint8)
         self.data = phi
 

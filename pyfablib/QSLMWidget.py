@@ -12,7 +12,7 @@ class QSLMWidget(pg.PlotWidget):
 
         self.getAxis('bottom').setPen(0.1)
         self.getAxis('left').setPen(0.1)
-        self.setRange(xRange=[0, 640], yRange=[0, 480], padding=0)
+        # self.setRange(xRange=[0, 640], yRange=[0, 480], padding=0)
         self.setAspectLocked(True)
         self.enableAutoRange(enable=False)
         self.image = pg.ImageItem()
