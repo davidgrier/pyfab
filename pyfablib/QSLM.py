@@ -11,13 +11,13 @@ import numpy as np
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 
 class QSLM(QMainWindow):
 
     def __init__(self, parent=None, fake=False):
-        super(QSLM, self).__init__(None, Qt.FramelessWindowHint)
+        super(QSLM, self).__init__(None)
         self.label = QLabel(self)
         self.setCentralWidget(self.label)
         screens = QGuiApplication.screens()
@@ -25,6 +25,7 @@ class QSLM(QMainWindow):
             logger.debug('Opening SLM on secondary screen')
             screen = screens[1]
             geometry = screen.availableGeometry()
+            self.setWindowFlags(Qt.FramelessWindowHint)
             self.setGeometry(geometry)
             self.show()
             self.windowHandle().setScreen(screen)
@@ -34,7 +35,7 @@ class QSLM(QMainWindow):
             self.setGeometry(100, 100, w, h)
             self.label.resize(w, h)
             self.show()
-        logger.debug(self.size())
+        logger.debug('{}, {}'.format(self.size(), self.label.size()))
         phi = np.zeros((self.height(), self.width()), dtype=np.uint8)
         self.data = phi
 
