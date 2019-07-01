@@ -10,6 +10,11 @@ from PyQt5.QtGui import (QDoubleValidator, QRegExpValidator)
 from .QTrap import QTrap
 import numpy as np
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class QTrapPropertyEdit(QLineEdit):
 
@@ -169,8 +174,11 @@ class QTrapWidget(QFrame):
 
     @pyqtSlot(QTrap)
     def unregisterTrap(self, trap):
-        self.properties[trap].deleteLater()
-        del self.properties[trap]
+        try:
+            self.properties[trap].deleteLater()
+            del self.properties[trap]
+        except Exception as ex:
+            logger.warning('Trap properties already deleted')
 
     def count(self):
         return self.layout.count()
