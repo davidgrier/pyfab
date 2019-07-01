@@ -1,105 +1,110 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# Copyright 2018-2019 David G. Grier and Michael O'Brien
-#
-# This file is part of pyfab
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-"""Jansen is a video-capture GUI intended for holographic video microscopy"""
+from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
+from JansenWidget import Ui_MainWindow
+from common.Configuration import Configuration
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import (QMainWindow, QAction, QFileDialog)
-from PyQt5.QtGui import QIcon
-from jansenlib.QJansenWidget import QJansenWidget
+import logging
+logging.basicConfig()
+logger = logging.getLogger('nujansen')
+logger.setLevel(logging.DEBUG)
 
 try:
     from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
-except ImportError:
-    pass
+except Exception as ex:
+    logger.warning(ex)
 from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 
 
-class Jansen(QMainWindow):
+class Jansen(QMainWindow, Ui_MainWindow):
 
-    def __init__(self):
-        super(Jansen, self).__init__()
+    def __init__(self, parent=None, noconfig=False):
+        super(Jansen, self).__init__(parent)
+        self.setupUi(self)
+        self.configuration = Configuration(self)
         try:
             camera = QSpinnaker()
         except:
             camera = QOpenCV()
-        self.instrument = QJansenWidget(self, camera=camera)
-        self.init_ui()
-        # self.config = FabConfig(self)
-        self.show()
+        self.installCamera(camera)
+        self.configureUi()
+        self.connectSignals()
 
-    def init_ui(self):
-        self.setWindowTitle('Jansen')
-        self.statusBar().showMessage('Ready')
-        self.fileMenu()
-        self.instrument.setTabBarWidth()
-        self.setCentralWidget(self.instrument)
+        self.doconfig = not noconfig
+        if self.doconfig:
+            self.restoreConfiguration()
 
-    def fileMenu(self):
-        menu = self.menuBar().addMenu('&File')
+    def closeEvent(self, event):
+        self.saveConfiguration()
+        self.screen.close()
+        self.deleteLater()
 
-        icon = QIcon.fromTheme('camera-photo')
-        action = QAction(icon, 'Save &Photo', self)
-        action.setShortcut('Ctrl+S')
-        action.setStatusTip('Save a snapshot')
-        action.triggered.connect(self.savePhoto)
-        menu.addAction(action)
+    def installCamera(self, camera):
+        self.camera.close()  # remove placeholder widget
+        self.camera = camera
+        self.cameraLayout.addWidget(camera)
+        self.screen.camera = camera
 
-        icon = QIcon.fromTheme('camera-photo')
-        action = QAction(icon, 'Save Photo &As ...', self)
-        action.setShortcut('Ctrl+A')
-        action.setStatusTip('Save a snapshot')
-        action.triggered.connect(lambda: self.savePhoto(True))
-        menu.addAction(action)
+    def configureUi(self):
+        self.filters.screen = self.screen
+        self.histogram.screen = self.screen
+        self.dvr.screen = self.screen
+        self.dvr.source = self.screen.default
+        self.dvr.filename = self.configuration.datadir + 'jansen.avi'
+        self.adjustSize()
 
-        icon = QIcon.fromTheme('application-exit')
-        action = QAction(icon, '&Quit', self)
-        action.setShortcut('Ctrl+Q')
-        action.setStatusTip('Quit Jansen')
-        action.triggered.connect(self.close)
-        menu.addAction(action)
+    def connectSignals(self):
+        self.bcamera.clicked.connect(
+            lambda: self.setDvrSource(self.screen.default))
+        self.bfilters.clicked.connect(
+            lambda: self.setDvrSource(self.screen))
+        self.actionSavePhoto.triggered.connect(self.savePhoto)
+        self.actionSavePhotoAs.triggered.connect(
+            lambda: self.savePhoto(True))
+
+    def setDvrSource(self, source):
+        self.dvr.source = source
 
     def savePhoto(self, select=False):
-        filename = self.config.filename(suffix='.png')
+        filename = self.configuration.filename(suffix='.png')
         if select:
-            filename = QFileDialog.getSaveFileName(
-                self, 'Save Snapshot',
-                directory=filename,
-                filter='Image files (*.png)')
+            getname = QFileDialog.getSaveFileName
+            filename, _ = getname(self, 'Save Snapshot',
+                                  directory=filename,
+                                  filter='Image files (*.png)')
         if filename:
-            qimage = self.instrument.screen.video.qimage
+            qimage = self.screen.imageItem.qimage
             qimage.mirrored(vertical=True).save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
-    def close(self):
-        self.instrument.close()
-        QtWidgets.qApp.quit()
+    def restoreConfiguration(self):
+        if self.doconfig:
+            self.configuration.restore(self.camera)
 
-    def closeEvent(self, event):
-        self.close()
+    def saveConfiguration(self):
+        if self.doconfig:
+            self.configuration.save(self.camera)
+
+
+def main():
+    import sys
+    import argparse
+    from PyQt5.QtWidgets import QApplication
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-x', '--noconfig',
+                        dest='noconfig', action='store_true',
+                        help='Do not use saved configuration data')
+
+    args, unparsed = parser.parse_known_args()
+    qt_args = sys.argv[:1] + unparsed
+
+    app = QApplication(qt_args)
+    win = Jansen(noconfig=args.noconfig)
+    win.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
-    instrument = Jansen()
-    sys.exit(app.exec_())
+    main()
