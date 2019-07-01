@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1120</width>
-    <height>610</height>
+    <width>1059</width>
+    <height>732</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,7 +73,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabVideo">
        <property name="sizePolicy">
@@ -390,7 +390,7 @@
        <attribute name="title">
         <string>CGH</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
+       <layout class="QVBoxLayout" name="verticalLayoutCGH">
         <property name="spacing">
          <number>2</number>
         </property>
@@ -501,8 +501,8 @@
          </widget>
         </item>
         <item>
-         <widget class="QWebView" name="browser" native="true">
-          <property name="url" stdset="0">
+         <widget class="QWebView" name="browser">
+          <property name="url">
            <url>
             <string>qrc:/help/help/jansen.html</string>
            </url>
@@ -520,24 +520,25 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1120</width>
-     <height>22</height>
+     <width>1059</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionSavePhoto"/>
     <addaction name="actionSavePhotoAs"/>
     <addaction name="actionSaveHologram"/>
+    <addaction name="actionSaveHologramAs"/>
     <addaction name="actionSaveSettings"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuTasks">
     <property name="title">
-     <string>Tasks</string>
+     <string>&amp;Tasks</string>
     </property>
     <addaction name="actionPauseTasks"/>
     <addaction name="actionStopTasks"/>
@@ -549,7 +550,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSavePhoto">
    <property name="text">
-    <string>Save Photo</string>
+    <string>Save &amp;Photo</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -565,22 +566,22 @@
   </action>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
    </property>
   </action>
   <action name="actionSaveHologram">
    <property name="text">
-    <string>Save Hologram...</string>
+    <string>Save &amp;Hologram</string>
    </property>
   </action>
   <action name="actionSaveSettings">
    <property name="text">
-    <string>Save Settings</string>
+    <string>Save Se&amp;ttings</string>
    </property>
   </action>
   <action name="actionPauseTasks">
    <property name="text">
-    <string>Pause Tasks</string>
+    <string>&amp;Pause Tasks</string>
    </property>
    <property name="statusTip">
     <string>Pause/resume tasks</string>
@@ -588,10 +589,15 @@
   </action>
   <action name="actionStopTasks">
    <property name="text">
-    <string>Stop Tasks</string>
+    <string>&amp;Stop Tasks</string>
    </property>
    <property name="statusTip">
     <string>Empty task queue</string>
+   </property>
+  </action>
+  <action name="actionSaveHologramAs">
+   <property name="text">
+    <string>Save Hologram As ...</string>
    </property>
   </action>
  </widget>
@@ -599,7 +605,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>QtWebKitWidgets/QWebView</header>
   </customwidget>
   <customwidget>
    <class>QDVR</class>
@@ -813,6 +819,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSaveHologramAs</sender>
+   <signal>triggered()</signal>
+   <receiver>PyFab</receiver>
+   <slot>saveHologramAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>522</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>pauseTasks()</slot>
@@ -822,5 +844,6 @@
   <slot>savePhoto()</slot>
   <slot>savePhotoAs()</slot>
   <slot>saveHologram()</slot>
+  <slot>saveHologramAs()</slot>
  </slots>
 </ui>

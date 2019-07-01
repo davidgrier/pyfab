@@ -150,6 +150,10 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.saveImage(self.slm.qimage, select=select)
 
     @pyqtSlot()
+    def saveHologramAs(self):
+        self.saveHologram(select=True)
+
+    @pyqtSlot()
     def saveSettings(self):
         if self.doconfig:
             self.configuration.save(self.camera)
