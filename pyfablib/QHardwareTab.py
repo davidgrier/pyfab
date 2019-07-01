@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 class QHardwareTab(QWidget):
 
-    def __init__(self):
-        super(QHardwareTab, self).__init__()
+    def __init__(self, parent=None):
+        super(QHardwareTab, self).__init__(parent)
         self.title = 'Hardware'
         self.index = -1
         self._has_content = False

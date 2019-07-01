@@ -202,14 +202,14 @@ class Ui_PyFab(object):
         self.bback.setObjectName("bback")
         self.verticalLayout_2.addWidget(self.bback)
         self.browser = QtWebKitWidgets.QWebView(self.tabHelp)
-        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/jansen.html"))
+        self.browser.setUrl(QtCore.QUrl("qrc:/help/help/jansen.html"))
         self.browser.setObjectName("browser")
         self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
         self.horizontalLayout_2.addWidget(self.tabWidget, 0, QtCore.Qt.AlignTop)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1059, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1059, 26))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -304,9 +304,9 @@ from jansenlib.QHistogram.QHistogram import QHistogram
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 from pyfablib.QCGH.QCGH import QCGH
+from pyfablib.QHardwareTab import QHardwareTab
 from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
-from pyqtlib.QHardwareTab import QHardwareTab
 import help_rc
 
 if __name__ == "__main__":
