@@ -2,17 +2,16 @@
 
 # Form implementation generated from reading ui file 'FabWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_PyFab(object):
     def setupUi(self, PyFab):
         PyFab.setObjectName("PyFab")
-        PyFab.resize(1120, 610)
+        PyFab.resize(1059, 732)
         self.centralwidget = QtWidgets.QWidget(PyFab)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -130,9 +129,7 @@ class Ui_PyFab(object):
         self.verticalLayout_3.setContentsMargins(2, 2, 2, 2)
         self.verticalLayout_3.setSpacing(2)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.histogram = QHistogramTab(self.tabHistogram)
-        self.histogram.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.histogram.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.histogram = QHistogram(self.tabHistogram)
         self.histogram.setObjectName("histogram")
         self.verticalLayout_3.addWidget(self.histogram)
         self.tabWidget.addTab(self.tabHistogram, "")
@@ -153,17 +150,17 @@ class Ui_PyFab(object):
         self.tabWidget.addTab(self.tabTraps, "")
         self.tabCGH = QtWidgets.QWidget()
         self.tabCGH.setObjectName("tabCGH")
-        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.tabCGH)
-        self.verticalLayout_4.setContentsMargins(2, 2, 2, 2)
-        self.verticalLayout_4.setSpacing(2)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.verticalLayoutCGH = QtWidgets.QVBoxLayout(self.tabCGH)
+        self.verticalLayoutCGH.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayoutCGH.setSpacing(2)
+        self.verticalLayoutCGH.setObjectName("verticalLayoutCGH")
         self.cgh = QCGH(self.tabCGH)
         self.cgh.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.cgh.setFrameShadow(QtWidgets.QFrame.Raised)
         self.cgh.setObjectName("cgh")
-        self.verticalLayout_4.addWidget(self.cgh)
+        self.verticalLayoutCGH.addWidget(self.cgh)
         spacerItem2 = QtWidgets.QSpacerItem(20, 511, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_4.addItem(spacerItem2)
+        self.verticalLayoutCGH.addItem(spacerItem2)
         self.tabWidget.addTab(self.tabCGH, "")
         self.tabSLM = QtWidgets.QWidget()
         self.tabSLM.setObjectName("tabSLM")
@@ -198,14 +195,14 @@ class Ui_PyFab(object):
         self.bback.setObjectName("bback")
         self.verticalLayout_2.addWidget(self.bback)
         self.browser = QtWebKitWidgets.QWebView(self.tabHelp)
-        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/jansen.html"))
+        self.browser.setUrl(QtCore.QUrl("qrc:/help/help/jansen.html"))
         self.browser.setObjectName("browser")
         self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
         self.horizontalLayout_2.addWidget(self.tabWidget, 0, QtCore.Qt.AlignTop)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1120, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1059, 26))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -229,9 +226,12 @@ class Ui_PyFab(object):
         self.actionPauseTasks.setObjectName("actionPauseTasks")
         self.actionStopTasks = QtWidgets.QAction(PyFab)
         self.actionStopTasks.setObjectName("actionStopTasks")
+        self.actionSaveHologramAs = QtWidgets.QAction(PyFab)
+        self.actionSaveHologramAs.setObjectName("actionSaveHologramAs")
         self.menuFile.addAction(self.actionSavePhoto)
         self.menuFile.addAction(self.actionSavePhotoAs)
         self.menuFile.addAction(self.actionSaveHologram)
+        self.menuFile.addAction(self.actionSaveHologramAs)
         self.menuFile.addAction(self.actionSaveSettings)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
@@ -253,6 +253,7 @@ class Ui_PyFab(object):
         self.actionSavePhoto.triggered.connect(PyFab.savePhoto)
         self.actionSavePhotoAs.triggered.connect(PyFab.savePhotoAs)
         self.actionSaveHologram.triggered.connect(PyFab.saveHologram)
+        self.actionSaveHologramAs.triggered.connect(PyFab.saveHologramAs)
         QtCore.QMetaObject.connectSlotsByName(PyFab)
 
     def retranslateUi(self, PyFab):
@@ -275,31 +276,30 @@ class Ui_PyFab(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSLM), _translate("PyFab", "SLM"))
         self.bback.setText(_translate("PyFab", "Back"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHelp), _translate("PyFab", "Help"))
-        self.menuFile.setTitle(_translate("PyFab", "File"))
-        self.menuTasks.setTitle(_translate("PyFab", "Tasks"))
-        self.actionSavePhoto.setText(_translate("PyFab", "Save Photo"))
+        self.menuFile.setTitle(_translate("PyFab", "&File"))
+        self.menuTasks.setTitle(_translate("PyFab", "&Tasks"))
+        self.actionSavePhoto.setText(_translate("PyFab", "Save &Photo"))
         self.actionSavePhoto.setShortcut(_translate("PyFab", "Ctrl+S"))
         self.actionSavePhotoAs.setText(_translate("PyFab", "Save Photo As ..."))
         self.actionSavePhotoAs.setShortcut(_translate("PyFab", "Ctrl+A"))
-        self.actionQuit.setText(_translate("PyFab", "Quit"))
-        self.actionSaveHologram.setText(_translate("PyFab", "Save Hologram..."))
-        self.actionSaveSettings.setText(_translate("PyFab", "Save Settings"))
-        self.actionPauseTasks.setText(_translate("PyFab", "Pause Tasks"))
+        self.actionQuit.setText(_translate("PyFab", "&Quit"))
+        self.actionSaveHologram.setText(_translate("PyFab", "Save &Hologram"))
+        self.actionSaveSettings.setText(_translate("PyFab", "Save Se&ttings"))
+        self.actionPauseTasks.setText(_translate("PyFab", "&Pause Tasks"))
         self.actionPauseTasks.setStatusTip(_translate("PyFab", "Pause/resume tasks"))
-        self.actionStopTasks.setText(_translate("PyFab", "Stop Tasks"))
+        self.actionStopTasks.setText(_translate("PyFab", "&Stop Tasks"))
         self.actionStopTasks.setStatusTip(_translate("PyFab", "Empty task queue"))
-
+        self.actionSaveHologramAs.setText(_translate("PyFab", "Save Hologram As ..."))
 
 from PyQt5 import QtWebKitWidgets
 from jansenlib.QDVR.QDVR import QDVR
-from jansenlib.QHistogramTab import QHistogramTab
+from jansenlib.QHistogram.QHistogram import QHistogram
 from jansenlib.QJansenScreen import QJansenScreen
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 from pyfablib.QCGH.QCGH import QCGH
 from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
 import help_rc
-
 
 if __name__ == "__main__":
     import sys
@@ -309,3 +309,4 @@ if __name__ == "__main__":
     ui.setupUi(PyFab)
     PyFab.show()
     sys.exit(app.exec_())
+

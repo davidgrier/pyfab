@@ -73,7 +73,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabVideo">
        <property name="sizePolicy">
@@ -338,14 +338,7 @@
          <number>2</number>
         </property>
         <item>
-         <widget class="QHistogramTab" name="histogram">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-         </widget>
+         <widget class="QHistogram" name="histogram" native="true"/>
         </item>
        </layout>
       </widget>
@@ -629,15 +622,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QHistogramTab</class>
-   <extends>QFrame</extends>
-   <header>jansenlib.QHistogramTab</header>
-   <container>1</container>
-   <slots>
-    <slot>expose(int)</slot>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>QCGH</class>
    <extends>QFrame</extends>
    <header>pyfablib.QCGH.QCGH</header>
@@ -653,6 +637,12 @@
    <class>QSLMWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyfablib.QSLMWidget</header>
+  </customwidget>
+  <customwidget>
+   <class>QHistogram</class>
+   <extends>QWidget</extends>
+   <header>jansenlib.QHistogram.QHistogram</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
