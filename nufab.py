@@ -81,8 +81,10 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
-        # self.slmView.setXRange(0, self.cgh.width())
-        # self.slmView.setYRange(0, self.cgh.height())
+        self.slmView.setRange(xRange=[0, self.slm.width()],
+                              yRange=[0, self.slm.height()],
+                              padding=0)
+        self.slmView.setYRange(0, self.slm.height())
         buildTaskMenu(self)
         self.adjustSize()
 
