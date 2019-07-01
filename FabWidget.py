@@ -135,6 +135,13 @@ class Ui_PyFab(object):
         self.tabWidget.addTab(self.tabHistogram, "")
         self.tabHardware = QtWidgets.QWidget()
         self.tabHardware.setObjectName("tabHardware")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.tabHardware)
+        self.verticalLayout_4.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayout_4.setSpacing(2)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.widget = QHardwareTab(self.tabHardware)
+        self.widget.setObjectName("widget")
+        self.verticalLayout_4.addWidget(self.widget)
         self.tabWidget.addTab(self.tabHardware, "")
         self.tabTraps = QtWidgets.QWidget()
         self.tabTraps.setObjectName("tabTraps")
@@ -195,14 +202,14 @@ class Ui_PyFab(object):
         self.bback.setObjectName("bback")
         self.verticalLayout_2.addWidget(self.bback)
         self.browser = QtWebKitWidgets.QWebView(self.tabHelp)
-        self.browser.setUrl(QtCore.QUrl("qrc:/help/help/jansen.html"))
+        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/jansen.html"))
         self.browser.setObjectName("browser")
         self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
         self.horizontalLayout_2.addWidget(self.tabWidget, 0, QtCore.Qt.AlignTop)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1059, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1059, 25))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -242,7 +249,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         self.actionQuit.triggered.connect(PyFab.close)
         self.bback.clicked.connect(self.browser.back)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
@@ -299,6 +306,7 @@ from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 from pyfablib.QCGH.QCGH import QCGH
 from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
+from pyqtlib.QHardwareTab import QHardwareTab
 import help_rc
 
 if __name__ == "__main__":
