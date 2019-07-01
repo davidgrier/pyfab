@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""QSLM.py: PyQt abstraction for a Spatial Light Modulator (SLM)."""
+"""QSLM.py: PyQt abstraction for a Spatial Light Modulator (SLM).
+
+NOTE: Second monitor configured in nVidia X Server Settings as
+part of X Screen 0
+"""
 
 from PyQt5.QtCore import (Qt, pyqtSlot)
 from PyQt5.QtWidgets import QLabel
@@ -14,12 +18,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class QSLM(QMainWindow):
+class QSLM(QLabel):
 
     def __init__(self, parent=None, fake=False):
         super(QSLM, self).__init__(None)
-        self.label = QLabel(self)
-        self.setCentralWidget(self.label)
         screens = QGuiApplication.screens()
         if (len(screens) == 2) and not fake:
             logger.debug('Opening SLM on secondary screen')
@@ -33,9 +35,8 @@ class QSLM(QMainWindow):
         else:
             w, h = 640, 480
             self.setGeometry(100, 100, w, h)
-            self.label.resize(w, h)
+            self.resize(w, h)
             self.show()
-        logger.debug('{}, {}'.format(self.size(), self.label.size()))
         phi = np.zeros((self.height(), self.width()), dtype=np.uint8)
         self.data = phi
 
@@ -57,7 +58,7 @@ class QSLM(QMainWindow):
         self.qimage = QImage(d.data,
                              d.shape[1], d.shape[0], d.strides[0],
                              QImage.Format_Indexed8)
-        self.label.setPixmap(QPixmap.fromImage(self.qimage))
+        self.setPixmap(QPixmap.fromImage(self.qimage))
 
 
 def main():
