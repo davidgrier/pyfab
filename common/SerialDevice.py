@@ -77,11 +77,9 @@ class SerialDevice(object):
         self.ser.close()
 
     def write(self, str):
-        #self.sio.write(unicode(str + self.eol))
         self.sio.write(str + self.eol)
 
     def readln(self):
-        #return self.sio.readline().decode().strip()
         return self.sio.readline().strip()
 
     def available(self):

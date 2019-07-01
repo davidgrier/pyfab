@@ -73,7 +73,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabVideo">
        <property name="sizePolicy">
@@ -363,7 +363,7 @@
          <number>2</number>
         </property>
         <item>
-         <widget class="QHardwareTab" name="widget" native="true"/>
+         <widget class="QHardwareTab" name="hardware" native="true"/>
         </item>
        </layout>
       </widget>
@@ -669,6 +669,9 @@
    <extends>QWidget</extends>
    <header>pyfablib.QHardwareTab</header>
    <container>1</container>
+   <slots>
+    <slot>expose(int)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources>
@@ -848,6 +851,22 @@
     <hint type="destinationlabel">
      <x>522</x>
      <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>hardware</receiver>
+   <slot>expose(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>856</x>
+     <y>365</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>856</x>
+     <y>382</y>
     </hint>
    </hints>
   </connection>

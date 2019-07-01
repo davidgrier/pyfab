@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import (QFrame, QLabel, QPushButton,
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QColor
 from .pyproscan import pyproscan
-import atexit
 
 
 class QProscan(QFrame):
@@ -16,7 +15,6 @@ class QProscan(QFrame):
         super(QProscan, self).__init__()
         self.instrument = pyproscan()
         self.initUI()
-        atexit.register(self.shutdown)
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.update)

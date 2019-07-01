@@ -139,9 +139,9 @@ class Ui_PyFab(object):
         self.verticalLayout_4.setContentsMargins(2, 2, 2, 2)
         self.verticalLayout_4.setSpacing(2)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.widget = QHardwareTab(self.tabHardware)
-        self.widget.setObjectName("widget")
-        self.verticalLayout_4.addWidget(self.widget)
+        self.hardware = QHardwareTab(self.tabHardware)
+        self.hardware.setObjectName("hardware")
+        self.verticalLayout_4.addWidget(self.hardware)
         self.tabWidget.addTab(self.tabHardware, "")
         self.tabTraps = QtWidgets.QWidget()
         self.tabTraps.setObjectName("tabTraps")
@@ -249,7 +249,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         self.actionQuit.triggered.connect(PyFab.close)
         self.bback.clicked.connect(self.browser.back)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
@@ -261,6 +261,7 @@ class Ui_PyFab(object):
         self.actionSavePhotoAs.triggered.connect(PyFab.savePhotoAs)
         self.actionSaveHologram.triggered.connect(PyFab.saveHologram)
         self.actionSaveHologramAs.triggered.connect(PyFab.saveHologramAs)
+        self.tabWidget.currentChanged['int'].connect(self.hardware.expose)
         QtCore.QMetaObject.connectSlotsByName(PyFab)
 
     def retranslateUi(self, PyFab):

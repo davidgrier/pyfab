@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import (QWidget, QFrame, QPushButton, QLabel,
 import os
 import numpy as np
 from .ipglaser import ipglaser as ipg
-import atexit
 
 
 def led(name):
@@ -132,7 +131,6 @@ class QIPGLaser(QFrame):
         super(QIPGLaser, self).__init__()
         self.instrument = ipg()
         self.init_ui()
-        atexit.register(self.shutdown)
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.update)

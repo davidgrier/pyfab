@@ -81,6 +81,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
+        self.hardware.index = 2
         self.slmView.setRange(xRange=[0, self.slm.width()],
                               yRange=[0, self.slm.height()],
                               padding=0)
