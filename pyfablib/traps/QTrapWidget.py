@@ -2,7 +2,7 @@
 
 """Control panel for trap properties."""
 
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QRegExp)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, Qt, QRegExp)
 from PyQt5.QtWidgets import (QWidget, QFrame, QLineEdit, QLabel,
                              QScrollArea,
                              QHBoxLayout, QVBoxLayout)
@@ -13,7 +13,7 @@ import numpy as np
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 def getWidth():
@@ -47,7 +47,7 @@ class QTrapPropertyEdit(QLineEdit):
         self.value = float(str(self.text()))
         self.valueChanged.emit(self.name, self.value)
 
-    @property
+    @pyqtProperty(float)
     def value(self):
         return self._value
 
@@ -82,7 +82,7 @@ class QTrapListPropertyEdit(QLineEdit):
         self.value = np.fromstring(txt[1:-1], sep=',', dtype=np.float)
         self.valueChanged.emit(self.name, self.value)
 
-    @property
+    @pyqtProperty(object)
     def value(self):
         return self._value
 
@@ -182,9 +182,8 @@ class QTrapWidget(QFrame):
     def unregisterTrap(self, trap):
         try:
             self.properties[trap].deleteLater()
-            del self.properties[trap]
         except Exception as ex:
-            logger.warning('Trap properties already deleted')
+            logger.warning('{}'.format(ex))
 
     def count(self):
         return self.layout.count()
