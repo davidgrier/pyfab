@@ -107,7 +107,7 @@ class QDVR(QFrame):
         if (self.is_recording() or self.is_playing() or (nframes <= 0)):
             return
         logger.debug('Starting Recording')
-        if os.path.splitext(self.filename) == 'avi':
+        if os.path.splitext(self.filename)[1] == '.avi':
             self._writer = QVideoWriter(self.filename, self.source.shape,
                                         nframes=nframes)
         else:
@@ -153,7 +153,7 @@ class QDVR(QFrame):
             return
         logger.debug('Starting Playback')
         self.framenumber = 0
-        if os.path.splitext(self.playname) == 'avi':
+        if os.path.splitext(self.playname)[1] == '.avi':
             self._player = QVideoPlayer(self.playname)
         else:
             self._player = QHDF5Player(self.playname)

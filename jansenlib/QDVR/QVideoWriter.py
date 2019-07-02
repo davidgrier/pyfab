@@ -22,7 +22,7 @@ class QVideoWriter(QObject):
                  codec=None):
         super(QVideoWriter, self).__init__()
 
-        self.shape = dvr.source.shape
+        self.shape = shape
         color = (len(self.shape) == 3)
         h, w = self.shape[0:2]
 
@@ -39,7 +39,7 @@ class QVideoWriter(QObject):
 
         msg = 'Recording: {}x{}, color: {}, fps: {}'
         logger.info(msg.format(w, h, color, fps))
-        self.writer = cv2.VideoWriter(dvr.filename,
+        self.writer = cv2.VideoWriter(filename,
                                       fourcc, fps, (w, h), color)
         self.framenumber = 0
         self.target = nframes
