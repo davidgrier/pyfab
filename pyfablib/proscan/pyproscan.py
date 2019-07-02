@@ -4,6 +4,7 @@
 
 from common.SerialDevice import SerialDevice
 import logging
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -37,8 +38,8 @@ class pyproscan(SerialDevice):
 
     # Status commands
     def identify(self):
-        res = self.command('VERSION')
-        return len(res) == 3
+        response = self.command('VERSION')
+        return len(response) == 3
 
     def compatibilityMode(self, mode=None):
         if mode is not None:
@@ -208,7 +209,7 @@ class pyproscan(SerialDevice):
 def main():
     a = pyproscan()
     print('position:', a.position())
-    print('resolution:', a.resolution())
+    # print('resolution:', a.resolution())
 
 
 if __name__ == '__main__':

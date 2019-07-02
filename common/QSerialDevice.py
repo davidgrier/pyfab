@@ -10,14 +10,14 @@ logger.setLevel(logging.DEBUG)
 
 class QSerialDevice(QSerialPort):
 
-    def __init__(self, parent=None,
+    def __init__(self, parent=None, info=None,
                  eol='\r',
                  manufacturer='Prolific',
                  baudrate=QSerialPort.Baud9600,
                  databits=QSerialPort.Data8,
                  parity=QSerialPort.NoParity,
                  stopbits=QSerialPort.OneStop,
-                 timeout=0.1):
+                 timeout=1000):
         self.eol = eol
         self.manufacturer = manufacturer
         self.baudrate = baudrate
@@ -25,48 +25,38 @@ class QSerialDevice(QSerialPort):
         self.parity = parity
         self.stopbits = stopbits
         self.timeout = timeout
-        info = self.find()
         if info is None:
             raise ValueError('Could not find serial device')
         super(QSerialDevice, self).__init__(info, parent)
-        self.configurePort(self)
+        self.setBaudRate(self.baudrate)
+        self.setDataBits(self.databits)
+        self.setParity(self.parity)
+        self.setStopBits(self.stopbits)
+        self.open(QSerialPort.ReadWrite)
 
-    def configurePort(self, port):
-        port.setBaudRate(self.baudrate)
-        port.setDataBits(self.databits)
-        port.setParity(self.parity)
-        port.setStopBits(self.stopbits)
+    def send(self, string):
+        self.write(string.encode())
 
-    def find(self):
-        ports = QSerialPortInfo.availablePorts()
-        if len(ports) <= 0:
-            logger.warning('No serial ports identified')
-            return None
-        for port in ports:
-            info = QSerialPortInfo(port)
-            if info.isBusy():
-                continue
-            logger.debug(info.systemLocation())
-            serial = QSerialPort(info)
-            self.configurePort(serial)
-            found = self.identify(serial)
-            serial.close()
-            if found:
-                return info
-        return None
-
-    def identify(self, port):
+    def identify(self):
         return False
-
-    def write(self, str):
-        self.sio.write(str + self.eol)
-
-    def readln(self):
-        return self.sio.readline().strip()
-
-    def available(self):
-        return self.ser.in_waiting
 
 
 if __name__ == '__main__':
-    a = QSerialDevice()
+    from PyQt5.QtWidgets import QApplication
+    import sys
+
+    app = QApplication(sys.argv)
+    ports = QSerialPortInfo.availablePorts()
+    if len(ports) < 1:
+        logger.warning('No serial ports')
+    for port in ports:
+        info = QSerialPortInfo(port)
+        print(info.systemLocation())
+        a = QSerialDevice(info=info)
+        if a.isOpen():
+            print('open')
+            a.write(b'VERSION')
+            a.waitForReadyRead(a.timeout)
+            print(a.readAll())
+            a.close()
+    sys.exit(app.exec_())
