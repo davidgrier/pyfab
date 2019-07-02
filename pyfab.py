@@ -2,24 +2,16 @@
 # -*- coding: utf-8 -*-
 
 
+from pyfablib.traps.QTrappingPattern import QTrappingPattern
+from pyfablib.QSLM import QSLM
+
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
+
 from FabWidget import Ui_PyFab
 from common.Configuration import Configuration
 from tasks.Taskmanager import Taskmanager
 from tasks.taskmenu import buildTaskMenu
-
-from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
-try:
-    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
-except Exception as ex:
-    from pyfablib.QCGH.CGH import CGH
-    print('falling back', ex)
-
-from pyfablib.QSLM import QSLM
-from pyfablib.traps.QTrappingPattern import QTrappingPattern
-
-import pyqtgraph as pg
 
 import logging
 logging.basicConfig()
@@ -27,9 +19,16 @@ logger = logging.getLogger('nujansen')
 logger.setLevel(logging.DEBUG)
 
 try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
+    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
 except Exception as ex:
-    logger.warning(ex)
+    logger.warning('Falling back to CPU pipeline: {}'.format(ex))
+    from pyfablib.QCGH.CGH import CGH
+
+try:
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
+except Exception as ex:
+    logger.warning('Could not import Spinnaker camera: {}'.format(ex))
+    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
 
 
 class PyFab(QMainWindow, Ui_PyFab):
@@ -41,18 +40,18 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.configuration = Configuration(self)
 
         # camera
-        try:
-            camera = QSpinnaker()
-        except Exception as ex:
-            logger.debug(ex)
-            camera = QOpenCV()
-        self.installCamera(camera)
+        self.camera.close()  # remove placeholder widget from UI
+        camera = QCamera()
+        self.camera = camera
+        self.screen.camera = camera
+        self.cameraLayout.addWidget(camera)
 
         # spatial light modulator
         self.slm = QSLM(self)
 
         # computation pipeline
         self.cgh.device = CGH(self, shape=self.slm.shape)
+        self.cgh.device.start()
 
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
@@ -73,13 +72,8 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.saveSettings()
         self.screen.close()
         self.slm.close()
+        self.cgh.device.stop()
         self.deleteLater()
-
-    def installCamera(self, camera):
-        self.camera.close()  # remove placeholder widget
-        self.camera = camera
-        self.cameraLayout.addWidget(camera)
-        self.screen.camera = camera
 
     def configureUi(self):
         self.filters.screen = self.screen

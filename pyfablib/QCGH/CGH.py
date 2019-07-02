@@ -3,7 +3,8 @@
 """CGH.py: compute phase-only holograms for optical traps."""
 
 import numpy as np
-from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QPointF)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
+                          QObject, QPointF)
 from PyQt5.QtGui import (QVector3D, QMatrix4x4)
 from numba import jit
 from time import time
@@ -11,6 +12,7 @@ from time import time
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class CGH(QObject):
@@ -80,12 +82,6 @@ class CGH(QObject):
         # Splay wavenumber
         self._splayFactor = 0.01
 
-        self.start()
-
-    def closeEvent(self):
-        logger.debug('Closing!!!')
-        self.stop()
-        
     # Slots for threaded operation
     @pyqtSlot()
     def start(self):
@@ -193,15 +189,15 @@ class CGH(QObject):
         self.sigUpdateTransformationMatrix.emit()
 
     # Hologram geometry
-    @property
+    @pyqtProperty(int)
     def height(self):
         return self.shape[0]
 
-    @property
+    @pyqtProperty(int)
     def width(self):
         return self.shape[1]
 
-    @property
+    @pyqtProperty(list)
     def shape(self):
         return self._shape
 
@@ -211,19 +207,19 @@ class CGH(QObject):
         self.updateGeometry()
 
     # Derived constants
-    @property
+    @pyqtProperty(float)
     def wavenumber(self):
         '''Wavenumber of trapping light in the medium [radians/um]'''
         return 2.*np.pi*self.refractiveIndex/self.wavelength
 
-    @property
+    @pyqtProperty(float)
     def qprp(self):
         '''In-plane displacement factor [radians/(pixel phixel)]'''
         cfactor = self.cameraPitch/self.magnification  # [um/pixel]
         sfactor = self.slmPitch/self.scaleFactor       # [um/phixel]
         return (self.wavenumber/self.focalLength)*cfactor*sfactor
 
-    @property
+    @pyqtProperty(float)
     def qpar(self):
         '''Axial displacement factor [radians/(pixel phixel^2)]'''
         cfactor = self.cameraPitch/self.magnification  # [um/pixel]
@@ -232,7 +228,7 @@ class CGH(QObject):
 
     # Calibration constants
     # 1. Instrument parameters
-    @property
+    @pyqtProperty(float)
     def wavelength(self):
         '''Vacuum wavelength of trapping laser [um]'''
         return self._wavelength
@@ -243,7 +239,7 @@ class CGH(QObject):
         self.updateGeometry()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def refractiveIndex(self):
         '''Refractive index of medium'''
         return self._refractiveIndex
@@ -254,7 +250,7 @@ class CGH(QObject):
         self.updateGeometry
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def magnification(self):
         '''Magnification of objective lens'''
         return self._magnification
@@ -265,7 +261,7 @@ class CGH(QObject):
         self.updateGeometry()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def focalLength(self):
         '''Focal length of objective lens [um]'''
         return self._focalLength
@@ -276,7 +272,7 @@ class CGH(QObject):
         self.updateGeometry()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def cameraPitch(self):
         '''Pixel pitch of camera [um/pixel]'''
         return self._cameraPitch
@@ -287,7 +283,7 @@ class CGH(QObject):
         self.updateGeometry()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def slmPitch(self):
         '''Pixel pitch of SLM [um/pixel]'''
         return self._slmPitch
@@ -298,7 +294,7 @@ class CGH(QObject):
         self.updateGeometry()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def scaleFactor(self):
         '''SLM scale factor'''
         return self._scaleFactor
@@ -311,7 +307,7 @@ class CGH(QObject):
 
     # Calibration constants
     # 2. Camera plane
-    @property
+    @pyqtProperty(float)
     def xc(self):
         '''x coordinate of optical axis in camera plane [pixels]'''
         return self.rc.x()
@@ -322,7 +318,7 @@ class CGH(QObject):
         rc.setX(xc)
         self.rc = rc
 
-    @property
+    @pyqtProperty(float)
     def yc(self):
         '''y coordinate of optical axis in camera plane [pixels]'''
         return self.rc.y()
@@ -333,7 +329,7 @@ class CGH(QObject):
         rc.setY(yc)
         self.rc = rc
 
-    @property
+    @pyqtProperty(float)
     def zc(self):
         '''Axial displacement of trapping plane
         from camera plane [pixels]'''
@@ -345,7 +341,7 @@ class CGH(QObject):
         rc.setZ(zc)
         self.rc = rc
 
-    @property
+    @pyqtProperty(QVector3D)
     def rc(self):
         '''Location of optical axis in camera plane [pixels]'''
         return self._rc
@@ -359,7 +355,7 @@ class CGH(QObject):
         self.updateTransformationMatrix()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def thetac(self):
         '''Orientation of camera relative to SLM [degrees]'''
         return self._thetac
@@ -372,7 +368,7 @@ class CGH(QObject):
 
     # Calibration constants
     # 3. SLM plane
-    @property
+    @pyqtProperty(float)
     def xs(self):
         '''x coordinate of optical axis in SLM plane [pixels]'''
         return self.rs.x()
@@ -383,7 +379,7 @@ class CGH(QObject):
         rs.setX(xs)
         self.rs = rs
 
-    @property
+    @pyqtProperty(float)
     def ys(self):
         '''y coordinate of optical axis in SLM plane [pixels]'''
         return self.rs.y()
@@ -394,7 +390,7 @@ class CGH(QObject):
         rs.setY(ys)
         self.rs = rs
 
-    @property
+    @pyqtProperty(QPointF)
     def rs(self):
         '''Location of optical axis in SLM plane [pixels]'''
         return self._rs
@@ -408,7 +404,7 @@ class CGH(QObject):
         self.updateGeometry()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def phis(self):
         '''Tilt of SLM relative to optical axis [degrees]'''
         return self._phis
@@ -419,7 +415,7 @@ class CGH(QObject):
         self.updateGeometry()
         self.compute(all=True)
 
-    @property
+    @pyqtProperty(float)
     def splayFactor(self):
         return self._splayFactor
 
