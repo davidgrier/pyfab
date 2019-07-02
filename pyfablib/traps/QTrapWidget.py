@@ -16,6 +16,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
+def getWidth():
+    '''Get width of line edit in screen pixels'''
+    edit = QLineEdit()
+    fm = edit.fontMetrics()
+    return fm.boundingRect('12345.6').width()
+
+
 class QTrapPropertyEdit(QLineEdit):
 
     """Control for one property of one trap"""
@@ -25,7 +32,7 @@ class QTrapPropertyEdit(QLineEdit):
     def __init__(self, name, value, decimals=1):
         super(QTrapPropertyEdit, self).__init__()
         self.setAlignment(Qt.AlignRight)
-        self.setFixedWidth(50)
+        self.setFixedWidth(getWidth())
         self.setMaxLength(8)
         self.fmt = '{{:.{0}f}}'.format(decimals)
         v = QDoubleValidator(decimals=decimals)
@@ -59,10 +66,9 @@ class QTrapListPropertyEdit(QLineEdit):
     def __init__(self, name, value):
         super(QTrapListPropertyEdit, self).__init__()
         self.setAlignment(Qt.AlignRight)
-        self.setFixedWidth(50)
+        self.setFixedWidth(getWidth())
         numberrx = '([+-]?\d+\.?\d*)'
         listrx = '\[' + '(?:\s*' + numberrx + '\s*,)*\s*' + numberrx + '\s*\]'
-        print(listrx)
         self.rx = QRegExp(listrx)
         val = QRegExpValidator(self.rx)
         self.setValidator(val)
@@ -160,7 +166,7 @@ class QTrapWidget(QFrame):
         for name in ['x', 'y', 'z', 'alpha', 'phi']:
             label = QLabel(name)
             label.setAlignment(Qt.AlignCenter)
-            label.setFixedWidth(50)
+            label.setFixedWidth(getWidth())
             layout.addWidget(label)
         widget.setLayout(layout)
         return widget
