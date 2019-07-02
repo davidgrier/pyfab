@@ -156,8 +156,8 @@ class cudaCGH(CGH):
         return self.phi
 
     def compute_displace(self, amp, r, buffer):
-        cumath.exp(self._iqx * r.x() + self._iqxsq * r.z(), out=self._ex)
-        cumath.exp(self._iqy * r.y() + self._iqysq * r.z(), out=self._ey)
+        cumath.exp(self._iqx * r.x() + self._iqxz * r.z(), out=self._ex)
+        cumath.exp(self._iqy * r.y() + self._iqyz * r.z(), out=self._ey)
         self._ey *= amp
         self.outer(self._ey, self._ex, buffer),
 
@@ -170,16 +170,19 @@ class cudaCGH(CGH):
         self._ex = gpuarray.zeros(self.w, dtype=np.complex64)
         self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
         # Geometry
-        qx = gpuarray.arange(self.w, dtype=np.float32).astype(np.complex64)
-        qy = gpuarray.arange(self.h, dtype=np.float32).astype(np.complex64)
-        qx = self._qpp * (qx - self.xs)
-        qy = self._alpha * self._qpp * (qy - self.ys)
-        self._iqx = 1j * qx
-        self._iqy = 1j * qy
-        self._iqxsq = 1j * self._beta * qx * qx
-        self._iqysq = 1j * self._beta * qy * qy
-        self.outeratan2f(qy.real, qx.real, self._theta)
-        self.outerhypot(qy.real, qx.real, self._rho)
+        x = gpuarray.arange(self.width,
+                            dtype=np.float32).astype(np.complex64)
+        y = gpuarray.arange(self.height,
+                            dtype=np.float32).astype(np.complex64)
+        alpha = np.cos(np.radians(self.phis))
+        x = alpha * (x - self.xs)
+        y = y - self.ys
+        self._iqx = 1j * self.qprp * x
+        self._iqy = 1j * self.qprp * y
+        self._iqxz = 1j * self.qpar * x * x
+        self._iqyz = 1j * self.qpar * y * y
+        self.outeratan2f(y.real, x.real, self._theta)
+        self.outerhypot(y.real, x.real, self._rho)
         # CPU versions
         self.phi = np.zeros(self.shape, dtype=np.uint8)
         self.iqx = self._iqx.get()

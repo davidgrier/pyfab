@@ -170,8 +170,8 @@ class CGH(QObject):
         """
         self._psi = np.zeros(self.shape, dtype=np.complex_)
         alpha = np.cos(np.radians(self.phis))
-        x = alpha*(np.arange(self.width) - self.rs.x())
-        y = np.arange(self.height) - self.rs.y()
+        x = alpha*(np.arange(self.width) - self.xs)
+        y = np.arange(self.height) - self.ys
         self.iqx = 1j * self.qprp * x
         self.iqy = 1j * self.qprp * y
         self.iqxz = 1j * self.qpar * x * x
