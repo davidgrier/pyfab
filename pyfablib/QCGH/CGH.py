@@ -169,7 +169,7 @@ class CGH(QObject):
         and allocate buffers.
         """
         self._psi = np.zeros(self.shape, dtype=np.complex_)
-        alpha = np.cos(np.radians(self.thetac))
+        alpha = np.cos(np.radians(self.phis))
         x = alpha*(np.arange(self.width) - self.rs.x())
         y = np.arange(self.height) - self.rs.y()
         self.iqx = 1j * self.qprp * x

@@ -10,10 +10,10 @@ from tasks.Taskmanager import Taskmanager
 from tasks.taskmenu import buildTaskMenu
 
 from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
-try:
-    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
-except Exception:
-    from pyfablib.QCGH.CGH import CGH
+#try:
+#    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
+#except Exception:
+from pyfablib.QCGH.CGH import CGH
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
 

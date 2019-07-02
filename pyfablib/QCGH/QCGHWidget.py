@@ -2,17 +2,16 @@
 
 # Form implementation generated from reading ui file 'QCGHWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_QCGHWidget(object):
     def setupUi(self, QCGHWidget):
         QCGHWidget.setObjectName("QCGHWidget")
-        QCGHWidget.resize(242, 404)
+        QCGHWidget.resize(373, 665)
         self.verticalLayout = QtWidgets.QVBoxLayout(QCGHWidget)
         self.verticalLayout.setContentsMargins(2, 2, 2, 2)
         self.verticalLayout.setSpacing(2)
@@ -83,12 +82,13 @@ class Ui_QCGHWidget(object):
         self.slmPitch = QtWidgets.QDoubleSpinBox(self.groupInstrument)
         self.slmPitch.setMinimum(1.0)
         self.slmPitch.setMaximum(100.0)
+        self.slmPitch.setSingleStep(0.1)
         self.slmPitch.setProperty("value", 8.0)
         self.slmPitch.setObjectName("slmPitch")
         self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.slmPitch)
         self.scaleFactor = QtWidgets.QDoubleSpinBox(self.groupInstrument)
         self.scaleFactor.setMinimum(0.5)
-        self.scaleFactor.setMaximum(10.0)
+        self.scaleFactor.setMaximum(100.0)
         self.scaleFactor.setSingleStep(0.01)
         self.scaleFactor.setProperty("value", 3.0)
         self.scaleFactor.setObjectName("scaleFactor")
@@ -139,6 +139,7 @@ class Ui_QCGHWidget(object):
         self.thetac.setDecimals(1)
         self.thetac.setMinimum(-180.0)
         self.thetac.setMaximum(180.0)
+        self.thetac.setSingleStep(0.1)
         self.thetac.setObjectName("thetac")
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.thetac)
         self.verticalLayout.addWidget(self.groupCameraPlane)
@@ -174,6 +175,7 @@ class Ui_QCGHWidget(object):
         self.phis = QtWidgets.QDoubleSpinBox(self.groupSLMPlane)
         self.phis.setDecimals(1)
         self.phis.setMaximum(45.0)
+        self.phis.setSingleStep(0.1)
         self.phis.setProperty("value", 8.0)
         self.phis.setObjectName("phis")
         self.formLayout_3.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.phis)
@@ -247,8 +249,6 @@ class Ui_QCGHWidget(object):
         self.phis.setSuffix(_translate("QCGHWidget", "°"))
 
 
-
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -257,3 +257,4 @@ if __name__ == "__main__":
     ui.setupUi(QCGHWidget)
     QCGHWidget.show()
     sys.exit(app.exec_())
+
