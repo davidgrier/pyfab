@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>373</width>
-    <height>665</height>
+    <height>704</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -262,6 +262,35 @@
        <widget class="QLabel" name="labelScaleFactor">
         <property name="text">
          <string>Scale Factor</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="labelSplayFactor">
+        <property name="text">
+         <string>Splay Factor</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QDoubleSpinBox" name="splayFactor">
+        <property name="statusTip">
+         <string>Instrument: Axial splay factor</string>
+        </property>
+        <property name="suffix">
+         <string> rad/pixel</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.010000000000000</double>
         </property>
        </widget>
       </item>
@@ -535,6 +564,7 @@
   <tabstop>cameraPitch</tabstop>
   <tabstop>slmPitch</tabstop>
   <tabstop>scaleFactor</tabstop>
+  <tabstop>splayFactor</tabstop>
   <tabstop>xc</tabstop>
   <tabstop>yc</tabstop>
   <tabstop>zc</tabstop>

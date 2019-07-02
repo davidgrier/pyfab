@@ -78,7 +78,7 @@ class CGH(QObject):
         self._phis = 8.
 
         # Splay wavenumber
-        self._k0 = 0.01
+        self._splayFactor = 0.01
 
         self.updateGeometry()
         self.updateTransformationMatrix()
@@ -137,7 +137,7 @@ class CGH(QObject):
                 # map coordinates into trap space
                 r = self.m * trap.r
                 # axial splay
-                fac = 1. / (1. + self.k0 * (r.z() - self.rc.z()))
+                fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
                 r *= QVector3D(fac, fac, 1.)
                 # windowing
                 # amp = trap.amp * self.window(r)
@@ -417,10 +417,10 @@ class CGH(QObject):
         self.compute(all=True)
 
     @property
-    def k0(self):
-        return self._k0
+    def splayFactor(self):
+        return self._splayFactor
 
-    @k0.setter
-    def k0(self, k0):
-        self._k0 = float(k0)
+    @splayFactor.setter
+    def splayFactor(self, splayFactor):
+        self._splayFactor = float(splayFactor)
         self.compute(all=True)
