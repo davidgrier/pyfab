@@ -10,10 +10,12 @@ from tasks.Taskmanager import Taskmanager
 from tasks.taskmenu import buildTaskMenu
 
 from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
-#try:
-#    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
-#except Exception:
-from pyfablib.QCGH.CGH import CGH
+try:
+    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
+except Exception as ex:
+    from pyfablib.QCGH.CGH import CGH
+    print('falling back', ex)
+
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
 
@@ -41,7 +43,8 @@ class PyFab(QMainWindow, Ui_PyFab):
         # camera
         try:
             camera = QSpinnaker()
-        except:
+        except Exception as ex:
+            logger.debug(ex)
             camera = QOpenCV()
         self.installCamera(camera)
 
@@ -49,7 +52,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.slm = QSLM(self)
 
         # computation pipeline
-        self.cgh.device = CGH(shape=self.slm.shape)
+        self.cgh.device = CGH(self, shape=self.slm.shape)
 
         # trapping pattern is an interactive overlay
         # that translates user actions into hologram computations

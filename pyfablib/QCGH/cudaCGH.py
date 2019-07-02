@@ -3,7 +3,7 @@
 """CUDA-accelerated CGH computation pipeline"""
 
 from PyQt5.QtCore import pyqtSlot
-from CGH import CGH
+from .CGH import CGH
 import numpy as np
 
 import pycuda.driver as cuda
@@ -17,8 +17,8 @@ cuda.init()
 
 class cudaCGH(CGH):
 
-    def __init__(self, **kwargs):
-        super(cudaCGH, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(cudaCGH, self).__init__(*args, **kwargs)
 
     @pyqtSlot()
     def start(self):
@@ -119,10 +119,10 @@ class cudaCGH(CGH):
         self._outeratan2f = mod.get_function('outeratan2f')
         self._outerhypot = mod.get_function('outerhypot')
         self._phase = mod.get_function('phase')
-        self.npts = np.int32(self.w * self.h)
+        self.npts = np.int32(self.width * self.height)
         self.block = (16, 16, 1)
-        dx, mx = divmod(self.w, self.block[0])
-        dy, my = divmod(self.h, self.block[1])
+        dx, mx = divmod(self.width, self.block[0])
+        dy, my = divmod(self.height, self.block[1])
         self.grid = ((dx + (mx > 0)) * self.block[0],
                      (dy + (my > 0)) * self.block[1])
         super(cudaCGH, self).start()
@@ -167,14 +167,14 @@ class cudaCGH(CGH):
         self._phi = gpuarray.zeros(self.shape, dtype=np.uint8)
         self._theta = gpuarray.zeros(self.shape, dtype=np.float32)
         self._rho = gpuarray.zeros(self.shape, dtype=np.float32)
-        self._ex = gpuarray.zeros(self.w, dtype=np.complex64)
-        self._ey = gpuarray.zeros(self.h, dtype=np.complex64)
+        self._ex = gpuarray.zeros(self.width, dtype=np.complex64)
+        self._ey = gpuarray.zeros(self.height, dtype=np.complex64)
         # Geometry
         x = gpuarray.arange(self.width,
                             dtype=np.float32).astype(np.complex64)
         y = gpuarray.arange(self.height,
                             dtype=np.float32).astype(np.complex64)
-        alpha = np.cos(np.radians(self.phis))
+        alpha = np.cos(np.radians(self.phis)).astype(np.float32)
         x = alpha * (x - self.xs)
         y = y - self.ys
         self._iqx = 1j * self.qprp * x

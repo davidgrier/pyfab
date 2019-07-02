@@ -42,7 +42,7 @@ class CGH(QObject):
     sigUpdateTransformationMatrix = pyqtSignal()
 
     def __init__(self, parent=None, shape=(512, 512)):
-        super(CGH, self).__init__()
+        super(CGH, self).__init__(parent)
         self.traps = []
 
         # SLM geometry
@@ -80,9 +80,12 @@ class CGH(QObject):
         # Splay wavenumber
         self._splayFactor = 0.01
 
-        self.updateGeometry()
-        self.updateTransformationMatrix()
+        self.start()
 
+    def closeEvent(self):
+        logger.debug('Closing!!!')
+        self.stop()
+        
     # Slots for threaded operation
     @pyqtSlot()
     def start(self):
