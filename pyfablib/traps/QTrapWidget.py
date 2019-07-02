@@ -67,7 +67,7 @@ class QTrapListPropertyEdit(QLineEdit):
         super(QTrapListPropertyEdit, self).__init__()
         self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(getWidth())
-        numberrx = '([+-]?\d+\.?\d*)'
+        numberrx = '([+-]?\d*\.?\d+)'
         listrx = '\[' + '(?:\s*' + numberrx + '\s*,)*\s*' + numberrx + '\s*\]'
         self.rx = QRegExp(listrx)
         val = QRegExpValidator(self.rx)
