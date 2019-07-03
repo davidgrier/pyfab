@@ -28,11 +28,12 @@ class QSerialDevice(QSerialPort):
         self.parity = parity
         self.stopbits = stopbits
         self.timeout = timeout
-        self.readyRead.connect(self.read)
+        # self.readyRead.connect(self.receive)
         if port is not None:
-            self.conect(port)
+            self.setup(port)
 
-    def connect(self, port):
+    def setup(self, port):
+        print('setting up')
         self.setPort(port)
         self.setBaudRate(self.baudrate)
         self.setDataBits(self.databits)
@@ -41,14 +42,37 @@ class QSerialDevice(QSerialPort):
         if not self.open(QSerialPort.ReadWrite):
             raise ValueError('Could not open serial device')
 
+    def getc(self):
+        return bytes(self.read(1)).decode('utf8')
+    
+    def gets(self):
+        str = ''
+        char = self.getc()
+        while char != self.eol:
+            str += char
+            if self.waitForReadyRead(self.timeout):
+                char = self.getc()
+            else:
+                break
+        return str
+
     @pyqtSlot()
-    def read(self):
-        data = self.readLine()
-        data = bytes(data).decode('utf8')
-        print(data, end='')
+    def receive(self):
+        print('reading')
+        print(self.gets())
 
     def send(self, data):
-        self.write(data.encode())
+        print('sending')
+        cmd = data + self.eol
+        nsent = self.write(cmd.encode())
+        print(nsent)
+
+    def handshake(self, cmd):
+        self.send(cmd)
+        if self.waitForReadyRead(self.timeout):
+            return self.gets()
+        else:
+            return None
 
     def identify(self):
         return False
@@ -65,9 +89,9 @@ class Main(QMainWindow):
         self.serial = QSerialDevice(port=port)
         if self.serial.isOpen():
             print('open')
-            self.serial.send('VERSION')
+            print(self.serial.handshake('VERSION'))
 
-    def closeEvent(self):
+    def closeEvent(self, event):
         self.serial.close()
 
 
@@ -77,4 +101,5 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     gui = Main(0)
+    gui.show()
     sys.exit(app.exec_())
