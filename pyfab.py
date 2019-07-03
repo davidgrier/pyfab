@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-from pyfablib.traps.QTrappingPattern import QTrappingPattern
-from pyfablib.QSLM import QSLM
-
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
+from PyQt5.QtCore import pyqtSlot
 
 from FabWidget import Ui_PyFab
-from common.Configuration import Configuration
-from tasks.Taskmanager import Taskmanager
+
+from pyfablib.QSLM import QSLM
+from pyfablib.traps.QTrappingPattern import QTrappingPattern
 from tasks.taskmenu import buildTaskMenu
+from tasks.Taskmanager import Taskmanager
+from common.Configuration import Configuration
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger('nujansen')
 logger.setLevel(logging.DEBUG)
 
+
 try:
     from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
 except Exception as ex:
-    logger.warning('Falling back to CPU pipeline: {}'.format(ex))
+    logger.warning('Could not import GPU pipeline: {}'.format(ex))
     from pyfablib.QCGH.CGH import CGH
 
 try:
