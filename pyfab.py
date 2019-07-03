@@ -75,6 +75,21 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.cgh.device.stop()
         self.deleteLater()
 
+    def keyPressEvent(self, event):
+        key = event.text()
+        if key == 'r':
+            if self.dvr.is_recording():
+                self.dvr.bstop.animateClick(100)
+            else:
+                self.dvr.brecord.animateClick(100)
+        elif key == 's':
+            self.dvr.bstop.animateClick(100)
+        elif key == 'R':
+            self.dvr.bstop.animateClick(100)
+            self.dvr.getFilename()
+            self.dvr.brecord.animateClick(100)
+        event.accept()
+
     def configureUi(self):
         self.filters.screen = self.screen
         self.histogram.screen = self.screen
