@@ -12,10 +12,11 @@ UICOPTS = -x
 
 .PHONY: all help test clean
 
-all: $(PYFILE) $(RCFILE) help
+all: $(PYFILE) $(RCFILE)
 
-help: help.qrc $(HELPFILES)
-	$(PYRCC) help.qrc -o help_rc.py
+help: help_rc.py
+
+help_rc.py: help.qrc $(HELPFILES)
 
 test: $(PYFILE)
 	$(PYTHON) $(PYFILE)
