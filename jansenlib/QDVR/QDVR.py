@@ -99,6 +99,7 @@ class QDVR(QFrame):
             'Video files (*.avi);;HDF5 files (*.h5)')
         if filename:
             self.filename = str(filename)
+            self.playname = str(filename)
 
     # Record functionality
 

@@ -79,15 +79,15 @@ class PyFab(QMainWindow, Ui_PyFab):
         key = event.text()
         if key == 'r':
             if self.dvr.is_recording():
-                self.dvr.bstop.animateClick(100)
+                self.dvr.playButton.animateClick(100)
             else:
-                self.dvr.brecord.animateClick(100)
+                self.dvr.recordButton.animateClick(100)
         elif key == 's':
-            self.dvr.bstop.animateClick(100)
+            self.dvr.stopButton.animateClick(100)
         elif key == 'R':
-            self.dvr.bstop.animateClick(100)
-            self.dvr.getFilename()
-            self.dvr.brecord.animateClick(100)
+            self.dvr.StopButton.animateClick(100)
+            self.dvr.getSaveFilename()
+            self.dvr.recordButton.animateClick(100)
         event.accept()
 
     def configureUi(self):
