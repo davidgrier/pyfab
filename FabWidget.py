@@ -2,17 +2,16 @@
 
 # Form implementation generated from reading ui file 'FabWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_PyFab(object):
     def setupUi(self, PyFab):
         PyFab.setObjectName("PyFab")
-        PyFab.resize(1071, 732)
+        PyFab.resize(1072, 732)
         self.centralwidget = QtWidgets.QWidget(PyFab)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -198,13 +197,14 @@ class Ui_PyFab(object):
         self.verticalLayout_2.addWidget(self.bback)
         self.browser = QtWebKitWidgets.QWebView(self.tabHelp)
         self.browser.setUrl(QtCore.QUrl("qrc:/help/help/pyfab.html"))
+        self.browser.setZoomFactor(1.25)
         self.browser.setObjectName("browser")
         self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1071, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1072, 31))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -261,7 +261,7 @@ class Ui_PyFab(object):
 
     def retranslateUi(self, PyFab):
         _translate = QtCore.QCoreApplication.translate
-        PyFab.setWindowTitle(_translate("PyFab", "MainWindow"))
+        PyFab.setWindowTitle(_translate("PyFab", "pyFab"))
         self.tabWidget.setStatusTip(_translate("PyFab", "Record from video camera directly"))
         self.groupSource.setTitle(_translate("PyFab", "Recording Source"))
         self.bcamera.setStatusTip(_translate("PyFab", "Record raw video from camera"))
@@ -294,7 +294,6 @@ class Ui_PyFab(object):
         self.actionStopTasks.setStatusTip(_translate("PyFab", "Empty task queue"))
         self.actionSaveHologramAs.setText(_translate("PyFab", "Save Hologram As ..."))
 
-
 from PyQt5 import QtWebKitWidgets
 from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QHistogram.QHistogram import QHistogram
@@ -306,7 +305,6 @@ from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
 import help_rc
 
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -315,3 +313,4 @@ if __name__ == "__main__":
     ui.setupUi(PyFab)
     PyFab.show()
     sys.exit(app.exec_())
+

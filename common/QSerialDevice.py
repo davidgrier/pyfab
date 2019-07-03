@@ -2,7 +2,7 @@
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtSerialPort import (QSerialPort, QSerialPortInfo)
-from PyQt.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow
 
 import logging
 logging.basicConfig()
