@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'QSpinnakerWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_QSpinnakerWidget(object):
     def setupUi(self, QSpinnakerWidget):
         QSpinnakerWidget.setObjectName("QSpinnakerWidget")
-        QSpinnakerWidget.resize(248, 244)
+        QSpinnakerWidget.resize(372, 362)
         QSpinnakerWidget.setMinimumSize(QtCore.QSize(248, 244))
         self.verticalLayout = QtWidgets.QVBoxLayout(QSpinnakerWidget)
         self.verticalLayout.setContentsMargins(3, 1, 3, 1)
@@ -135,7 +135,7 @@ class Ui_QSpinnakerWidget(object):
         self.gridLayout_4.addWidget(self.videomode, 1, 0, 1, 1)
         self.framerate = QtWidgets.QDoubleSpinBox(self.frameMode)
         self.framerate.setDecimals(1)
-        self.framerate.setMinimum(2.0)
+        self.framerate.setMinimum(1.0)
         self.framerate.setMaximum(40.0)
         self.framerate.setProperty("value", 40.0)
         self.framerate.setObjectName("framerate")
