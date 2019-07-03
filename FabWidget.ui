@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1059</width>
+    <width>1071</width>
     <height>732</height>
    </rect>
   </property>
@@ -48,7 +48,7 @@
         <string/>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="tabVideo">
         <property name="sizePolicy">
@@ -76,16 +76,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -148,16 +139,7 @@
             <property name="spacing">
              <number>1</number>
             </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
@@ -200,16 +182,7 @@
             <property name="spacing">
              <number>1</number>
             </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
@@ -246,16 +219,7 @@
             <property name="spacing">
              <number>1</number>
             </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
@@ -300,16 +264,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -325,16 +280,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -350,16 +296,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -382,16 +319,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -427,16 +355,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -459,16 +378,7 @@
          <property name="spacing">
           <number>4</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -492,7 +402,7 @@
           <widget class="QWebView" name="browser">
            <property name="url">
             <url>
-             <string>qrc:/help/help/jansen.html</string>
+             <string>qrc:/help/help/pyfab.html</string>
             </url>
            </property>
           </widget>
@@ -509,8 +419,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1059</width>
-     <height>26</height>
+     <width>1071</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -594,7 +504,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
   <customwidget>
    <class>QDVR</class>
