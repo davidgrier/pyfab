@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'FabWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.12.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_PyFab(object):
     def setupUi(self, PyFab):
@@ -204,7 +205,7 @@ class Ui_PyFab(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1072, 31))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1072, 22))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -281,18 +282,24 @@ class Ui_PyFab(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHelp), _translate("PyFab", "Help"))
         self.menuFile.setTitle(_translate("PyFab", "&File"))
         self.menuTasks.setTitle(_translate("PyFab", "&Tasks"))
-        self.actionSavePhoto.setText(_translate("PyFab", "Save &Photo"))
+        self.actionSavePhoto.setText(_translate("PyFab", "&Save Photo"))
         self.actionSavePhoto.setShortcut(_translate("PyFab", "Ctrl+S"))
-        self.actionSavePhotoAs.setText(_translate("PyFab", "Save Photo As ..."))
+        self.actionSavePhotoAs.setText(_translate("PyFab", "Save Photo &As ..."))
         self.actionSavePhotoAs.setShortcut(_translate("PyFab", "Ctrl+A"))
         self.actionQuit.setText(_translate("PyFab", "&Quit"))
+        self.actionQuit.setShortcut(_translate("PyFab", "Ctrl+Q"))
         self.actionSaveHologram.setText(_translate("PyFab", "Save &Hologram"))
+        self.actionSaveHologram.setShortcut(_translate("PyFab", "Ctrl+H"))
         self.actionSaveSettings.setText(_translate("PyFab", "Save Se&ttings"))
+        self.actionSaveSettings.setShortcut(_translate("PyFab", "Ctrl+T"))
         self.actionPauseTasks.setText(_translate("PyFab", "&Pause Tasks"))
         self.actionPauseTasks.setStatusTip(_translate("PyFab", "Pause/resume tasks"))
-        self.actionStopTasks.setText(_translate("PyFab", "&Stop Tasks"))
+        self.actionPauseTasks.setShortcut(_translate("PyFab", "Ctrl+P"))
+        self.actionStopTasks.setText(_translate("PyFab", "Stop T&asks"))
         self.actionStopTasks.setStatusTip(_translate("PyFab", "Empty task queue"))
+        self.actionStopTasks.setShortcut(_translate("PyFab", "Ctrl+A"))
         self.actionSaveHologramAs.setText(_translate("PyFab", "Save Hologram As ..."))
+
 
 from PyQt5 import QtWebKitWidgets
 from jansenlib.QDVR.QDVR import QDVR
@@ -305,6 +312,7 @@ from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
 import help_rc
 
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -313,4 +321,3 @@ if __name__ == "__main__":
     ui.setupUi(PyFab)
     PyFab.show()
     sys.exit(app.exec_())
-

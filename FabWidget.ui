@@ -76,16 +76,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -148,16 +139,7 @@
             <property name="spacing">
              <number>1</number>
             </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
@@ -200,16 +182,7 @@
             <property name="spacing">
              <number>1</number>
             </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
@@ -246,16 +219,7 @@
             <property name="spacing">
              <number>1</number>
             </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
@@ -300,16 +264,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -325,16 +280,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -350,16 +296,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -382,16 +319,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -427,16 +355,7 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -459,16 +378,7 @@
          <property name="spacing">
           <number>4</number>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>2</number>
          </property>
          <item>
@@ -513,7 +423,7 @@
      <x>0</x>
      <y>0</y>
      <width>1072</width>
-     <height>31</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -542,7 +452,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSavePhoto">
    <property name="text">
-    <string>Save &amp;Photo</string>
+    <string>&amp;Save Photo</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -550,7 +460,7 @@
   </action>
   <action name="actionSavePhotoAs">
    <property name="text">
-    <string>Save Photo As ...</string>
+    <string>Save Photo &amp;As ...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
@@ -560,15 +470,24 @@
    <property name="text">
     <string>&amp;Quit</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="actionSaveHologram">
    <property name="text">
     <string>Save &amp;Hologram</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
   </action>
   <action name="actionSaveSettings">
    <property name="text">
     <string>Save Se&amp;ttings</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionPauseTasks">
@@ -578,13 +497,19 @@
    <property name="statusTip">
     <string>Pause/resume tasks</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
   </action>
   <action name="actionStopTasks">
    <property name="text">
-    <string>&amp;Stop Tasks</string>
+    <string>Stop T&amp;asks</string>
    </property>
    <property name="statusTip">
     <string>Empty task queue</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
   </action>
   <action name="actionSaveHologramAs">
@@ -597,7 +522,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
   <customwidget>
    <class>QDVR</class>
