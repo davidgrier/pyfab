@@ -70,11 +70,14 @@
          <string>Record video</string>
         </property>
         <property name="text">
-         <string>Record</string>
+         <string>&amp;Record</string>
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
           <normaloff>:/icons/icons/media-record.svg</normaloff>:/icons/icons/media-record.svg</iconset>
+        </property>
+        <property name="shortcut">
+         <string>R</string>
         </property>
        </widget>
       </item>
@@ -84,11 +87,14 @@
          <string>Stop recording</string>
         </property>
         <property name="text">
-         <string>Stop</string>
+         <string>&amp;Stop</string>
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
           <normaloff>:/icons/icons/media-playback-stop.svg</normaloff>:/icons/icons/media-playback-stop.svg</iconset>
+        </property>
+        <property name="shortcut">
+         <string>S</string>
         </property>
        </widget>
       </item>

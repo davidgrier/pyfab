@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'QDVRWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.1
+# Created by: PyQt5 UI code generator 5.12.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -114,9 +114,11 @@ class Ui_QDVRWidget(object):
         QDVRWidget.setWindowTitle(_translate("QDVRWidget", "QDVRWidget"))
         QDVRWidget.setStatusTip(_translate("QDVRWidget", "Video Recorder"))
         self.recordButton.setStatusTip(_translate("QDVRWidget", "Record video"))
-        self.recordButton.setText(_translate("QDVRWidget", "Record"))
+        self.recordButton.setText(_translate("QDVRWidget", "&Record"))
+        self.recordButton.setShortcut(_translate("QDVRWidget", "R"))
         self.stopButton.setStatusTip(_translate("QDVRWidget", "Stop recording"))
-        self.stopButton.setText(_translate("QDVRWidget", "Stop"))
+        self.stopButton.setText(_translate("QDVRWidget", "&Stop"))
+        self.stopButton.setShortcut(_translate("QDVRWidget", "S"))
         self.saveLabel.setText(_translate("QDVRWidget", "Save As"))
         self.saveEdit.setStatusTip(_translate("QDVRWidget", "Video file name"))
         self.rewindButton.setStatusTip(_translate("QDVRWidget", "Rewind video file"))

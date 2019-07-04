@@ -13,7 +13,7 @@ import os
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 def clickable(widget):
@@ -104,8 +104,10 @@ class QDVR(QFrame, Ui_QDVRWidget):
 
     @pyqtSlot()
     def record(self, nframes=10000):
-        if (self.is_recording() or self.is_playing() or (nframes <= 0)):
+        if (self.is_playing() or (nframes <= 0)):
             return
+        if self.is_recording():
+            self.stop()
         logger.debug('Starting Recording')
         if os.path.splitext(self.filename)[1] == '.avi':
             self._writer = QVideoWriter(self.filename, self.source.shape,
