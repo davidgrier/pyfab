@@ -4,7 +4,7 @@
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
 
-from FabWidget import Ui_PyFab
+from pyfablib.FabWidget import Ui_PyFab
 
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
