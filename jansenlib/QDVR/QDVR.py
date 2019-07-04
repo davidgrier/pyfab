@@ -37,7 +37,7 @@ def clickable(widget):
     return filter.clicked
 
 
-class QDVR(QFrame):
+class QDVR(QFrame, Ui_QDVRWidget):
 
     recording = pyqtSignal(bool)
 
@@ -53,8 +53,7 @@ class QDVR(QFrame):
         self._framenumber = 0
         self._nframes = 0
 
-        self.ui = Ui_QDVRWidget()
-        self.ui.setupUi(self)
+        self.setupUi(self)
         self.connectSignals()
 
         self.source = source
@@ -62,13 +61,13 @@ class QDVR(QFrame):
         self.filename = filename
 
     def connectSignals(self):
-        clickable(self.ui.playEdit).connect(self.getPlayFilename)
-        clickable(self.ui.saveEdit).connect(self.getSaveFilename)
-        self.ui.recordButton.clicked.connect(self.record)
-        self.ui.stopButton.clicked.connect(self.stop)
-        self.ui.rewindButton.clicked.connect(self.rewind)
-        self.ui.pauseButton.clicked.connect(self.pause)
-        self.ui.playButton.clicked.connect(self.play)
+        clickable(self.playEdit).connect(self.getPlayFilename)
+        clickable(self.saveEdit).connect(self.getSaveFilename)
+        self.recordButton.clicked.connect(self.record)
+        self.stopButton.clicked.connect(self.stop)
+        self.rewindButton.clicked.connect(self.rewind)
+        self.pauseButton.clicked.connect(self.pause)
+        self.playButton.clicked.connect(self.play)
 
     def is_recording(self):
         return (self._writer is not None)
@@ -192,7 +191,7 @@ class QDVR(QFrame):
     @source.setter
     def source(self, source):
         self._source = source
-        self.ui.recordButton.setEnabled(source is not None)
+        self.recordButton.setEnabled(source is not None)
 
     @pyqtProperty(QObject)
     def screen(self):
@@ -201,26 +200,26 @@ class QDVR(QFrame):
     @screen.setter
     def screen(self, screen):
         self._screen = screen
-        self.ui.playButton.setEnabled(screen is not None)
+        self.playButton.setEnabled(screen is not None)
 
     @pyqtProperty(str)
     def filename(self):
-        return str(self.ui.saveEdit.text())
+        return str(self.saveEdit.text())
 
     @filename.setter
     def filename(self, filename):
         if not (self.is_recording() or self.is_playing()):
-            self.ui.saveEdit.setText(os.path.expanduser(filename))
+            self.saveEdit.setText(os.path.expanduser(filename))
             self.playname = self.filename
 
     @pyqtProperty(str)
     def playname(self):
-        return str(self.ui.playEdit.text())
+        return str(self.playEdit.text())
 
     @playname.setter
     def playname(self, filename):
         if not (self.is_playing()):
-            self.ui.playEdit.setText(os.path.expanduser(filename))
+            self.playEdit.setText(os.path.expanduser(filename))
 
     @pyqtProperty(int)
     def framenumber(self):
@@ -229,7 +228,7 @@ class QDVR(QFrame):
     @framenumber.setter
     def framenumber(self, number):
         self._framenumber = number
-        self.ui.frameNumber.display(self._framenumber)
+        self.frameNumber.display(self._framenumber)
 
 
 if __name__ == '__main__':
