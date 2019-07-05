@@ -91,7 +91,8 @@ class QSettingsWidget(QFrame):
         '''
         if name in self._properties:
             self._setDeviceProperty(name, value)
-            self._setUiProperty(name, value)
+            actual = getattr(self.device, name)
+            self._setUiProperty(name, actual)
         else:
             logger.warning('unknown property: {}'.format(name))
 
@@ -179,8 +180,7 @@ class QSettingsWidget(QFrame):
     @settings.setter
     def settings(self, values):
         for name in values:
-            self._setDeviceProperty(name, values[name])
-        self.updateUi()
+            self.set(name, values[name])
 
     @pyqtSlot()
     def updateUi(self):
