@@ -121,6 +121,32 @@
               </property>
              </spacer>
             </item>
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Rate</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="fps">
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="suffix">
+               <string> fps</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>10.000000000000000</double>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -544,6 +570,9 @@
    <extends>QWidget</extends>
    <header>jansenlib.QJansenScreen</header>
    <container>1</container>
+   <slots>
+    <signal>sigFPS(double)</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>QCGH</class>
@@ -771,6 +800,22 @@
     <hint type="destinationlabel">
      <x>856</x>
      <y>382</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>screen</sender>
+   <signal>sigFPS(double)</signal>
+   <receiver>fps</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>331</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1000</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>

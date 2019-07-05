@@ -42,6 +42,28 @@ class QCameraThread(QThread):
         self._running = False
 
 
+class fpsmeter(object):
+    def __init__(self):
+        self.nframes = 10
+        self.frame = 0.
+        self.start = time.time()
+        self._value = 0.
+
+    def tick(self):
+        self.now = time.time()
+        self.frame = (self.frame + 1) % self.nframes
+        return self.frame == 0
+
+    def tock(self):
+        self._value = self.nframes / (self.now - self.start)
+        self.start = self.now
+        return self._value
+
+    @property
+    def value(self):
+        return self._value
+
+
 class QJansenScreen(pg.GraphicsLayoutWidget):
 
     """Interactive display for pyfab system.
@@ -75,6 +97,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     sigMouseMove = pyqtSignal(QMouseEvent)
     sigMouseWheel = pyqtSignal(QWheelEvent)
     sigNewFrame = pyqtSignal(np.ndarray)
+    sigFPS = pyqtSignal(float)
 
     def __init__(self, parent=None, camera=None, **kwargs):
 
@@ -96,7 +119,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self._filters = []
         self.pauseSignals(False)
 
-        self._now = time.time()
+        self.fpsmeter = fpsmeter()
         self.camera = camera
 
     def close(self):
@@ -168,20 +191,12 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.shape = image.shape
         self.sigNewFrame.emit(image)
         self.imageItem.setImage(image, autoLevels=False)
-        self.tick()
-
-    def tick(self):
-        now = time.time()
-        self._interval = now - self._now
-        self._now = now
-
-    @pyqtProperty(float)
-    def interval(self):
-        return self._interval
+        if self.fpsmeter.tick():
+            self.sigFPS.emit(self.fpsmeter.tock())
 
     @pyqtProperty(float)
     def fps(self):
-        return 1. / self._interval
+        return self.fpsmeter.value
 
     def registerFilter(self, filter):
         self._filters.append(filter)
