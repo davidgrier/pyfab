@@ -61,30 +61,26 @@ class OpenCVCamera(object):
             image = cv2.cvtColor(image, self._conversion)
         if self.flipped or self.mirrored:
             image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
-        self._shape = image.shape
+        # self._shape = image.shape
         return ready, image
 
     # Camera properties
     @property
     def width(self):
-        # width = int(self.device.get(self._WIDTH))
-        return self._shape[1]
+        return int(self.device.get(self._WIDTH))
 
     @width.setter
     def width(self, width):
-        # self._width = width
-        # self.device.set(self._WIDTH, width)
+        self.device.set(self._WIDTH, width)
         logger.info('Setting camera width: {}'.format(width))
 
     @property
     def height(self):
-        # height = int(self.device.get(self._HEIGHT))
-        return self._shape[0]
+        return int(self.device.get(self._HEIGHT))
 
     @height.setter
     def height(self, height):
-        #self._height = height
-        #self.device.set(self._HEIGHT, height)
+        self.device.set(self._HEIGHT, height)
         logger.info('Setting camera height: {}'.format(height))
 
     @property
@@ -97,10 +93,6 @@ class OpenCVCamera(object):
     def gray(self, gray):
         logger.debug('Setting gray: {}'.format(gray))
         self._conversion = self._toGRAY if gray else self._toRGB
-
-    @property
-    def shape(self):
-        return self._shape
 
 
 if __name__ == '__main__':

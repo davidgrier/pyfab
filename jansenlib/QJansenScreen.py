@@ -11,7 +11,7 @@ import time
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 
 class QCameraThread(QThread):
@@ -23,7 +23,6 @@ class QCameraThread(QThread):
     def __init__(self, parent=None):
         super(QCameraThread, self).__init__(parent)
         self.camera = self.parent().camera
-        self.shape = self.camera.shape
 
     def run(self):
         logger.debug('Starting acquisition loop')
@@ -31,7 +30,6 @@ class QCameraThread(QThread):
         while self._running:
             ready, frame = self.camera.read()
             if ready:
-                self.shape = frame.shape
                 self.sigNewFrame.emit(frame)
             else:
                 logger.warn('Failed to read frame')
@@ -135,12 +133,28 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     def sizeHint(self):
         if self.camera is None:
-            shape = (640, 480)
+            size = QSize(640, 480)
         else:
-            shape = self.camera.shape
-        size = QSize(shape[1], shape[0])
+            device = self.camera.device
+            size = QSize(device.width, device.height)
         logger.debug('Size hint: {}'.format(size))
         return size
+
+    def updateShape(self):
+        device = self.camera.device
+        self.resize(device.width, device.height)
+        # self.setMinimumSize(self.sizeHint())
+        self.viewBox.setRange(xRange=(0, device.width),
+                              yRange=(0, device.height),
+                              padding=0, update=True)
+
+    @pyqtSlot(int)
+    def setWidth(self, width):
+        self.updateShape()
+
+    @pyqtSlot(int)
+    def setHeight(self, height):
+        self.updateShape()
 
     @pyqtProperty(object)
     def camera(self):
@@ -152,13 +166,9 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self._camera = camera
         if camera is None:
             return
-
-        shape = self._camera.shape
-        self.viewBox.setRange(xRange=(0, shape[1]),
-                              yRange=(0, shape[0]),
-                              padding=0, update=True)
-        self.setMinimumSize(self.sizeHint())
-
+        self.updateShape()
+        camera.widthChanged.connect(self.setWidth)
+        camera.heightChanged.connect(self.setHeight)
         self._thread = QCameraThread(self)
         self._thread.start()
         self.source = self.default
@@ -188,7 +198,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         for filter in self._filters:
             image = filter(image)
         self.source.blockSignals(False)
-        self.shape = image.shape
         self.sigNewFrame.emit(image)
         self.imageItem.setImage(image, autoLevels=False)
         if self.fpsmeter.tick():

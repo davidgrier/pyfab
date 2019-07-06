@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import pyqtProperty
 from common.QSettingsWidget import QSettingsWidget
 from .QOpenCVWidget import Ui_QOpenCVWidget
 from .OpenCVCamera import OpenCVCamera
@@ -8,7 +9,7 @@ from .OpenCVCamera import OpenCVCamera
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 class QOpenCV(QSettingsWidget):
@@ -28,6 +29,8 @@ class QOpenCV(QSettingsWidget):
         logger.debug('configuring UI')
         self.ui.width.setMaximum(self.device.width)
         self.ui.height.setMaximum(self.device.height)
+        self.widthChanged = self.ui.width.valueChanged
+        self.heightChanged = self.ui.height.valueChanged
 
     def close(self):
         logger.debug('Closing camera interface')
@@ -35,10 +38,6 @@ class QOpenCV(QSettingsWidget):
 
     def closeEvent(self):
         self.close()
-
-    @property
-    def shape(self):
-        return self.device.shape
 
 
 if __name__ == '__main__':
