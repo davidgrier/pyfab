@@ -42,10 +42,6 @@ class QSpinnaker(QSettingsWidget):
     def closeEvent(self):
         self.close()
 
-    @property
-    def shape(self):
-        return self.device.shape
-
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication

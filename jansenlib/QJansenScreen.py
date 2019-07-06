@@ -11,7 +11,7 @@ import time
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 class QCameraThread(QThread):
@@ -143,7 +143,6 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
     def updateShape(self):
         device = self.camera.device
         self.resize(device.width, device.height)
-        # self.setMinimumSize(self.sizeHint())
         self.viewBox.setRange(xRange=(0, device.width),
                               yRange=(0, device.height),
                               padding=0, update=True)
