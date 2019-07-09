@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QByteArray)
 from PyQt5.QtSerialPort import (QSerialPort, QSerialPortInfo)
 from PyQt5.QtWidgets import QMainWindow
 
@@ -34,7 +34,7 @@ class QSerialDevice(QSerialPort):
         self.dataReady.connect(self.testreceive)
         if port is not None:
             self.setup(port)
-        self.buffer = ''
+        self.buffer = QByteArray()
 
     def setup(self, port):
         print('setting up')
@@ -62,14 +62,14 @@ class QSerialDevice(QSerialPort):
 
     @pyqtSlot()
     def receive(self):
-        self.buffer += self.readAll().decode()
-        print(self.buffer)
-        if self.eol in self.buffer:
-            self.dataReady.emit(self.buffer)
-            self.buffer = ''
+        self.buffer.append(self.readAll())
+        if self.buffer.contains(self.eol.encode()):
+            self.dataReady.emit(str(self.buffer))
+            self.buffer.clear()
 
     @pyqtSlot(str)
     def testreceive(self, msg):
+        print('receiving')
         print(msg)
 
     def send(self, data):
