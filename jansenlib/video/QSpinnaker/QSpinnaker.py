@@ -33,6 +33,8 @@ class QSpinnaker(QSettingsWidget):
         self.ui.exposure.setRange(self.device.exposuremin,
                                   self.device.exposuremax)
         self.ui.gain.setRange(self.device.gainmin, self.device.gainmax)
+        self.widthChanged = self.ui.width.valueChanged
+        self.heightChanged = self.ui.height.valueChanged
 
     def close(self):
         logger.debug('Closing camera interface')
