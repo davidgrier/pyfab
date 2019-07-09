@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'FabWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_PyFab(object):
     def setupUi(self, PyFab):
@@ -16,6 +15,8 @@ class Ui_PyFab(object):
         self.centralwidget = QtWidgets.QWidget(PyFab)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setContentsMargins(2, 2, 2, 2)
+        self.gridLayout.setSpacing(2)
         self.gridLayout.setObjectName("gridLayout")
         self.splitter = QtWidgets.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
@@ -255,7 +256,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(6)
         self.actionQuit.triggered.connect(PyFab.close)
         self.bback.clicked.connect(self.browser.back)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
@@ -311,8 +312,7 @@ class Ui_PyFab(object):
         self.actionStopTasks.setText(_translate("PyFab", "Stop T&asks"))
         self.actionStopTasks.setStatusTip(_translate("PyFab", "Empty task queue"))
         self.actionStopTasks.setShortcut(_translate("PyFab", "Ctrl+A"))
-        self.actionSaveHologramAs.setText(_translate("PyFab", "Save Hologram As ..."))
-
+        self.actionSaveHologramAs.setText(_translate("PyFab", "Sa&ve Hologram As ..."))
 
 from PyQt5 import QtWebKitWidgets
 from jansenlib.QDVR.QDVR import QDVR
@@ -325,7 +325,6 @@ from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
 import help_rc
 
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -334,3 +333,4 @@ if __name__ == "__main__":
     ui.setupUi(PyFab)
     PyFab.show()
     sys.exit(app.exec_())
+
