@@ -99,7 +99,7 @@ class QSerialDevice(QSerialPort):
     def receive(self):
         self.buffer.append(self.readAll())
         if self.buffer.contains(self.eol.encode()):
-            self.process(str(self.buffer))
+            self.process(bytes(self.buffer).decode())
             self.buffer.clear()
 
     def handshake(self, cmd):

@@ -3,7 +3,7 @@
 """Control panel for holographic trapping hardware"""
 
 from PyQt5.QtWidgets import QWidget
-from .proscan.QProscan import QProscan
+from .QProscan.QProscan import QProscan
 from .IPG.QIPGLaser import QIPGLaser
 from common.tabLayout import tabLayout
 
@@ -41,12 +41,14 @@ class QHardwareTab(QWidget):
             if self.wstage is not None:
                 self.wstage.start()
             if self.wlaser is not None:
-                self.wlaser.start()
+                #self.wlaser.start()
+                pass
         else:
             if self.wstage is not None:
                 self.wstage.stop()
             if self.wlaser is not None:
-                self.wlaser.stop()
+                #self.wlaser.stop()
+                pass
 
     def has_content(self):
         return self._has_content

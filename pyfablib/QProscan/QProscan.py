@@ -4,8 +4,8 @@
 
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import (pyqtSlot, QTimer)
-from QProscan_UI import Ui_QProscan
-from Proscan import Proscan
+from .QProscan_UI import Ui_QProscan
+from .Proscan import Proscan
 
 import logging
 logging.basicConfig()
