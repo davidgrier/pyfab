@@ -41,13 +41,13 @@ class QHardwareTab(QWidget):
             if self.wstage is not None:
                 self.wstage.start()
             if self.wlaser is not None:
-                #self.wlaser.start()
+                self.wlaser.start()
                 pass
         else:
             if self.wstage is not None:
                 self.wstage.stop()
             if self.wlaser is not None:
-                #self.wlaser.stop()
+                self.wlaser.stop()
                 pass
 
     def has_content(self):
