@@ -30,6 +30,7 @@ class QCameraThread(QThread):
         while self._running:
             ready, frame = self.camera.read()
             if ready:
+                self._shape = frame.shape
                 self.sigNewFrame.emit(frame)
             else:
                 logger.warn('Failed to read frame')
@@ -38,6 +39,12 @@ class QCameraThread(QThread):
 
     def stop(self):
         self._running = False
+
+    def width(self):
+        return self._shape[1]
+
+    def height(self):
+        return self._shape[0]
 
 
 class fpsmeter(object):

@@ -18,8 +18,9 @@ class QHDF5Writer(QObject):
 
     def __init__(self, filename, nframes=10000):
         super(QHDF5Writer, self).__init__()
-        h5py.get_config().track_order = True
-        self.file = h5py.File(filename, 'w', libver='latest')
+        #h5py.get_config().track_order = True
+        self.file = h5py.File(filename, 'w', libver='latest',
+                              track_order=True)
         self.video = self.file.create_group('images')
         self.start = time.time()
         self.file.attrs.update({'Timestamp': self.start})
