@@ -62,7 +62,7 @@ class ipglaser(SerialDevice):
     def flagSet(self, flagstr, flags=None):
         if not isinstance(flags, int):
             flags = self.flags()
-        return bool(self.flags() & self.flag[flagstr])
+        return bool(flags & self.flag[flagstr])
 
     def current(self):
         cur = float(self.command('RDC'))

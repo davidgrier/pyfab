@@ -41,12 +41,13 @@ class Ipglaser(QSerialDevice):
     def identify(self):
         return len(self.version()) > 3
 
-    def command(self, str):
-        res = self.handshake(str)
-        if str not in res:
-            return str
-        res = res.replace(str, '').replace(': ', '')
-        return res
+    def command(self, cmd):
+        res = self.handshake(cmd)
+        if cmd not in res:
+            return cmd
+        print(res)
+        cmd, value = res.split()
+        return value
 
     def version(self):
         return self.command('RFV')
@@ -63,12 +64,12 @@ class Ipglaser(QSerialDevice):
         return power
 
     def flags(self):
-        return self.command('STA')
+        return int(self.command('STA'))
 
     def flagSet(self, flagstr, flags=None):
         if not isinstance(flags, int):
             flags = self.flags()
-        return bool(self.flags() & self.flag[flagstr])
+        return bool(flags & self.flag[flagstr])
 
     def current(self):
         cur = float(self.command('RDC'))
@@ -85,21 +86,21 @@ class Ipglaser(QSerialDevice):
     def startup(self, flags=None):
         return self.flagSet('EMS', flags)
 
-    def emission(self, flags=flags, state=None):
+    @pyqtSlot(bool)
+    def emission(self, state=None):
         if state is True:
             res = self.command('EMON')
             return 'ERR' not in res
         if state is False:
             res = self.command('EMOFF')
             return 'ERR' not in res
-        return self.flagSet('EMX', flags)
 
+    @pyqtSlot(bool)
     def aimingbeam(self, state=None):
         if state is True:
             self.command('ABN')
         elif state is False:
             self.command('ABF')
-        return self.flagSet('AIM')
 
     def error(self, flags=None):
         if not self.flagSet('ERR', flags):
@@ -121,18 +122,22 @@ class Ipglaser(QSerialDevice):
 
     @pyqtSlot(str)
     def process(self, msg):
-        cmd, value = msg.split()
+        part = msg.split()
+        cmd = part[0]
+        value = part[1]
         if 'STA' in cmd:
             status = int(value)
-            print('status', status)
-            state = (self.keyswitch(status),
-                     self.aimingbeam(status),
-                     self.startup(status) + self.emission(status),
-                     self.error(status))
+            state = (not self.flagSet('KEY', status),
+                     self.flagSet('AIM', status),
+                     (self.flagSet('EMS', status) +
+                      self.flagSet('EMX', status)),
+                     (self.flagSet('TMP', status) or
+                      self.flagSet('BKR', status) or
+                      self.flagSet('PWR', status) or
+                      self.flagSet('UNX', status)))
             self.sigStatus.emit(state)
         elif 'ROP' in cmd:
             power = self.power(value)
-            print('power', power)
             self.sigPower.emit(power)
 
 

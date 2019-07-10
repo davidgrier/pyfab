@@ -81,7 +81,10 @@ class StatusWidget(QFrame):
         layout.addWidget(self.led_flt)
         self.setLayout(layout)
 
-    def update(self, key, aim, emx, flt):
+    @pyqtSlot(object)
+    def update(self, status):
+        key, aim, emx, flt = status
+        print(status)
         self.led_key.set(key)
         self.led_aim.set(aim)
         self.led_emx.set(emx)
@@ -114,7 +117,7 @@ class PowerWidget(QWidget):
         layout.addWidget(self.wvalue)
         self.setLayout(layout)
 
-    @pyqtSlot(float):
+    @pyqtSlot(float)
     def setValue(self, value):
         self.value = value
 
@@ -185,16 +188,6 @@ class QIPGLaser(QFrame):
     def toggleemission(self):
         state = self.instrument.emission()
         self.instrument.emission(state=not state)
-
-    @pyqtSlot()
-    def update(self):
-        flags = self.instrument.flags()
-        self.wstatus.update(self.instrument.keyswitch(flags),
-                            self.instrument.aimingbeam(flags),
-                            (self.instrument.startup(flags) +
-                             self.instrument.emission(flags)),
-                            self.instrument.error(flags))
-        self.wpower.value = self.instrument.power()
 
 
 def main():
