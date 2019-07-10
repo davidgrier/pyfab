@@ -114,6 +114,10 @@ class PowerWidget(QWidget):
         layout.addWidget(self.wvalue)
         self.setLayout(layout)
 
+    @pyqtSlot(float):
+    def setValue(self, value):
+        self.value = value
+
     @property
     def value(self):
         self._value
@@ -131,6 +135,9 @@ class QIPGLaser(QFrame):
         super(QIPGLaser, self).__init__()
         self.instrument = Ipglaser()
         self.init_ui()
+
+        self.instrument.sigStatus.connect(self.wstatus.update)
+        self.instrument.sigPower.connect(self.wpower.setValue)
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.instrument.poll)

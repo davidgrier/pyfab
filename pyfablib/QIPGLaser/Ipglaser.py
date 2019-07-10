@@ -2,10 +2,13 @@
 
 """Abstraction of an IPG fiber laser."""
 
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 from common.QSerialDevice import QSerialDevice
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Ipglaser(QSerialDevice):
@@ -24,6 +27,9 @@ class Ipglaser(QSerialDevice):
             'EMS': 0x8000,    # EMS: emission startup
             'UNX': 0x20000,   # UNX: ERROR: unexpected emission detected
             'KEY': 0x200000}  # KEY: keyswitch in REM position
+
+    sigStatus = pyqtSignal(object)
+    sigPower = pyqtSignal(float)
 
     def __init__(self):
         super(Ipglaser, self).__init__(baudrate=57600)
@@ -113,14 +119,21 @@ class Ipglaser(QSerialDevice):
         self.send('STA')
         self.send('ROP')
 
+    @pyqtSlot(str)
     def process(self, msg):
         cmd, value = msg.split()
         if 'STA' in cmd:
             status = int(value)
             print('status', status)
+            state = (self.keyswitch(status),
+                     self.aimingbeam(status),
+                     self.startup(status) + self.emission(status),
+                     self.error(status))
+            self.sigStatus.emit(state)
         elif 'ROP' in cmd:
-            print('power', self.power(value))
-            
+            power = self.power(value)
+            print('power', power)
+            self.sigPower.emit(power)
 
 
 def main():
