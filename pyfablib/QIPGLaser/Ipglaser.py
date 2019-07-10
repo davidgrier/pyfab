@@ -45,18 +45,19 @@ class Ipglaser(QSerialDevice):
     def version(self):
         return self.command('RFV')
 
-    def power(self):
-        res = self.command('ROP')
-        if 'Off' in res:
+    def power(self, value=None):
+        if value is None:
+            value = self.command('ROP')
+        if 'Off' in value:
             power = 0.
-        elif 'Low' in res:
+        elif 'Low' in value:
             power = 0.1
         else:
-            power = float(res)
+            power = float(value)
         return power
 
     def flags(self):
-        return int(self.command('STA'))
+        return self.command('STA')
 
     def flagSet(self, flagstr, flags=None):
         if not isinstance(flags, int):
@@ -110,9 +111,16 @@ class Ipglaser(QSerialDevice):
 
     def poll(self):
         self.send('STA')
+        self.send('ROP')
 
     def process(self, msg):
-        print(msg)
+        cmd, value = msg.split()
+        if 'STA' in cmd:
+            status = int(value)
+            print('status', status)
+        elif 'ROP' in cmd:
+            print('power', self.power(value))
+            
 
 
 def main():

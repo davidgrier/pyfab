@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QWidget, QFrame, QPushButton, QLabel,
                              QLineEdit, QHBoxLayout, QVBoxLayout)
 import os
 import numpy as np
-from .Ipglaser import Ipglaser
+from Ipglaser import Ipglaser
 
 
 def led(name):
@@ -133,7 +133,7 @@ class QIPGLaser(QFrame):
         self.init_ui()
 
         self._timer = QTimer(self)
-        self._timer.timeout.connect(self.update)
+        self._timer.timeout.connect(self.instrument.poll)
         self._timer.setInterval(1000)
 
     def stop(self):
@@ -195,6 +195,11 @@ def main():
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    wid = StatusWidget()
+    wid = QIPGLaser()
+    wid.start()
     wid.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
