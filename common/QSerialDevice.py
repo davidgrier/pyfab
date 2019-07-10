@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QByteArray)
+from PyQt5.QtCore import (pyqtSlot, QByteArray)
 from PyQt5.QtSerialPort import (QSerialPort, QSerialPortInfo)
 from PyQt5.QtWidgets import QMainWindow
 
@@ -11,8 +11,6 @@ logger.setLevel(logging.DEBUG)
 
 
 class QSerialDevice(QSerialPort):
-
-    dataReady = pyqtSignal(str)
 
     def __init__(self, parent=None, port=None,
                  eol='\r',
@@ -31,20 +29,58 @@ class QSerialDevice(QSerialPort):
         self.stopbits = stopbits
         self.timeout = timeout
         self.readyRead.connect(self.receive)
-        self.dataReady.connect(self.testreceive)
-        if port is not None:
-            self.setup(port)
         self.buffer = QByteArray()
+        if port is None:
+            self.find()
+        else:
+            self.setup(port)
+        if not self.isOpen():
+            raise ValueError('Could not find serial device')
 
     def setup(self, port):
         print('setting up')
+        if port is None:
+            logger.info('No serial port specified')
+            return False
+        if port.isBusy():
+            logger.info('Specified port is busy')
+            return False
         self.setPort(port)
         self.setBaudRate(self.baudrate)
         self.setDataBits(self.databits)
         self.setParity(self.parity)
         self.setStopBits(self.stopbits)
         if not self.open(QSerialPort.ReadWrite):
-            raise ValueError('Could not open serial device')
+            logger.info('Could not open serial port')
+            return False
+        if self.identify():
+            return True
+        self.close()
+        logger.info('Device not connected to specified port')
+        return False
+
+    def find(self):
+        ports = QSerialPortInfo.availablePorts()
+        if len(ports) < 1:
+            logger.warning('No serial ports detected')
+            return
+        for port in ports:
+            portinfo = QSerialPortInfo(port)
+            logger.info(portinfo.systemLocation())
+            if self.setup(portinfo):
+                break
+
+    def identify(self):
+        return True
+
+    def process(self, data):
+        logger.debug('received: {}'.format(data))
+
+    def send(self, data):
+        print('sending')
+        cmd = data + self.eol
+        nsent = self.write(cmd.encode())
+        print(nsent)
 
     def getc(self):
         return bytes(self.read(1)).decode('utf8')
@@ -64,29 +100,15 @@ class QSerialDevice(QSerialPort):
     def receive(self):
         self.buffer.append(self.readAll())
         if self.buffer.contains(self.eol.encode()):
-            self.dataReady.emit(str(self.buffer))
+            self.process(str(self.buffer))
             self.buffer.clear()
-
-    @pyqtSlot(str)
-    def testreceive(self, msg):
-        print('receiving')
-        print(msg)
-
-    def send(self, data):
-        print('sending')
-        cmd = data + self.eol
-        nsent = self.write(cmd.encode())
-        print(nsent)
 
     def handshake(self, cmd):
         self.send(cmd)
         if self.waitForReadyRead(self.timeout):
             return self.gets()
         else:
-            return None
-
-    def identify(self):
-        return False
+            return ''
 
 
 class Main(QMainWindow):

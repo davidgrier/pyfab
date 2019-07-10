@@ -61,7 +61,6 @@ class OpenCVCamera(object):
             image = cv2.cvtColor(image, self._conversion)
         if self.flipped or self.mirrored:
             image = cv2.flip(image, self.mirrored * (1 - 2 * self.flipped))
-        # self._shape = image.shape
         return ready, image
 
     # Camera properties
