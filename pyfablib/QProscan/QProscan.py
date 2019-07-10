@@ -31,6 +31,12 @@ class QProscan(QWidget, Ui_QProscan):
             self.timer.timeout.connect(self.device.poll)
             self.timer.setInterval(interval)
 
+    def start(self):
+        self.timer.start()
+
+    def stop(self):
+        self.timer.stop()
+
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
@@ -38,5 +44,6 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     wid = QProscan()
+    wid.start()
     wid.show()
     sys.exit(app.exec_())

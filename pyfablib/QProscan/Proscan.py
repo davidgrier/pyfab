@@ -22,6 +22,7 @@ class Proscan(QSerialDevice):
 
     def identify(self):
         res = self.handshake('VERSION')
+        print(len(res))
         return len(res) == 3
 
     @pyqtSlot()

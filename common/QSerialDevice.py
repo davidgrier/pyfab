@@ -55,6 +55,7 @@ class QSerialDevice(QSerialPort):
             logger.info('Could not open port: {}'.format(name))
             return False
         if self.identify():
+            logger.info('Device found at {}'.format(name))
             return True
         self.close()
         logger.info('Device not connected to {}'.format(name))
@@ -77,10 +78,8 @@ class QSerialDevice(QSerialPort):
         logger.debug('received: {}'.format(data))
 
     def send(self, data):
-        print('sending')
         cmd = data + self.eol
-        nsent = self.write(cmd.encode())
-        print(nsent)
+        self.write(cmd.encode())
 
     def getc(self):
         return bytes(self.read(1)).decode('utf8')
@@ -104,11 +103,14 @@ class QSerialDevice(QSerialPort):
             self.buffer.clear()
 
     def handshake(self, cmd):
+        self.blockSignals(True)
         self.send(cmd)
         if self.waitForReadyRead(self.timeout):
-            return self.gets()
+            res = self.gets()
         else:
-            return ''
+            res = ''
+        self.blockSignals(False)
+        return res
 
 
 class Main(QMainWindow):
