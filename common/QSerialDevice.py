@@ -37,26 +37,27 @@ class QSerialDevice(QSerialPort):
         if not self.isOpen():
             raise ValueError('Could not find serial device')
 
-    def setup(self, port):
-        print('setting up')
-        if port is None:
+    def setup(self, portinfo):
+        logger.debug('Setting up')
+        if portinfo is None:
             logger.info('No serial port specified')
             return False
-        if port.isBusy():
-            logger.info('Specified port is busy')
+        name = portinfo.systemLocation()
+        if portinfo.isBusy():
+            logger.info('Port is busy: {}'.format(name))
             return False
-        self.setPort(port)
+        self.setPort(portinfo)
         self.setBaudRate(self.baudrate)
         self.setDataBits(self.databits)
         self.setParity(self.parity)
         self.setStopBits(self.stopbits)
         if not self.open(QSerialPort.ReadWrite):
-            logger.info('Could not open serial port')
+            logger.info('Could not open port: {}'.format(name))
             return False
         if self.identify():
             return True
         self.close()
-        logger.info('Device not connected to specified port')
+        logger.info('Device not connected to {}'.format(name))
         return False
 
     def find(self):
@@ -66,7 +67,6 @@ class QSerialDevice(QSerialPort):
             return
         for port in ports:
             portinfo = QSerialPortInfo(port)
-            logger.info(portinfo.systemLocation())
             if self.setup(portinfo):
                 break
 
