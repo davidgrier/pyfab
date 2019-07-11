@@ -8,7 +8,7 @@ from common.QSerialDevice import QSerialDevice
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 
 class Ipglaser(QSerialDevice):
@@ -32,6 +32,7 @@ class Ipglaser(QSerialDevice):
     sigPower = pyqtSignal(float)
 
     def __init__(self):
+        self.polling = False
         super(Ipglaser, self).__init__(baudrate=57600)
         self.flag['ERR'] = (self.flag['TMP'] |
                             self.flag['BKR'] |
@@ -44,6 +45,8 @@ class Ipglaser(QSerialDevice):
 
     def poll(self):
         '''Poll device for current status'''
+        logger.debug('polling')
+        self.polling = True
         self.send('STA')  # status flags
         self.send('ROP')  # power
 
@@ -52,7 +55,7 @@ class Ipglaser(QSerialDevice):
         '''Process response from device poll'''
         part = msg.split()
         if len(part) < 2:
-            logger.warning('Possible error: {}'.format(msg))
+            logger.info('Possible error: {}'.format(msg))
             return
         cmd = part[0]
         value = part[1]
@@ -66,13 +69,17 @@ class Ipglaser(QSerialDevice):
         elif 'ROP' in cmd:
             power = self.power(value)
             self.sigPower.emit(power)
+        self.polling = False
 
     # Instrument control
     def command(self, cmd):
         '''Handshake command synchronously and return response'''
+        if self.polling:
+            raise ValueError('cannot command when polling')
+        logger.debug('command: {}'.format(cmd))
         res = self.handshake(cmd)
         if cmd not in res:
-            logger.warning('Possible error: {}'.format(res))
+            logger.info('Possible error: {} {}'.format(cmd, res))
             return res
         parts = res.split()
         if len(parts) >= 2:
@@ -129,9 +136,10 @@ class Ipglaser(QSerialDevice):
         return int(self.command('STA'))
 
     def flagSet(self, flagstr, flags=None):
-        if not isinstance(flags, int):
+        if flags is None:
+            logger.debug('getting flags {}'.format(flags))
             flags = self.flags()
-        return bool(flags & self.flag[flagstr])
+        return bool(int(flags) & self.flag[flagstr])
 
     def keyswitch(self, flags=None):
         return not self.flagSet('KEY', flags)
@@ -140,7 +148,7 @@ class Ipglaser(QSerialDevice):
         return self.flagSet('EMS', flags)
 
     def aimingbeam(self, flags=None):
-        return self.flagSet('AIM')
+        return self.flagSet('AIM', flags)
 
     def emission(self, flags=None):
         return self.flagSet('EMX', flags)

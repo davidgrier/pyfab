@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMainWindow
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 class QSerialDevice(QSerialPort):
@@ -54,6 +54,9 @@ class QSerialDevice(QSerialPort):
         if not self.open(QSerialPort.ReadWrite):
             logger.info('Could not open port: {}'.format(name))
             return False
+        if self.bytesAvailable():
+            tmp = self.readAll()
+            logger.info('read {}'.format(tmp))
         if self.identify():
             logger.info('Device found at {}'.format(name))
             return True

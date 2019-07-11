@@ -2,9 +2,9 @@
 
 """Control panel for holographic trapping hardware"""
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import (QWidget, QLabel)
 from .QProscan.QProscan import QProscan
-from .IPG.QIPGLaser import QIPGLaser
+from .QIPGLaser.QIPGLaser import QIPGLaser
 from common.tabLayout import tabLayout
 
 import logging
@@ -23,6 +23,7 @@ class QHardwareTab(QWidget):
         layout = tabLayout(self)
         try:
             self.wstage = QProscan()
+            layout.addWidget(QLabel('Microscope Stage Position'))
             layout.addWidget(self.wstage)
             self._has_content = True
         except ValueError as ex:
@@ -30,6 +31,7 @@ class QHardwareTab(QWidget):
             logger.warning('Could not install stage: {}'.format(ex))
         try:
             self.wlaser = QIPGLaser()
+            layout.addWidget(QLabel('Trapping Laser'))
             layout.addWidget(self.wlaser)
             self._has_content = True
         except ValueError as ex:

@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QWidget, QFrame, QPushButton, QLabel,
                              QLineEdit, QHBoxLayout, QVBoxLayout)
 import os
 import numpy as np
-from Ipglaser import Ipglaser
+from .Ipglaser import Ipglaser
 
 
 def led(name):
@@ -94,7 +94,6 @@ class StatusWidget(QFrame):
     @pyqtSlot(object)
     def update(self, status):
         key, aim, emx, flt = status
-        print(status)
         self.keyswitch.setState(key)
         self.aiming.setState(aim)
         self.emission.setState(emx)
@@ -110,7 +109,7 @@ class PowerWidget(QWidget):
         self.initUi()
         self.value = 0
 
-    def init_ui(self):
+    def initUi(self):
         layout = QVBoxLayout()
         layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(1)
@@ -151,27 +150,18 @@ class QIPGLaser(QFrame):
         self.status = StatusWidget()
         self.power = PowerWidget()
         self.timer = QTimer(self)
-        self.timer.setInterval(1000)
+        self.timer.setInterval(500)
 
         self.initUi()
         self.connectSignals()
 
     def initUi(self):
         self.setFrameShape(QFrame.Box)
-        vlayout = QVBoxLayout()
-        vlayout.setContentsMargins(0, 0, 0, 0)
-        vlayout.setSpacing(0)
-        self.setLayout(vlayout)
-
-        vlayout.addWidget(QLabel(' Trapping Laser'))
-
-        controls = QWidget()
         hlayout = QHBoxLayout()
-        controls.setLayout(hlayout)
+        self.setLayout(hlayout)
         hlayout.setSpacing(1)
         hlayout.addWidget(self.status)
         hlayout.addWidget(self.power)
-        vlayout.addWidget(controls)
 
     def connectSignals(self):
         self.instrument.sigStatus.connect(self.status.update)
