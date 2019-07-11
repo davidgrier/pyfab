@@ -38,21 +38,70 @@ class Ipglaser(QSerialDevice):
                             self.flag['PWR'] |
                             self.flag['UNX'])
 
+    # Overrides for QSerialDevice
     def identify(self):
         return len(self.version()) > 3
 
+    def poll(self):
+        '''Poll device for current status'''
+        self.send('STA')  # status flags
+        self.send('ROP')  # power
+
+    @pyqtSlot(str)
+    def process(self, msg):
+        '''Process response from device poll'''
+        part = msg.split()
+        if len(part) < 2:
+            logger.warning('Possible error: {}'.format(msg))
+            return
+        cmd = part[0]
+        value = part[1]
+        if 'STA' in cmd:
+            state = int(value)
+            status = (self.keyswitch(state),
+                      self.aimingbeam(state),
+                      self.startup(state) + self.emission(state),
+                      self.error(state))
+            self.sigStatus.emit(status)
+        elif 'ROP' in cmd:
+            power = self.power(value)
+            self.sigPower.emit(power)
+
+    # Instrument control
     def command(self, cmd):
+        '''Handshake command synchronously and return response'''
         res = self.handshake(cmd)
         if cmd not in res:
-            return cmd
-        print(res)
-        cmd, value = res.split()
-        return value
+            logger.warning('Possible error: {}'.format(res))
+            return res
+        parts = res.split()
+        if len(parts) >= 2:
+            return parts[1]
+        return res
 
+    @pyqtSlot(bool)
+    def setAimingbeam(self, state=None):
+        '''Control aiming laser'''
+        if state is True:
+            self.command('ABN')
+        elif state is False:
+            self.command('ABF')
+
+    @pyqtSlot(bool)
+    def setEmission(self, state=None):
+        '''Control laser emission'''
+        if state is True:
+            res = self.command('EMON')
+        elif state is False:
+            res = self.command('EMOFF')
+
+    # Properties
     def version(self):
+        '''Instrument firmware version'''
         return self.command('RFV')
 
     def power(self, value=None):
+        '''Laser emission power [W]'''
         if value is None:
             value = self.command('ROP')
         if 'Off' in value:
@@ -63,7 +112,20 @@ class Ipglaser(QSerialDevice):
             power = float(value)
         return power
 
+    def current(self):
+        '''Laser diode current [A]'''
+        cur = float(self.command('RDC'))
+        min = float(self.command('RNC'))
+        set = float(self.command('RCS'))
+        return cur, min, set
+
+    def temperature(self):
+        '''Laser temperature [C]'''
+        return float(self.command('RCT'))
+
+    # Status flags
     def flags(self):
+        '''Instrument status flags'''
         return int(self.command('STA'))
 
     def flagSet(self, flagstr, flags=None):
@@ -71,38 +133,21 @@ class Ipglaser(QSerialDevice):
             flags = self.flags()
         return bool(flags & self.flag[flagstr])
 
-    def current(self):
-        cur = float(self.command('RDC'))
-        min = float(self.command('RNC'))
-        set = float(self.command('RCS'))
-        return cur, min, set
-
-    def temperature(self):
-        return float(self.command('RCT'))
-
     def keyswitch(self, flags=None):
         return not self.flagSet('KEY', flags)
 
     def startup(self, flags=None):
         return self.flagSet('EMS', flags)
 
-    @pyqtSlot(bool)
-    def emission(self, state=None):
-        if state is True:
-            res = self.command('EMON')
-            return 'ERR' not in res
-        if state is False:
-            res = self.command('EMOFF')
-            return 'ERR' not in res
+    def aimingbeam(self, flags=None):
+        return self.flagSet('AIM')
 
-    @pyqtSlot(bool)
-    def aimingbeam(self, state=None):
-        if state is True:
-            self.command('ABN')
-        elif state is False:
-            self.command('ABF')
+    def emission(self, flags=None):
+        return self.flagSet('EMX', flags)
 
     def error(self, flags=None):
+        if flags is None:
+            flags = self.flags()
         if not self.flagSet('ERR', flags):
             logger.info('No errors')
             return False
@@ -115,30 +160,6 @@ class Ipglaser(QSerialDevice):
         if self.flagSet('UNX', flags):
             logger.warning('ERROR: Unexpected laser output')
         return True
-
-    def poll(self):
-        self.send('STA')
-        self.send('ROP')
-
-    @pyqtSlot(str)
-    def process(self, msg):
-        part = msg.split()
-        cmd = part[0]
-        value = part[1]
-        if 'STA' in cmd:
-            status = int(value)
-            state = (not self.flagSet('KEY', status),
-                     self.flagSet('AIM', status),
-                     (self.flagSet('EMS', status) +
-                      self.flagSet('EMX', status)),
-                     (self.flagSet('TMP', status) or
-                      self.flagSet('BKR', status) or
-                      self.flagSet('PWR', status) or
-                      self.flagSet('UNX', status)))
-            self.sigStatus.emit(state)
-        elif 'ROP' in cmd:
-            power = self.power(value)
-            self.sigPower.emit(power)
 
 
 def main():

@@ -2,7 +2,7 @@
 
 """Control panel for an IPG fiber laser."""
 
-from PyQt5.QtCore import (Qt, QTimer, pyqtSlot)
+from PyQt5.QtCore import (Qt, QTimer, pyqtSlot, pyqtProperty)
 from PyQt5.QtGui import (QPixmap, QDoubleValidator)
 from PyQt5.QtWidgets import (QWidget, QFrame, QPushButton, QLabel,
                              QLineEdit, QHBoxLayout, QVBoxLayout)
@@ -20,7 +20,9 @@ def led(name):
 
 class Indicator(QWidget):
 
-    def __init__(self, title, states=None, button=False, **kwargs):
+    def __init__(self, title,
+                 states=None,
+                 button=False, **kwargs):
         super(Indicator, self).__init__(**kwargs)
 
         self.title = title
@@ -28,9 +30,9 @@ class Indicator(QWidget):
         if states is None:
             states = [led('green-led-off'), led('green-led-on')]
         self.states = states
-        self.init_ui(button)
+        self.initUi(button)
 
-    def init_ui(self, button):
+    def initUi(self, button):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(1)
@@ -47,48 +49,56 @@ class Indicator(QWidget):
         layout.addWidget(self.led)
         self.setLayout(layout)
 
-    def set(self, state):
+    @pyqtSlot(int)
+    def setState(self, state):
+        self._state = state
         self.led.setPixmap(self.states[state])
+
+    @pyqtProperty(int)
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, state):
+        self.setState(state)
 
 
 class StatusWidget(QFrame):
 
     def __init__(self):
         super(StatusWidget, self).__init__()
-        self.init_ui()
+        self.initUi()
 
-    def init_ui(self):
+    def initUi(self):
         self.setFrameStyle(QFrame.Panel | QFrame.Sunken)
         layout = QHBoxLayout()
-        self.led_key = Indicator('keyswitch')
-        self.led_aim = Indicator('  aiming ',
-                                 [led('amber-led-off'), led('amber-led-on')],
-                                 button=True)
-        self.led_aim.button.setToolTip('Toggle aiming laser on/off')
-        self.led_emx = Indicator(' emission',
-                                 [led('red-led-off'),
-                                  led('red-led-on'),
-                                  led('amber-led-on')],
-                                 button=True)
-        self.led_emx.button.setToolTip('Toggle laser emission on/off')
-        self.led_flt = Indicator('  fault  ',
-                                 [led('amber-led-off'), led('amber-led-on')])
+        amber = [led('amber-led-off'), led('amber-led-on')]
+        tricolor = [led('red-led-off'),
+                    led('red-led-on'),
+                    led('amber-led-on')]
+        self.keyswitch = Indicator('keyswitch')
+        self.aiming = Indicator('  aiming ', amber, button=True)
+        self.aiming.button.setToolTip('Toggle aiming laser on/off')
+        self.emission = Indicator(' emission', tricolor, button=True)
+        self.emission.button.setToolTip('Toggle laser emission on/off')
+        self.fault = Indicator('  fault  ', amber)
+
         layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(1)
-        layout.addWidget(self.led_key)
-        layout.addWidget(self.led_aim)
-        layout.addWidget(self.led_emx)
-        layout.addWidget(self.led_flt)
+        layout.addWidget(self.keyswitch)
+        layout.addWidget(self.aiming)
+        layout.addWidget(self.emission)
+        layout.addWidget(self.fault)
         self.setLayout(layout)
 
     @pyqtSlot(object)
     def update(self, status):
         key, aim, emx, flt = status
         print(status)
-        self.led_key.set(key)
-        self.led_aim.set(aim)
-        self.led_emx.set(emx)
-        self.led_flt.set(flt)
+        self.keyswitch.setState(key)
+        self.aiming.setState(aim)
+        self.emission.setState(emx)
+        self.fault.setState(flt)
 
 
 class PowerWidget(QWidget):
@@ -97,7 +107,7 @@ class PowerWidget(QWidget):
         super(PowerWidget, self).__init__(**kwargs)
         self.min = 0.
         self.max = 10.
-        self.init_ui()
+        self.initUi()
         self.value = 0
 
     def init_ui(self):
@@ -119,17 +129,17 @@ class PowerWidget(QWidget):
 
     @pyqtSlot(float)
     def setValue(self, value):
-        self.value = value
+        value = np.clip(float(value), self.min, self.max)
+        self._value = value
+        self.wvalue.setText('{0:.4f}'.format(value))
 
-    @property
+    @pyqtProperty(float)
     def value(self):
         self._value
 
     @value.setter
-    def value(self, _value):
-        value = np.clip(float(_value), self.min, self.max)
-        self._value = value
-        self.wvalue.setText('{0:.4f}'.format(value))
+    def value(self, value):
+        self.setValue(value)
 
 
 class QIPGLaser(QFrame):
@@ -137,57 +147,59 @@ class QIPGLaser(QFrame):
     def __init__(self):
         super(QIPGLaser, self).__init__()
         self.instrument = Ipglaser()
-        self.init_ui()
 
-        self.instrument.sigStatus.connect(self.wstatus.update)
-        self.instrument.sigPower.connect(self.wpower.setValue)
+        self.status = StatusWidget()
+        self.power = PowerWidget()
+        self.timer = QTimer(self)
+        self.timer.setInterval(1000)
 
-        self._timer = QTimer(self)
-        self._timer.timeout.connect(self.instrument.poll)
-        self._timer.setInterval(1000)
+        self.initUi()
+        self.connectSignals()
+
+    def initUi(self):
+        self.setFrameShape(QFrame.Box)
+        vlayout = QVBoxLayout()
+        vlayout.setContentsMargins(0, 0, 0, 0)
+        vlayout.setSpacing(0)
+        self.setLayout(vlayout)
+
+        vlayout.addWidget(QLabel(' Trapping Laser'))
+
+        controls = QWidget()
+        hlayout = QHBoxLayout()
+        controls.setLayout(hlayout)
+        hlayout.setSpacing(1)
+        hlayout.addWidget(self.status)
+        hlayout.addWidget(self.power)
+        vlayout.addWidget(controls)
+
+    def connectSignals(self):
+        self.instrument.sigStatus.connect(self.status.update)
+        self.instrument.sigPower.connect(self.power.setValue)
+        self.status.aiming.button.clicked.connect(self.toggleaim)
+        self.status.emission.button.clicked.connect(self.toggleemission)
+        self.timer.timeout.connect(self.instrument.poll)
 
     def stop(self):
-        self._timer.stop()
+        self.timer.stop()
 
     def start(self):
-        self._timer.start()
+        self.timer.start()
         return self
 
     def shutdown(self):
         self.stop()
         self.instrument.close()
 
-    def init_ui(self):
-        self.setFrameShape(QFrame.Box)
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        layout.addWidget(QLabel(' Trapping Laser'))
-        layout.addWidget(self.display_widget())
-        self.setLayout(layout)
-
-    def display_widget(self):
-        self.wstatus = StatusWidget()
-        self.wpower = PowerWidget()
-        w = QWidget()
-        layout = QHBoxLayout()
-        layout.setSpacing(1)
-        layout.addWidget(self.wstatus)
-        layout.addWidget(self.wpower)
-        w.setLayout(layout)
-        self.wstatus.led_aim.button.clicked.connect(self.toggleaim)
-        self.wstatus.led_emx.button.clicked.connect(self.toggleemission)
-        return w
-
     @pyqtSlot()
     def toggleaim(self):
-        state = self.instrument.aimingbeam()
-        self.instrument.aimingbeam(state=not state)
+        newstate = not self.status.aiming.state
+        self.instrument.setAimingbeam(newstate)
 
     @pyqtSlot()
     def toggleemission(self):
-        state = self.instrument.emission()
-        self.instrument.emission(state=not state)
+        newstate = not self.status.emission.state
+        self.instrument.setEmission(newstate)
 
 
 def main():
