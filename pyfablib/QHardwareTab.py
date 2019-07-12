@@ -23,6 +23,7 @@ class QHardwareTab(QWidget):
 
         layout = tabLayout(self)
         try:
+            logger.info('Installing Prior Proscan stage controller')
             self.wstage = QProscan()
             layout.addWidget(QLabel('Microscope Stage Position'))
             layout.addWidget(self.wstage)
@@ -31,6 +32,7 @@ class QHardwareTab(QWidget):
             self.wstage = None
             logger.warning('Could not install stage: {}'.format(ex))
         try:
+            logger.info('Installing IPG fiber laser')
             self.wlaser = QIPGLaser()
             layout.addWidget(QLabel('Trapping Laser'))
             layout.addWidget(self.wlaser)
