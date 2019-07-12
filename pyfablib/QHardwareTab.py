@@ -10,6 +10,7 @@ from common.tabLayout import tabLayout
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class QHardwareTab(QWidget):
@@ -40,12 +41,14 @@ class QHardwareTab(QWidget):
 
     def expose(self, index):
         if index == self.index:
+            logger.debug('exposing')
             if self.wstage is not None:
                 self.wstage.start()
             if self.wlaser is not None:
                 self.wlaser.start()
                 pass
         else:
+            logger.debug('hiding')
             if self.wstage is not None:
                 self.wstage.stop()
             if self.wlaser is not None:

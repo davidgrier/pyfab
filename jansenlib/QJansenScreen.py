@@ -176,7 +176,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         camera.widthChanged.connect(self.setWidth)
         camera.heightChanged.connect(self.setHeight)
         self._thread = QCameraThread(self)
-        self._thread.start()
+        self._thread.start(QThread.TimeCriticalPriority)
         self.source = self.default
 
     @pyqtProperty(object)
