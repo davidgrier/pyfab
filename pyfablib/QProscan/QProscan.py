@@ -15,12 +15,16 @@ logger.setLevel(logging.INFO)
 
 class QProscan(QWidget, Ui_QProscan):
 
-    def __init__(self, parent=None, interval=200, **kwargs):
+    def __init__(self, parent=None, interval=200, swapxy=True, **kwargs):
         super(QProscan, self).__init__(parent)
         self.setupUi(self)
         self.device = Proscan(self, **kwargs)
-        self.device.updateX.connect(self.lcdX.display)
-        self.device.updateY.connect(self.lcdY.display)
+        if swapxy:
+            self.device.updateX.connect(self.lcdY.display)
+            self.device.updateY.connect(self.lcdX.display)
+        else:
+            self.device.updateX.connect(self.lcdX.display)
+            self.device.updateY.connect(self.lcdY.display)
         self.device.updateZ.connect(self.lcdZ.display)
         self.timer = QTimer()
         self.timer.timeout.connect(self.device.poll)
