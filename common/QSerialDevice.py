@@ -44,7 +44,7 @@ class QSerialDevice(QSerialPort):
             return False
         name = portinfo.systemLocation()
         if portinfo.isBusy():
-            logger.info('Port is busy: {}'.format(name))
+            logger.debug('Port is busy: {}'.format(name))
             return False
         self.setPort(portinfo)
         self.setBaudRate(self.baudrate)
@@ -52,7 +52,7 @@ class QSerialDevice(QSerialPort):
         self.setParity(self.parity)
         self.setStopBits(self.stopbits)
         if not self.open(QSerialPort.ReadWrite):
-            logger.info('Could not open port: {}'.format(name))
+            logger.debug('Could not open port: {}'.format(name))
             return False
         if self.bytesAvailable():
             tmp = self.readAll()
@@ -61,7 +61,7 @@ class QSerialDevice(QSerialPort):
             logger.info('Device found at {}'.format(name))
             return True
         self.close()
-        logger.info('Device not connected to {}'.format(name))
+        logger.debug('Device not connected to {}'.format(name))
         return False
 
     def find(self):

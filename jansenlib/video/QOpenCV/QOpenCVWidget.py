@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'QOpenCVWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.12.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_QOpenCVWidget(object):
     def setupUi(self, QOpenCVWidget):
@@ -51,6 +52,7 @@ class Ui_QOpenCVWidget(object):
         self.labelWidth.setObjectName("labelWidth")
         self.horizontalLayout_2.addWidget(self.labelWidth)
         self.width = QtWidgets.QSpinBox(self.frameGeometry)
+        self.width.setMaximum(2000)
         self.width.setObjectName("width")
         self.horizontalLayout_2.addWidget(self.width)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -59,6 +61,7 @@ class Ui_QOpenCVWidget(object):
         self.labelHeight.setObjectName("labelHeight")
         self.horizontalLayout_2.addWidget(self.labelHeight)
         self.height = QtWidgets.QSpinBox(self.frameGeometry)
+        self.height.setMaximum(2000)
         self.height.setObjectName("height")
         self.horizontalLayout_2.addWidget(self.height)
         self.verticalLayout.addWidget(self.frameGeometry)
@@ -83,6 +86,8 @@ class Ui_QOpenCVWidget(object):
         self.height.setStatusTip(_translate("QOpenCVWidget", "Camera: Image height"))
 
 
+
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -91,4 +96,3 @@ if __name__ == "__main__":
     ui.setupUi(QOpenCVWidget)
     QOpenCVWidget.show()
     sys.exit(app.exec_())
-

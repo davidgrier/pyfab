@@ -139,6 +139,9 @@
         <property name="statusTip">
          <string>Camera: Image width</string>
         </property>
+        <property name="maximum">
+         <number>2000</number>
+        </property>
        </widget>
       </item>
       <item>
@@ -168,6 +171,9 @@
        <widget class="QSpinBox" name="height">
         <property name="statusTip">
          <string>Camera: Image height</string>
+        </property>
+        <property name="maximum">
+         <number>2000</number>
         </property>
        </widget>
       </item>
