@@ -2,17 +2,16 @@
 
 # Form implementation generated from reading ui file 'QProscan_UI.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_QProscan(object):
     def setupUi(self, QProscan):
         QProscan.setObjectName("QProscan")
-        QProscan.resize(324, 48)
+        QProscan.resize(368, 71)
         self.gridLayout = QtWidgets.QGridLayout(QProscan)
         self.gridLayout.setContentsMargins(2, 2, 2, 2)
         self.gridLayout.setHorizontalSpacing(2)
@@ -31,6 +30,7 @@ class Ui_QProscan(object):
         self.labelZ.setObjectName("labelZ")
         self.gridLayout.addWidget(self.labelZ, 0, 2, 1, 1)
         self.lcdX = QtWidgets.QLCDNumber(QProscan)
+        self.lcdX.setMinimumSize(QtCore.QSize(120, 40))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -57,11 +57,12 @@ class Ui_QProscan(object):
         font.setWeight(50)
         self.lcdX.setFont(font)
         self.lcdX.setAutoFillBackground(True)
-        self.lcdX.setNumDigits(9)
+        self.lcdX.setDigitCount(9)
         self.lcdX.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
         self.lcdX.setObjectName("lcdX")
         self.gridLayout.addWidget(self.lcdX, 1, 0, 1, 1)
         self.lcdY = QtWidgets.QLCDNumber(QProscan)
+        self.lcdY.setMinimumSize(QtCore.QSize(120, 40))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -88,11 +89,12 @@ class Ui_QProscan(object):
         font.setWeight(50)
         self.lcdY.setFont(font)
         self.lcdY.setAutoFillBackground(True)
-        self.lcdY.setNumDigits(9)
+        self.lcdY.setDigitCount(9)
         self.lcdY.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
         self.lcdY.setObjectName("lcdY")
         self.gridLayout.addWidget(self.lcdY, 1, 1, 1, 1)
         self.lcdZ = QtWidgets.QLCDNumber(QProscan)
+        self.lcdZ.setMinimumSize(QtCore.QSize(120, 40))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -119,7 +121,7 @@ class Ui_QProscan(object):
         font.setWeight(50)
         self.lcdZ.setFont(font)
         self.lcdZ.setAutoFillBackground(True)
-        self.lcdZ.setNumDigits(9)
+        self.lcdZ.setDigitCount(9)
         self.lcdZ.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
         self.lcdZ.setObjectName("lcdZ")
         self.gridLayout.addWidget(self.lcdZ, 1, 2, 1, 1)
@@ -135,8 +137,6 @@ class Ui_QProscan(object):
         self.labelZ.setText(_translate("QProscan", "z [µm]"))
 
 
-
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -145,3 +145,4 @@ if __name__ == "__main__":
     ui.setupUi(QProscan)
     QProscan.show()
     sys.exit(app.exec_())
+
