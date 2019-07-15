@@ -17,7 +17,7 @@ class moverecordz(task):
 
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
-        xc = self.parent.cgh.xc
+        xc = self.parent.cgh.device.xc
         trap = self.traps.flatten()[0]
         self.r = np.array((trap.r.x(), trap.r.y()))
         sgn = -1 if self.r[0] - xc > 0 else 1

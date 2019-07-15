@@ -16,7 +16,7 @@ class elevator(movetocoordinate):
 
     def initialize_more(self, frame):
         self.dvr = self.parent.dvr
-        self.dvr.brecord.animateClick()
+        self.dvr.recordButton.animateClick()
         self.trap_list = self.parent.pattern.pattern.flatten()
         self.frames = []
         self.data = {}
@@ -29,6 +29,6 @@ class elevator(movetocoordinate):
             self.data[trap].append(trap.r.z())
 
     def dotask(self):
-        self.dvr.bstop.animateClick()
+        self.dvr.stopButton.animateClick()
         df = pd.DataFrame(index=self.frames, data=self.data)
         df.to_csv(self.dvr.filename[:-4] + ".csv")
