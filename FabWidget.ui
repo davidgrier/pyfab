@@ -530,14 +530,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QWebView" name="browser">
+          <widget class="QWebEngineView" name="browser">
            <property name="url">
             <url>
              <string>qrc:/help/help/pyfab.html</string>
             </url>
-           </property>
-           <property name="zoomFactor">
-            <double>1.250000000000000</double>
            </property>
           </widget>
          </item>
@@ -651,9 +648,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
   </customwidget>
   <customwidget>
    <class>QDVR</class>
@@ -729,22 +726,6 @@
     <hint type="destinationlabel">
      <x>537</x>
      <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>bback</sender>
-   <signal>clicked()</signal>
-   <receiver>browser</receiver>
-   <slot>back()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>880</x>
-     <y>71</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>880</x>
-     <y>329</y>
     </hint>
    </hints>
   </connection>
@@ -921,6 +902,22 @@
     <hint type="destinationlabel">
      <x>1000</x>
      <y>102</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bback</sender>
+   <signal>clicked()</signal>
+   <receiver>browser</receiver>
+   <slot>back()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>857</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>857</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
