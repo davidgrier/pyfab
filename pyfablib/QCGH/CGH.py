@@ -9,10 +9,26 @@ from PyQt5.QtGui import (QVector3D, QMatrix4x4)
 from numba import jit
 from time import time
 
+import multiprocessing as mp
+
+try:
+    mp.set_start_method('spawn')
+except RuntimeError:
+    pass
+
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+class SerialTrap():
+    def __init__(self):
+        self.structure = None
+        self.psi = None
+        self.needsRefresh = None
+        self.r = None
+        self.amp = None
 
 
 class CGH(QObject):
@@ -81,10 +97,48 @@ class CGH(QObject):
 
         # Splay wavenumber
         self._splayFactor = 0.01
+        
+        self.updateGeometry()
+        self.updateparams()
+        
+    def updateparams(self):
+        SerialTraps=[]
+        for trap in self.traps:
+            trapstore = SerialTrap()
+            trapstore.structure = trap.structure
+            trapstore.psi = trap.psi
+            trapstore.needsRefresh = trap.needsRefresh
+            trapstore.r = trap.r
+            trapstore.amp = trap.amp
+            SerialTraps.append(trapstore)
+        
+        self.params = (SerialTraps,self.shape,self._wavelength, self._magnification,
+            self._focalLength,self._cameraPitch, self._refractiveIndex,
+            self._slmPitch,self._scaleFactor,self.m,
+            self._rc,self.rc,self._rs,self._phis,self._splayFactor,self._thetac,self.xs,self.ys,
+            self.iqx, self.iqy, self.iqxz, self.iqyz)
 
     # Slots for threaded operation
     @pyqtSlot()
     def start(self):
+        
+        #self.processcount = 1
+        #for i in range(self.processcount):
+        #self.buffering
+        self.ComputeReady=mp.Event()
+        self.Quit=mp.Event()
+        events=(self.ComputeReady, self.Quit)
+        self.manager_conn, self.worker_conn = mp.Pipe()
+        self.subprocess = mp.Process(target=createSubproc,args=(self.worker_conn, events))
+        
+        #allocate an amount of memory equivilent to a 2kx2k camera to ensure the worker process always has enough room to send requested computations back
+        #numpyarrsizer = np.zeros((2000,2000), dtype=np.complex_)
+        #self.sharedmem = mp.shared_memory.SharedMemory(create=True, size=#numpyarrsizer.nbytes, name = 'computeoutput')
+        
+        
+        
+        self.subprocess.start()
+        
         logger.info('starting CGH pipeline')
         self.updateGeometry()
         self.updateTransformationMatrix()
@@ -128,6 +182,7 @@ class CGH(QObject):
     # @jit
     def compute(self, all=False):
         """Compute phase hologram for specified traps"""
+        '''
         self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0j)
@@ -150,6 +205,31 @@ class CGH(QObject):
         self.sigHologramReady.emit(self.phi)
         self.time = time() - start
         self.sigComputing.emit(False)
+        '''
+        
+        self.sigComputing.emit(True)
+        start = time()
+        self.updateparams()
+        self.phi=self.sendcompute()
+        #self._psi.fill(0j)
+        #self.phi=self._psi
+        self.sigHologramReady.emit(self.phi)
+        self.time = time() - start
+        self.sigComputing.emit(False)
+        
+        logger.info('Compute Time: ' +str(self.time))
+        
+    def sendcompute(self):
+
+        self.manager_conn.send(self.params)
+
+        #receivearray = np.ndarray(self.shape, dtype=np.complex_, buffer=shm.buf)
+        self.ComputeReady.set()               
+
+        output = self.manager_conn.recv()
+        #output = receiverray
+
+        return output
 
     def bless(self, field):
         """Ensure that field has correct type for compute"""
@@ -423,3 +503,89 @@ class CGH(QObject):
     def splayFactor(self, splayFactor):
         self._splayFactor = float(splayFactor)
         self.compute(all=True)
+        
+    def close(self):
+        self.Quit.set()
+        self.ComputeReady.set()
+        self.subprocess.join()
+        
+
+
+def createSubproc(worker_conn,events):
+    proc=WorkerClass()
+    proc.worker(worker_conn,events)
+    
+class WorkerClass():
+ 
+    def worker(self,worker_conn,events):
+        self.worker_conn=worker_conn
+        self.ComputeReady, self.Quit=events
+        
+        
+        #self.sharedmem = mp.shared_memory.SharedMemory(name='computeoutput')
+		
+        #main worker loop
+        while not self.Quit.is_set():
+            self.ComputeReady.wait()
+            #after computeready is set, check for quit command
+            if self.Quit.is_set():
+                break
+            self.params = self.worker_conn.recv()
+            self.unpackparams(self.params)
+            #self.updateGeometry()
+            #self.updateTransformationMatrix()
+            self._psi=np.zeros(self.shape, dtype=np.complex_)
+            
+            
+            #outputarray = np.ndarray((6,), dtype=np.complex_, buffer=self.sharedmem.buf)
+            output = self.ComputeOnSubproc()
+       
+            #print("worker about to send")
+            self.worker_conn.send(output)
+            #outputarray = output
+            #print("workeralmostfinished")
+            
+            self.ComputeReady.clear()
+            
+
+    def ComputeOnSubproc(self):
+        self._psi.fill(0j)
+        for trap in self.traps:
+            if ((all is True) or trap.needsRefresh):
+                # map coordinates into trap space
+                r = self.m * trap.r
+                # axial splay
+                fac = 1. / (1. + self._splayFactor * (r.z() - self.rc.z()))
+                r *= QVector3D(fac, fac, 1.)
+                # windowing
+                # amp = trap.amp * self.window(r)
+                amp = trap.amp
+                if trap.psi is None:
+                    trap.psi = self._psi.copy()
+                self.compute_displace(amp, r, trap.psi)
+                trap.needsRefresh = False
+            self._psi += trap.structure * trap.psi
+        self.phi = self.quantize(self._psi)
+
+        return self.phi
+
+    @staticmethod
+    @jit(nopython=True)
+    def quantize(psi):
+        """Compute the phase ofprint(worker the field, scaled to uint8"""
+        return ((128. / np.pi) * np.angle(psi) + 127.).astype(np.uint8)
+        
+    @jit(nopython=False) 
+    def compute_displace(self, amp, r, buffer):
+        """Compute phase hologram to displace a trap with
+        a specified complex amplitude to a specified position
+        """
+        ex = np.exp(self.iqx * r.x() + self.iqxz * r.z())
+        ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
+        np.outer(amp * ey, ex, buffer)
+        
+    def unpackparams(self,params):
+        self.traps,self.shape,self._wavelength, self._magnification,self._focalLength,self._cameraPitch,self._refractiveIndex,self._slmPitch,self._scaleFactor,self.m,self._rc,self.rc,self._rs,self._phis,self._splayFactor,self._thetac,self.xs,self.ys, self.iqx, self.iqy, self.iqxz, self.iqyz = params
+                
+
+    
