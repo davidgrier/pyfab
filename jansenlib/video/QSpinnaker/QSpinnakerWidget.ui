@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QSpinnakerWidget</class>
+ <widget class="QFrame" name="QSpinnakerWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>372</width>
+    <height>362</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>248</width>
+    <height>244</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>QSpinnakerWidget</string>
+  </property>
+  <property name="statusTip">
+   <string>Control Spinnaker camera</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>1</number>
+   </property>
+   <property name="leftMargin">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="rightMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="frameFlip">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="mirrored">
+        <property name="statusTip">
+         <string>Camera: Flip image around vertical axis</string>
+        </property>
+        <property name="text">
+         <string>&amp;Mirrored</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>103</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="flipped">
+        <property name="statusTip">
+         <string>Camera: Flip image about horizontal axis</string>
+        </property>
+        <property name="text">
+         <string>&amp;Flipped</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frameExposure">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>2</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>1</number>
+      </property>
+      <item row="1" column="0">
+       <widget class="QLabel" name="gainLabel">
+        <property name="text">
+         <string>&amp;Gain</string>
+        </property>
+        <property name="buddy">
+         <cstring>gain</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="autogain">
+        <property name="statusTip">
+         <string>Camera: Optimize gain</string>
+        </property>
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="gain">
+        <property name="statusTip">
+         <string>Camera gain</string>
+        </property>
+        <property name="suffix">
+         <string> dB</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>24.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelblacklevel">
+        <property name="text">
+         <string>Black Level</string>
+        </property>
+        <property name="buddy">
+         <cstring>blacklevel</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="blacklevel">
+        <property name="statusTip">
+         <string>Camera black level</string>
+        </property>
+        <property name="suffix">
+         <string> %</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.500000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="exposure">
+        <property name="statusTip">
+         <string>Camera exposure time </string>
+        </property>
+        <property name="suffix">
+         <string> μs</string>
+        </property>
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>50000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="exposureLabel">
+        <property name="text">
+         <string>&amp;Exposure Time</string>
+        </property>
+        <property name="buddy">
+         <cstring>exposure</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="autoexposure">
+        <property name="statusTip">
+         <string>Camera: Optimize exposure time</string>
+        </property>
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frameGamma">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>2</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>1</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelgamma">
+        <property name="text">
+         <string>Gamma</string>
+        </property>
+        <property name="buddy">
+         <cstring>gamma</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="labelsharpness">
+        <property name="text">
+         <string>Sharpness</string>
+        </property>
+        <property name="buddy">
+         <cstring>sharpness</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QDoubleSpinBox" name="gamma">
+        <property name="statusTip">
+         <string>Camera gamma</string>
+        </property>
+        <property name="minimum">
+         <double>0.500000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>4.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="sharpness">
+        <property name="statusTip">
+         <string>Camera sharpness</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>1024</number>
+        </property>
+        <property name="value">
+         <number>512</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frameMode">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>2</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>1</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelVideoMode">
+        <property name="text">
+         <string>Video Mode</string>
+        </property>
+        <property name="buddy">
+         <cstring>videomode</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="labelFrameRate">
+        <property name="text">
+         <string>Frame &amp;Rate</string>
+        </property>
+        <property name="buddy">
+         <cstring>framerate</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QComboBox" name="videomode">
+        <property name="statusTip">
+         <string>Camera video mode</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Mode 0</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mode 1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mode 2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mode 3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mode 4</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mode 5</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mode 6</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mode 7</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="framerate">
+        <property name="statusTip">
+         <string>Camera frame rate</string>
+        </property>
+        <property name="suffix">
+         <string> Hz</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>40.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>40.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frameGeometry">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>2</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>0</number>
+      </property>
+      <item row="1" column="1">
+       <widget class="QLabel" name="labely0">
+        <property name="text">
+         <string>&amp;y0</string>
+        </property>
+        <property name="buddy">
+         <cstring>y0</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QSpinBox" name="x0">
+        <property name="statusTip">
+         <string>Camera ROI: bottom left corner</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QSpinBox" name="height">
+        <property name="statusTip">
+         <string>Camera ROI: height</string>
+        </property>
+        <property name="minimum">
+         <number>16</number>
+        </property>
+        <property name="maximum">
+         <number>1080</number>
+        </property>
+        <property name="singleStep">
+         <number>16</number>
+        </property>
+        <property name="value">
+         <number>1080</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="labelheight">
+        <property name="text">
+         <string>&amp;Height</string>
+        </property>
+        <property name="buddy">
+         <cstring>height</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="y0">
+        <property name="statusTip">
+         <string>Camera ROI: bottom left corner</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QSpinBox" name="width">
+        <property name="statusTip">
+         <string>Camera ROI: width</string>
+        </property>
+        <property name="minimum">
+         <number>16</number>
+        </property>
+        <property name="maximum">
+         <number>1280</number>
+        </property>
+        <property name="singleStep">
+         <number>16</number>
+        </property>
+        <property name="value">
+         <number>1280</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelx0">
+        <property name="text">
+         <string>&amp;x0</string>
+        </property>
+        <property name="buddy">
+         <cstring>x0</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="labelwidth">
+        <property name="text">
+         <string>&amp;Width</string>
+        </property>
+        <property name="buddy">
+         <cstring>width</cstring>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+  <zorder>frameExposure</zorder>
+  <zorder>frameFlip</zorder>
+  <zorder>frameGeometry</zorder>
+  <zorder>frameGamma</zorder>
+  <zorder>frameMode</zorder>
+ </widget>
+ <tabstops>
+  <tabstop>exposure</tabstop>
+  <tabstop>autoexposure</tabstop>
+  <tabstop>gain</tabstop>
+  <tabstop>autogain</tabstop>
+  <tabstop>blacklevel</tabstop>
+  <tabstop>gamma</tabstop>
+  <tabstop>sharpness</tabstop>
+  <tabstop>videomode</tabstop>
+  <tabstop>framerate</tabstop>
+  <tabstop>x0</tabstop>
+  <tabstop>y0</tabstop>
+  <tabstop>width</tabstop>
+  <tabstop>height</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

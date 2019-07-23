@@ -16,7 +16,7 @@ class record(task):
         self.dvr = self.parent.dvr
         if self.fn is not None:
             self.dvr.filename = self.fn
-        self.dvr.brecord.animateClick()
+        self.dvr.recordButton.animateClick()
 
     def dotask(self):
-        self.dvr.bstop.animateClick()
+        self.dvr.stopButton.animateClick()

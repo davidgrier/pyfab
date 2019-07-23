@@ -2,7 +2,7 @@
 # MENU: Add trap/Render text ...
 
 from .rendertext import rendertext
-from PyQt4.QtGui import QInputDialog
+from PyQt5.QtGui import QInputDialog
 
 
 class rendertextas(rendertext):

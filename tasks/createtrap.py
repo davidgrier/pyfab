@@ -1,5 +1,5 @@
 from .task import task
-from PyQt4.QtGui import QVector3D
+from PyQt5.QtGui import QVector3D
 
 
 class createtrap(task):

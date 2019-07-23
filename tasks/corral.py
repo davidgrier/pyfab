@@ -4,7 +4,7 @@
 from .task import task
 import numpy as np
 from numpy.random import normal
-from PyQt4.QtGui import QVector3D
+from PyQt5.QtGui import QVector3D
 
 
 class corral(task):

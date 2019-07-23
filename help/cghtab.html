@@ -8,24 +8,55 @@
 The CGH tab provides access to the calibration constants used in
 calcuating computer-generated holograms.  Change values by
 entering numbers into the form and hitting RETURN.
-<dl>
-  <dt>qpp</dt>
-  <dd>Overall scale factor [mrad/pixel]</dd>
-  <dt>alpha</dt>
-  <dd>Aspect ratio</dd>
 
+<h3>Instrumental Calibrations</h3>
+<dl>
+  <dt>Wavelength</dt>
+  <dd>Vacuum wavelength of the trapping laser [&mu;m]</dd>
+  
+  <dt>Refractive index</dt>
+  <dd>Refractive index of the medium</dd>
+
+  <dt>Magnification</dt>
+  <dd>Magnification of the objective lens</dd>
+
+  <dt>Focal length</dt>
+  <dd>Focal length of the objective lens [&mu;m]</dd>
+
+  <dt>Camera pitch</dt>
+  <dd>Center-to-center separation between camera pixels [&mu;m]</dd>
+
+  <dt>SLM pitch</dt>
+  <dd>Center-to-center separation between SLM pixels [&mu;m]</dd>
+
+  <dt>Scale factor</dt>
+  <dd>Effective magnification of the objective's input pupil onto
+    the SLM</dd>
+</dl>
+
+<h3>Alignment at the camera plane</h3>
+<dl>
   <dt>(xc, yc)</dt>
   <dd>Coordinates of the optical axis in the camera plane [pixel]</dd>
+
   <dt>zc</dt>
   <dd>Axial offset of the trap plane from the image plane [pixel]</dd>
-  <dt>theta</dt>
-  <dd>Orientation of the trap plane relative to the image plane [degree]</dd>
 
+  <dt>&theta;c</dt>
+  <dd>Orientation of the trap plane relative to the image plane
+    [degree]</dd>
+</dl>
+
+<h3>Alignment at the SLM plane</h3>
+<dl>
   <dt>(xs, ys)</dt>
   <dd>Coordinates of the optical axis in the hologram plane [pixel]</dd>
 
+  <dt>&phi;s</dt>
+  <dd>Tilt of the SLM relative to the optical axis [degree]</dd>
+  
   <dt>k0</dt>
-  <dd>Splay factor [1/pixel]</dd>
+  <dd>Splay factor [rad/pixel]</dd>
 </dl>
 
 <hr>

@@ -1,160 +1,206 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# Copyright 2018 David G. Grier and Michael O'Brien
-#
-# This file is part of pyfab
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-"""pyfab is a GUI for holographic optical trapping"""
+from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
+from PyQt5.QtCore import pyqtSlot
 
-from pyqtgraph.Qt import QtGui
-from pyfablib.QFabWidget import QFabWidget
-from common.fabconfig import fabconfig
-from tasks.taskmenu import taskMenu
-import sys
+from FabWidget import Ui_PyFab
+
+from pyfablib.QSLM import QSLM
+from pyfablib.traps.QTrappingPattern import QTrappingPattern
+from tasks.taskmenu import buildTaskMenu
+from tasks.Taskmanager import Taskmanager
+from common.Configuration import Configuration
+
+import logging
+logging.basicConfig()
+logger = logging.getLogger('nujansen')
+logger.setLevel(logging.DEBUG)
 
 
-class pyfab(QtGui.QMainWindow):
+try:
+    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
+except Exception as ex:
+    logger.warning('Could not import GPU pipeline: {}'.format(ex))
+    from pyfablib.QCGH.CGH import CGH
 
-    def __init__(self):
-        self.app = QtGui.QApplication(sys.argv)
-        super(pyfab, self).__init__()
-        self.instrument = QFabWidget(self)
-        self.init_ui()
-        self.config = fabconfig(self)
-        self.config.restore(self.instrument.wcgh)
-        self.show()
+try:
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
+except Exception as ex:
+    logger.warning('Could not import Spinnaker camera: {}'.format(ex))
+    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
 
-    def init_ui(self):
-        self.setWindowTitle('PyFab')
-        self.setWindowIcon(QtGui.QIcon('icons/pyfab.png'))
-        self.statusBar().showMessage('Ready')
-        self.menuBar().setNativeMenuBar(False)
-        self.fileMenu()
-        taskMenu(self)
-        self.calibrationMenu()
-        self.instrument.setTabBarWidth()
-        self.setCentralWidget(self.instrument)
 
-    def fileMenu(self):
-        menu = self.menuBar().addMenu('&File')
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, '&Save Photo', self)
-        action.setShortcut('Ctrl+S')
-        action.setStatusTip('Save a snapshot')
-        action.triggered.connect(self.savePhoto)
-        menu.addAction(action)
+class PyFab(QMainWindow, Ui_PyFab):
 
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, 'Save Photo &As ...', self)
-        action.setShortcut('Ctrl+A')
-        action.setStatusTip('Save a snapshot')
-        action.triggered.connect(lambda: self.savePhoto(True))
-        menu.addAction(action)
+    def __init__(self, parent=None, doconfig=True):
+        super(PyFab, self).__init__(parent)
 
-        icon = QtGui.QIcon.fromTheme('camera-photo')
-        action = QtGui.QAction(icon, 'Save Hologram ...', self)
-        action.setStatusTip('Save current hologram')
-        action.triggered.connect(lambda: self.saveHologram())
-        menu.addAction(action)
+        self.setupUi(self)
+        self.configuration = Configuration(self)
 
-        icon = QtGui.QIcon.fromTheme('document-save')
-        action = QtGui.QAction(icon, 'Save Settings', self)
-        action.setShortcut('Ctrl+T')
-        action.setStatusTip('Save current settings')
-        action.triggered.connect(self.saveSettings)
-        menu.addAction(action)
+        # camera
+        self.camera.close()  # remove placeholder widget from UI
+        camera = QCamera()
+        self.camera = camera
+        self.screen.camera = camera
+        self.cameraLayout.addWidget(camera)
 
-        icon = QtGui.QIcon.fromTheme('application-exit')
-        action = QtGui.QAction(icon, '&Quit', self)
-        action.setShortcut('Ctrl+Q')
-        action.setStatusTip('Quit PyFab')
-        action.triggered.connect(self.close)
-        menu.addAction(action)
+        # spatial light modulator
+        self.slm = QSLM(self)
 
-    def calibrationMenu(self):
-        menu = self.menuBar().addMenu('&Calibration')
-        action = QtGui.QAction('Calibrate rc', self)
-        action.setStatusTip('Find location of optical axis in field of view')
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('calibrate_rc'))
-        menu.addAction(action)
+        # computation pipeline
+        self.cgh.device = CGH(self, shape=self.slm.shape)
+        self.cgh.device.start()
 
-        self.stageMenu(menu)
+        # trapping pattern is an interactive overlay
+        # that translates user actions into hologram computations
+        self.pattern = QTrappingPattern(parent=self)
+        self.screen.addOverlay(self.pattern)
 
-        action = QtGui.QAction('Aberrations', self)
-        action.setStatusTip('NOT IMPLEMENTED YET')
-        action.triggered.connect(
-            lambda: self.instrument.tasks.registerTask('calibrate_haar'))
-        menu.addAction(action)
+        # process automation
+        self.tasks = Taskmanager(self)
 
-    def stageMenu(self, parent):
-        if self.instrument.wstage is None:
-            return
-        menu = parent.addMenu('Stage')
-        tip = 'Define current position to be stage origin in %s'
+        self.configureUi()
+        self.connectSignals()
 
-        action = QtGui.QAction('Set X origin', self)
-        action.setStatusTip(tip % 'X')
-        action.triggered.connect(self.instrument.wstage.setXOrigin)
-        menu.addAction(action)
-
-        action = QtGui.QAction('Set Y origin', self)
-        action.setStatusTip(tip % 'Y')
-        action.triggered.connect(self.instrument.wstage.setYOrigin)
-        menu.addAction(action)
-
-        action = QtGui.QAction('Set Z origin', self)
-        action.setStatusTip(tip % 'Z')
-        action.triggered.connect(self.instrument.wstage.setZOrigin)
-        menu.addAction(action)
-
-    def savePhoto(self, select=False):
-        filename = self.config.filename(suffix='.png')
-        if select:
-            filename = QtGui.QFileDialog.getSaveFileName(
-                self, 'Save Snapshot',
-                directory=filename,
-                filter='Image files (*.png)')
-        if filename:
-            qimage = self.instrument.screen.video.qimage
-            qimage.mirrored(vertical=True).save(filename)
-            self.statusBar().showMessage('Saved ' + filename)
-
-    def saveHologram(self):
-        filename = self.config.filename(suffix='.png')
-        filename = QtGui.QFileDialog.getSaveFileName(
-            self, 'Save Snapshot',
-            directory=filename,
-            filter='Image files (*.png)')
-        if filename:
-            self.instrument.slm.pixmap().save(filename)
-            self.statusBar().showMessage('Saved ' + filename)
-
-    def saveSettings(self):
-        self.config.save(self.instrument.wcgh)
-
-    def close(self):
-        self.instrument.close()
-        QtGui.qApp.quit()
+        self.doconfig = doconfig
+        if self.doconfig:
+            self.restoreSettings()
 
     def closeEvent(self, event):
-        self.close()
+        self.saveSettings()
+        self.screen.close()
+        self.slm.close()
+        self.cgh.device.stop()
+        self.deleteLater()
+
+    def configureUi(self):
+        self.filters.screen = self.screen
+        self.histogram.screen = self.screen
+        self.dvr.screen = self.screen
+        self.dvr.source = self.screen.default
+        self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
+        index = 2
+        self.hardware.index = index
+        self.tabWidget.currentChanged.connect(self.hardware.expose)
+        self.tabWidget.setTabEnabled(index, self.hardware.has_content())
+        self.slmView.setRange(xRange=[0, self.slm.width()],
+                              yRange=[0, self.slm.height()],
+                              padding=0)
+        self.slmView.setYRange(0, self.slm.height())
+        buildTaskMenu(self)
+        self.adjustSize()
+
+    def connectSignals(self):
+        # Signals associated with GUI controls
+        self.bcamera.clicked.connect(
+            lambda: self.setDvrSource(self.screen.default))
+        self.bfilters.clicked.connect(
+            lambda: self.setDvrSource(self.screen))
+        self.actionSavePhoto.triggered.connect(self.savePhoto)
+        self.actionSavePhotoAs.triggered.connect(
+            lambda: self.savePhoto(True))
+
+        # Signals associated with handling images
+        newFrame = self.screen.source.sigNewFrame
+        newFrame.connect(self.histogram.updateHistogram)
+
+        # Signals associated with the CGH pipeline
+        # 1. Screen events trigger requests for trap updates
+        self.screen.sigMousePress.connect(self.pattern.mousePress)
+        self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
+        self.screen.sigMouseMove.connect(self.pattern.mouseMove)
+        self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
+        # 2. Updates to trapping pattern require hologram calculation
+        self.pattern.sigCompute.connect(self.cgh.device.setTraps)
+        self.pattern.trapAdded.connect(self.traps.registerTrap)
+        # 3. Suppress requests while hologram is being computed
+        self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
+        # 4. Project result when calculation is complete
+        self.cgh.device.sigHologramReady.connect(self.slm.setData)
+        self.cgh.device.sigHologramReady.connect(self.slmView.setData)
+
+    @pyqtSlot()
+    def setDvrSource(self, source):
+        self.dvr.source = source
+
+    #
+    # Slots for menu actions
+    #
+    def saveImage(self, qimage, select=False):
+        if qimage is None:
+            return
+        if select:
+            getname = QFileDialog.getSaveFileName
+            filename, _ = getname(self, 'Save Image',
+                                  directory=filename,
+                                  filter='Image files (*.png)')
+        else:
+            filename = self.configuration.filename(suffix='.png')
+        if filename:
+            qimage.save(filename)
+            self.statusBar().showMessage('Saved ' + filename)
+
+    @pyqtSlot()
+    def savePhoto(self, select=False):
+        qimage = self.screen.imageItem.qimage.mirrored(vertical=True)
+        self.saveImage(qimage, select=select)
+
+    @pyqtSlot()
+    def savePhotoAs(self):
+        self.savePhoto(select=True)
+
+    @pyqtSlot()
+    def saveHologram(self, select=False):
+        self.saveImage(self.slm.qimage, select=select)
+
+    @pyqtSlot()
+    def saveHologramAs(self):
+        self.saveHologram(select=True)
+
+    @pyqtSlot()
+    def saveSettings(self):
+        if self.doconfig:
+            self.configuration.save(self.camera)
+            self.configuration.save(self.cgh)
+
+    @pyqtSlot()
+    def restoreSettings(self):
+        if self.doconfig:
+            self.configuration.restore(self.camera)
+            self.configuration.restore(self.cgh)
+
+    @pyqtSlot()
+    def pauseTasks(self):
+        self.tasks.pauseTasks()
+        msg = 'Tasks paused' if self.tasks.paused() else 'Tasks running'
+        self.statusBar().showMessage(msg)
+
+    @pyqtSlot()
+    def stopTasks(self):
+        self.tasks.clearTasks()
+        self.statusBar().showMessage('Task queue cleared')
+
+
+def main():
+    import sys
+    import argparse
+    from PyQt5.QtWidgets import QApplication
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-x', '--noconfig',
+                        dest='doconfig', action='store_false',
+                        help='Do not use saved configuration data')
+
+    args, unparsed = parser.parse_known_args()
+    qt_args = sys.argv[:1] + unparsed
+
+    app = QApplication(qt_args)
+    win = PyFab(doconfig=args.doconfig)
+    win.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    instrument = pyfab()
-    sys.exit(instrument.app.exec_())
+    main()

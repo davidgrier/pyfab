@@ -36,24 +36,7 @@ def findTasks():
     return tasks
 
 
-def pauseTasks(parent):
-    """Menu item to toggle pause state of task manager"""
-    action = QtGui.QAction('&Pause', parent)
-    action.setShortcut('Ctrl+P')
-    action.setStatusTip('Pause/resume tasks')
-    action.triggered.connect(parent.instrument.tasks.togglePause)
-    return action
-
-
-def stopTasks(parent):
-    """Menu item to empty task queue"""
-    action = QtGui.QAction('&Stop', parent)
-    action.setStatusTip('Reset tasks')
-    action.triggered.connect(parent.instrument.tasks.emptyQueue)
-    return action
-
-
-def taskMenu(parent):
+def buildTaskMenu(parent):
     """Build menu of available tasks
 
     For a task task to be included in the menu, it must satisfy
@@ -73,10 +56,8 @@ def taskMenu(parent):
     tasks = findTasks()
     if len(tasks) == 0:
         return
-    menu = parent.menuBar().addMenu('&Tasks')
-    menu.addAction(pauseTasks(parent))
-    menu.addAction(stopTasks(parent))
-    globals = {'register': parent.instrument.tasks.registerTask}
+    menu = parent.menuTasks
+    globals = {'register': parent.tasks.registerTask}
     submenus = dict()
     for task in tasks:
         action = QtGui.QAction(task['title'], parent)

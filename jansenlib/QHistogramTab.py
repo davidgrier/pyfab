@@ -2,26 +2,32 @@
 
 """Visualization of image histograms."""
 
+from PyQt5.QtWidgets import (QFrame, QLabel)
+from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui
 from common.tabLayout import tabLayout
 import numpy as np
 import cv2
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-class QHistogramTab(QtGui.QFrame):
 
-    def __init__(self, video_source, parent=None):
+class QHistogramTab(QFrame):
+
+    def __init__(self, parent=None, nskip=3):
         super(QHistogramTab, self).__init__(parent)
 
         self.title = 'Histogram'
-        self.index = -1
-        self.video = video_source
+        self._n = 0
+        self._nskip = nskip
 
-        self.setFrameShape(QtGui.QFrame.Box)
+        self.setFrameShape(QFrame.Box)
         layout = tabLayout(self)
 
-        title = QtGui.QLabel('Histogram')
+        title = QLabel('Histogram')
         layout.addWidget(title)
         histo = self.plotWidget('Intensity', 'N(Intensity)', height=250)
         histo.setXRange(0, 255)
@@ -33,14 +39,14 @@ class QHistogramTab(QtGui.QFrame):
         self.bplot.setPen('b', width=2)
         layout.addWidget(histo)
 
-        title = QtGui.QLabel('Horizontal Profile')
+        title = QLabel('Horizontal Profile')
         layout.addWidget(title)
         xmean = self.plotWidget('x [pixel]', 'I(x)')
         self.xplot = xmean.plot()
         self.xplot.setPen('r', width=2)
         layout.addWidget(xmean)
 
-        title = QtGui.QLabel('Vertical Profile')
+        title = QLabel('Vertical Profile')
         layout.addWidget(title)
         ymean = self.plotWidget('y [pixel]', 'I(y)')
         self.yplot = ymean.plot()
@@ -58,28 +64,27 @@ class QHistogramTab(QtGui.QFrame):
         wid.setLabel('left', ylabel)
         return wid
 
-    def expose(self, index):
-        if index == self.index:
-            self.video.registerFilter(self.histogramFilter)
-        else:
-            self.video.unregisterFilter(self.histogramFilter)
-
-    def histogramFilter(self, frame):
-        if self.video.source.gray:
-            y = np.bincount(frame.flat, minlength=256)
-            self.rplot.setData(y=y)
-            self.gplot.setData(y=[0, 0])
-            self.bplot.setData(y=[0, 0])
-            self.xplot.setData(y=np.mean(frame, 0))
-            self.yplot.setData(y=np.mean(frame, 1))
-        else:
-            b, g, r = cv2.split(frame)
-            y = np.bincount(r.flat, minlength=256)
-            self.rplot.setData(y=y)
-            y = np.bincount(g.flat, minlength=256)
-            self.gplot.setData(y=y)
-            y = np.bincount(b.flat, minlength=256)
-            self.bplot.setData(y=y)
-            self.xplot.setData(y=np.mean(r, 0))
-            self.yplot.setData(y=np.mean(r, 1))
-        return frame
+    @pyqtSlot(np.ndarray)
+    def updateHistogram(self, frame):
+        if not self.isVisible():
+            return
+        self._n = (self._n + 1) % self._nskip
+        if self._n == 0:
+            if frame.ndim == 2:
+                y = np.bincount(frame.flatten(), minlength=256)
+                self.rplot.setData(y=y)
+                self.gplot.setData(y=[0, 0])
+                self.bplot.setData(y=[0, 0])
+                self.xplot.setData(y=np.mean(frame, 0))
+                self.yplot.setData(y=np.mean(frame, 1))
+            else:
+                print('updating')
+                b, g, r = cv2.split(frame)
+                y = np.bincount(r.ravel(), minlength=256)
+                self.rplot.setData(y=y)
+                y = np.bincount(g.ravel(), minlength=256)
+                self.gplot.setData(y=y)
+                y = np.bincount(b.ravel(), minlength=256)
+                self.bplot.setData(y=y)
+                self.xplot.setData(y=np.mean(r, 0))
+                self.yplot.setData(y=np.mean(r, 1))

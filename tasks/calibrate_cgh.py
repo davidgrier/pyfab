@@ -1,5 +1,5 @@
 from .maxtask import maxtask
-from PyQt4.QtGui import QVector3D
+from PyQt5.QtGui import QVector3D
 
 
 class calibrate_cgh(maxtask):

@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4 import QtCore
+from PyQt5.QtCore import (QObject, pyqtSignal, QEvent)
 
 
 def clickable(widget):
     """Adds a clicked signal to a widget such as QLineEdit that
     ordinarily does not provide notifications of clicks."""
 
-    class Filter(QtCore.QObject):
+    class Filter(QObject):
 
-        clicked = QtCore.pyqtSignal()
+        clicked = pyqtSignal()
 
         def eventFilter(self, obj, event):
             if obj == widget:
-                if event.type() == QtCore.QEvent.MouseButtonRelease:
+                if event.type() == QEvent.MouseButtonRelease:
                     if obj.rect().contains(event.pos()):
                         self.clicked.emit()
                         return True

@@ -4,7 +4,7 @@
 
 from .task import task
 import numpy as np
-from PyQt4.QtGui import QVector3D
+from PyQt5.QtGui import QVector3D
 
 
 class move(task):
@@ -24,7 +24,8 @@ class move(task):
         self.n = 0
         if self.traps.count() > 0:
             if self.trajectories is not None:
-                self.N = list(self.trajectories.values())[0].trajectory.shape[0]
+                self.N = list(self.trajectories.values())[
+                    0].trajectory.shape[0]
                 self.n = 0
                 self.traps.select(True)
         self.initialize_more(frame)
@@ -40,9 +41,7 @@ class move(task):
                 traps = self.trajectories.keys()
                 for trap in traps:
                     trajectory = self.trajectories[trap].trajectory
-                    r = QVector3D(trajectory[self.n][0],
-                                  trajectory[self.n][1],
-                                  trajectory[self.n][2])
+                    r = QVector3D(*trajectory[self.n])
                     new_positions[trap] = r
                     trap.moveTo(new_positions[trap])
                 self.n += 1
@@ -54,7 +53,7 @@ class move(task):
 
     def process_more(self, frame):
         pass
-    
+
     def parameterize(self, traps):
         """
         Returns a dictionary of traps corresponding to their

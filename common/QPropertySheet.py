@@ -1,27 +1,30 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtWidgets import (QFrame, QLabel, QLineEdit, QCheckBox,
+                             QGridLayout)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt)
+from PyQt5.QtGui import (QIntValidator, QDoubleValidator)
 import numpy as np
 try:
-    from PyQt4.QtCore import QString
+    from PyQt5.QtCore import QString
 except ImportError:
     QString = str
 
 
-class QNumericProperty(QtGui.QLineEdit):
+class QNumericProperty(QLineEdit):
 
-    valueChanged = QtCore.pyqtSignal(object, object)
+    valueChanged = pyqtSignal(object, object)
 
     def __init__(self, name, value, min, max):
         super(QNumericProperty, self).__init__()
-        self.setAlignment(QtCore.Qt.AlignRight)
+        self.setAlignment(Qt.AlignRight)
         self.name = name
         self.type = type(value)
         if self.type is int:
-            v = QtGui.QIntValidator(int(min), int(max))
+            v = QIntValidator(int(min), int(max))
         elif self.type is float:
-            v = QtGui.QDoubleValidator(float(min), float(max), 4)
-            v.setNotation(QtGui.QDoubleValidator.StandardNotation)
+            v = QDoubleValidator(float(min), float(max), 4)
+            v.setNotation(QDoubleValidator.StandardNotation)
         else:
             v = None
         self.setValidator(v)
@@ -30,9 +33,11 @@ class QNumericProperty(QtGui.QLineEdit):
         self.value = value
         self.returnPressed.connect(self.updateValue)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def updateValue(self):
-        self._value = self.type(str(self.text()))
+        print(self.type, self.text())
+        # self._value = self.type(str(self.text()))
+        self._value = float(str(self.text()))
         self.valueChanged.emit(self.name, self._value)
 
     @property
@@ -46,9 +51,9 @@ class QNumericProperty(QtGui.QLineEdit):
         self.updateValue()
 
 
-class QBooleanProperty(QtGui.QCheckBox):
+class QBooleanProperty(QCheckBox):
 
-    valueChanged = QtCore.pyqtSignal(str, bool)
+    valueChanged = pyqtSignal(str, bool)
 
     def __init__(self, name, value):
         super(QBooleanProperty, self).__init__()
@@ -57,7 +62,7 @@ class QBooleanProperty(QtGui.QCheckBox):
         self.stateChanged.connect(self.updateValue)
 
     def updateValue(self, state):
-        self._value = (state == QtCore.Qt.Checked)
+        self._value = (state == Qt.Checked)
         self.valueChanged.emit(self.name, self._value)
 
     @property
@@ -67,43 +72,43 @@ class QBooleanProperty(QtGui.QCheckBox):
     @value.setter
     def value(self, value):
         if bool(value):
-            self.setCheckState(QtCore.Qt.Checked)
+            self.setCheckState(Qt.Checked)
         else:
-            self.setCheckState(QtCore.Qt.Unchecked)
+            self.setCheckState(Qt.Unchecked)
         self.updateValue(self.checkState())
 
 
-class QPropertySheet(QtGui.QFrame):
+class QPropertySheet(QFrame):
 
     def __init__(self, parent=None, title=None, header=True):
         super(QPropertySheet, self).__init__(parent)
-        self.setFrameShape(QtGui.QFrame.Box)
+        self.setFrameShape(QFrame.Box)
         self.properties = dict()
         self.initUI(title, header)
 
     def initUI(self, title, header):
-        self.layout = QtGui.QGridLayout(self)
-        self.layout.setMargin(3)
+        self.layout = QGridLayout(self)
+        # self.layout.setMargin(3)
         self.layout.setHorizontalSpacing(10)
         self.layout.setVerticalSpacing(3)
         self.setLayout(self.layout)
         self.row = 1
         if title is not None:
-            self.layout.addWidget(QtGui.QLabel(title), self.row, 1, 1, 4)
+            self.layout.addWidget(QLabel(title), self.row, 1, 1, 4)
             self.row += 1
         if header is True:
-            self.layout.addWidget(QtGui.QLabel('property'), self.row, 1)
-            label = QtGui.QLabel('value')
-            label.setAlignment(QtCore.Qt.AlignCenter)
+            self.layout.addWidget(QLabel('property'), self.row, 1)
+            label = QLabel('value')
+            label.setAlignment(Qt.AlignCenter)
             self.layout.addWidget(label, self.row, 2)
-            self.layout.addWidget(QtGui.QLabel('min'), self.row, 3)
-            self.layout.addWidget(QtGui.QLabel('max'), self.row, 4)
+            self.layout.addWidget(QLabel('min'), self.row, 3)
+            self.layout.addWidget(QLabel('max'), self.row, 4)
             self.row += 1
 
     def registerProperty(self, name, value, min=None, max=None,
                          callback=None, tooltip=None):
-        wname = QtGui.QLabel(QString(name))
-        wname.setAlignment(QtCore.Qt.AlignRight)
+        wname = QLabel(QString(name))
+        wname.setAlignment(Qt.AlignRight)
         if isinstance(value, bool):
             wvalue = QBooleanProperty(name, value)
         else:
@@ -111,8 +116,8 @@ class QPropertySheet(QtGui.QFrame):
         self.layout.addWidget(wname, self.row, 1)
         self.layout.addWidget(wvalue, self.row, 2)
         if min is not None:
-            wmin = QtGui.QLabel(QString(str(min)))
-            wmax = QtGui.QLabel(QString(str(max)))
+            wmin = QLabel(QString(str(min)))
+            wmax = QLabel(QString(str(max)))
             self.layout.addWidget(wmin, self.row, 3)
             self.layout.addWidget(wmax, self.row, 4)
         if callback is not None:
@@ -141,7 +146,7 @@ class QPropertySheet(QtGui.QFrame):
 
 def main():
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     sheet = QPropertySheet()
