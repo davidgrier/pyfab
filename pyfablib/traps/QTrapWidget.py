@@ -29,7 +29,7 @@ class QTrapPropertyEdit(QLineEdit):
 
     valueChanged = pyqtSignal(str, float)
 
-    def __init__(self, name, value, decimals=1):
+    def __init__(self, name, value, decimals=2):
         super(QTrapPropertyEdit, self).__init__()
         self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(getWidth())
