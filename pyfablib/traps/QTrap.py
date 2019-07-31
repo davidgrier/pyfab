@@ -143,7 +143,7 @@ class QTrap(QObject):
         return rect.contains(self.coords())
 
     # Methods for editing properties with QTrapWidget
-    def registerProperty(self, name, decimals=1, tooltip=False):
+    def registerProperty(self, name, decimals=2, tooltip=False):
         """Register a property so that it can be edited"""
         self.properties[name] = {'decimals': decimals,
                                  'tooltip': tooltip}
