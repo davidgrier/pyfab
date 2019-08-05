@@ -6,6 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+from . import icons_rc
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -30,13 +31,15 @@ class Ui_QDVRWidget(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.recordButton = QtWidgets.QPushButton(self.widgetRecord)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/icons/media-record.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/icons/media-record.svg"),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.recordButton.setIcon(icon)
         self.recordButton.setObjectName("recordButton")
         self.horizontalLayout_2.addWidget(self.recordButton)
         self.stopButton = QtWidgets.QPushButton(self.widgetRecord)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/icons/icons/media-playback-stop.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap(
+            ":/icons/icons/media-playback-stop.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.stopButton.setIcon(icon1)
         self.stopButton.setObjectName("stopButton")
         self.horizontalLayout_2.addWidget(self.stopButton)
