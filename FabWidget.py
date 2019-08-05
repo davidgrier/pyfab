@@ -207,9 +207,8 @@ class Ui_PyFab(object):
         self.bback.setIcon(icon)
         self.bback.setObjectName("bback")
         self.verticalLayout_2.addWidget(self.bback)
-        self.browser = QtWebKitWidgets.QWebView(self.tabHelp)
+        self.browser = QtWebEngineWidgets.QWebEngineView(self.tabHelp)
         self.browser.setUrl(QtCore.QUrl("qrc:/help/help/pyfab.html"))
-        self.browser.setZoomFactor(1.25)
         self.browser.setObjectName("browser")
         self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
@@ -258,7 +257,6 @@ class Ui_PyFab(object):
         self.retranslateUi(PyFab)
         self.tabWidget.setCurrentIndex(6)
         self.actionQuit.triggered.connect(PyFab.close)
-        self.bback.clicked.connect(self.browser.back)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
         self.dvr.recording['bool'].connect(self.filters.setDisabled)
         self.actionPauseTasks.triggered.connect(PyFab.pauseTasks)
@@ -270,6 +268,7 @@ class Ui_PyFab(object):
         self.actionSaveHologramAs.triggered.connect(PyFab.saveHologramAs)
         self.tabWidget.currentChanged['int'].connect(self.hardware.expose)
         self.screen.sigFPS['double'].connect(self.fps.setValue)
+        self.bback.clicked.connect(self.browser.back)
         QtCore.QMetaObject.connectSlotsByName(PyFab)
 
     def retranslateUi(self, PyFab):
@@ -314,7 +313,7 @@ class Ui_PyFab(object):
         self.actionStopTasks.setShortcut(_translate("PyFab", "Ctrl+A"))
         self.actionSaveHologramAs.setText(_translate("PyFab", "Sa&ve Hologram As ..."))
 
-from PyQt5 import QtWebKitWidgets
+from PyQt5 import QtWebEngineWidgets
 from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QHistogram.QHistogram import QHistogram
 from jansenlib.QJansenScreen import QJansenScreen
