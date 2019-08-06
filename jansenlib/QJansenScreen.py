@@ -47,7 +47,7 @@ class QCameraThread(QThread):
         return self._shape[0]
 
 
-class fpsmeter(object):
+class FpsMeter(object):
     def __init__(self):
         self.nframes = 10
         self.frame = 0.
@@ -124,7 +124,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self._filters = []
         self.pauseSignals(False)
 
-        self.fpsmeter = fpsmeter()
+        self.fpsmeter = FpsMeter()
         self.camera = camera
 
     def close(self):

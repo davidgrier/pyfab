@@ -43,7 +43,7 @@ class QVortexTrap(QTrap):
         sym.addText(0, 0, font, 'V')
         # scale symbol to unit square
         box = sym.boundingRect()
-        scale = 1./max(box.width(), box.height())
+        scale = -1./max(box.width(), box.height())
         tr = QtGui.QTransform().scale(scale, scale)
         # center symbol on (0, 0)
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
