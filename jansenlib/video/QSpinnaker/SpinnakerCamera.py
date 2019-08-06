@@ -13,6 +13,15 @@ logger.setLevel(logging.WARNING)
 NOTE
 USB 3.x communication on Ubuntu 16.04 and 18.04 requires
 > sudo sh -c 'echo 1000 > /sys/module/usbcore/parameters/usbfs_memory_mb'
+
+This can be set permanently by 
+1. Editing /etc/default/grub
+Change:
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+to:
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash usbcore.usbfs_memory_mb=1000"
+2. > sudo update-grub
+3. > sudo reboot now
 '''
 
 # Dynamic mapping for GenICam attributes
