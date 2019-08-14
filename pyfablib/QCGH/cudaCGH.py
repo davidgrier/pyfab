@@ -183,6 +183,7 @@ class cudaCGH(CGH):
         self._iqyz = 1j * self.qpar * y * y
         self.outeratan2f(y.real, x.real, self._theta)
         self.outerhypot(y.real, x.real, self._rho)
+        self._rho = self.qprp * self._rho
         # CPU versions
         self.phi = np.zeros(self.shape, dtype=np.uint8)
         self.iqx = self._iqx.get()

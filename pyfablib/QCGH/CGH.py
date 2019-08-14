@@ -176,7 +176,8 @@ class CGH(QObject):
         self.iqxz = 1j * self.qpar * x * x
         self.iqyz = 1j * self.qpar * y * y
         self.theta = np.arctan2.outer(y, x)
-        self.qr = np.hypot.outer(y, x)
+        self.qr = np.hypot.outer(self.qprp * y,
+                                 self.qprp * x)
         self.sigUpdateGeometry.emit()
 
     def updateTransformationMatrix(self):
