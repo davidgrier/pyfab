@@ -10,18 +10,18 @@ from pyqtgraph.Qt import QtGui
 class QUltraTrap(QTrap):
     """Two combined single traps"""
 
-    def __init__(self, deltaZ=0, deltaPi=np.pi,**kwargs):
+    def __init__(self, deltaZ=0, deltaPhi=np.pi,**kwargs):
         super(QUltraTrap, self).__init__(**kwargs)
         self._deltaZ = deltaZ  
 	# the distance between two single traps (along z) (By default, it is equal to 0.) 
-        self._deltaPi = deltaPi
+        self._deltaPhi = deltaPhi
 	# the phase differnece of two single traps (By default, it is equal to 0.) 
         self.registerProperty('deltaZ', tooltip=True)
-        self.registerProperty('deltaPi', tooltip=True)
+        self.registerProperty('deltaPhi', tooltip=True)
 
     def updateStructure(self):
         """Structuring field"""
-        self.structure = -1*np.sin( self.deltaZ/2*self.cgh.qr*self.cgh.qr + self.deltaPi/2); 
+        self.structure = -1*np.sin( self.deltaZ/2*(self.cgh.qr)*(self.cgh.qr) + self.deltaPhi/2); 
 
     def plotSymbol(self):
         """Graphical representation"""
@@ -47,11 +47,11 @@ class QUltraTrap(QTrap):
         self.valueChanged.emit(self)
         
     @property
-    def deltaPi(self):
-        return self._deltaPi
+    def deltaPhi(self):
+        return self._deltaPhi
 
-    @deltaPi.setter
-    def deltaPi(self, deltaPi):
-        self._deltaPi = deltaPi
+    @deltaPhi.setter
+    def deltaPhi(self, deltaPhi):
+        self._deltaPhi = deltaPhi
         self.updateStructure()
         self.valueChanged.emit(self)   
