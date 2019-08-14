@@ -9,7 +9,7 @@ from pyqtgraph.Qt import QtGui
 
 
 class ModifyUltraTrap(task):
-    """Delay, record, and translate traps in the z direction."""
+    """Delay, record, and move traps in the z direction by changing their hologram."""
 
     def __init__(self, measure_bg=False, **kwargs):
         super(ModifyUltraTrap, self).__init__(**kwargs)
@@ -26,7 +26,7 @@ class ModifyUltraTrap(task):
         self.traps = self.parent.pattern.pattern
         if isinstance(self.trap, QUltraTrap):
             fn0, fn_ext = os.path.splitext(self.parent.dvr.filename)
-            self.register('modify', group=self.traps, NewDeltaZ=self.FirstDeltaZ, NewDeltaPi=0)
+            self.register('modify', group=self.traps, NewDeltaZ=self.FirstDeltaZ, NewDeltaPhi=0)
             for n in range(0, int(np.absolute((self.FirstDeltaZ-self.LastDeltaZ)/self.DdeltaZ))+1 ): 
                 dZnew = np.absolute(self.FirstDeltaZ + self.DdeltaZ*n) 
                 self.register('delay', delay=50)
@@ -34,4 +34,4 @@ class ModifyUltraTrap(task):
                               format(int(dZnew)),
                               nframes=50)
                 self.register('delay', delay=10)
-                self.register('modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPi=0)
+                self.register('modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPhi=0)
