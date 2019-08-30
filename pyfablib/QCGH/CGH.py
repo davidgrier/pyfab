@@ -145,7 +145,10 @@ class CGH(QObject):
                     trap.psi = self._psi.copy()
                 self.compute_displace(amp, r, trap.psi)
                 trap.needsRefresh = False
-            self._psi += trap.structure * trap.psi
+            if trap.structure == 1.+0.j:
+                self._psi += trap.psi
+            else:
+                self._psi += trap.structure * trap.psi
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)
         self.time = time() - start
