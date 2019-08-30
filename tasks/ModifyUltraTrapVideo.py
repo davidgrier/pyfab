@@ -30,6 +30,9 @@ class ModifyUltraTrapVideo(task):
             for n in range(0, int(np.absolute((self.FirstDeltaZ-self.LastDeltaZ)/self.DdeltaZ))+1 ): 
                 dZnew = np.absolute(self.FirstDeltaZ + self.DdeltaZ*n) 
                 self.register('delay', delay=50)
-                self.register('record', fn=fn0+'{:03d}.avi'.format(int(dZnew)),nframes=50)
+                if (dZnew>=0):
+                    self.register('record', fn=fn0+'{:03d}.avi'.format(int(np.abs(dZnew))),nframes=50)
+                else:
+                    self.register('record', fn=fn0+'-{:03d}.avi'.format(int(np.abs(dZnew))),nframes=50)
                 self.register('delay', delay=10)
                 self.register('modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPhi=0)

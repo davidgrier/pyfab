@@ -30,6 +30,9 @@ class ModifyUltraTrapImage(task):
             for n in range(0, int(np.absolute((self.FirstDeltaZ-self.LastDeltaZ)/self.DdeltaZ))+1 ): 
                 dZnew = np.absolute(self.FirstDeltaZ + self.DdeltaZ*n) 
                 self.register('delay', delay=50)
-                self.register('MaxTaskWithName',fn='{:03d}'.format(int(dZnew)))
+                if (dZnew>=0):
+                    self.register('MaxTaskWithName',fn='{:03d}'.format(int(np.abs(dZnew))))
+                else:
+                    self.register('MaxTaskWithName',fn='-{:03d}'.format(int(np.abs(dZnew))))
                 self.register('delay', delay=10)
                 self.register('modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPhi=0)
