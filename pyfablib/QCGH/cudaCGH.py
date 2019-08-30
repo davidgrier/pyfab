@@ -5,7 +5,7 @@
 from PyQt5.QtCore import pyqtSlot
 from .CGH import CGH
 import numpy as np
-
+import math
 import pycuda.driver as cuda
 import pycuda.tools as tools
 import pycuda.gpuarray as gpuarray
@@ -121,10 +121,8 @@ class cudaCGH(CGH):
         self._phase = mod.get_function('phase')
         self.npts = np.int32(self.width * self.height)
         self.block = (16, 16, 1)
-        dx, mx = divmod(self.width, self.block[0])
-        dy, my = divmod(self.height, self.block[1])
-        self.grid = ((dx + (mx > 0)) * self.block[0],
-                     (dy + (my > 0)) * self.block[1])
+        self.grid = (math.ceil(self.height / self.block[0]),
+                     math.ceil(self.width / self.block[1]))
         super(cudaCGH, self).start()
 
     def outer(self, a, b, out):
