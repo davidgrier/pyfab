@@ -32,7 +32,7 @@ class QTrap(QObject):
                  alpha=1.,          # relative amplitude
                  phi=None,          # relative phase
                  cgh=None,          # computational pipeline
-                 structure=1.+0.j,  # structuring field
+                 structure=None,    # structuring field
                  state=states.normal):
         super(QTrap, self).__init__(parent)
 
