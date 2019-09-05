@@ -35,4 +35,4 @@ class ModifySeparationUltraTrapImage(Task):
                 else:
                     self.register('MaxTaskWithName',fn='-{:03d}'.format(int(np.abs(dZnew))))
                 self.register('Delay', delay=10)
-                self.register('Modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPhi=0) 
+                self.register('Modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPhi=0)
