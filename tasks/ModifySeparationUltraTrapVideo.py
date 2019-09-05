@@ -35,4 +35,4 @@ class ModifySeparationUltraTrapVideo(Task):
                 else:
                     self.register('Record', fn=fn0+'-{:03d}.avi'.format(int(np.abs(dZnew))),nframes=50)
                 self.register('Delay', delay=10)
-                self.register('Modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPhi=0) 
+                self.register('Modify', group=self.traps, NewDeltaZ=dZnew, NewDeltaPhi=0)
