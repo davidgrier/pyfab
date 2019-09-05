@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Experiments/Modify Separation Ultra Trap (Video)
 
-from .task import task
+from .Task import Task
 import numpy as np
 from pyfablib.traps.QUltraTrap import QUltraTrap
 import os
