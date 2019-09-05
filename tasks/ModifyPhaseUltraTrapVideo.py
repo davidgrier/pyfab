@@ -27,7 +27,7 @@ class ModifyPhaseUltraTrapVideo(Task):
         if isinstance(self.trap, QUltraTrap):
             fn0, fn_ext = os.path.splitext(self.parent.dvr.filename)
             self.register('Modify', group=self.traps, NewDeltaZ=self.deltaZ, NewDeltaPhi=0)
-            for n in range(0, int(np.absolute((self.FirstDeltaZ-self.LastDeltaZ)/self.DdeltaZ))+1 ): 
+            for n in range(0, int(np.absolute((2*np.pi)/self.DdeltaPhi))+1 ): 
                 dPhinew = np.absolute(self.DdeltaPhi*n) 
                 self.register('Delay', delay=50)
                 self.register('Record', fn=fn0+'{:02d}.avi'.format(n),nframes=50)
