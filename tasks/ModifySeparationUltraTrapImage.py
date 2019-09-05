@@ -8,7 +8,7 @@ import os
 from pyqtgraph.Qt import QtGui
 
 
-class ModifySeparationUltraTrapImage(task):
+class ModifySeparationUltraTrapImage(Task):
     """Delay, record, and move traps in the z direction by changing their hologram."""
 
     def __init__(self, measure_bg=False, **kwargs):
