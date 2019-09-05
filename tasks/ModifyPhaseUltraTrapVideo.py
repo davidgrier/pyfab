@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 # MENU: Experiments/Modify Phase Ultra Trap (Video)
 
-from .task import task
+from .Task import Task
 import numpy as np
 from pyfablib.traps.QUltraTrap import QUltraTrap
 import os
 from pyqtgraph.Qt import QtGui
 
 
-class ModifyPhaseUltraTrapVideo(task):
+class ModifyPhaseUltraTrapVideo(Task):
     """Delay, record, and move traps in the z direction by changing their hologram."""
 
     def __init__(self, measure_bg=False, **kwargs):
