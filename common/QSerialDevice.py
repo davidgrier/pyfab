@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (pyqtSlot, QByteArray)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QByteArray)
 from PyQt5.QtSerialPort import (QSerialPort, QSerialPortInfo)
 from PyQt5.QtWidgets import QMainWindow
 
@@ -11,6 +11,54 @@ logger.setLevel(logging.INFO)
 
 
 class QSerialDevice(QSerialPort):
+    '''
+    Abstraction of an instrument connected to a serial port
+
+    ...
+
+    Attributes
+    ----------
+    eol : str, optional
+        End-of-line character.
+        Default: '\r' (carriage return)
+    manufacturer : str, optional
+        Identifier for the serial interface manufacturer.
+        Default: 'Prolific'
+    baudrate : int, optional
+        Baud rate for serial communication.
+        Default: 9600
+    parity : int, optional
+        One of the constants defined in the serial package
+    stopbits : int, optional
+        One of the constants defined in the serial package
+    timeout : float
+        Read timeout period [s].
+        Default: 0.1
+
+    Methods
+    -------
+    find() : bool
+        Find the serial device that satisfies identify().
+        Returns True if the device is found and correctly opened.
+    identify() : bool
+        Returns True if the device on the opened port correctly
+        identifies itself.  Subclasses must override this method.
+    send(cmd)
+        Write cmd to serial device with eol termination.
+        Response is handled by call to process().
+    process(data)
+        Process data returned by device.
+        Subclasses should override this method.
+    handshake(cmd) : str
+        Write cmd to serial device and return response.
+
+    Signals
+    -------
+    dataReady(data)
+        Emitted when eol-terminated data is returned by the device.
+    '''
+
+    dataReady = pyqtSignal(str)
 
     def __init__(self, parent=None, port=None,
                  eol='\r',
@@ -19,8 +67,9 @@ class QSerialDevice(QSerialPort):
                  databits=QSerialPort.Data8,
                  parity=QSerialPort.NoParity,
                  stopbits=QSerialPort.OneStop,
-                 timeout=1000):
-        super(QSerialDevice, self).__init__(parent=parent)
+                 timeout=1000,
+                 **kwargs):
+        super(QSerialDevice, self).__init__(parent=parent, **kwargs)
         self.eol = eol
         self.manufacturer = manufacturer
         self.baudrate = baudrate
@@ -65,6 +114,14 @@ class QSerialDevice(QSerialPort):
         return False
 
     def find(self):
+        '''
+        Attempt to identify and open the serial port
+
+        Returns
+        -------
+        find : bool
+            True if port identified and successfully opened.
+        '''
         ports = QSerialPortInfo.availablePorts()
         if len(ports) < 1:
             logger.warning('No serial ports detected')
@@ -75,19 +132,74 @@ class QSerialDevice(QSerialPort):
                 break
 
     def identify(self):
+        '''
+        Identify this device
+
+        Subclasses must override this method
+
+        Returns
+        -------
+        identify : bool
+            True if attached device correctly identifies itself.
+        '''
         return True
 
     def process(self, data):
+        '''
+        Process data received from device
+
+        Subclasses should override this method
+        '''
         logger.debug('received: {}'.format(data))
 
     def send(self, data):
+        '''
+        Write string to serial device with eol termination
+
+        Parameters
+        ----------
+        str : string
+            String to be transferred
+        '''
         cmd = data + self.eol
         self.write(cmd.encode())
 
+    @pyqtSlot()
+    def receive(self):
+        '''
+        Slot for readyRead signal
+
+        Appends data received from device to a buffer
+        until eol character is received, then processes
+        the contents of the buffer.
+        '''
+        self.buffer.append(self.readAll())
+        if self.buffer.contains(self.eol.encode()):
+            data = bytes(self.buffer).decode()
+            self.dataReady.emit(data)
+            self.process(data)
+            self.buffer.clear()
+
     def getc(self):
+        '''
+        Read one character from the serial port
+
+        Returns
+        -------
+        c : bytes
+            utf-8 decoded bytes
+        '''
         return bytes(self.read(1)).decode('utf8')
 
     def gets(self):
+        '''
+        Read characters from the serial port until eol is received
+
+        Returns
+        -------
+        s : str
+            Decoded string
+        '''
         str = ''
         char = self.getc()
         while char != self.eol:
@@ -98,14 +210,26 @@ class QSerialDevice(QSerialPort):
                 break
         return str
 
-    @pyqtSlot()
-    def receive(self):
-        self.buffer.append(self.readAll())
-        if self.buffer.contains(self.eol.encode()):
-            self.process(bytes(self.buffer).decode())
-            self.buffer.clear()
-
     def handshake(self, cmd):
+        '''
+        Send command string to device and return the
+        response from the device
+
+        ...
+
+        This form of communication does not use the
+        signal/slot mechanism and thus is blocking.
+
+        Arguments
+        ---------
+        cmd : str
+            String to be transmitted to device
+
+        Returns
+        -------
+        res : str
+            Response from device
+        '''
         self.blockSignals(True)
         self.send(cmd)
         if self.waitForReadyRead(self.timeout):

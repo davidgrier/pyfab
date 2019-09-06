@@ -26,12 +26,12 @@ class UltraTrapImaging(task):
     def dotask(self):
         self.traps = self.parent.pattern.pattern
         if self.trap is not None:
-            self.register('translate', traps=self.traps, dr=QtGui.QVector3D(0, 0, self.start-self.trap.r.z()))
+            self.register('Translate', traps=self.traps, dr=QtGui.QVector3D(0, 0, self.start-self.trap.r.z()))
             for n in range(0, int(np.absolute((self.end-self.start)/self.step))+1 ):
-                self.register('delay', delay=5)
+                self.register('Delay', delay=5)
                 if(self.start+n*self.step>=0):
                     self.register('MaxTaskWithName',fn='{:03d}'.format(int(np.abs(self.start+n*self.step))))
                 else:
                     self.register('MaxTaskWithName',fn='-{:03d}'.format(int(np.abs(self.start+n*self.step))))
-                self.register('delay', delay=5)
-                self.register('translate', traps=self.traps, dr=QtGui.QVector3D(0, 0, self.step))
+                self.register('Delay', delay=5)
+                self.register('Translate', traps=self.traps, dr=QtGui.QVector3D(0, 0, self.step))
