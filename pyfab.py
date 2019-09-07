@@ -14,7 +14,7 @@ from common.Configuration import Configuration
 
 import logging
 logging.basicConfig()
-logger = logging.getLogger('nujansen')
+logger = logging.getLogger('pyfab')
 logger.setLevel(logging.DEBUG)
 
 
