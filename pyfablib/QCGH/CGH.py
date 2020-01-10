@@ -17,7 +17,6 @@ logger.setLevel(logging.INFO)
 
 class CGH(QObject):
     """Base class for computing computer-generated holograms.
-
     For each trap, the coordinate r obtained from the fabscreen
     is measured relative to the calibrated location rc of the
     zeroth-order focal point, which itself is measured relative to
@@ -25,12 +24,10 @@ class CGH(QObject):
     projected onto the coordinate system in the SLM place.
     Projection involves a calibrated rotation about z with
     a rotation matrix m.
-
     The hologram is computed using calibrated wavenumbers for
     the Cartesian coordinates in the SLM plane.  These differ from
     each other because the SLM is likely to be tilted relative to the
     optical axis.
-
     NOTE: This version has thread-safe slots for setting parameters
     (setProperty) and for triggering computations (setTraps).
     It emits a thread-safe signal (sigHologramReady) to transfer
@@ -145,10 +142,10 @@ class CGH(QObject):
                     trap.psi = self._psi.copy()
                 self.compute_displace(amp, r, trap.psi)
                 trap.needsRefresh = False
-            if trap.structure == 1.+0.j:
-                self._psi += trap.psi
-            else:
+            try:
                 self._psi += trap.structure * trap.psi
+            except Exception:
+                self._psi += trap.psi
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)
         self.time = time() - start
