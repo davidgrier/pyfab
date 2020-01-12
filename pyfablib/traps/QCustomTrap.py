@@ -13,8 +13,8 @@ REFERENCES:
 
 from .QTrap import QTrap
 import numpy as np
-from scipy import integrate
-from numba import njit
+from numba import njit, prange
+from scipy.integrate import simps
 from pyqtgraph.Qt import QtGui
 from time import time
 
@@ -26,6 +26,14 @@ def integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T, rho, m, f, lamb):
     phi = np.exp(1.j*np.pi * z_0 * ((x - x_0)**2 + (y - y_0)**2)
                  / (lamb * f**2))
     return Phi*phi*dr_0
+
+
+@njit(parallel=True)
+def integrate(integrand, structure, t, L, shape):
+    nx, ny = shape
+    for idx in prange(nx*ny):
+        i, j = (idx % (nx-1), idx % (ny-1))
+        structure[i, j] = np.trapz(integrand[:, i, j], x=t) / L
 
 
 class QCustomTrap(QTrap):
@@ -43,6 +51,7 @@ class QCustomTrap(QTrap):
         self.T = 2 * np.pi
         t = np.linspace(0, self.T, 100, endpoint=True)
         # Allocate geometrical buffers
+        self.structure = np.zeros(self.cgh.shape)
         integrand = np.zeros((t.size,
                               self.cgh.shape[0],
                               self.cgh.shape[1]),
@@ -52,14 +61,14 @@ class QCustomTrap(QTrap):
         # Compute integrals for normalization
         S_T = self.S(self.T)
         dr_0 = self.dr_0(t)
-        L = integrate.simps(dr_0, x=t)
+        L = simps(dr_0, x=t)
         # Evaluate integrand at all points along the curve
         f = self.cgh.focalLength
         lamb = self.cgh.wavelength
         for idx, ti in enumerate(t):
             integrand[idx] = self.integrand(ti, x, y, S_T, f, lamb)
         # Integrate
-        self.structure = integrate.simps(integrand, x=t, axis=0) / L
+        self.integrate(integrand, self.structure, t, L)
         print("Time to compute: {}".format(time() - t0))
 
     def plotSymbol(self):
@@ -104,6 +113,9 @@ class QCustomTrap(QTrap):
         S_t = self.S(t)
         return integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T,
                          self.rho, self.m, f, lamb)
+
+    def integrate(self, integrand, buff, t, L):
+        integrate(integrand, self.structure, t, L, self.cgh.shape)
 
     def S(self, T):
         '''
