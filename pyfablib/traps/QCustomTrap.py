@@ -51,13 +51,15 @@ class QCustomTrap(QTrap):
         self.T = 2 * np.pi
         t = np.linspace(0, self.T, 100, endpoint=True)
         # Allocate geometrical buffers
-        self.structure = np.zeros(self.cgh.shape)
+        structure = np.zeros(self.cgh.shape, np.complex_)
         integrand = np.zeros((t.size,
                               self.cgh.shape[0],
                               self.cgh.shape[1]),
                              dtype=np.complex_)
-        x = self.cgh.qr * np.cos(self.cgh.theta) / self.cgh.qprp
-        y = self.cgh.qr * np.sin(self.cgh.theta) / self.cgh.qprp
+        alpha = np.cos(np.radians(self.cgh.phis))
+        x = alpha*(np.arange(self.cgh.width) - self.cgh.xs)
+        y = np.arange(self.cgh.height) - self.cgh.ys
+        xv, yv = np.meshgrid(x, y)
         # Compute integrals for normalization
         S_T = self.S(self.T)
         dr_0 = self.dr_0(t)
@@ -66,9 +68,10 @@ class QCustomTrap(QTrap):
         f = self.cgh.focalLength
         lamb = self.cgh.wavelength
         for idx, ti in enumerate(t):
-            integrand[idx] = self.integrand(ti, x, y, S_T, f, lamb)
+            integrand[idx] = self.integrand(ti, xv, yv, S_T, f, lamb)
         # Integrate
-        self.integrate(integrand, self.structure, t, L)
+        self.integrate(integrand, structure, t, L)
+        self.structure = structure
         print("Time to compute: {}".format(time() - t0))
 
     def plotSymbol(self):
@@ -115,7 +118,7 @@ class QCustomTrap(QTrap):
                          self.rho, self.m, f, lamb)
 
     def integrate(self, integrand, buff, t, L):
-        integrate(integrand, self.structure, t, L, self.cgh.shape)
+        integrate(integrand, buff, t, L, self.cgh.shape)
 
     def S(self, T):
         '''
