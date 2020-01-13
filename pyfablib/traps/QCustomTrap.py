@@ -20,12 +20,12 @@ from time import time
 
 
 @njit(parallel=True)
-def integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T, rho, m, f, lamb):
-    Phi = np.exp(1.j * (y * x_0 - x * y_0) / rho**2
-                 + 1.j * 2*np.pi * m * S_t / S_T)
-    phi = np.exp(1.j*np.pi * z_0 * ((x - x_0)**2 + (y - y_0)**2)
-                 / (lamb * f**2))
-    return Phi*phi*dr_0
+def integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T, rho, m, f, lamb, buff):
+    buff = np.exp(1.j * (y * x_0 - x * y_0) / rho**2
+                  + 1.j * 2*np.pi * m * S_t / S_T)
+    buff *= np.exp(1.j*np.pi * z_0 * ((x - x_0)**2 + (y - y_0)**2)
+                   / (lamb * f**2))
+    buff *= dr_0
 
 
 @njit(parallel=True)
@@ -38,7 +38,7 @@ def integrate(integrand, structure, t, L, shape):
 
 class QCustomTrap(QTrap):
 
-    def __init__(self, rho=1., m=1, alpha=50, **kwargs):
+    def __init__(self, rho=8., m=1, alpha=50, **kwargs):
         super(QCustomTrap, self).__init__(alpha=alpha, **kwargs)
         self._rho = rho
         self._m = m
@@ -49,7 +49,7 @@ class QCustomTrap(QTrap):
         t0 = time()
         # Allocate integration range
         self.T = 2 * np.pi
-        t = np.linspace(0, self.T, 100, endpoint=True)
+        t = np.linspace(0, self.T, 500, endpoint=True)
         # Allocate geometrical buffers
         structure = np.zeros(self.cgh.shape, np.complex_)
         integrand = np.zeros((t.size,
@@ -68,7 +68,9 @@ class QCustomTrap(QTrap):
         f = self.cgh.focalLength
         lamb = self.cgh.wavelength
         for idx, ti in enumerate(t):
-            integrand[idx] = self.integrand(ti, xv, yv, S_T, f, lamb)
+            buff = np.zeros(self.cgh.shape, np.complex_)
+            self.integrand(ti, xv, yv, S_T, f, lamb, buff)
+            integrand[idx] = buff
         # Integrate
         self.integrate(integrand, structure, t, L)
         self.structure = structure
@@ -89,7 +91,13 @@ class QCustomTrap(QTrap):
 
     @property
     def rho(self):
-        '''Controls radial scaling of curve.'''
+        '''
+        Controls radial scaling of curve.
+
+        The radius of a ring trap in the focal plane
+        R = (lambda*f) / (2*pi*rho), where lambda is
+        wavelength and f is focal length.
+        '''
         return self._rho
 
     @rho.setter
@@ -109,13 +117,13 @@ class QCustomTrap(QTrap):
         self.updateStructure()
         self.valueChanged.emit(self)
 
-    def integrand(self, t, x, y, S_T, f, lamb):
+    def integrand(self, t, x, y, S_T, f, lamb, buff):
         '''Integrand for Eq. (6) in Rodrigo (2015)'''
         x_0, y_0, z_0 = (self.x_0(t), self.y_0(t), self.z_0(t))
         dr_0 = self.dr_0(t)
         S_t = self.S(t)
-        return integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T,
-                         self.rho, self.m, f, lamb)
+        integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T,
+                  self.rho, self.m, f, lamb, buff)
 
     def integrate(self, integrand, buff, t, L):
         integrate(integrand, buff, t, L, self.cgh.shape)

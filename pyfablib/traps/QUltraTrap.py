@@ -10,7 +10,7 @@ from pyqtgraph.Qt import QtGui
 class QUltraTrap(QTrap):
     """Two combined single traps"""
 
-    def __init__(self, deltaZ=0, deltaPhi=np.pi,**kwargs):
+    def __init__(self, deltaZ=30, deltaPhi=0.86*2*np.pi,**kwargs):
         super(QUltraTrap, self).__init__(**kwargs)
         self._deltaZ = deltaZ  
 	# the distance between two single traps (along z) (By default, it is equal to 0.) 

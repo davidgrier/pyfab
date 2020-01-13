@@ -8,7 +8,7 @@ import numpy as np
 
 class QTrefoilTrap(QCustomTrap):
 
-    def __init__(self, s=1., **kwargs):
+    def __init__(self, s=.1, **kwargs):
         super(QTrefoilTrap, self).__init__(**kwargs)
         self._s = s
         self.registerProperty('s', tooltip=True)

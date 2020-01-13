@@ -13,6 +13,6 @@ class UltraTrap(Task):
         super(UltraTrap, self).__init__(**kwargs)
 
     def dotask(self):
-        trap = QUltraTrap(r=QtGui.QVector3D(800, 500, 0))
+        trap = QUltraTrap(r=QtGui.QVector3D(880.75, 814.45, 0))
         # setting the initial position of the trap
         self.parent.pattern.addTrap(trap)

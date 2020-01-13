@@ -13,5 +13,5 @@ class TiltedRingTrap(Task):
         super(TiltedRingTrap, self).__init__(**kwargs)
 
     def dotask(self):
-        trap = QTiltedRingTrap(r=QVector3D(100, 100, 0))
+        trap = QTiltedRingTrap(rho=5., m=1, s=1., r=QVector3D(100, 100, 0))
         self.parent.pattern.addTrap(trap)

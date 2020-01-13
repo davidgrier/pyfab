@@ -17,8 +17,8 @@ class RecordBackground(GuidedMove):
         traps = traps.flatten()
         return_targets = {}
         targets = {}
-        x_max = self.parent.screen.video.camera.width()
-        y_max = self.parent.screen.video.camera.height()
+        x_max = self.parent.screen.camera.width()
+        y_max = self.parent.screen.camera.height()
         s = 20
         for trap in traps:
             x, y, z = trap.x, trap.y, trap.z
