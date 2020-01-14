@@ -20,20 +20,20 @@ from time import time
 
 
 @njit(parallel=True)
-def integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T, rho, m, f, lamb, buff):
+def integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T, L, rho, m, f, lamb, buff):
     buff = np.exp(1.j * (y * x_0 - x * y_0) / rho**2
                   + 1.j * 2*np.pi * m * S_t / S_T)
     buff *= np.exp(1.j*np.pi * z_0 * ((x - x_0)**2 + (y - y_0)**2)
                    / (lamb * f**2))
-    buff *= dr_0
+    buff *= dr_0 / L
 
 
 @njit(parallel=True)
-def integrate(integrand, structure, t, L, shape):
+def integrate(integrand, structure, t, shape):
     nx, ny = shape
     for idx in prange(nx*ny):
         i, j = (idx % (nx-1), idx % (ny-1))
-        structure[i, j] = np.trapz(integrand[:, i, j], x=t) / L
+        structure[i, j] = np.trapz(integrand[:, i, j], x=t)
 
 
 class QCustomTrap(QTrap):
@@ -49,7 +49,7 @@ class QCustomTrap(QTrap):
         t0 = time()
         # Allocate integration range
         self.T = 2 * np.pi
-        t = np.linspace(0, self.T, 500, endpoint=True)
+        t = np.linspace(0, self.T, 400, endpoint=True)
         # Allocate geometrical buffers
         structure = np.zeros(self.cgh.shape, np.complex_)
         integrand = np.zeros((t.size,
@@ -67,13 +67,18 @@ class QCustomTrap(QTrap):
         # Evaluate integrand at all points along the curve
         f = self.cgh.focalLength
         lamb = self.cgh.wavelength
+        print('1')
         for idx, ti in enumerate(t):
             buff = np.zeros(self.cgh.shape, np.complex_)
-            self.integrand(ti, xv, yv, S_T, f, lamb, buff)
+            self.integrand(ti, xv, yv, S_T, L, f, lamb, buff)
             integrand[idx] = buff
+        print('2')
         # Integrate
-        self.integrate(integrand, structure, t, L)
+        structure = simps(integrand, x=t, axis=0)
+        #self.integrate(integrand, structure, t)
+        print('3')
         self.structure = structure
+        print('4')
         print("Time to compute: {}".format(time() - t0))
 
     def plotSymbol(self):
@@ -117,16 +122,16 @@ class QCustomTrap(QTrap):
         self.updateStructure()
         self.valueChanged.emit(self)
 
-    def integrand(self, t, x, y, S_T, f, lamb, buff):
+    def integrand(self, t, x, y, S_T, L, f, lamb, buff):
         '''Integrand for Eq. (6) in Rodrigo (2015)'''
         x_0, y_0, z_0 = (self.x_0(t), self.y_0(t), self.z_0(t))
         dr_0 = self.dr_0(t)
         S_t = self.S(t)
         integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T,
-                  self.rho, self.m, f, lamb, buff)
+                  L, self.rho, self.m, f, lamb, buff)
 
-    def integrate(self, integrand, buff, t, L):
-        integrate(integrand, buff, t, L, self.cgh.shape)
+    def integrate(self, integrand, buff, t):
+        integrate(integrand, buff, t, self.cgh.shape)
 
     def S(self, T):
         '''

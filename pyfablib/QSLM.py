@@ -33,7 +33,7 @@ class QSLM(QLabel):
             self.windowHandle().setScreen(screen)
             self.showFullScreen()
         else:
-            w, h = 640, 480
+            w, h = 1920, 1039
             self.setGeometry(100, 100, w, h)
             self.resize(w, h)
             self.show()
