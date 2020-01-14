@@ -21,11 +21,12 @@ from time import time
 
 @njit(parallel=True)
 def integrand(x, y, x_0, y_0, z_0, dr_0, S_t, S_T, rho, m, f, lamb, buff):
-    buff = np.exp(1.j * (y * x_0 - x * y_0) / rho**2
+    buff *= np.exp(1.j * (y * x_0 - x * y_0) / rho**2
                   + 1.j * 2*np.pi * m * S_t / S_T)
     buff *= np.exp(1.j*np.pi * z_0 * ((x - x_0)**2 + (y - y_0)**2)
                    / (lamb * f**2))
     buff *= dr_0
+    return buff
 
 
 @njit(parallel=True)
@@ -49,7 +50,7 @@ class QCustomTrap(QTrap):
         t0 = time()
         # Allocate integration range
         self.T = 2 * np.pi
-        t = np.linspace(0, self.T, 500, endpoint=True)
+        t = np.linspace(0, self.T, 350, endpoint=True)
         # Allocate geometrical buffers
         structure = np.zeros(self.cgh.shape, np.complex_)
         integrand = np.zeros((t.size,
@@ -68,7 +69,7 @@ class QCustomTrap(QTrap):
         f = self.cgh.focalLength
         lamb = self.cgh.wavelength
         for idx, ti in enumerate(t):
-            buff = np.zeros(self.cgh.shape, np.complex_)
+            buff = np.ones(self.cgh.shape, np.complex_)
             self.integrand(ti, xv, yv, S_T, f, lamb, buff)
             integrand[idx] = buff
         # Integrate
