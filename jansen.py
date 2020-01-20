@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
+from PyQt5.QtCore import pyqtSlot
+
 from JansenWidget import Ui_MainWindow
 from common.Configuration import Configuration
 
@@ -14,7 +17,6 @@ try:
     from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
 except Exception as ex:
     logger.warning(ex)
-from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 
 
 class Jansen(QMainWindow, Ui_MainWindow):
@@ -25,7 +27,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.configuration = Configuration(self)
         try:
             camera = QSpinnaker()
-        except:
+        except Exception:
             camera = QOpenCV()
         self.installCamera(camera)
         self.configureUi()
@@ -33,10 +35,10 @@ class Jansen(QMainWindow, Ui_MainWindow):
 
         self.doconfig = not noconfig
         if self.doconfig:
-            self.restoreConfiguration()
+            self.restoreSettings()
 
     def closeEvent(self, event):
-        self.saveConfiguration()
+        self.saveSettings()
         self.screen.close()
         self.deleteLater()
 
@@ -52,6 +54,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'jansen.avi'
+        self.vision.configuration = self.configuration
         self.adjustSize()
 
     def connectSignals(self):
@@ -63,28 +66,48 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.actionSavePhotoAs.triggered.connect(
             lambda: self.savePhoto(True))
 
+        # Signals associated with handling images
+        newFrame = self.screen.source.sigNewFrame
+        newFrame.connect(self.histogram.updateHistogram)
+
     def setDvrSource(self, source):
         self.dvr.source = source
 
-    def savePhoto(self, select=False):
-        filename = self.configuration.filename(suffix='.png')
+    #
+    # Slots for menu actions
+    #
+    def saveImage(self, qimage, select=False):
+        if qimage is None:
+            return
         if select:
             getname = QFileDialog.getSaveFileName
-            filename, _ = getname(self, 'Save Snapshot',
+            filename, _ = getname(self, 'Save Image',
                                   directory=filename,
                                   filter='Image files (*.png)')
+        else:
+            filename = self.configuration.filename(suffix='.png')
         if filename:
-            qimage = self.screen.imageItem.qimage
-            qimage.mirrored(vertical=True).save(filename)
+            qimage.save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
-    def restoreConfiguration(self):
-        if self.doconfig:
-            self.configuration.restore(self.camera)
+    @pyqtSlot()
+    def savePhoto(self, select=False):
+        qimage = self.screen.imageItem.qimage.mirrored(vertical=True)
+        self.saveImage(qimage, select=select)
 
-    def saveConfiguration(self):
+    @pyqtSlot()
+    def savePhotoAs(self):
+        self.savePhoto(select=True)
+
+    @pyqtSlot()
+    def saveSettings(self):
         if self.doconfig:
             self.configuration.save(self.camera)
+
+    @pyqtSlot()
+    def restoreSettings(self):
+        if self.doconfig:
+            self.configuration.restore(self.camera)
 
 
 def main():
