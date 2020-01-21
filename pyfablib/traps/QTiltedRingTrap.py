@@ -28,16 +28,16 @@ class QTiltedRingTrap(QCustomTrap):
         return self.rho**2 * (T - 0)
 
     def x_0(self, t):
-        return self.rho * np.cos(t)
+        return self.rho*np.cos(t)
 
     def dx_0(self, t):
-        return - self.rho * np.sin(t)
+        return - self.rho*np.sin(t)
 
     def y_0(self, t):
-        return self.rho * np.sin(t)
+        return self.rho*np.sin(t)
 
     def dy_0(self, t):
-        return self.rho * np.cos(t)
+        return self.rho*np.cos(t)
 
     def z_0(self, t):
-        return self.rho * self.s * np.sin(t)
+        return self.rho*self.s*np.sin(t)
