@@ -3,7 +3,16 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSlot
 from .QVisionWidget import Ui_QVisionWidget
+
+from CNNLorenzMie.Localizer import Localizer
+from pylorenzmie.theory.Video import Video
+from pylorenzmie.theory.Frame import Frame
+from pylorenzmie.theory.Feature import Feature
+from pylorenzmie.theory.LMHologram import LMHologram
+from pylorenzmie.theory.Instrument import Instrument, coordinates
+
 import numpy as np
+import pyqtgraph as pg
 
 import logging
 logging.basicConfig()
@@ -17,26 +26,31 @@ class QVision(QWidget):
         super(QVision, self).__init__(parent)
         self.ui = Ui_QVisionWidget()
         self.ui.setupUi(self)
-        self.configurePlot()
-        self._configuration = None
+
+        self.parent = parent
+        self.instrument = Instrument()
+        self.model = LMHologram()
+        self.model.double_precision = False
+        self.model.coordinates = None
+
+        self.frameinfo = []
+        self.video = None
+
         self._detect = False
         self._estimate = False
         self._refine = False
         self._nskip = 3
+        self._counter = self._nskip
         self._realTime = True
         self._saveFrames = False
         self._saveTrajectories = False
         self._discardEmpty = False
+
+        self.rois = None
+
+        self.configurePlot()
         self.configureUi()
         self.connectSignals()
-
-    @property
-    def configuration(self):
-        return self._configuration
-
-    @configuration.setter
-    def configuration(self, config):
-        self._configuration = config
 
     def connectSignals(self):
         self.ui.breal.toggled.connect(self.handleRealTime)
@@ -69,22 +83,66 @@ class QVision(QWidget):
 
     @pyqtSlot(np.ndarray)
     def process(self, frame):
-        if self._detect:
-            # TODO
-            if self._estimate:
-                # TODO
-                if self._refine:
-                    # TODO
-                    pass
+        self.remove(self.rois)
+        if self._counter == 0:
+            self._counter = self._nskip
+            if self._detect:
+                detections = self.localizer.predict(img_list=[frame])
+                self.rois = self.draw(detections[0])
+                if self._estimate:
+                    estimations = None
+                else:
+                    estimations = None
+                lmframe = self.build(
+                    frame, detections[0], estimations)
+                if self._saveFrames:
+                    if not (self._discardEmpty and len(detections) == 0):
+                        self.video.appendFrame(lmframe)
+        else:
+            self._counter -= 1
+            self.rois = None
+
+    def build(self, frame, detections, estimations):
+        features = []
+        for idx, detection in enumerate(detections):
+            x, y, w, h = detection['bbox']
+            xc, yc = (x-w//2, y+h//2)
+            self.model.coordinates = coordinates((w, h),
+                                                 corner=(xc, yc))
+            self.model.x_p = x
+            self.model.y_p = y
+            feature = Feature(self.model)
+            feature.amoeba_settings.options['maxevals'] = 500
+            if estimations is not None:
+                pass
+            features.append(feature)
+        f = Frame(data=frame, features=features)
+        if self._refine:
+            f.optimize(method='amoeba')
+        return f
+
+    def draw(self, detections):
+        rois = []
+        for detection in detections:
+            x, y, w, h = detection['bbox']
+            roi = pg.RectROI([x, y], [w, h], pen=(3, 1))
+            self.parent.screen.addOverlay(roi)
+            rois.append(roi)
+        return rois
+
+    def remove(self, rois):
+        if rois is not None:
+            for rect in rois:
+                self.parent.screen.removeOverlay(rect)
 
     @pyqtSlot(bool)
     def handleDetect(self, selected):
         self._detect = selected
         if selected:
-            pass
-            # detector =
+            self.localizer = Localizer(configuration='tinyholo',
+                                       weights='_500k')
         else:
-            detector = None
+            self.localizer = None
 
     @pyqtSlot(bool)
     def handleEstimate(self, selected):

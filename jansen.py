@@ -54,7 +54,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'jansen.avi'
-        self.vision.configuration = self.configuration
+        self.vision.parent = self
         self.adjustSize()
 
     def connectSignals(self):
