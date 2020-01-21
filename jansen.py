@@ -69,6 +69,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
         # Signals associated with handling images
         newFrame = self.screen.source.sigNewFrame
         newFrame.connect(self.histogram.updateHistogram)
+        newFrame.connect(self.vision.process)
 
     def setDvrSource(self, source):
         self.dvr.source = source
