@@ -14,8 +14,9 @@ class MaxTask(Task):
     Subclasses of maxtask() should override dotask() to perform
     operations based on the maximum-intensity image."""
 
-    def __init__(self, nframes=20, **kwargs):
+    def __init__(self, prefix=None, nframes=20, **kwargs):
         super(MaxTask, self).__init__(nframes=nframes-1, **kwargs)
+        self.prefix = prefix
 
     def initialize(self, frame):
         self.frame = frame
@@ -24,6 +25,7 @@ class MaxTask(Task):
         self.frame = np.maximum(frame, self.frame)
 
     def dotask(self):
-        fn = self.parent.configuration.filename(prefix='maxtask',
+        prefix = 'maxtask' if self.prefix is None else self.prefix
+        fn = self.parent.configuration.filename(prefix=prefix,
                                                 suffix='.png')
         cv2.imwrite(fn, self.frame)

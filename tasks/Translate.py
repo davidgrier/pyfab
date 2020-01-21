@@ -4,6 +4,7 @@
 
 from .Task import Task
 from PyQt5.QtGui import QVector3D
+from pyfablib.traps import QTrap, QTrapGroup
 
 
 class Translate(Task):
@@ -18,5 +19,9 @@ class Translate(Task):
 
     def initialize(self, frame):
         if self.traps is not None:
-            self.traps.select(True)
-            self.traps.flatten()[0].moveBy(self.dr)
+            if isinstance(self.traps, QTrapGroup):
+                self.traps.select(True)
+                self.traps.flatten()[0].moveBy(self.dr)
+            elif isinstance(self.traps, QTrap):
+                self.parent.pattern.pattern.select(True)
+                self.traps.moveBy(self.dr)

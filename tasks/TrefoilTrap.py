@@ -13,5 +13,5 @@ class TrefoilTrap(Task):
         super(TrefoilTrap, self).__init__(**kwargs)
 
     def dotask(self):
-        trap = QTrefoilTrap(s=.05, m=1, rho=8., r=QVector3D(100, 100, 0))
+        trap = QTrefoilTrap(s=.01, m=0, rho=20., r=QVector3D(100, 100, 0))
         self.parent.pattern.addTrap(trap)
