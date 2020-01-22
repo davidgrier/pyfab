@@ -9,7 +9,7 @@ from pylorenzmie.theory.Video import Video
 from pylorenzmie.theory.Frame import Frame
 from pylorenzmie.theory.Feature import Feature
 from pylorenzmie.theory.LMHologram import LMHologram
-from pylorenzmie.theory.Instrument import Instrument, coordinates
+from pylorenzmie.theory.Instrument import coordinates
 
 import numpy as np
 import pyqtgraph as pg
@@ -17,7 +17,7 @@ import pyqtgraph as pg
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 class QVision(QWidget):
@@ -27,24 +27,23 @@ class QVision(QWidget):
         self.ui = Ui_QVisionWidget()
         self.ui.setupUi(self)
 
-        self.parent = parent
-        self.instrument = Instrument()
+        self.jansen = None
+
         self.model = LMHologram()
         self.model.double_precision = False
         self.model.coordinates = None
 
-        self.frameinfo = []
-        self.video = None
+        self.video = Video()
 
-        self._detect = False
-        self._estimate = False
-        self._refine = False
-        self._nskip = 3
-        self._counter = self._nskip
-        self._realTime = True
-        self._saveFrames = False
-        self._saveTrajectories = False
-        self._discardEmpty = False
+        self.detect = False
+        self.estimate = False
+        self.refine = False
+        self.nskip = 3
+        self.counter = self.nskip
+        self.real_time = True
+        self.save_frames = False
+        self.save_trajectories = False
+        self.discard_empty = False
 
         self.rois = None
 
@@ -55,23 +54,23 @@ class QVision(QWidget):
     def connectSignals(self):
         self.ui.breal.toggled.connect(self.handleRealTime)
         self.ui.bpost.toggled.connect(self.handlePost)
-        self.ui.bdiscard.toggled.connect(self.handleDiscard)
+        self.ui.checkDiscard.toggled.connect(self.handleDiscard)
         self.ui.checkFrames.clicked.connect(self.handleSaveFrames)
         self.ui.checkTrajectories.clicked.connect(self.handleSaveTrajectories)
-        self.ui.checkDetect.clicked.connect(self.handleDetect)
-        self.ui.checkEstimate.clicked.connect(self.handleEstimate)
-        self.ui.checkRefine.clicked.connect(self.handleRefine)
+        self.ui.bDetect.clicked.connect(self.handleDetect)
+        self.ui.bEstimate.clicked.connect(self.handleEstimate)
+        self.ui.bRefine.clicked.connect(self.handleRefine)
         self.ui.skipBox.valueChanged.connect(self.handleSkip)
 
     def configureUi(self):
-        self.ui.checkDetect.setChecked(self._detect)
-        self.ui.checkEstimate.setChecked(self._estimate)
-        self.ui.checkRefine.setChecked(self._refine)
-        self.ui.checkFrames.setChecked(self._saveFrames)
-        self.ui.checkTrajectories.setChecked(self._saveTrajectories)
-        self.ui.breal.setChecked(self._realTime)
-        self.ui.bdiscard.setChecked(self._discardEmpty)
-        self.ui.skipBox.setProperty("value", self._nskip)
+        self.ui.bDetect.setChecked(self.detect)
+        self.ui.bEstimate.setChecked(self.estimate)
+        self.ui.bRefine.setChecked(self.refine)
+        self.ui.checkFrames.setChecked(self.save_frames)
+        self.ui.checkTrajectories.setChecked(self.save_trajectories)
+        self.ui.breal.setChecked(self.real_time)
+        self.ui.checkDiscard.setChecked(self.discard_empty)
+        self.ui.skipBox.setProperty("value", self.nskip)
 
     def configurePlot(self):
         self.ui.plot.setBackground('w')
@@ -82,32 +81,32 @@ class QVision(QWidget):
         self.ui.plot.setLabel('left', 'n_p')
 
     @pyqtSlot(np.ndarray)
-    def process(self, frame):
+    def process(self, image):
         self.remove(self.rois)
-        if self._counter == 0:
-            self._counter = self._nskip
-            if self._detect:
-                detections = self.localizer.predict(img_list=[frame])
-                self.rois = self.draw(detections[0])
-                if self._estimate:
+        if self.counter == 0:
+            self.counter = self.nskip
+            if self.detect:
+                detections = self.localizer.predict(img_list=[image])[0]
+                self.rois = self.draw(detections)
+                if self.estimate:
                     estimations = None
                 else:
                     estimations = None
-                lmframe = self.build(
-                    frame, detections[0], estimations)
-                if self._saveFrames:
-                    if not (self._discardEmpty and len(detections) == 0):
-                        self.video.appendFrame(lmframe)
+                frame = self.build(image, detections, estimations)
+                if self.jansen.dvr.is_recording() and self.save_frames:
+                    if not (self.discard_empty and len(detections) == 0):
+                        self.video.add(frame)
+                        print("Frame added")
         else:
-            self._counter -= 1
+            self.counter -= 1
             self.rois = None
 
-    def build(self, frame, detections, estimations):
+    def build(self, image, detections, estimations):
         features = []
         for idx, detection in enumerate(detections):
-            x, y, w, h = detection['bbox']
-            xc, yc = (x-w//2, y+h//2)
-            self.model.coordinates = coordinates((w, h),
+            x, y, l, w = detection['bbox']
+            xc, yc = (x-w//2, y+l//2)
+            self.model.coordinates = coordinates((w, l),
                                                  corner=(xc, yc))
             self.model.x_p = x
             self.model.y_p = y
@@ -116,62 +115,99 @@ class QVision(QWidget):
             if estimations is not None:
                 pass
             features.append(feature)
-        f = Frame(data=frame, features=features)
-        if self._refine:
-            f.optimize(method='amoeba')
-        return f
+        if self.jansen.dvr.recording:
+            i = self.jansen.dvr.framenumber
+        else:
+            i = None
+        frame = Frame(data=image, features=features, framenumber=i)
+        if self.refine:
+            frame.optimize(method='amoeba')
+        return frame
 
     def draw(self, detections):
         rois = []
         for detection in detections:
             x, y, w, h = detection['bbox']
             roi = pg.RectROI([x, y], [w, h], pen=(3, 1))
-            self.parent.screen.addOverlay(roi)
+            self.jansen.screen.addOverlay(roi)
             rois.append(roi)
         return rois
 
     def remove(self, rois):
         if rois is not None:
             for rect in rois:
-                self.parent.screen.removeOverlay(rect)
+                self.jansen.screen.removeOverlay(rect)
+
+    @pyqtSlot()
+    def save(self):
+        if self.save_frames:
+            if self.save_trajectories:
+                self.video.set_trajectories()
+                omit = []
+            else:
+                omit = ['trajectories']
+            filename = self.jansen.dvr.filename.split(".")[0] + '.json'
+            self.video.serialize(filename=filename,
+                                 omit=omit, omit_feat=['data'])
+            logging.info("{} saved.".format(filename))
+            self.video = Video()
 
     @pyqtSlot(bool)
     def handleDetect(self, selected):
-        self._detect = selected
         if selected:
+            self.detect = True
+            self.estimate = False
+            self.refine = False
             self.localizer = Localizer(configuration='tinyholo',
                                        weights='_500k')
         else:
+            self.detect = False
+            self.estimate = False
+            self.refine = False
             self.localizer = None
 
     @pyqtSlot(bool)
     def handleEstimate(self, selected):
-        self._estimate = selected
+        if selected:
+            self.detect = True
+            self.estimate = True
+            self.refine = False
+        else:
+            self.detect = False
+            self.estimate = False
+            self.refine = False
 
     @pyqtSlot(bool)
     def handleRefine(self, selected):
-        self._refine = selected
+        if selected:
+            self.detect = True
+            self.estimate = True
+            self.refine = True
+        else:
+            self.detect = False
+            self.estimate = False
+            self.refine = False
 
     @pyqtSlot(bool)
     def handleRealTime(self, selected):
-        self._realTime = selected
+        self.real_time = selected
 
     @pyqtSlot(bool)
     def handlePost(self, selected):
-        self._realTime = not selected
+        self.real_time = not selected
 
     @pyqtSlot(bool)
     def handleDiscard(self, selected):
-        self._discardEmpty = selected
+        self.discard_empty = selected
 
     @pyqtSlot(bool)
     def handleSaveFrames(self, selected):
-        self._saveFrames = selected
+        self.save_frames = selected
 
     @pyqtSlot(bool)
     def handleSaveTrajectories(self, selected):
-        self._saveTrajectories = selected
+        self.save_trajectories = selected
 
     @pyqtSlot(int)
     def handleSkip(self, nskip):
-        self._nskip = nskip
+        self.nskip = nskip
