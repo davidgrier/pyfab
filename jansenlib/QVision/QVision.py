@@ -5,19 +5,29 @@ from PyQt5.QtCore import pyqtSlot
 from .QVisionWidget import Ui_QVisionWidget
 
 from CNNLorenzMie.Localizer import Localizer
+from CNNLorenzMie.Estimator import Estimator
+from CNNLorenzMie.crop_feature import crop_feature
+from CNNLorenzMie.filters.nodoubles import nodoubles
+from CNNLorenzMie.filters.no_edges import no_edges
 from pylorenzmie.theory.Video import Video
 from pylorenzmie.theory.Frame import Frame
-from pylorenzmie.theory.Feature import Feature
-from pylorenzmie.theory.LMHologram import LMHologram
-from pylorenzmie.theory.Instrument import coordinates
 
 import numpy as np
 import pyqtgraph as pg
+import json
+import os
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+path = os.path.expanduser("~/python/CNNLorenzMie")
+keras_head_path = path+'/keras_models/predict_stamp_best'
+keras_model_path = keras_head_path+'.h5'
+keras_config_path = keras_head_path+'.json'
+with open(keras_config_path, 'r') as f:
+    kconfig = json.load(f)
 
 
 class QVision(QWidget):
@@ -28,10 +38,6 @@ class QVision(QWidget):
         self.ui.setupUi(self)
 
         self.jansen = None
-
-        self.model = LMHologram()
-        self.model.double_precision = False
-        self.model.coordinates = None
 
         self.video = Video()
 
@@ -85,50 +91,72 @@ class QVision(QWidget):
         self.remove(self.rois)
         if self.counter == 0:
             self.counter = self.nskip
-            detections = []
-            estimations = None
-            if self.detect:
-                if len(image.shape) == 2:
-                    inflated = np.stack((image,)*3, axis=-1)
-                else:
-                    inflated = image
-                detections = self.localizer.predict(img_list=[inflated])[0]
-                self.rois = self.draw(detections)
-                if self.estimate:
-                    estimations = None
-                else:
-                    estimations = None
-            frame = self.build(image, detections, estimations)
-            if self.jansen.dvr.is_recording() and self.save_frames:
-                if not (self.discard_empty and len(detections) == 0):
-                    self.video.add(frame)
-                    print("Frame added")
+            i = self.jansen.dvr.framenumber
+            inflated, shape = self.inflate(image)
+            if self.real_time:
+                frames, detections = self.predict([inflated], shape)
+                frame = frames[0]
+                frame.framenumber = i
+                self.rois = self.draw(detections[0])
+                if self.jansen.dvr.is_recording() and self.save_frames:
+                    if not (self.discard_empty and len(frame.features) == 0):
+                        self.video.add(frames)
+                        print("Frame added")
+            else:
+                pass
         else:
             self.counter -= 1
             self.rois = None
 
-    def build(self, image, detections, estimations):
-        features = []
-        for idx, detection in enumerate(detections):
-            x, y, l, w = detection['bbox']
-            xc, yc = (x-w//2, y+l//2)
-            self.model.coordinates = coordinates((w, l),
-                                                 corner=(xc, yc))
-            self.model.x_p = x
-            self.model.y_p = y
-            feature = Feature(self.model)
-            feature.amoeba_settings.options['maxevals'] = 500
-            if estimations is not None:
-                pass
-            features.append(feature)
-        if self.jansen.dvr.recording:
-            i = self.jansen.dvr.framenumber
+    def inflate(self, image):
+        if len(image.shape) == 2:
+            shape = image.shape
+            inflated = np.stack((image,)*3, axis=-1)
         else:
-            i = None
-        frame = Frame(data=image, features=features, framenumber=i)
-        if self.refine:
-            frame.optimize(method='amoeba')
-        return frame
+            shape = (image.shape[0], image.shape[1])
+            inflated = image
+        return inflated, shape
+
+    def predict(self, images, shape):
+        features = [[]]
+        detections = [[]]
+        frames = []
+        if self.detect:
+            detections = self.localizer.predict(img_list=images)
+            detections = nodoubles(detections, tol=0)
+            detections = no_edges(detections, tol=0,
+                                  image_shape=shape)
+            result = crop_feature(img_list=images,
+                                  xy_preds=detections,
+                                  new_shape=self.estimator.pixels)
+            features, est_images, scales = result
+            if self.estimate:
+                structure = list(map(len, features))
+                char_predictions = self.estimator.predict(
+                    img_list=est_images, scale_list=scales)
+                zpop = char_predictions['z_p']
+                apop = char_predictions['a_p']
+                npop = char_predictions['n_p']
+                for framenum in range(len(structure)):
+                    listlen = structure[framenum]
+                    frame = features[framenum]
+                    index = 0
+                    while listlen > index:
+                        feature = frame[index]
+                        feature.model.particle.z_p = zpop.pop(0)
+                        feature.model.particle.a_p = apop.pop(0)
+                        feature.model.particle.n_p = npop.pop(0)
+                        feature.model.coordinates = feature.coordinates
+                        feature.model.instrument = self.estimator.instrument
+                        feature.model.double_precision = False
+                        feature.lm_settings.options['max_nfev'] = 250
+                        index += 1
+        for idx, feat_list in enumerate(features):
+            frame = Frame(features=feat_list)
+            if self.refine:
+                frame.optimize(method='lm')
+            frames.append(frame)
+        return frames, detections
 
     def draw(self, detections):
         rois = []
@@ -144,6 +172,12 @@ class QVision(QWidget):
             for rect in rois:
                 self.jansen.screen.removeOverlay(rect)
 
+    def initPipeline(self):
+        self.localizer = Localizer(configuration='tinyholo',
+                                   weights='_500k')
+        self.estimator = Estimator(model_path=keras_model_path,
+                                   config_file=kconfig)
+
     def save(self):
         if self.save_frames:
             if self.save_trajectories:
@@ -152,8 +186,10 @@ class QVision(QWidget):
             else:
                 omit = ['trajectories']
             filename = self.jansen.dvr.filename.split(".")[0] + '.json'
+            if not self.real_time:
+                pass
             self.video.serialize(filename=filename,
-                                 omit=omit, omit_feat=['data'])
+                                 omit=omit, omit_frame=['data'])
             logger.info("{} saved.".format(filename))
             self.video = Video()
 
@@ -163,13 +199,12 @@ class QVision(QWidget):
             self.detect = True
             self.estimate = False
             self.refine = False
-            self.localizer = Localizer(configuration='tinyholo',
-                                       weights='_500k')
+            self.initPipeline()
         else:
             self.detect = False
             self.estimate = False
             self.refine = False
-            self.localizer = None
+            self.localizer, self.estimator = (None, None)
 
     @pyqtSlot(bool)
     def handleEstimate(self, selected):
@@ -177,10 +212,12 @@ class QVision(QWidget):
             self.detect = True
             self.estimate = True
             self.refine = False
+            self.initPipeline()
         else:
             self.detect = False
             self.estimate = False
             self.refine = False
+            self.localizer, self.estimator = (None, None)
 
     @pyqtSlot(bool)
     def handleRefine(self, selected):
@@ -188,10 +225,12 @@ class QVision(QWidget):
             self.detect = True
             self.estimate = True
             self.refine = True
+            self.initPipeline()
         else:
             self.detect = False
             self.estimate = False
             self.refine = False
+            self.localizer, self.estimator = (None, None)
 
     @pyqtSlot(bool)
     def handleRealTime(self, selected):
