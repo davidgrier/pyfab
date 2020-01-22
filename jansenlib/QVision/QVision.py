@@ -86,7 +86,11 @@ class QVision(QWidget):
         if self.counter == 0:
             self.counter = self.nskip
             if self.detect:
-                detections = self.localizer.predict(img_list=[image])[0]
+                if len(image.shape) == 2:
+                    inflated = np.stack((image,)*3, axis=-1)
+                else:
+                    inflated = image
+                detections = self.localizer.predict(img_list=[inflated])[0]
                 self.rois = self.draw(detections)
                 if self.estimate:
                     estimations = None
