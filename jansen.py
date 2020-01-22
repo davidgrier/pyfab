@@ -55,6 +55,7 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'jansen.avi'
         self.vision.jansen = self
+        self.dvr.vision = self.vision
         self.adjustSize()
 
     def connectSignals(self):
@@ -65,7 +66,6 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.actionSavePhoto.triggered.connect(self.savePhoto)
         self.actionSavePhotoAs.triggered.connect(
             lambda: self.savePhoto(True))
-        self.dvr.stopButton.clicked.connect(self.vision.save)
 
         # Signals associated with handling images
         newFrame = self.screen.source.sigNewFrame

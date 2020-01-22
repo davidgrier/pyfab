@@ -85,6 +85,8 @@ class QVision(QWidget):
         self.remove(self.rois)
         if self.counter == 0:
             self.counter = self.nskip
+            detections = []
+            estimations = None
             if self.detect:
                 if len(image.shape) == 2:
                     inflated = np.stack((image,)*3, axis=-1)
@@ -96,11 +98,11 @@ class QVision(QWidget):
                     estimations = None
                 else:
                     estimations = None
-                frame = self.build(image, detections, estimations)
-                if self.jansen.dvr.is_recording() and self.save_frames:
-                    if not (self.discard_empty and len(detections) == 0):
-                        self.video.add(frame)
-                        print("Frame added")
+            frame = self.build(image, detections, estimations)
+            if self.jansen.dvr.is_recording() and self.save_frames:
+                if not (self.discard_empty and len(detections) == 0):
+                    self.video.add(frame)
+                    print("Frame added")
         else:
             self.counter -= 1
             self.rois = None
@@ -142,7 +144,6 @@ class QVision(QWidget):
             for rect in rois:
                 self.jansen.screen.removeOverlay(rect)
 
-    @pyqtSlot()
     def save(self):
         if self.save_frames:
             if self.save_trajectories:
@@ -153,7 +154,7 @@ class QVision(QWidget):
             filename = self.jansen.dvr.filename.split(".")[0] + '.json'
             self.video.serialize(filename=filename,
                                  omit=omit, omit_feat=['data'])
-            logging.info("{} saved.".format(filename))
+            logger.info("{} saved.".format(filename))
             self.video = Video()
 
     @pyqtSlot(bool)
