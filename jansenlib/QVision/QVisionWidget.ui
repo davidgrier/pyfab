@@ -20,9 +20,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>130</y>
+     <y>140</y>
      <width>281</width>
-     <height>81</height>
+     <height>61</height>
     </rect>
    </property>
    <property name="title">
@@ -47,24 +47,11 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkDiscard">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>40</y>
-      <width>141</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Discard empty</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="checkTrajectories">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>40</y>
       <width>171</width>
       <height>21</height>
      </rect>
@@ -130,7 +117,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>9</y>
+     <y>10</y>
      <width>281</width>
      <height>81</height>
     </rect>
@@ -155,7 +142,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>40</y>
       <width>131</width>
       <height>21</height>
      </rect>
@@ -170,8 +157,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>40</y>
+      <x>10</x>
+      <y>60</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -183,8 +170,8 @@
    <widget class="QSpinBox" name="skipBox">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>40</y>
+      <x>50</x>
+      <y>60</y>
       <width>91</width>
       <height>22</height>
      </rect>
@@ -210,7 +197,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>220</y>
+     <y>210</y>
      <width>261</width>
      <height>211</height>
     </rect>

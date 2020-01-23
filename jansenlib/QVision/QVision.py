@@ -40,6 +40,8 @@ class QVision(QWidget):
         self.jansen = None
 
         self.video = Video()
+        self.frames = []
+        self.framenumbers = []
 
         self.detect = False
         self.estimate = False
@@ -49,7 +51,6 @@ class QVision(QWidget):
         self.real_time = True
         self.save_frames = False
         self.save_trajectories = False
-        self.discard_empty = False
 
         self.rois = None
 
@@ -60,7 +61,6 @@ class QVision(QWidget):
     def connectSignals(self):
         self.ui.breal.toggled.connect(self.handleRealTime)
         self.ui.bpost.toggled.connect(self.handlePost)
-        self.ui.checkDiscard.toggled.connect(self.handleDiscard)
         self.ui.checkFrames.clicked.connect(self.handleSaveFrames)
         self.ui.checkTrajectories.clicked.connect(self.handleSaveTrajectories)
         self.ui.bDetect.clicked.connect(self.handleDetect)
@@ -75,7 +75,6 @@ class QVision(QWidget):
         self.ui.checkFrames.setChecked(self.save_frames)
         self.ui.checkTrajectories.setChecked(self.save_trajectories)
         self.ui.breal.setChecked(self.real_time)
-        self.ui.checkDiscard.setChecked(self.discard_empty)
         self.ui.skipBox.setProperty("value", self.nskip)
 
     def configurePlot(self):
@@ -94,16 +93,18 @@ class QVision(QWidget):
             i = self.jansen.dvr.framenumber
             inflated, shape = self.inflate(image)
             if self.real_time:
-                frames, detections = self.predict([inflated], shape)
+                frames, detections = self.predict([inflated],
+                                                  [i], shape)
                 frame = frames[0]
-                frame.framenumber = i
                 self.rois = self.draw(detections[0])
-                if self.jansen.dvr.is_recording() and self.save_frames:
-                    if not (self.discard_empty and len(frame.features) == 0):
+                if self.jansen.dvr.is_recording():
+                    if len(frame.features) != 0:
                         self.video.add(frames)
                         print("Frame added")
             else:
-                pass
+                if self.jansen.dvr.is_recording():
+                    self.images.append(image)
+                    self.framenumbers.append(i)
         else:
             self.counter -= 1
             self.rois = None
@@ -117,7 +118,7 @@ class QVision(QWidget):
             inflated = image
         return inflated, shape
 
-    def predict(self, images, shape):
+    def predict(self, images, framenumbers, shape):
         features = [[]]
         detections = [[]]
         frames = []
@@ -152,7 +153,8 @@ class QVision(QWidget):
                         feature.lm_settings.options['max_nfev'] = 250
                         index += 1
         for idx, feat_list in enumerate(features):
-            frame = Frame(features=feat_list)
+            frame = Frame(features=feat_list,
+                          framenumber=framenumbers[idx])
             if self.refine:
                 frame.optimize(method='lm')
             frames.append(frame)
@@ -178,20 +180,28 @@ class QVision(QWidget):
         self.estimator = Estimator(model_path=keras_model_path,
                                    config_file=kconfig)
 
-    def save(self):
-        if self.save_frames:
-            if self.save_trajectories:
-                self.video.set_trajectories()
-                omit = []
-            else:
-                omit = ['trajectories']
+    def cleanup(self):
+        if not self.real_time:
+            shape = self.images[0].shape
+            frames, detections = self.predict(self.images,
+                                              self.framenumbers,
+                                              shape)
+            self.video.add(frames)
+            self.images = None
+            self.framenumbers = None
+        omit = []
+        if not self.save_frames:
+            omit.append('frames')
+        if not self.save_trajectories:
+            omit.append('trajectories')
+        else:
+            self.video.set_trajectories()
+        if self.save_frames or self.save_trajectories:
             filename = self.jansen.dvr.filename.split(".")[0] + '.json'
-            if not self.real_time:
-                pass
             self.video.serialize(filename=filename,
                                  omit=omit, omit_frame=['data'])
             logger.info("{} saved.".format(filename))
-            self.video = Video()
+        self.video = Video()
 
     @pyqtSlot(bool)
     def handleDetect(self, selected):
@@ -239,10 +249,6 @@ class QVision(QWidget):
     @pyqtSlot(bool)
     def handlePost(self, selected):
         self.real_time = not selected
-
-    @pyqtSlot(bool)
-    def handleDiscard(self, selected):
-        self.discard_empty = selected
 
     @pyqtSlot(bool)
     def handleSaveFrames(self, selected):
