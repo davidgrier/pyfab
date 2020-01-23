@@ -53,8 +53,6 @@ class QDVR(QFrame, Ui_QDVRWidget):
         self._framenumber = 0
         self._nframes = 0
 
-        self.vision = None
-
         self.setupUi(self)
         self.connectSignals()
 
@@ -143,7 +141,6 @@ class QDVR(QFrame, Ui_QDVRWidget):
         self.framenumber = 0
         self._nframes = 0
         self.recording.emit(False)
-        self.vision.save()
 
     @pyqtSlot(int)
     def setFrameNumber(self, framenumber):

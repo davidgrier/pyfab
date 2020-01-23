@@ -9,8 +9,8 @@ from CNNLorenzMie.Estimator import Estimator
 from CNNLorenzMie.crop_feature import crop_feature
 from CNNLorenzMie.filters.nodoubles import nodoubles
 from CNNLorenzMie.filters.no_edges import no_edges
-from pylorenzmie.theory.Video import Video
-from pylorenzmie.theory.Frame import Frame
+from pylorenzmie.theory import Video
+from pylorenzmie.theory import Frame
 
 import numpy as np
 import pyqtgraph as pg
@@ -42,6 +42,11 @@ class QVision(QWidget):
         self.video = Video()
         self.frames = []
         self.framenumbers = []
+
+        self.recording = False
+
+        self.localizer = None
+        self.estimator = None
 
         self.detect = False
         self.estimate = False
@@ -98,103 +103,30 @@ class QVision(QWidget):
                 frame = frames[0]
                 self.rois = self.draw(detections[0])
                 if self.jansen.dvr.is_recording():
+                    self.recording = True
                     if len(frame.features) != 0:
                         self.video.add(frames)
-                        print("Frame added")
             else:
                 if self.jansen.dvr.is_recording():
-                    self.images.append(image)
+                    self.recording = True
+                    self.frames.append(inflated)
                     self.framenumbers.append(i)
         else:
             self.counter -= 1
             self.rois = None
-
-    def inflate(self, image):
-        if len(image.shape) == 2:
-            shape = image.shape
-            inflated = np.stack((image,)*3, axis=-1)
-        else:
-            shape = (image.shape[0], image.shape[1])
-            inflated = image
-        return inflated, shape
-
-    def predict(self, images, framenumbers, shape):
-        features = [[]]
-        detections = [[]]
-        frames = []
-        if self.detect:
-            detections = self.localizer.predict(img_list=images)
-            detections = nodoubles(detections, tol=0)
-            detections = no_edges(detections, tol=0,
-                                  image_shape=shape)
-            result = crop_feature(img_list=images,
-                                  xy_preds=detections,
-                                  new_shape=self.estimator.pixels)
-            features, est_images, scales = result
-            if self.estimate:
-                structure = list(map(len, features))
-                char_predictions = self.estimator.predict(
-                    img_list=est_images, scale_list=scales)
-                zpop = char_predictions['z_p']
-                apop = char_predictions['a_p']
-                npop = char_predictions['n_p']
-                for framenum in range(len(structure)):
-                    listlen = structure[framenum]
-                    frame = features[framenum]
-                    index = 0
-                    while listlen > index:
-                        feature = frame[index]
-                        feature.model.particle.z_p = zpop.pop(0)
-                        feature.model.particle.a_p = apop.pop(0)
-                        feature.model.particle.n_p = npop.pop(0)
-                        feature.model.coordinates = feature.coordinates
-                        feature.model.instrument = self.estimator.instrument
-                        feature.model.double_precision = False
-                        feature.lm_settings.options['max_nfev'] = 250
-                        index += 1
-        for idx, feat_list in enumerate(features):
-            frame = Frame(features=feat_list,
-                          framenumber=framenumbers[idx])
-            if self.refine:
-                frame.optimize(method='lm')
-            frames.append(frame)
-        return frames, detections
-
-    def draw(self, detections):
-        rois = []
-        for detection in detections:
-            x, y, w, h = detection['bbox']
-            roi = pg.RectROI([x, y], [w, h], pen=(3, 1))
-            self.jansen.screen.addOverlay(roi)
-            rois.append(roi)
-        return rois
-
-    def remove(self, rois):
-        if rois is not None:
-            for rect in rois:
-                self.jansen.screen.removeOverlay(rect)
-
-    def initPipeline(self):
-        self.localizer = Localizer(configuration='tinyholo',
-                                   weights='_500k')
-        self.estimator = Estimator(model_path=keras_model_path,
-                                   config_file=kconfig)
-
-    def clearPipeline(self):
-        self.detect = False
-        self.estimate = False
-        self.refine = False
-        self.localizer, self.estimator = (None, None)
+        if self.recording and not self.jansen.dvr.is_recording():
+            self.recording = False
+            self.cleanup()
 
     def cleanup(self):
         if not self.real_time:
-            shape = self.images[0].shape
-            frames, detections = self.predict(self.images,
+            shape = self.frames[0].shape
+            frames, detections = self.predict(self.frames,
                                               self.framenumbers,
-                                              shape)
+                                              (shape[0], shape[1]))
             self.video.add(frames)
-            self.images = None
-            self.framenumbers = None
+            self.frames = []
+            self.framenumbers = []
         omit = []
         if not self.save_frames:
             omit.append('frames')
@@ -264,3 +196,83 @@ class QVision(QWidget):
     @pyqtSlot(int)
     def handleSkip(self, nskip):
         self.nskip = nskip
+
+    def inflate(self, image):
+        if len(image.shape) == 2:
+            shape = image.shape
+            inflated = np.stack((image,)*3, axis=-1)
+        else:
+            shape = (image.shape[0], image.shape[1])
+            inflated = image
+        return inflated, shape
+
+    def predict(self, images, framenumbers, shape):
+        features = [[]]
+        detections = [[]]
+        frames = []
+        if self.detect:
+            detections = self.localizer.predict(img_list=images)
+            detections = nodoubles(detections, tol=0)
+            detections = no_edges(detections, tol=0,
+                                  image_shape=shape)
+            pxls = (201, 201) if self.estimator is None \
+                else self.estimator.pixels
+            result = crop_feature(img_list=images,
+                                  xy_preds=detections,
+                                  new_shape=pxls)
+            features, est_images, scales = result
+            if self.estimate:
+                structure = list(map(len, features))
+                char_predictions = self.estimator.predict(
+                    img_list=est_images, scale_list=scales)
+                zpop = char_predictions['z_p']
+                apop = char_predictions['a_p']
+                npop = char_predictions['n_p']
+                for framenum in range(len(structure)):
+                    listlen = structure[framenum]
+                    frame = features[framenum]
+                    index = 0
+                    while listlen > index:
+                        feature = frame[index]
+                        feature.model.particle.z_p = zpop.pop(0)
+                        feature.model.particle.a_p = apop.pop(0)
+                        feature.model.particle.n_p = npop.pop(0)
+                        feature.model.coordinates = feature.coordinates
+                        feature.model.instrument = self.estimator.instrument
+                        feature.model.double_precision = False
+                        feature.lm_settings.options['max_nfev'] = 250
+                        index += 1
+        for idx, feat_list in enumerate(features):
+            frame = Frame(features=feat_list,
+                          framenumber=framenumbers[idx])
+            if self.refine:
+                frame.optimize(method='lm')
+            frames.append(frame)
+        return frames, detections
+
+    def draw(self, detections):
+        rois = []
+        for detection in detections:
+            x, y, w, h = detection['bbox']
+            roi = pg.RectROI([x, y], [w, h], pen=(3, 1))
+            self.jansen.screen.addOverlay(roi)
+            rois.append(roi)
+        return rois
+
+    def remove(self, rois):
+        if rois is not None:
+            for rect in rois:
+                self.jansen.screen.removeOverlay(rect)
+
+    def initPipeline(self):
+        self.localizer = Localizer(configuration='tinyholo',
+                                   weights='_500k')
+        if self.estimate:
+            self.estimator = Estimator(model_path=keras_model_path,
+                                       config_file=kconfig)
+
+    def clearPipeline(self):
+        self.detect = False
+        self.estimate = False
+        self.refine = False
+        self.localizer, self.estimator = (None, None)
