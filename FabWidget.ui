@@ -530,8 +530,8 @@
           </widget>
          </item>
          <item>
-          <widget class="QWebEngineView" name="browser">
-           <property name="url">
+          <widget class="QWebEngineView" name="browser" native="true">
+           <property name="url" stdset="0">
             <url>
              <string>qrc:/help/help/pyfab.html</string>
             </url>
@@ -551,7 +551,7 @@
      <x>0</x>
      <y>0</y>
      <width>1072</width>
-     <height>22</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

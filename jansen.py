@@ -5,7 +5,7 @@ from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
 
-from JansenWidget import Ui_MainWindow
+from JansenWidget import Ui_Jansen
 from common.Configuration import Configuration
 
 import logging
@@ -19,7 +19,7 @@ except Exception as ex:
     logger.warning(ex)
 
 
-class Jansen(QMainWindow, Ui_MainWindow):
+class Jansen(QMainWindow, Ui_Jansen):
 
     def __init__(self, parent=None, noconfig=False):
         super(Jansen, self).__init__(parent)
