@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QButtonGroup
 from PyQt5.QtCore import pyqtSlot
 from .QVisionWidget import Ui_QVisionWidget
 
@@ -180,6 +180,12 @@ class QVision(QWidget):
         self.estimator = Estimator(model_path=keras_model_path,
                                    config_file=kconfig)
 
+    def clearPipeline(self):
+        self.detect = False
+        self.estimate = False
+        self.refine = False
+        self.localizer, self.estimator = (None, None)
+
     def cleanup(self):
         if not self.real_time:
             shape = self.images[0].shape
@@ -209,12 +215,11 @@ class QVision(QWidget):
             self.detect = True
             self.estimate = False
             self.refine = False
+            self.ui.bEstimate.setChecked(False)
+            self.ui.bRefine.setChecked(False)
             self.initPipeline()
         else:
-            self.detect = False
-            self.estimate = False
-            self.refine = False
-            self.localizer, self.estimator = (None, None)
+            self.clearPipeline()
 
     @pyqtSlot(bool)
     def handleEstimate(self, selected):
@@ -222,12 +227,11 @@ class QVision(QWidget):
             self.detect = True
             self.estimate = True
             self.refine = False
+            self.ui.bDetect.setChecked(False)
+            self.ui.bRefine.setChecked(False)
             self.initPipeline()
         else:
-            self.detect = False
-            self.estimate = False
-            self.refine = False
-            self.localizer, self.estimator = (None, None)
+            self.clearPipeline()
 
     @pyqtSlot(bool)
     def handleRefine(self, selected):
@@ -235,12 +239,11 @@ class QVision(QWidget):
             self.detect = True
             self.estimate = True
             self.refine = True
+            self.ui.bDetect.setChecked(False)
+            self.ui.bEstimate.setChecked(False)
             self.initPipeline()
         else:
-            self.detect = False
-            self.estimate = False
-            self.refine = False
-            self.localizer, self.estimator = (None, None)
+            self.clearPipeline()
 
     @pyqtSlot(bool)
     def handleRealTime(self, selected):

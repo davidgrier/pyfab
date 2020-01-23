@@ -73,7 +73,7 @@
    <property name="title">
     <string>Vision pipeline</string>
    </property>
-   <widget class="QRadioButton" name="bEstimate">
+   <widget class="QCheckBox" name="bEstimate">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -86,7 +86,7 @@
      <string>Estimate</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="bRefine">
+   <widget class="QCheckBox" name="bRefine">
     <property name="geometry">
      <rect>
       <x>180</x>
@@ -99,7 +99,7 @@
      <string>Refine</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="bDetect">
+   <widget class="QCheckBox" name="bDetect">
     <property name="geometry">
      <rect>
       <x>10</x>
