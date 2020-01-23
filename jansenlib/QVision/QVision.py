@@ -58,6 +58,7 @@ class QVision(QWidget):
         self.save_trajectories = False
 
         self.rois = None
+        self.pen = pg.mkPen(color='b', width=20)
 
         self.configurePlot()
         self.configureUi()
@@ -254,7 +255,7 @@ class QVision(QWidget):
         rois = []
         for detection in detections:
             x, y, w, h = detection['bbox']
-            roi = pg.RectROI([x, y], [w, h], pen=(3, 1))
+            roi = pg.RectROI([x-w//2, y-h//2], [w, h], self.pen)
             self.jansen.screen.addOverlay(roi)
             rois.append(roi)
         return rois

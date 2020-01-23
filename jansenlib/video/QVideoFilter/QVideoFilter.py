@@ -83,8 +83,6 @@ class QVideoFilter(QFrame):
             self.background = np.clip(self.median.get(), 1, 255)
         nrm = (frame.astype(float) - 13) / (self.background - 13)
         n = np.clip(100 * nrm, 0, 255).astype(np.uint8)
-        if np.amax(n) == 255:
-            print('There is saturation!' + np.random.choice(['!', '?']))
         return n
 
     @pyqtSlot(bool)
