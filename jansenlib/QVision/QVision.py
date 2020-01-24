@@ -42,7 +42,6 @@ class QVision(QWidget):
         self.instrument = Instrument(wavelength=ins['wavelength'],
                                      n_m=ins['n_m'],
                                      magnification=ins['magnification'])
-
         self.video = Video(instrument=self.instrument)
         self.frames = []
         self.framenumbers = []
@@ -60,6 +59,7 @@ class QVision(QWidget):
         self.real_time = True
         self.save_frames = False
         self.save_trajectories = False
+        self.save_feature_data = False
 
         self.rois = None
         self.pen = pg.mkPen(color='b', width=20)
@@ -73,6 +73,7 @@ class QVision(QWidget):
         self.ui.bpost.toggled.connect(self.handlePost)
         self.ui.checkFrames.clicked.connect(self.handleSaveFrames)
         self.ui.checkTrajectories.clicked.connect(self.handleSaveTrajectories)
+        self.ui.checkFeatureData.clicked.connect(self.handleSaveFeatureData)
         self.ui.bDetect.clicked.connect(self.handleDetect)
         self.ui.bEstimate.clicked.connect(self.handleEstimate)
         self.ui.bRefine.clicked.connect(self.handleRefine)
@@ -132,17 +133,21 @@ class QVision(QWidget):
             self.video.add(frames)
             self.frames = []
             self.framenumbers = []
-        omit = []
+        omit, omit_feat = ([], [])
         if not self.save_frames:
             omit.append('frames')
         if not self.save_trajectories:
             omit.append('trajectories')
         else:
             self.video.set_trajectories()
+        if not self.save_feature_data:
+            omit_feat.append('data')
         if self.save_frames or self.save_trajectories:
             filename = self.jansen.dvr.filename.split(".")[0] + '.json'
             self.video.serialize(filename=filename,
-                                 omit=omit, omit_frame=['data'])
+                                 omit=omit,
+                                 omit_frame=['data'],
+                                 omit_feat=omit_feat)
             logger.info("{} saved.".format(filename))
         self.video = Video(instrument=self.instrument)
 
@@ -197,6 +202,10 @@ class QVision(QWidget):
     @pyqtSlot(bool)
     def handleSaveTrajectories(self, selected):
         self.save_trajectories = selected
+
+    @pyqtSlot(bool)
+    def handleSaveFeatureData(self, selected):
+        self.save_feature_data = selected
 
     @pyqtSlot(int)
     def handleSkip(self, nskip):
