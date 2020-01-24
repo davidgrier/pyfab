@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QWidget, QButtonGroup
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSlot
 from .QVisionWidget import Ui_QVisionWidget
 
@@ -9,8 +9,7 @@ from CNNLorenzMie.Estimator import Estimator
 from CNNLorenzMie.crop_feature import crop_feature
 from CNNLorenzMie.filters.nodoubles import nodoubles
 from CNNLorenzMie.filters.no_edges import no_edges
-from pylorenzmie.theory import Video
-from pylorenzmie.theory import Frame
+from pylorenzmie.theory import Video, Frame, Instrument
 
 import numpy as np
 import pyqtgraph as pg
@@ -22,7 +21,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-path = os.path.expanduser("~/python/CNNLorenzMie")
+path = os.path.expanduser("~/python/CNNLorenzMie")  # MAKE MORE GENERAL
 keras_head_path = path+'/keras_models/predict_stamp_best'
 keras_model_path = keras_head_path+'.h5'
 keras_config_path = keras_head_path+'.json'
@@ -39,7 +38,12 @@ class QVision(QWidget):
 
         self.jansen = None
 
-        self.video = Video()
+        ins = kconfig['instrument']
+        self.instrument = Instrument(wavelength=ins['wavelength'],
+                                     n_m=ins['n_m'],
+                                     magnification=ins['magnification'])
+
+        self.video = Video(instrument=self.instrument)
         self.frames = []
         self.framenumbers = []
 
@@ -140,7 +144,7 @@ class QVision(QWidget):
             self.video.serialize(filename=filename,
                                  omit=omit, omit_frame=['data'])
             logger.info("{} saved.".format(filename))
-        self.video = Video()
+        self.video = Video(instrument=self.instrument)
 
     @pyqtSlot(bool)
     def handleDetect(self, selected):
@@ -245,7 +249,8 @@ class QVision(QWidget):
                         index += 1
         for idx, feat_list in enumerate(features):
             frame = Frame(features=feat_list,
-                          framenumber=framenumbers[idx])
+                          framenumber=framenumbers[idx],
+                          instrument=self.video.instrument)
             if self.refine:
                 frame.optimize(method='lm')
             frames.append(frame)
@@ -271,6 +276,7 @@ class QVision(QWidget):
         if self.estimate:
             self.estimator = Estimator(model_path=keras_model_path,
                                        config_file=kconfig)
+            self.instrument = self.estimator.instrument
 
     def clearPipeline(self):
         self.detect = False

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'QVisionWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -18,8 +18,13 @@ class Ui_QVisionWidget(object):
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName("verticalLayout")
         self.groupProcess = QtWidgets.QGroupBox(QVisionWidget)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.groupProcess.setFont(font)
         self.groupProcess.setObjectName("groupProcess")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.groupProcess)
+        self.verticalLayout_3.setContentsMargins(-1, 2, 2, 2)
+        self.verticalLayout_3.setSpacing(1)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.breal = QtWidgets.QRadioButton(self.groupProcess)
         self.breal.setObjectName("breal")
@@ -40,8 +45,13 @@ class Ui_QVisionWidget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupPipeline.sizePolicy().hasHeightForWidth())
         self.groupPipeline.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.groupPipeline.setFont(font)
         self.groupPipeline.setObjectName("groupPipeline")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupPipeline)
+        self.horizontalLayout.setContentsMargins(-1, 2, 2, 2)
+        self.horizontalLayout.setSpacing(2)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.bDetect = QtWidgets.QCheckBox(self.groupPipeline)
         self.bDetect.setObjectName("bDetect")
@@ -54,8 +64,13 @@ class Ui_QVisionWidget(object):
         self.horizontalLayout.addWidget(self.bRefine)
         self.verticalLayout.addWidget(self.groupPipeline)
         self.groupExport = QtWidgets.QGroupBox(QVisionWidget)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.groupExport.setFont(font)
         self.groupExport.setObjectName("groupExport")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupExport)
+        self.verticalLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayout_2.setSpacing(1)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.checkFrames = QtWidgets.QCheckBox(self.groupExport)
         self.checkFrames.setChecked(False)
@@ -65,12 +80,15 @@ class Ui_QVisionWidget(object):
         self.checkTrajectories = QtWidgets.QCheckBox(self.groupExport)
         self.checkTrajectories.setObjectName("checkTrajectories")
         self.verticalLayout_2.addWidget(self.checkTrajectories)
+        self.checkFeatureData = QtWidgets.QCheckBox(self.groupExport)
+        self.checkFeatureData.setObjectName("checkFeatureData")
+        self.verticalLayout_2.addWidget(self.checkFeatureData)
         self.verticalLayout.addWidget(self.groupExport)
         self.plot = PlotWidget(QVisionWidget)
         self.plot.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(2)
+        sizePolicy.setVerticalStretch(3)
         sizePolicy.setHeightForWidth(self.plot.sizePolicy().hasHeightForWidth())
         self.plot.setSizePolicy(sizePolicy)
         self.plot.setObjectName("plot")
@@ -92,8 +110,9 @@ class Ui_QVisionWidget(object):
         self.bEstimate.setText(_translate("QVisionWidget", "Estimate"))
         self.bRefine.setText(_translate("QVisionWidget", "Refine"))
         self.groupExport.setTitle(_translate("QVisionWidget", "Export options"))
-        self.checkFrames.setText(_translate("QVisionWidget", "Save frames"))
-        self.checkTrajectories.setText(_translate("QVisionWidget", "Save trajectories"))
+        self.checkFrames.setText(_translate("QVisionWidget", "Save Frames"))
+        self.checkTrajectories.setText(_translate("QVisionWidget", "Save Trajectories"))
+        self.checkFeatureData.setText(_translate("QVisionWidget", "Save Feature data"))
 
 from pyqtgraph import PlotWidget
 

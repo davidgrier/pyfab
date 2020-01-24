@@ -34,10 +34,27 @@
    </property>
    <item>
     <widget class="QGroupBox" name="groupProcess">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="title">
       <string>Processing options</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QRadioButton" name="breal">
         <property name="text">
@@ -82,10 +99,27 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="title">
       <string>Vision pipeline</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QCheckBox" name="bDetect">
         <property name="text">
@@ -112,14 +146,34 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupExport">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="title">
       <string>Export options</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QCheckBox" name="checkFrames">
         <property name="text">
-         <string>Save frames</string>
+         <string>Save Frames</string>
         </property>
         <property name="checked">
          <bool>false</bool>
@@ -132,7 +186,14 @@
       <item>
        <widget class="QCheckBox" name="checkTrajectories">
         <property name="text">
-         <string>Save trajectories</string>
+         <string>Save Trajectories</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkFeatureData">
+        <property name="text">
+         <string>Save Feature data</string>
         </property>
        </widget>
       </item>
@@ -147,7 +208,7 @@
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
-       <verstretch>2</verstretch>
+       <verstretch>3</verstretch>
       </sizepolicy>
      </property>
     </widget>
