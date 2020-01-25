@@ -156,11 +156,7 @@ class Ui_Jansen(object):
         self.verticalLayout_6.setContentsMargins(2, 2, 2, 2)
         self.verticalLayout_6.setSpacing(4)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.browser = QtWebEngineWidgets.QWebEngineView(self.tabHelp)
-        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/jansen.html"))
-        self.browser.setObjectName("browser")
-        self.bback = QtWidgets.QPushButton(self.browser)
-        self.bback.setGeometry(QtCore.QRect(0, 0, 392, 35))
+        self.bback = QtWidgets.QPushButton(self.tabHelp)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -170,6 +166,10 @@ class Ui_Jansen(object):
         icon.addPixmap(QtGui.QPixmap(":/icons/icons/go-previous.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.bback.setIcon(icon)
         self.bback.setObjectName("bback")
+        self.verticalLayout_6.addWidget(self.bback)
+        self.browser = QtWebEngineWidgets.QWebEngineView(self.tabHelp)
+        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/jansen.html"))
+        self.browser.setObjectName("browser")
         self.verticalLayout_6.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
@@ -196,8 +196,11 @@ class Ui_Jansen(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(Jansen)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(3)
         self.actionQuit.triggered.connect(Jansen.close)
+        self.screen.sigFPS['double'].connect(self.fps.setValue)
+        self.dvr.recording['bool'].connect(self.camera.setDisabled)
+        self.dvr.recording['bool'].connect(self.filters.setDisabled)
         QtCore.QMetaObject.connectSlotsByName(Jansen)
 
     def retranslateUi(self, Jansen):
@@ -224,6 +227,7 @@ class Ui_Jansen(object):
         self.actionSavePhotoAs.setText(_translate("Jansen", "Save Photo As ..."))
         self.actionSavePhotoAs.setShortcut(_translate("Jansen", "Ctrl+A"))
         self.actionQuit.setText(_translate("Jansen", "Quit"))
+        self.actionQuit.setShortcut(_translate("Jansen", "Ctrl+Q"))
 
 from PyQt5 import QtWebEngineWidgets
 from jansenlib.QDVR.QDVR import QDVR

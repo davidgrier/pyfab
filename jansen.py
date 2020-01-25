@@ -10,13 +10,14 @@ from common.Configuration import Configuration
 
 import logging
 logging.basicConfig()
-logger = logging.getLogger('nujansen')
+logger = logging.getLogger('nujansen^S')
 logger.setLevel(logging.DEBUG)
 
 try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
 except Exception as ex:
-    logger.warning(ex)
+    logger.warning('Could not import Spinnaker camera: {}'.format(ex))
+    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
 
 
 class Jansen(QMainWindow, Ui_Jansen):
@@ -25,7 +26,13 @@ class Jansen(QMainWindow, Ui_Jansen):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
         self.configuration = Configuration(self)
-        self.installCamera()
+        
+        self.camera.close()  # remove placeholder widget from UI
+        camera = QCamera()
+        self.camera = camera
+        self.screen.camera = camera
+        self.cameraLayout.addWidget(camera)
+        
         self.configureUi()
         self.connectSignals()
 
@@ -37,16 +44,6 @@ class Jansen(QMainWindow, Ui_Jansen):
         self.saveSettings()
         self.screen.close()
         self.deleteLater()
-
-    def installCamera(self):
-        try:
-            camera = QSpinnaker()
-        except Exception:
-            camera = QOpenCV()
-        self.camera.close()  # remove placeholder widget
-        self.camera = camera
-        self.cameraLayout.addWidget(camera)
-        self.screen.camera = camera
 
     def configureUi(self):
         self.filters.screen = self.screen
@@ -67,10 +64,11 @@ class Jansen(QMainWindow, Ui_Jansen):
             lambda: self.savePhoto(True))
 
         # Signals associated with handling images
-        newFrame = self.screen.source.sigNewFrame
+        newFrame = self.screen.sigNewFrame
         newFrame.connect(self.histogram.updateHistogram)
         newFrame.connect(self.vision.process)
 
+    @pyqtSlot()
     def setDvrSource(self, source):
         self.dvr.source = source
 

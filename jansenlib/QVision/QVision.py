@@ -43,6 +43,7 @@ class QVision(QWidget):
                                      n_m=ins['n_m'],
                                      magnification=ins['magnification'])
         self.video = Video(instrument=self.instrument)
+        self.filename = None
         self.frames = []
         self.framenumbers = []
 
@@ -125,41 +126,12 @@ class QVision(QWidget):
             self.rois = None
         if self.recording and not self.jansen.dvr.is_recording():
             self.recording = False
+            self.jansen.screen.source.blockSignals(True)
+            self.jansen.screen.pauseSignals(True)
             self.post_process()
             self.cleanup()
-
-    def post_process(self):
-        if not self.real_time:
-            self.jansen.screen.pauseSignals(True)
-            shape = self.frames[0].shape
-            frames, detections = self.predict(self.frames,
-                                              self.framenumbers,
-                                              (shape[0], shape[1]),
-                                              post=True)
-            self.video.add(frames)
-            self.frames = []
-            self.framenumbers = []
+            self.jansen.screen.source.blockSignals(False)
             self.jansen.screen.pauseSignals(False)
-
-    def cleanup(self):
-        omit, omit_feat = ([], [])
-        if not self.save_frames:
-            omit.append('frames')
-        if not self.save_trajectories:
-            omit.append('trajectories')
-        else:
-            self.video.set_trajectories(search_range=self.link_tol,
-                                        memory=int(self.nskip+3))
-        if not self.save_feature_data:
-            omit_feat.append('data')
-        if self.save_frames or self.save_trajectories:
-            filename = self.jansen.dvr.filename.split(".")[0] + '.json'
-            self.video.serialize(filename=filename,
-                                 omit=omit,
-                                 omit_frame=['data'],
-                                 omit_feat=omit_feat)
-            logger.info("{} saved.".format(filename))
-        self.video = Video(instrument=self.instrument)
 
     @pyqtSlot(bool)
     def handleDetect(self, selected):
@@ -224,6 +196,37 @@ class QVision(QWidget):
     @pyqtSlot(float)
     def handleLink(self, tol):
         self.link_tol = tol
+
+    def post_process(self):
+        if not self.real_time:
+            shape = self.frames[0].shape
+            frames, detections = self.predict(self.frames,
+                                              self.framenumbers,
+                                              (shape[0], shape[1]),
+                                              post=True)
+            self.video.add(frames)
+            self.frames = []
+            self.framenumbers = []
+
+    def cleanup(self):
+        omit, omit_feat = ([], [])
+        if not self.save_frames:
+            omit.append('frames')
+        if not self.save_trajectories:
+            omit.append('trajectories')
+        else:
+            self.video.set_trajectories(search_range=self.link_tol,
+                                        memory=int(self.nskip+3))
+        if not self.save_feature_data:
+            omit_feat.append('data')
+        if self.save_frames or self.save_trajectories:
+            self.filename = self.jansen.dvr.filename.split(".")[0] + '.json'
+            self.video.serialize(filename=self.filename,
+                                 omit=omit,
+                                 omit_frame=['data'],
+                                 omit_feat=omit_feat)
+            logger.info("{} saved.".format(self.filename))
+        self.video = Video(instrument=self.instrument)
 
     def inflate(self, image):
         if len(image.shape) == 2:
@@ -305,7 +308,7 @@ class QVision(QWidget):
                 self.jansen.screen.removeOverlay(rect)
 
     def init_pipeline(self):
-        self.jansen.screen.pauseSignals(True)
+        self.jansen.screen.source.blockSignals(True)
         if self.localizer is None:
             self.localizer = Localizer(configuration='tinyholo',
                                        weights='_500k')
@@ -314,7 +317,7 @@ class QVision(QWidget):
                 self.estimator = Estimator(model_path=keras_model_path,
                                            config_file=kconfig)
             self.instrument = self.estimator.instrument
-        self.jansen.screen.pauseSignals(False)
+        self.jansen.screen.source.blockSignals(False)
 
     def clear_pipeline(self):
         self.detect = False
