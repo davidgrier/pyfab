@@ -305,15 +305,18 @@ class QVision(QWidget):
                 self.jansen.screen.removeOverlay(rect)
 
     def init_pipeline(self):
-        self.localizer = Localizer(configuration='tinyholo',
-                                   weights='_500k')
+        self.jansen.screen.pauseSignals(True)
+        if self.localizer is None:
+            self.localizer = Localizer(configuration='tinyholo',
+                                       weights='_500k')
         if self.estimate:
-            self.estimator = Estimator(model_path=keras_model_path,
-                                       config_file=kconfig)
+            if self.estimator is None:
+                self.estimator = Estimator(model_path=keras_model_path,
+                                           config_file=kconfig)
             self.instrument = self.estimator.instrument
+        self.jansen.screen.pauseSignals(False)
 
     def clear_pipeline(self):
         self.detect = False
         self.estimate = False
         self.refine = False
-        self.localizer, self.estimator = (None, None)
