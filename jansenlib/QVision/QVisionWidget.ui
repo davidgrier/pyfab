@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
+    <width>600</width>
     <height>742</height>
    </rect>
   </property>
@@ -36,15 +36,21 @@
     <widget class="QGroupBox" name="groupProcess">
      <property name="font">
       <font>
-       <pointsize>9</pointsize>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="title">
-      <string>Processing options</string>
+      <string>Processing</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <property name="spacing">
-       <number>1</number>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="horizontalSpacing">
+       <number>20</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>2</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
       </property>
       <property name="topMargin">
        <number>2</number>
@@ -55,14 +61,14 @@
       <property name="bottomMargin">
        <number>2</number>
       </property>
-      <item>
+      <item row="0" column="0">
        <widget class="QRadioButton" name="breal">
         <property name="text">
          <string>Real-time</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0">
        <widget class="QRadioButton" name="bpost">
         <property name="text">
          <string>Post-process</string>
@@ -72,7 +78,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="3" column="0" colspan="2">
        <widget class="QSpinBox" name="skipBox">
         <property name="suffix">
          <string> frames</string>
@@ -85,6 +91,13 @@
         </property>
         <property name="value">
          <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="checkNormalize">
+        <property name="text">
+         <string>Normalize</string>
         </property>
        </widget>
       </item>
@@ -101,11 +114,11 @@
      </property>
      <property name="font">
       <font>
-       <pointsize>9</pointsize>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="title">
-      <string>Vision pipeline</string>
+      <string>Analysis pipeline</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
@@ -146,17 +159,26 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupExport">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="font">
       <font>
-       <pointsize>9</pointsize>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="title">
-      <string>Export options</string>
+      <string>Save</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="spacing">
-       <number>1</number>
+     <layout class="QFormLayout" name="formLayout_2">
+      <property name="horizontalSpacing">
+       <number>12</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>2</number>
       </property>
       <property name="leftMargin">
        <number>2</number>
@@ -170,10 +192,10 @@
       <property name="bottomMargin">
        <number>2</number>
       </property>
-      <item>
+      <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="checkFrames">
         <property name="text">
-         <string>Save Frames</string>
+         <string>Frames</string>
         </property>
         <property name="checked">
          <bool>false</bool>
@@ -183,17 +205,52 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="checkTrajectories">
         <property name="text">
-         <string>Save Trajectories</string>
+         <string>Trajectories</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Link tolerance</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="spinTol">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="suffix">
+         <string> pixels</string>
+        </property>
+        <property name="value">
+         <double>5.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkFeatureData">
         <property name="text">
-         <string>Save Feature data</string>
+         <string>Feature data</string>
         </property>
        </widget>
       </item>
@@ -208,7 +265,7 @@
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
-       <verstretch>3</verstretch>
+       <verstretch>2</verstretch>
       </sizepolicy>
      </property>
     </widget>

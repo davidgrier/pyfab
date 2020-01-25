@@ -54,7 +54,8 @@ class QVision(QWidget):
         self.detect = False
         self.estimate = False
         self.refine = False
-        self.nskip = 3
+        self.nskip = 0
+        self.link_tol = 20.
         self.counter = self.nskip
         self.real_time = True
         self.save_frames = False
@@ -62,7 +63,7 @@ class QVision(QWidget):
         self.save_feature_data = False
 
         self.rois = None
-        self.pen = pg.mkPen(color='b', width=20)
+        self.pen = pg.mkPen(color='b', width=5)
 
         self.configurePlot()
         self.configureUi()
@@ -78,6 +79,7 @@ class QVision(QWidget):
         self.ui.bEstimate.clicked.connect(self.handleEstimate)
         self.ui.bRefine.clicked.connect(self.handleRefine)
         self.ui.skipBox.valueChanged.connect(self.handleSkip)
+        self.ui.spinTol.valueChanged.connect(self.handleLink)
 
     def configureUi(self):
         self.ui.bDetect.setChecked(self.detect)
@@ -87,6 +89,7 @@ class QVision(QWidget):
         self.ui.checkTrajectories.setChecked(self.save_trajectories)
         self.ui.breal.setChecked(self.real_time)
         self.ui.skipBox.setProperty("value", self.nskip)
+        self.ui.spinTol.setProperty("value", self.link_tol)
 
     def configurePlot(self):
         self.ui.plot.setBackground('w')
@@ -131,7 +134,8 @@ class QVision(QWidget):
             shape = self.frames[0].shape
             frames, detections = self.predict(self.frames,
                                               self.framenumbers,
-                                              (shape[0], shape[1]))
+                                              (shape[0], shape[1]),
+                                              post=True)
             self.video.add(frames)
             self.frames = []
             self.framenumbers = []
@@ -144,7 +148,8 @@ class QVision(QWidget):
         if not self.save_trajectories:
             omit.append('trajectories')
         else:
-            self.video.set_trajectories()
+            self.video.set_trajectories(search_range=self.link_tol,
+                                        memory=int(self.nskip+3))
         if not self.save_feature_data:
             omit_feat.append('data')
         if self.save_frames or self.save_trajectories:
@@ -216,6 +221,10 @@ class QVision(QWidget):
     def handleSkip(self, nskip):
         self.nskip = nskip
 
+    @pyqtSlot(float)
+    def handleLink(self, tol):
+        self.link_tol = tol
+
     def inflate(self, image):
         if len(image.shape) == 2:
             shape = image.shape
@@ -225,7 +234,7 @@ class QVision(QWidget):
             inflated = image
         return inflated, shape
 
-    def predict(self, images, framenumbers, shape):
+    def predict(self, images, framenumbers, shape, post=False):
         features = [[]]
         detections = [[]]
         frames = []
@@ -241,6 +250,8 @@ class QVision(QWidget):
             result = crop_feature(img_list=images,
                                   xy_preds=detections,
                                   new_shape=pxls)
+            if post:
+                logger.info("Detection complete!")
             features, est_images, scales = result
             if self.estimate:
                 structure = list(map(len, features))
@@ -262,6 +273,9 @@ class QVision(QWidget):
                         feature.model.double_precision = False
                         feature.lm_settings.options['max_nfev'] = 250
                         index += 1
+                if post:
+                    logger.info("Estimation complete!")
+        maxframe = max(framenumbers)
         for idx, feat_list in enumerate(features):
             frame = Frame(features=feat_list,
                           framenumber=framenumbers[idx],
@@ -269,6 +283,10 @@ class QVision(QWidget):
             if self.refine:
                 m = 'lm' if self.real_time else 'amoeba-lm'
                 frame.optimize(method=m, report=False)
+                if post:
+                    if framenumbers[idx] == maxframe:
+                        logger.info("Refine complete!".format(frame.framenumber,
+                                                              maxframe))
             frames.append(frame)
         return frames, detections
 
@@ -276,7 +294,7 @@ class QVision(QWidget):
         rois = []
         for detection in detections:
             x, y, w, h = detection['bbox']
-            roi = pg.RectROI([x-w//2, y-h//2], [w, h], self.pen)
+            roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
             self.jansen.screen.addOverlay(roi)
             rois.append(roi)
         return rois
