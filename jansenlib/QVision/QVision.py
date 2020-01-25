@@ -122,10 +122,12 @@ class QVision(QWidget):
             self.rois = None
         if self.recording and not self.jansen.dvr.is_recording():
             self.recording = False
+            self.post_process()
             self.cleanup()
 
-    def cleanup(self):
+    def post_process(self):
         if not self.real_time:
+            self.jansen.screen.pauseSignals(True)
             shape = self.frames[0].shape
             frames, detections = self.predict(self.frames,
                                               self.framenumbers,
@@ -133,6 +135,9 @@ class QVision(QWidget):
             self.video.add(frames)
             self.frames = []
             self.framenumbers = []
+            self.jansen.screen.pauseSignals(False)
+
+    def cleanup(self):
         omit, omit_feat = ([], [])
         if not self.save_frames:
             omit.append('frames')
@@ -159,9 +164,9 @@ class QVision(QWidget):
             self.refine = False
             self.ui.bEstimate.setChecked(False)
             self.ui.bRefine.setChecked(False)
-            self.initPipeline()
+            self.init_pipeline()
         else:
-            self.clearPipeline()
+            self.clear_pipeline()
 
     @pyqtSlot(bool)
     def handleEstimate(self, selected):
@@ -171,9 +176,9 @@ class QVision(QWidget):
             self.refine = False
             self.ui.bDetect.setChecked(False)
             self.ui.bRefine.setChecked(False)
-            self.initPipeline()
+            self.init_pipeline()
         else:
-            self.clearPipeline()
+            self.clear_pipeline()
 
     @pyqtSlot(bool)
     def handleRefine(self, selected):
@@ -183,9 +188,9 @@ class QVision(QWidget):
             self.refine = True
             self.ui.bDetect.setChecked(False)
             self.ui.bEstimate.setChecked(False)
-            self.initPipeline()
+            self.init_pipeline()
         else:
-            self.clearPipeline()
+            self.clear_pipeline()
 
     @pyqtSlot(bool)
     def handleRealTime(self, selected):
@@ -263,7 +268,7 @@ class QVision(QWidget):
                           instrument=self.video.instrument)
             if self.refine:
                 m = 'lm' if self.real_time else 'amoeba-lm'
-                frame.optimize(method=m)
+                frame.optimize(method=m, report=False)
             frames.append(frame)
         return frames, detections
 
@@ -281,7 +286,7 @@ class QVision(QWidget):
             for rect in rois:
                 self.jansen.screen.removeOverlay(rect)
 
-    def initPipeline(self):
+    def init_pipeline(self):
         self.localizer = Localizer(configuration='tinyholo',
                                    weights='_500k')
         if self.estimate:
@@ -289,7 +294,7 @@ class QVision(QWidget):
                                        config_file=kconfig)
             self.instrument = self.estimator.instrument
 
-    def clearPipeline(self):
+    def clear_pipeline(self):
         self.detect = False
         self.estimate = False
         self.refine = False

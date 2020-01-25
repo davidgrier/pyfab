@@ -25,11 +25,7 @@ class Jansen(QMainWindow, Ui_Jansen):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
         self.configuration = Configuration(self)
-        try:
-            camera = QSpinnaker()
-        except Exception:
-            camera = QOpenCV()
-        self.installCamera(camera)
+        self.installCamera()
         self.configureUi()
         self.connectSignals()
 
@@ -42,7 +38,11 @@ class Jansen(QMainWindow, Ui_Jansen):
         self.screen.close()
         self.deleteLater()
 
-    def installCamera(self, camera):
+    def installCamera(self):
+        try:
+            camera = QSpinnaker()
+        except Exception:
+            camera = QOpenCV()
         self.camera.close()  # remove placeholder widget
         self.camera = camera
         self.cameraLayout.addWidget(camera)
