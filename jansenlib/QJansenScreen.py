@@ -40,9 +40,11 @@ class QCameraThread(QThread):
     def stop(self):
         self._running = False
 
+    @property
     def width(self):
         return self._shape[1]
 
+    @property
     def height(self):
         return self._shape[0]
 
@@ -154,6 +156,14 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                               yRange=(0, device.height),
                               padding=0, update=True)
 
+    @property
+    def width(self):
+        return self._shape[1]
+
+    @property
+    def height(self):
+        return self._shape[0]
+
     @pyqtSlot(int)
     def setWidth(self, width):
         self.updateShape()
@@ -200,6 +210,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
 
     @pyqtSlot(np.ndarray)
     def updateImage(self, image):
+        self._shape = image.shape
         self.source.blockSignals(True)
         for filter in self._filters:
             image = filter(image)
