@@ -229,8 +229,10 @@ class QVision(QWidget):
             detections = nodoubles(detections, tol=0)
             detections = no_edges(detections, tol=0,
                                   image_shape=shape)
-            pxls = (201, 201) if self.estimator is None \
-                else self.estimator.pixels
+            if self.estimator is None:
+                pxls = (201, 201)
+            else:
+                pxls = self.estimator.pixels
             result = crop_feature(img_list=images,
                                   xy_preds=detections,
                                   new_shape=pxls)
@@ -251,7 +253,6 @@ class QVision(QWidget):
                         feature.model.particle.z_p = zpop.pop(0)
                         feature.model.particle.a_p = apop.pop(0)
                         feature.model.particle.n_p = npop.pop(0)
-                        feature.model.coordinates = feature.coordinates
                         feature.model.instrument = self.estimator.instrument
                         feature.model.double_precision = False
                         feature.lm_settings.options['max_nfev'] = 250
@@ -261,7 +262,8 @@ class QVision(QWidget):
                           framenumber=framenumbers[idx],
                           instrument=self.video.instrument)
             if self.refine:
-                frame.optimize(method='lm')
+                m = 'lm' if self.real_time else 'amoeba-lm'
+                frame.optimize(method=m)
             frames.append(frame)
         return frames, detections
 
