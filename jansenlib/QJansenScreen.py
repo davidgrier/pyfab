@@ -157,6 +157,10 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                               padding=0, update=True)
 
     @property
+    def filters(self):
+        return self._filters
+
+    @property
     def width(self):
         return self._shape[1]
 

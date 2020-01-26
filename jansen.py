@@ -64,13 +64,29 @@ class Jansen(QMainWindow, Ui_Jansen):
             lambda: self.savePhoto(True))
 
         # Signals associated with handling images
-        newFrame = self.screen.sigNewFrame
+        newFrame = self.screen.source.sigNewFrame
         newFrame.connect(self.histogram.updateHistogram)
         newFrame.connect(self.vision.process)
 
     @pyqtSlot()
     def setDvrSource(self, source):
         self.dvr.source = source
+        if source is self.screen.default:
+            self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
+            self.screen.source.sigNewFrame.connect(self.vision.process)
+            try:
+                self.screen.sigNewFrame.disconnect(self.histogram.updateHistogram)
+                self.screen.sigNewFrame.disconnect(self.vision.process)
+            except Exception:
+                pass
+        else:
+            self.screen.sigNewFrame.connect(self.histogram.updateHistogram)
+            self.screen.sigNewFrame.connect(self.vision.process)
+            try:
+                self.screen.source.sigNewFrame.disconnect(self.histogram.updateHistogram)
+                self.screen.source.sigNewFrame.disconnect(self.vision.process)
+            except Exception:
+                pass
 
     #
     # Slots for menu actions

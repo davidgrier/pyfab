@@ -273,8 +273,6 @@ class QVision(QWidget):
                         feature.model.particle.a_p = apop.pop(0)
                         feature.model.particle.n_p = npop.pop(0)
                         feature.model.instrument = self.estimator.instrument
-                        feature.model.double_precision = False
-                        feature.lm_settings.options['max_nfev'] = 250
                         index += 1
                 if post:
                     logger.info("Estimation complete!")
@@ -285,7 +283,14 @@ class QVision(QWidget):
                           instrument=self.video.instrument)
             if self.refine:
                 m = 'lm' if self.real_time else 'amoeba-lm'
-                frame.optimize(method=m, report=False)
+                for feature in frame.features:
+                    feature.model.double_precision = False
+                    feature.lm_settings.options['max_nfev'] = 250
+                    for f in self.jansen.screen.filters:
+                        if 'samplehold' in str(f):
+                            feature.data = feature.data / np.mean(feature.data)
+                    result = feature.optimize(method=m)
+                    print(result)
                 if post:
                     if framenumbers[idx] == maxframe:
                         logger.info("Refine complete!".format(frame.framenumber,
