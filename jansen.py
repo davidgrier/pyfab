@@ -72,18 +72,14 @@ class Jansen(QMainWindow, Ui_Jansen):
     def setDvrSource(self, source):
         self.dvr.source = source
         if source is self.screen.default:
-            self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
             self.screen.source.sigNewFrame.connect(self.vision.process)
             try:
-                self.screen.sigNewFrame.disconnect(self.histogram.updateHistogram)
                 self.screen.sigNewFrame.disconnect(self.vision.process)
             except Exception:
                 pass
         else:
-            self.screen.sigNewFrame.connect(self.histogram.updateHistogram)
             self.screen.sigNewFrame.connect(self.vision.process)
             try:
-                self.screen.source.sigNewFrame.disconnect(self.histogram.updateHistogram)
                 self.screen.source.sigNewFrame.disconnect(self.vision.process)
             except Exception:
                 pass

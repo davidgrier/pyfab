@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread
 from .QVisionWidget import Ui_QVisionWidget
 
-from CNNLorenzMie.Localizer import Localizer
-from CNNLorenzMie.Estimator import Estimator
-from CNNLorenzMie.crop_feature import crop_feature
-from CNNLorenzMie.filters.nodoubles import nodoubles
-from CNNLorenzMie.filters.no_edges import no_edges
+from CNNLorenzMie import Localizer, Estimator, crop_feature
+from CNNLorenzMie.filters import nodoubles, no_edges
 from pylorenzmie.theory import Video, Frame, Instrument
 
 import numpy as np
@@ -28,6 +25,21 @@ keras_config_path = keras_head_path+'.json'
 with open(keras_config_path, 'r') as f:
     kconfig = json.load(f)
 
+class QSaveThread(QThread):
+
+    sigFinished = pyqtSignal(bool)
+
+    def __init__(self, video, parent=None, kwargs):
+        super(QSaveThread, self).__init__(parent):
+        self.video = video
+        self.filename = filename
+        self.kwargs = kwargs
+
+    def run(self):
+        logger.info('Saving...')
+        self.video.serialize(**self.kwargs)
+        logger.info('{} saved!'.format(self.filename))
+        sigFinished.emit(True)
 
 class QVision(QWidget):
 
