@@ -25,21 +25,24 @@ keras_config_path = keras_head_path+'.json'
 with open(keras_config_path, 'r') as f:
     kconfig = json.load(f)
 
+
 class QSaveThread(QThread):
 
     sigFinished = pyqtSignal(bool)
 
-    def __init__(self, video, parent=None, kwargs):
-        super(QSaveThread, self).__init__(parent):
+    def __init__(self, video, kwargs, parent=None):
+        super(QSaveThread, self).__init__(parent)
         self.video = video
-        self.filename = filename
         self.kwargs = kwargs
+        self.sigFinished.emit(False)
+        self.sigFinished.connect(self.parent().close)
 
     def run(self):
         logger.info('Saving...')
         self.video.serialize(**self.kwargs)
-        logger.info('{} saved!'.format(self.filename))
-        sigFinished.emit(True)
+        logger.info('{} saved!'.format(self.kwargs['filename']))
+        self.sigFinished.emit(True)
+
 
 class QVision(QWidget):
 
@@ -58,6 +61,8 @@ class QVision(QWidget):
         self.filename = None
         self.frames = []
         self.framenumbers = []
+
+        self._thread = None
 
         self.recording = False
 
@@ -138,12 +143,9 @@ class QVision(QWidget):
             self.rois = None
         if self.recording and not self.jansen.dvr.is_recording():
             self.recording = False
-            self.jansen.screen.source.blockSignals(True)
-            self.jansen.screen.pauseSignals(True)
-            self.post_process()
+            if not self.real_time:
+                self.post_process()
             self.cleanup()
-            self.jansen.screen.source.blockSignals(False)
-            self.jansen.screen.pauseSignals(False)
 
     @pyqtSlot(bool)
     def handleDetect(self, selected):
@@ -210,15 +212,18 @@ class QVision(QWidget):
         self.link_tol = tol
 
     def post_process(self):
-        if not self.real_time:
-            shape = self.frames[0].shape
-            frames, detections = self.predict(self.frames,
-                                              self.framenumbers,
-                                              (shape[0], shape[1]),
-                                              post=True)
-            self.video.add(frames)
-            self.frames = []
-            self.framenumbers = []
+        self.jansen.screen.source.blockSignals(True)
+        self.jansen.screen.pauseSignals(True)
+        shape = self.frames[0].shape
+        frames, detections = self.predict(self.frames,
+                                          self.framenumbers,
+                                          (shape[0], shape[1]),
+                                          post=True)
+        self.video.add(frames)
+        self.frames = []
+        self.framenumbers = []
+        self.jansen.screen.source.blockSignals(False)
+        self.jansen.screen.pauseSignals(False)
 
     def cleanup(self):
         omit, omit_feat = ([], [])
@@ -232,13 +237,25 @@ class QVision(QWidget):
         if not self.save_feature_data:
             omit_feat.append('data')
         if self.save_frames or self.save_trajectories:
-            self.filename = self.jansen.dvr.filename.split(".")[0] + '.json'
-            self.video.serialize(filename=self.filename,
-                                 omit=omit,
-                                 omit_frame=['data'],
-                                 omit_feat=omit_feat)
-            logger.info("{} saved.".format(self.filename))
+            filename = self.jansen.dvr.filename.split(".")[0] + '.json'
+            kwargs = {'filename': filename, 'omit': omit,
+                      'omit_frame': ['data'], 'omit_feat': omit_feat}
+            self._thread = QSaveThread(self.video, kwargs, parent=self)
+            self._thread.start(QThread.LowestPriority)
+            #self.video.serialize(filename=self.filename,
+            #                     omit=omit,
+            #                     omit_frame=['data'],
+            #                     omit_feat=omit_feat)
+            #logger.info("{} saved.".format(self.filename))
         self.video = Video(instrument=self.instrument)
+
+    @pyqtSlot(bool)
+    def close(self, stop):
+        if stop:
+            logger.debug('Shutting down save thread')
+            self._thread.quit()
+            self._thread.wait()
+            self._thread = None
 
     def inflate(self, image):
         if len(image.shape) == 2:
@@ -302,7 +319,6 @@ class QVision(QWidget):
                         if 'samplehold' in str(f):
                             feature.data = feature.data / np.mean(feature.data)
                     result = feature.optimize(method=m)
-                    print(result)
                 if post:
                     if framenumbers[idx] == maxframe:
                         logger.info("Refine complete!".format(frame.framenumber,
