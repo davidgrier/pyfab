@@ -29,15 +29,19 @@ with open(keras_config_path, 'r') as f:
         
 class QVideo(QObject):
 
+    finished = pyqtSignal()
+
     def __init__(self, video, kwargs):
         super(QVideo, self).__init__()
         self.video = video
         self.kwargs = kwargs
 
+    @pyqtSlot()
     def save(self):
         logger.info('Saving...')
         self.video.serialize(**self.kwargs)
         logger.info('{} saved!'.format(self.kwargs['filename']))
+        self.finished.emit()
 
 
 class QVision(QWidget):
@@ -250,7 +254,7 @@ class QVision(QWidget):
             self._thread = QThread()
             self._video.moveToThread(self._thread)
             self._thread.started.connect(self._video.save)
-            self._thread.finished.connect(self.close)
+            self._video.finished.connect(self.close)
             self._thread.start()
             #self.video.serialize(filename=self.filename,
             #                     omit=omit,
