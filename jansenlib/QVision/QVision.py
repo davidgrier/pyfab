@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, QObject
 from .QVisionWidget import Ui_QVisionWidget
 
 from CNNLorenzMie import Localizer, Estimator, crop_feature
@@ -17,6 +17,7 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 path = os.path.expanduser("~/python/CNNLorenzMie")  # MAKE MORE GENERAL
 keras_head_path = path+'/keras_models/predict_stamp_best'
@@ -25,23 +26,18 @@ keras_config_path = keras_head_path+'.json'
 with open(keras_config_path, 'r') as f:
     kconfig = json.load(f)
 
+        
+class QVideo(QObject):
 
-class QSaveThread(QThread):
-
-    sigFinished = pyqtSignal(bool)
-
-    def __init__(self, video, kwargs, parent=None):
-        super(QSaveThread, self).__init__(parent)
+    def __init__(self, video, kwargs):
+        super(QVideo, self).__init__()
         self.video = video
         self.kwargs = kwargs
-        self.sigFinished.emit(False)
-        self.sigFinished.connect(self.parent().close)
 
-    def run(self):
+    def save(self):
         logger.info('Saving...')
         self.video.serialize(**self.kwargs)
         logger.info('{} saved!'.format(self.kwargs['filename']))
-        self.sigFinished.emit(True)
 
 
 class QVision(QWidget):
@@ -63,6 +59,7 @@ class QVision(QWidget):
         self.framenumbers = []
 
         self._thread = None
+        self.kwargs = None
 
         self.recording = False
 
@@ -83,7 +80,7 @@ class QVision(QWidget):
         self.rois = None
         self.pen = pg.mkPen(color='b', width=5)
 
-        self.configurePlot()
+        self.configurePlots()
         self.configureUi()
         self.connectSignals()
 
@@ -109,13 +106,20 @@ class QVision(QWidget):
         self.ui.skipBox.setProperty("value", self.nskip)
         self.ui.spinTol.setProperty("value", self.link_tol)
 
-    def configurePlot(self):
-        self.ui.plot.setBackground('w')
-        self.ui.plot.getAxis('bottom').setPen(0.1)
-        self.ui.plot.getAxis('left').setPen(0.1)
-        self.ui.plot.showGrid(x=True, y=True)
-        self.ui.plot.setLabel('bottom', 'a_p [um]')
-        self.ui.plot.setLabel('left', 'n_p')
+    def configurePlots(self):
+        self.ui.plotAN.setBackground('w')
+        self.ui.plotAN.getAxis('bottom').setPen(0.1)
+        self.ui.plotAN.getAxis('left').setPen(0.1)
+        self.ui.plotAN.showGrid(x=True, y=True)
+        self.ui.plotAN.setLabel('bottom', 'a_p [um]')
+        self.ui.plotAN.setLabel('left', 'n_p')
+        self.ui.plotZ.setBackground('w')
+        self.ui.plotZ.getAxis('bottom').setPen(0.1)
+        self.ui.plotZ.getAxis('left').setPen(0.1)
+        self.ui.plotZ.showGrid(x=True, y=True)
+        self.ui.plotZ.setLabel('bottom', 't (s)')
+        self.ui.plotZ.setLabel('left', 'z(t)')
+        
 
     @pyqtSlot(np.ndarray)
     def process(self, image):
@@ -240,8 +244,14 @@ class QVision(QWidget):
             filename = self.jansen.dvr.filename.split(".")[0] + '.json'
             kwargs = {'filename': filename, 'omit': omit,
                       'omit_frame': ['data'], 'omit_feat': omit_feat}
-            self._thread = QSaveThread(self.video, kwargs, parent=self)
-            self._thread.start(QThread.LowestPriority)
+            #self._thread = QSaveThread(self)
+            #self._thread.finished.connect(self.close)
+            self._video = QVideo(self.video, kwargs)
+            self._thread = QThread()
+            self._video.moveToThread(self._thread)
+            self._thread.started.connect(self._video.save)
+            self._thread.finished.connect(self.close)
+            self._thread.start()
             #self.video.serialize(filename=self.filename,
             #                     omit=omit,
             #                     omit_frame=['data'],
@@ -249,13 +259,14 @@ class QVision(QWidget):
             #logger.info("{} saved.".format(self.filename))
         self.video = Video(instrument=self.instrument)
 
-    @pyqtSlot(bool)
-    def close(self, stop):
-        if stop:
-            logger.debug('Shutting down save thread')
-            self._thread.quit()
-            self._thread.wait()
-            self._thread = None
+    @pyqtSlot()
+    def close(self):
+        logger.debug('Shutting down save thread')
+        self._thread.quit()
+        self._thread.wait()
+        self._thread = None
+        self._video = None
+        logger.debug('Save thread closed')
 
     def inflate(self, image):
         if len(image.shape) == 2:

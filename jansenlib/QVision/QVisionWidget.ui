@@ -42,15 +42,9 @@
      <property name="title">
       <string>Processing</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <property name="horizontalSpacing">
-       <number>20</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>2</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">
-       <number>2</number>
+       <number>6</number>
       </property>
       <property name="topMargin">
        <number>2</number>
@@ -61,7 +55,98 @@
       <property name="bottomMargin">
        <number>2</number>
       </property>
-      <item row="0" column="0">
+      <property name="horizontalSpacing">
+       <number>20</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>2</number>
+      </property>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="statusTip">
+         <string>Skip intermediate frames to reduce latency</string>
+        </property>
+        <property name="text">
+         <string>Skip </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="skipBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>3</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="statusTip">
+         <string>Skip intermediate frames to reduce latency</string>
+        </property>
+        <property name="whatsThis">
+         <string/>
+        </property>
+        <property name="suffix">
+         <string> frames</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="statusTip">
+         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory</string>
+        </property>
+        <property name="text">
+         <string>Search range</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="spinTol">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="statusTip">
+         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory.</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="suffix">
+         <string> pixels</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <double>5.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QRadioButton" name="breal">
         <property name="toolTip">
          <string/>
@@ -77,7 +162,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="1" column="1">
        <widget class="QRadioButton" name="bpost">
         <property name="toolTip">
          <string/>
@@ -93,38 +178,6 @@
         </property>
         <property name="checked">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QSpinBox" name="skipBox">
-        <property name="statusTip">
-         <string>Skip intermediate frames to reduce latency</string>
-        </property>
-        <property name="whatsThis">
-         <string/>
-        </property>
-        <property name="suffix">
-         <string> frames</string>
-        </property>
-        <property name="prefix">
-         <string>Skip </string>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="value">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="checkNormalize">
-        <property name="statusTip">
-         <string>Perform a running normalization when post-processing</string>
-        </property>
-        <property name="text">
-         <string>Normalize</string>
         </property>
        </widget>
       </item>
@@ -150,6 +203,9 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
        <number>2</number>
+      </property>
+      <property name="leftMargin">
+       <number>6</number>
       </property>
       <property name="topMargin">
        <number>2</number>
@@ -220,7 +276,7 @@
        <number>2</number>
       </property>
       <property name="leftMargin">
-       <number>2</number>
+       <number>6</number>
       </property>
       <property name="topMargin">
        <number>2</number>
@@ -257,51 +313,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="statusTip">
-         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory.</string>
-        </property>
-        <property name="text">
-         <string>Link tolerance</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QDoubleSpinBox" name="spinTol">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="statusTip">
-         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory.</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="suffix">
-         <string> pixels</string>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <double>5.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
+      <item row="3" column="0">
        <widget class="QCheckBox" name="checkFeatureData">
         <property name="statusTip">
          <string>Save cropped Feature data when exporting Frames and/or Trajectories</string>
@@ -315,7 +327,17 @@
     </widget>
    </item>
    <item>
-    <widget class="PlotWidget" name="plot">
+    <widget class="PlotWidget" name="plotZ">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>2</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="PlotWidget" name="plotAN">
      <property name="enabled">
       <bool>true</bool>
      </property>
