@@ -26,21 +26,22 @@ keras_config_path = keras_head_path+'.json'
 with open(keras_config_path, 'r') as f:
     kconfig = json.load(f)
 
-        
-class QVideo(QObject):
+
+class QWriter(QObject):
 
     finished = pyqtSignal()
 
-    def __init__(self, video, kwargs):
-        super(QVideo, self).__init__()
-        self.video = video
-        self.kwargs = kwargs
+    def __init__(self, data, filename):
+        super(QWriter, self).__init__()
+        self.data = data
+        self.filename = filename
 
     @pyqtSlot()
     def save(self):
         logger.info('Saving...')
-        self.video.serialize(**self.kwargs)
-        logger.info('{} saved!'.format(self.kwargs['filename']))
+        with open(self.filename, 'w') as f:
+            json.dump(self.data, f)
+        logger.info('{} saved!'.format(self.filename))
         self.finished.emit()
 
 
@@ -123,7 +124,6 @@ class QVision(QWidget):
         self.ui.plotZ.showGrid(x=True, y=True)
         self.ui.plotZ.setLabel('bottom', 't (s)')
         self.ui.plotZ.setLabel('left', 'z(t)')
-        
 
     @pyqtSlot(np.ndarray)
     def process(self, image):
@@ -153,7 +153,17 @@ class QVision(QWidget):
             self.recording = False
             if not self.real_time:
                 self.post_process()
+            self.plot()
             self.cleanup()
+
+    @pyqtSlot()
+    def close(self):
+        logger.debug('Shutting down save thread')
+        self._thread.quit()
+        self._thread.wait()
+        self._thread = None
+        self._video = None
+        logger.debug('Save thread closed')
 
     @pyqtSlot(bool)
     def handleDetect(self, selected):
@@ -233,6 +243,9 @@ class QVision(QWidget):
         self.jansen.screen.source.blockSignals(False)
         self.jansen.screen.pauseSignals(False)
 
+    def plot(self):
+        pass
+
     def cleanup(self):
         omit, omit_feat = ([], [])
         if not self.save_frames:
@@ -246,31 +259,16 @@ class QVision(QWidget):
             omit_feat.append('data')
         if self.save_frames or self.save_trajectories:
             filename = self.jansen.dvr.filename.split(".")[0] + '.json'
-            kwargs = {'filename': filename, 'omit': omit,
-                      'omit_frame': ['data'], 'omit_feat': omit_feat}
-            #self._thread = QSaveThread(self)
-            #self._thread.finished.connect(self.close)
-            self._video = QVideo(self.video, kwargs)
+            out = self.data.serialize(omit=omit,
+                                      omit_frame=['data'],
+                                      omit_feat=omit_feat)
+            self._writer = QWriter(out, filename)
             self._thread = QThread()
             self._video.moveToThread(self._thread)
-            self._thread.started.connect(self._video.save)
+            self._thread.started.connect(self._writer.write)
             self._video.finished.connect(self.close)
             self._thread.start()
-            #self.video.serialize(filename=self.filename,
-            #                     omit=omit,
-            #                     omit_frame=['data'],
-            #                     omit_feat=omit_feat)
-            #logger.info("{} saved.".format(self.filename))
         self.video = Video(instrument=self.instrument)
-
-    @pyqtSlot()
-    def close(self):
-        logger.debug('Shutting down save thread')
-        self._thread.quit()
-        self._thread.wait()
-        self._thread = None
-        self._video = None
-        logger.debug('Save thread closed')
 
     def inflate(self, image):
         if len(image.shape) == 2:
