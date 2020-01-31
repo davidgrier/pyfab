@@ -84,33 +84,24 @@ class QHVM(QVision):
             data = np.vstack([a_p, n_p])
             pdf = gaussian_kde(data)(data)
             norm = pdf/pdf.max()
-            cmap = cm.hot
             rgbs = []
             for val in norm:
-                clr = cmap(val)
-                rgb = []
-                for i in range(len(clr)):
-                    rgb.append(int(255*clr[i]))
-                rgbs.append(tuple(rgb))
+                rgbs.append(self.getRgb(cm.hot, val))
             pos = [{'pos': data[:, i],
                     'pen': pg.mkPen(rgbs[i])} for i in range(len(a_p))]
             scatter = pg.ScatterPlotItem()
             self.ui.plot1.addItem(scatter)
             scatter.setData(pos)
             # z(t) plot
-            clrs = ['b', 'r', 'g', 'm', 'c', 'k', 'y']
-            i = 0
+            grayscale = np.linspace(0, 1, len(trajectories), endpoint=True)
             for j in range(len(trajectories)):
                 z_p = trajectories[j]
                 f = np.array(framenumbers[j])
                 curve = pg.PlotCurveItem()
                 self.ui.plot2.addItem(curve)
-                curve.setPen(pg.mkPen(clrs[i]))
+                curve.setPen(pg.mkPen(self.getRgb(cm.gist_rainbow,
+                                                  grayscale[j])))
                 curve.setData(x=f/self.video.fps, y=z_p)
-                if i == len(clrs) - 1:
-                    i = 0
-                else:
-                    i += 1
         self.sigCleanup.emit()
 
     def draw(self, detections):

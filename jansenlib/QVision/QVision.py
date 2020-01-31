@@ -68,7 +68,7 @@ class QVision(QWidget):
         self.real_time = True
         self.save_frames = False
         self.save_trajectories = False
-        self.save_feature_data = False  # TODO: config
+        self.save_feature_data = False
 
         self.rois = None
         self.pen = pg.mkPen(color='b', width=5)
@@ -157,7 +157,7 @@ class QVision(QWidget):
             self._writer.moveToThread(self._thread)
             self._thread.started.connect(self._writer.write)
             self._writer.finished.connect(self.close)
-            self._thread.start()
+            self._thread.start(QThread.LowPriority)
         self.video = Video(instrument=self.instrument)
 
     @pyqtSlot()
@@ -267,6 +267,13 @@ class QVision(QWidget):
         if rois is not None:
             for rect in rois:
                 self.jansen.screen.removeOverlay(rect)
+
+    def getRgb(self, cmap, gray):
+        clr = cmap(gray)
+        rgb = []
+        for i in range(len(clr)):
+            rgb.append(int(255*clr[i]))
+        return tuple(rgb)
 
     def init_pipeline(self):
         pass
