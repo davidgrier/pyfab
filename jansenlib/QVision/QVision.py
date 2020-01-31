@@ -29,16 +29,18 @@ class QWriter(QObject):
     @pyqtSlot()
     def write(self):
         logger.info('Saving...')
+        data = self.data
+        n = len(data)
         with open(self.filename, 'w') as f:
-            f.write(self.data + '\n')
+            j = 0
+            while j < n:
+                f.write(data[j])
+            f.write('\n')
         logger.info('{} saved!'.format(self.filename))
         self.finished.emit()
 
 
 class QVision(QWidget):
-
-    sigCleanup = pyqtSignal()
-    sigPlot = pyqtSignal()
 
     def __init__(self, parent=None):
         super(QVision, self).__init__(parent)
@@ -105,6 +107,7 @@ class QVision(QWidget):
     def configurePlots(self):
         pass
 
+    @pyqtSlot()
     def plot(self):
         self.sigCleanup.emit()
 

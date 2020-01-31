@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import pyqtSlot
 from .QVision import QVision
 
 from pylorenzmie.processing import Frame
@@ -49,20 +50,19 @@ class QHVM(QVision):
         self.ui.plot1.showGrid(x=True, y=True)
         self.ui.plot1.setLabel('bottom', 'a_p [um]')
         self.ui.plot1.setLabel('left', 'n_p')
-        self.ui.plot1.plotItem = pg.ScatterPlotItem()
         self.ui.plot2.setBackground('w')
         self.ui.plot2.getAxis('bottom').setPen(0.1)
         self.ui.plot2.getAxis('left').setPen(0.1)
         self.ui.plot2.showGrid(x=True, y=True)
         self.ui.plot2.setLabel('bottom', 't (s)')
         self.ui.plot2.setLabel('left', 'z(t)')
-        self.ui.plot2.plotItem = pg.ScatterPlotItem()
 
     def configureChildUi(self):
         self.ui.bDetect.setEnabled(True)
         self.ui.bEstimate.setEnabled(True)
         self.ui.bRefine.setEnabled(True)
 
+    @pyqtSlot()
     def plot(self):
         if self.estimate:
             a_p = []
@@ -79,20 +79,38 @@ class QHVM(QVision):
                     z_p.append(feature.model.particle.z_p)
                 trajectories.append(z_p)
                 framenumbers.append(trajectories.framenumbers)
-            plot1 = self.ui.plot1.getPlotItem()
-            plot1.enableAutoScale()
-            # plot.colorMap =
-            xy = np.vstack([a_p, n_p])
-            cmap = gaussian_kde(xy)(xy)
-            # plot1.c
-            plot1.plot(a_p, n_p)
-            clrs = ['b', 'g', 'r', 'c', 'm', 'k']
+            # Characterization plot
+            data = np.vstack([a_p, n_p])
+            cmap = gaussian_kde(data)(data)
+            pos = [{'pos': data[:, i],
+                    'pen': pg.mkPen(cmap[i])} for i in range(len(a_p))]
+            scatter = pg.ScatterPlotItem()
+            self.plot1.addItem(scatter)
+            scatter.setData(pos)
+            # z(t) plot
+            clrs = ['b', 'g', 'r', 'c', 'm', 'k', 'y']
+            i = 0
             for j in range(len(trajectories)):
-                plot = self.ui.plot2.plot()
-                plot.setPen(clrs[j], width=2)
-                plot.setData(x=framenumbers[j]/self.video.fps,
-                             y=trajectories[j])
+                z_p = trajectories[j]
+                f = np.array(framenumbers[j])
+                data = np.vstack([f/self.video.fps, z_p])
+                pos = [{'pos': data[:, i]} for i in range(len(z_p))]
+                scatter.setPen(pen=clrs[j], width=2)
+                scatter.setData(pos)
+                if i == len(clrs) - 1:
+                    i = 0
+                else:
+                    i += 1
         self.sigCleanup.emit()
+
+    def draw(self, detections):
+        rois = []
+        for detection in detections:
+            x, y, w, h = detection['bbox']
+            roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
+            self.jansen.screen.addOverlay(roi)
+            rois.append(roi)
+        return rois
 
     def inflate(self, image):
         if len(image.shape) == 2:
@@ -167,15 +185,6 @@ class QHVM(QVision):
                                                               maxframe))
             frames.append(frame)
         return frames, detections
-
-    def draw(self, detections):
-        rois = []
-        for detection in detections:
-            x, y, w, h = detection['bbox']
-            roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
-            self.jansen.screen.addOverlay(roi)
-            rois.append(roi)
-        return rois
 
     def init_pipeline(self):
         self.jansen.screen.source.blockSignals(True)
