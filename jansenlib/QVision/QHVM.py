@@ -2,10 +2,10 @@
 
 from .QVision import QVision
 
-from CNNLorenzMie import Localizer, Estimator, crop_feature
-from CNNLorenzMie.filters import nodoubles, no_edges
-from pylorenzmie.theory import Instrument, Frame
+from pylorenzmie.processing import Frame
+from pylorenzmie.theory import Instrument
 
+import CNNLorenzMie as cnn
 import numpy as np
 import pyqtgraph as pg
 import os
@@ -16,7 +16,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-path = os.path.expanduser("~/python/CNNLorenzMie")  # MAKE MORE GENERAL
+path = os.path.expanduser('/'.join(cnn.__file__.split('/')[:-1]))
 keras_head_path = path+'/keras_models/predict_stamp_best'
 keras_model_path = keras_head_path+'.h5'
 keras_config_path = keras_head_path+'.json'
@@ -100,16 +100,16 @@ class QHVM(QVision):
             inflated.append(im)
         if self.detect:
             detections = self.localizer.predict(img_list=inflated)
-            detections = nodoubles(detections, tol=0)
-            detections = no_edges(detections, tol=0,
-                                  image_shape=shape)
+            detections = cnn.filters.nodoubles(detections, tol=0)
+            detections = cnn.filters.no_edges(detections, tol=0,
+                                              image_shape=shape)
             if self.estimator is None:
                 pxls = (201, 201)
             else:
                 pxls = self.estimator.pixels
-            result = crop_feature(img_list=inflated,
-                                  xy_preds=detections,
-                                  new_shape=pxls)
+            result = cnn.crop_feature(img_list=inflated,
+                                      xy_preds=detections,
+                                      new_shape=pxls)
             if post:
                 logger.info("Detection complete!")
             features, est_images, scales = result
@@ -166,12 +166,12 @@ class QHVM(QVision):
     def init_pipeline(self):
         self.jansen.screen.source.blockSignals(True)
         if self.localizer is None:
-            self.localizer = Localizer(configuration='tinyholo',
-                                       weights='_500k')
+            self.localizer = cnn.Localizer(configuration='tinyholo',
+                                           weights='_500k')
         if self.estimate:
             if self.estimator is None:
-                self.estimator = Estimator(model_path=keras_model_path,
-                                           config_file=kconfig)
+                self.estimator = cnn.Estimator(model_path=keras_model_path,
+                                               config_file=kconfig)
             self.instrument = self.estimator.instrument
         self.jansen.screen.source.blockSignals(False)
 

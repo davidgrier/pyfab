@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, QObject
 from .QVisionWidget import Ui_QVisionWidget
 
-from pylorenzmie.theory import Video, Frame
+from pylorenzmie.processing import Video, Frame
 
 import numpy as np
 import pyqtgraph as pg
@@ -116,7 +116,7 @@ class QVision(QWidget):
             i = self.jansen.dvr.framenumber
             if self.real_time:
                 frames, detections = self.predict([image], [i])
-                
+
                 frame = frames[0]
                 self.rois = self.draw(detections[0])
                 if self.jansen.dvr.is_recording():
