@@ -139,6 +139,7 @@ class QVision(QWidget):
 
     @pyqtSlot()
     def cleanup(self):
+        self.video.fps = self.jansen.screen.fps
         if self.detect:
             self.video.set_trajectories(search_range=self.link_tol,
                                         memory=int(self.nskip+3))
