@@ -42,6 +42,9 @@ class QWriter(QObject):
 
 class QVision(QWidget):
 
+    sigPlot = pyqtSignal()
+    sigCleanup = pyqtSignal()
+
     def __init__(self, parent=None):
         super(QVision, self).__init__(parent)
         self.ui = Ui_QVisionWidget()

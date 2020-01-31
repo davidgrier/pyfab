@@ -14,9 +14,12 @@ logger = logging.getLogger('nujansen^S')
 logger.setLevel(logging.DEBUG)
 
 try:
-    from jansenlib.QVision.QHVM import QHVM
+    ex1 = None
+    from jansenlib.QVision import QVision
+    success = True
 except Exception as ex:
-    logger.warning('Could not import Machine Vision pipeline: {}'.format(ex))
+    ex1 = ex
+    success = False
 
 try:
     from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
@@ -36,10 +39,13 @@ class Jansen(QMainWindow, Ui_Jansen):
         try:
             self.vision.close()
             self.vision.setObjectName("vision")
-            self.vision = QHVM(self.tabVision)
+            self.vision = QVision(self.tabVision)
             self.visionLayout.addWidget(self.vision)
             self.setupVision = True
-        except Exception:
+        except Exception as ex2:
+            err = ex2 if success else ex1
+            msg = 'Could not import Machine Vision pipeline: {}'
+            logger.warning(msg.format(err))
             self.tabWidget.setTabEnabled(2, False)
             self.setupVision = False
 
