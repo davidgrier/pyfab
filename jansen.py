@@ -8,12 +8,15 @@ from PyQt5.QtCore import pyqtSlot
 from JansenWidget import Ui_Jansen
 from common.Configuration import Configuration
 
-from jansenlib.QVision import QVision
-
 import logging
 logging.basicConfig()
 logger = logging.getLogger('nujansen^S')
 logger.setLevel(logging.DEBUG)
+
+try:
+    from jansenlib.QVision.QHVM import QHVM
+except Exception as ex:
+    logger.warning('Could not import Machine Vision pipeline: {}'.format(ex))
 
 try:
     from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
@@ -29,17 +32,24 @@ class Jansen(QMainWindow, Ui_Jansen):
         self.setupUi(self)
         self.configuration = Configuration(self)
 
-        self.vision.close()
-        self.vision.setObjectName("vision")
-        self.vision = QVision(self.tabVision)
-        self.visionLayout.addWidget(self.vision)
-        
+        # Setup vision tab
+        try:
+            self.vision.close()
+            self.vision.setObjectName("vision")
+            self.vision = QHVM(self.tabVision)
+            self.visionLayout.addWidget(self.vision)
+            self.setupVision = True
+        except Exception:
+            self.tabWidget.setTabEnabled(2, False)
+            self.setupVision = False
+
+        # Setup camera
         self.camera.close()  # remove placeholder widget from UI
         camera = QCamera()
         self.camera = camera
         self.screen.camera = camera
         self.cameraLayout.addWidget(camera)
-        
+
         self.configureUi()
         self.connectSignals()
 
@@ -58,7 +68,8 @@ class Jansen(QMainWindow, Ui_Jansen):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'jansen.avi'
-        self.vision.jansen = self
+        if self.setupVision:
+            self.vision.jansen = self
         self.adjustSize()
 
     def connectSignals(self):
@@ -73,23 +84,26 @@ class Jansen(QMainWindow, Ui_Jansen):
         # Signals associated with handling images
         newFrame = self.screen.source.sigNewFrame
         newFrame.connect(self.histogram.updateHistogram)
-        newFrame.connect(self.vision.process)
+        if self.setupVision:
+            newFrame.connect(self.vision.process)
 
     @pyqtSlot()
     def setDvrSource(self, source):
         self.dvr.source = source
-        if source is self.screen.default:
-            self.screen.source.sigNewFrame.connect(self.vision.process)
-            try:
-                self.screen.sigNewFrame.disconnect(self.vision.process)
-            except Exception:
-                pass
-        else:
-            self.screen.sigNewFrame.connect(self.vision.process)
-            try:
-                self.screen.source.sigNewFrame.disconnect(self.vision.process)
-            except Exception:
-                pass
+        if self.setupVision:
+            if source is self.screen.default:
+                self.screen.source.sigNewFrame.connect(self.vision.process)
+                try:
+                    self.screen.sigNewFrame.disconnect(self.vision.process)
+                except Exception:
+                    pass
+            else:
+                self.screen.sigNewFrame.connect(self.vision.process)
+                try:
+                    self.screen.source.sigNewFrame.disconnect(
+                        self.vision.process)
+                except Exception:
+                    pass
 
     #
     # Slots for menu actions
