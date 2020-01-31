@@ -5,6 +5,8 @@ from .QVision import QVision
 from pylorenzmie.processing import Frame
 from pylorenzmie.theory import Instrument
 
+from scipy.stats import gaussian_kde
+
 import CNNLorenzMie as cnn
 import numpy as np
 import pyqtgraph as pg
@@ -47,12 +49,14 @@ class QHVM(QVision):
         self.ui.plot1.showGrid(x=True, y=True)
         self.ui.plot1.setLabel('bottom', 'a_p [um]')
         self.ui.plot1.setLabel('left', 'n_p')
+        self.ui.plot1.plotItem = pg.ScatterPlotItem()
         self.ui.plot2.setBackground('w')
         self.ui.plot2.getAxis('bottom').setPen(0.1)
         self.ui.plot2.getAxis('left').setPen(0.1)
         self.ui.plot2.showGrid(x=True, y=True)
         self.ui.plot2.setLabel('bottom', 't (s)')
         self.ui.plot2.setLabel('left', 'z(t)')
+        self.ui.plot2.plotItem = pg.ScatterPlotItem()
 
     def configureChildUi(self):
         self.ui.bDetect.setEnabled(True)
@@ -77,7 +81,17 @@ class QHVM(QVision):
                 framenumbers.append(trajectories.framenumbers)
             plot1 = self.ui.plot1.getPlotItem()
             plot1.enableAutoScale()
+            # plot.colorMap =
+            xy = np.vstack([a_p, n_p])
+            cmap = gaussian_kde(xy)(xy)
+            # plot1.c
             plot1.plot(a_p, n_p)
+            clrs = ['b', 'g', 'r', 'c', 'm', 'k']
+            for j in range(len(trajectories)):
+                plot = self.ui.plot2.plot()
+                plot.setPen(clrs[j], width=2)
+                plot.setData(x=framenumbers[j]/self.video.fps,
+                             y=trajectories[j])
         self.sigCleanup.emit()
 
     def inflate(self, image):
