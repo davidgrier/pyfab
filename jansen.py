@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
 
@@ -16,10 +15,8 @@ logger.setLevel(logging.DEBUG)
 try:
     ex1 = None
     from jansenlib.QVision import QVision
-    success = True
 except Exception as ex:
     ex1 = ex
-    success = False
 
 try:
     from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
@@ -43,7 +40,7 @@ class Jansen(QMainWindow, Ui_Jansen):
             self.visionLayout.addWidget(self.vision)
             self.setupVision = True
         except Exception as ex2:
-            err = ex2 if success else ex1
+            err = ex2 if ex1 is None else ex1
             msg = 'Could not import Machine Vision pipeline: {}'
             logger.warning(msg.format(err))
             self.tabWidget.setTabEnabled(2, False)
