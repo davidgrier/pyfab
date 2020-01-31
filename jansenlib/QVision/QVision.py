@@ -29,13 +29,8 @@ class QWriter(QObject):
     @pyqtSlot()
     def write(self):
         logger.info('Saving...')
-        data = self.data
-        n = len(data)
         with open(self.filename, 'w') as f:
-            j = 0
-            while j < n:
-                f.write(data[j])
-            f.write('\n')
+            f.write(self.data+'\n')
         logger.info('{} saved!'.format(self.filename))
         self.finished.emit()
 
@@ -44,6 +39,7 @@ class QVision(QWidget):
 
     sigPlot = pyqtSignal()
     sigCleanup = pyqtSignal()
+    sigPost = pyqtSignal()
 
     def __init__(self, parent=None):
         super(QVision, self).__init__(parent)
@@ -93,6 +89,7 @@ class QVision(QWidget):
         self.ui.spinTol.valueChanged.connect(self.handleLink)
         self.sigCleanup.connect(self.cleanup)
         self.sigPlot.connect(self.plot)
+        self.sigPost.connect(self.post_process)
 
     def configureUi(self):
         self.ui.bDetect.setChecked(self.detect)
@@ -139,16 +136,10 @@ class QVision(QWidget):
             self.rois = None
         if self.recording and not self.jansen.dvr.is_recording():
             self.recording = False
-            if not self.real_time:
-                self.post_process()
-            self.sigPlot.emit()
+            self.sigPost.emit()
 
     @pyqtSlot()
     def cleanup(self):
-        self.video.fps = self.jansen.screen.fps
-        if self.detect:
-            self.video.set_trajectories(search_range=self.link_tol,
-                                        memory=int(self.nskip+3))
         if self.save_frames or self.save_trajectories:
             omit, omit_feat = ([], [])
             if not self.save_frames:
@@ -242,17 +233,24 @@ class QVision(QWidget):
     def handleLink(self, tol):
         self.link_tol = tol
 
+    @pyqtSlot()
     def post_process(self):
-        self.jansen.screen.source.blockSignals(True)
-        self.jansen.screen.pauseSignals(True)
-        frames, detections = self.predict(self.frames,
-                                          self.framenumbers,
-                                          post=True)
-        self.video.add(frames)
+        self.video.fps = self.jansen.screen.fps
+        if self.detect:
+            if not self.real_time:
+                self.jansen.screen.source.blockSignals(True)
+                self.jansen.screen.pauseSignals(True)
+                frames, detections = self.predict(self.frames,
+                                                  self.framenumbers,
+                                                  post=True)
+                self.video.add(frames)
+                self.jansen.screen.source.blockSignals(False)
+                self.jansen.screen.pauseSignals(False)
+            self.video.set_trajectories(search_range=self.link_tol,
+                                        memory=int(self.nskip+3))
         self.frames = []
         self.framenumbers = []
-        self.jansen.screen.source.blockSignals(False)
-        self.jansen.screen.pauseSignals(False)
+        self.sigPlot.emit()
 
     def predict(self, images, framenumbers, post=False):
         frames = []

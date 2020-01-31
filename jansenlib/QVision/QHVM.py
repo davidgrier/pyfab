@@ -11,6 +11,7 @@ from scipy.stats import gaussian_kde
 import CNNLorenzMie as cnn
 import numpy as np
 import pyqtgraph as pg
+import matplotlib.cm as cm
 import os
 import json
 
@@ -78,25 +79,34 @@ class QHVM(QVision):
                 for feature in trajectory.features:
                     z_p.append(feature.model.particle.z_p)
                 trajectories.append(z_p)
-                framenumbers.append(trajectories.framenumbers)
+                framenumbers.append(trajectory.framenumbers)
             # Characterization plot
             data = np.vstack([a_p, n_p])
-            cmap = gaussian_kde(data)(data)
+            pdf = gaussian_kde(data)(data)
+            norm = pdf/pdf.max()
+            cmap = cm.hot
+            rgbs = []
+            for val in norm:
+                clr = cmap(val)
+                rgb = []
+                for i in range(len(clr)):
+                    rgb.append(int(255*clr[i]))
+                rgbs.append(tuple(rgb))
             pos = [{'pos': data[:, i],
-                    'pen': pg.mkPen(cmap[i])} for i in range(len(a_p))]
+                    'pen': pg.mkPen(rgbs[i])} for i in range(len(a_p))]
             scatter = pg.ScatterPlotItem()
-            self.plot1.addItem(scatter)
+            self.ui.plot1.addItem(scatter)
             scatter.setData(pos)
             # z(t) plot
-            clrs = ['b', 'g', 'r', 'c', 'm', 'k', 'y']
+            clrs = ['b', 'r', 'g', 'm', 'c', 'k', 'y']
             i = 0
             for j in range(len(trajectories)):
                 z_p = trajectories[j]
                 f = np.array(framenumbers[j])
-                data = np.vstack([f/self.video.fps, z_p])
-                pos = [{'pos': data[:, i]} for i in range(len(z_p))]
-                scatter.setPen(pen=clrs[j], width=2)
-                scatter.setData(pos)
+                curve = pg.PlotCurveItem()
+                self.ui.plot2.addItem(curve)
+                curve.setPen(pg.mkPen(clrs[i]))
+                curve.setData(x=f/self.video.fps, y=z_p)
                 if i == len(clrs) - 1:
                     i = 0
                 else:
