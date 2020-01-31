@@ -327,7 +327,7 @@
     </widget>
    </item>
    <item>
-    <widget class="PlotWidget" name="plotZ">
+    <widget class="PlotWidget" name="plot2">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -337,7 +337,7 @@
     </widget>
    </item>
    <item>
-    <widget class="PlotWidget" name="plotAN">
+    <widget class="PlotWidget" name="plot1">
      <property name="enabled">
       <bool>true</bool>
      </property>

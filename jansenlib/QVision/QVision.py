@@ -4,27 +4,17 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, QObject
 from .QVisionWidget import Ui_QVisionWidget
 
-from CNNLorenzMie import Localizer, Estimator, crop_feature
-from CNNLorenzMie.filters import nodoubles, no_edges
-from pylorenzmie.theory import Video, Frame, Instrument
+from pylorenzmie.theory import Video, Frame
 
 import numpy as np
 import pyqtgraph as pg
 import json
-import os
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.setLevel(logging.DEBUG)
-
-path = os.path.expanduser("~/python/CNNLorenzMie")  # MAKE MORE GENERAL
-keras_head_path = path+'/keras_models/predict_stamp_best'
-keras_model_path = keras_head_path+'.h5'
-keras_config_path = keras_head_path+'.json'
-with open(keras_config_path, 'r') as f:
-    kconfig = json.load(f)
 
 
 class QWriter(QObject):
@@ -33,43 +23,40 @@ class QWriter(QObject):
 
     def __init__(self, data, filename):
         super(QWriter, self).__init__()
-        self.data = data
+        self.data = json.dumps(data)
         self.filename = filename
 
     @pyqtSlot()
-    def save(self):
+    def write(self):
         logger.info('Saving...')
         with open(self.filename, 'w') as f:
-            json.dump(self.data, f)
+            f.write(self.data + '\n')
         logger.info('{} saved!'.format(self.filename))
         self.finished.emit()
 
 
 class QVision(QWidget):
 
-    def __init__(self, parent=None, nskip=3):
+    sigCleanup = pyqtSignal()
+    sigPlot = pyqtSignal()
+
+    def __init__(self, parent=None):
         super(QVision, self).__init__(parent)
         self.ui = Ui_QVisionWidget()
         self.ui.setupUi(self)
 
         self.jansen = None
 
-        ins = kconfig['instrument']
-        self.instrument = Instrument(wavelength=ins['wavelength'],
-                                     n_m=ins['n_m'],
-                                     magnification=ins['magnification'])
+        self.instrument = None
         self.video = Video(instrument=self.instrument)
+
         self.filename = None
         self.frames = []
         self.framenumbers = []
 
         self._thread = None
-        self.kwargs = None
 
         self.recording = False
-
-        self.localizer = None
-        self.estimator = None
 
         self.detect = False
         self.estimate = False
@@ -80,12 +67,11 @@ class QVision(QWidget):
         self.real_time = True
         self.save_frames = False
         self.save_trajectories = False
-        self.save_feature_data = False
+        self.save_feature_data = False  # TODO: config
 
         self.rois = None
         self.pen = pg.mkPen(color='b', width=5)
 
-        self.configurePlots()
         self.configureUi()
         self.connectSignals()
 
@@ -100,11 +86,16 @@ class QVision(QWidget):
         self.ui.bRefine.clicked.connect(self.handleRefine)
         self.ui.skipBox.valueChanged.connect(self.handleSkip)
         self.ui.spinTol.valueChanged.connect(self.handleLink)
+        self.sigCleanup.connect(self.cleanup)
+        self.sigPlot.connect(self.plot)
 
     def configureUi(self):
         self.ui.bDetect.setChecked(self.detect)
         self.ui.bEstimate.setChecked(self.estimate)
         self.ui.bRefine.setChecked(self.refine)
+        self.ui.bDetect.setEnabled(False)
+        self.ui.bEstimate.setEnabled(False)
+        self.ui.bRefine.setEnabled(False)
         self.ui.checkFrames.setChecked(self.save_frames)
         self.ui.checkTrajectories.setChecked(self.save_trajectories)
         self.ui.breal.setChecked(self.real_time)
@@ -112,18 +103,10 @@ class QVision(QWidget):
         self.ui.spinTol.setProperty("value", self.link_tol)
 
     def configurePlots(self):
-        self.ui.plotAN.setBackground('w')
-        self.ui.plotAN.getAxis('bottom').setPen(0.1)
-        self.ui.plotAN.getAxis('left').setPen(0.1)
-        self.ui.plotAN.showGrid(x=True, y=True)
-        self.ui.plotAN.setLabel('bottom', 'a_p [um]')
-        self.ui.plotAN.setLabel('left', 'n_p')
-        self.ui.plotZ.setBackground('w')
-        self.ui.plotZ.getAxis('bottom').setPen(0.1)
-        self.ui.plotZ.getAxis('left').setPen(0.1)
-        self.ui.plotZ.showGrid(x=True, y=True)
-        self.ui.plotZ.setLabel('bottom', 't (s)')
-        self.ui.plotZ.setLabel('left', 'z(t)')
+        pass
+
+    def plot(self):
+        self.sigCleanup.emit()
 
     @pyqtSlot(np.ndarray)
     def process(self, image):
@@ -131,10 +114,9 @@ class QVision(QWidget):
         if self.counter == 0:
             self.counter = self.nskip
             i = self.jansen.dvr.framenumber
-            inflated, shape = self.inflate(image)
             if self.real_time:
-                frames, detections = self.predict([inflated],
-                                                  [i], shape)
+                frames, detections = self.predict([image], [i])
+                
                 frame = frames[0]
                 self.rois = self.draw(detections[0])
                 if self.jansen.dvr.is_recording():
@@ -144,7 +126,7 @@ class QVision(QWidget):
             else:
                 if self.jansen.dvr.is_recording():
                     self.recording = True
-                    self.frames.append(inflated)
+                    self.frames.append(image)
                     self.framenumbers.append(i)
         else:
             self.counter -= 1
@@ -153,8 +135,32 @@ class QVision(QWidget):
             self.recording = False
             if not self.real_time:
                 self.post_process()
-            self.plot()
-            self.cleanup()
+            self.sigPlot.emit()
+
+    @pyqtSlot()
+    def cleanup(self):
+        if self.detect:
+            self.video.set_trajectories(search_range=self.link_tol,
+                                        memory=int(self.nskip+3))
+        if self.save_frames or self.save_trajectories:
+            omit, omit_feat = ([], [])
+            if not self.save_frames:
+                omit.append('frames')
+            if not self.save_trajectories:
+                omit.append('trajectories')
+            if not self.save_feature_data:
+                omit_feat.append('data')
+            filename = self.jansen.dvr.filename.split(".")[0] + '.json'
+            out = self.video.serialize(omit=omit,
+                                       omit_frame=['data'],
+                                       omit_feat=omit_feat)
+            self._writer = QWriter(out, filename)
+            self._thread = QThread()
+            self._writer.moveToThread(self._thread)
+            self._thread.started.connect(self._writer.write)
+            self._writer.finished.connect(self.close)
+            self._thread.start()
+        self.video = Video(instrument=self.instrument)
 
     @pyqtSlot()
     def close(self):
@@ -232,10 +238,8 @@ class QVision(QWidget):
     def post_process(self):
         self.jansen.screen.source.blockSignals(True)
         self.jansen.screen.pauseSignals(True)
-        shape = self.frames[0].shape
         frames, detections = self.predict(self.frames,
                                           self.framenumbers,
-                                          (shape[0], shape[1]),
                                           post=True)
         self.video.add(frames)
         self.frames = []
@@ -243,110 +247,16 @@ class QVision(QWidget):
         self.jansen.screen.source.blockSignals(False)
         self.jansen.screen.pauseSignals(False)
 
-    def plot(self):
-        pass
-
-    def cleanup(self):
-        omit, omit_feat = ([], [])
-        if not self.save_frames:
-            omit.append('frames')
-        if not self.save_trajectories:
-            omit.append('trajectories')
-        else:
-            self.video.set_trajectories(search_range=self.link_tol,
-                                        memory=int(self.nskip+3))
-        if not self.save_feature_data:
-            omit_feat.append('data')
-        if self.save_frames or self.save_trajectories:
-            filename = self.jansen.dvr.filename.split(".")[0] + '.json'
-            out = self.data.serialize(omit=omit,
-                                      omit_frame=['data'],
-                                      omit_feat=omit_feat)
-            self._writer = QWriter(out, filename)
-            self._thread = QThread()
-            self._video.moveToThread(self._thread)
-            self._thread.started.connect(self._writer.write)
-            self._video.finished.connect(self.close)
-            self._thread.start()
-        self.video = Video(instrument=self.instrument)
-
-    def inflate(self, image):
-        if len(image.shape) == 2:
-            shape = image.shape
-            inflated = np.stack((image,)*3, axis=-1)
-        else:
-            shape = (image.shape[0], image.shape[1])
-            inflated = image
-        return inflated, shape
-
-    def predict(self, images, framenumbers, shape, post=False):
-        features = [[]]
-        detections = [[]]
+    def predict(self, images, framenumbers, post=False):
         frames = []
-        if self.detect:
-            detections = self.localizer.predict(img_list=images)
-            detections = nodoubles(detections, tol=0)
-            detections = no_edges(detections, tol=0,
-                                  image_shape=shape)
-            if self.estimator is None:
-                pxls = (201, 201)
-            else:
-                pxls = self.estimator.pixels
-            result = crop_feature(img_list=images,
-                                  xy_preds=detections,
-                                  new_shape=pxls)
-            if post:
-                logger.info("Detection complete!")
-            features, est_images, scales = result
-            if self.estimate:
-                structure = list(map(len, features))
-                char_predictions = self.estimator.predict(
-                    img_list=est_images, scale_list=scales)
-                zpop = char_predictions['z_p']
-                apop = char_predictions['a_p']
-                npop = char_predictions['n_p']
-                for framenum in range(len(structure)):
-                    listlen = structure[framenum]
-                    frame = features[framenum]
-                    index = 0
-                    while listlen > index:
-                        feature = frame[index]
-                        feature.model.particle.z_p = zpop.pop(0)
-                        feature.model.particle.a_p = apop.pop(0)
-                        feature.model.particle.n_p = npop.pop(0)
-                        feature.model.instrument = self.estimator.instrument
-                        index += 1
-                if post:
-                    logger.info("Estimation complete!")
-        maxframe = max(framenumbers)
-        for idx, feat_list in enumerate(features):
-            frame = Frame(features=feat_list,
-                          framenumber=framenumbers[idx],
-                          instrument=self.video.instrument)
-            if self.refine:
-                m = 'lm' if self.real_time else 'amoeba-lm'
-                for feature in frame.features:
-                    feature.model.double_precision = False
-                    feature.lm_settings.options['max_nfev'] = 250
-                    for f in self.jansen.screen.filters:
-                        if 'samplehold' in str(f):
-                            feature.data = feature.data / np.mean(feature.data)
-                    result = feature.optimize(method=m)
-                if post:
-                    if framenumbers[idx] == maxframe:
-                        logger.info("Refine complete!".format(frame.framenumber,
-                                                              maxframe))
-            frames.append(frame)
+        detections = []
+        for image in images:
+            frames.append(Frame())
+            detections.append([])
         return frames, detections
 
     def draw(self, detections):
-        rois = []
-        for detection in detections:
-            x, y, w, h = detection['bbox']
-            roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
-            self.jansen.screen.addOverlay(roi)
-            rois.append(roi)
-        return rois
+        return []
 
     def remove(self, rois):
         if rois is not None:
@@ -354,18 +264,7 @@ class QVision(QWidget):
                 self.jansen.screen.removeOverlay(rect)
 
     def init_pipeline(self):
-        self.jansen.screen.source.blockSignals(True)
-        if self.localizer is None:
-            self.localizer = Localizer(configuration='tinyholo',
-                                       weights='_500k')
-        if self.estimate:
-            if self.estimator is None:
-                self.estimator = Estimator(model_path=keras_model_path,
-                                           config_file=kconfig)
-            self.instrument = self.estimator.instrument
-        self.jansen.screen.source.blockSignals(False)
+        pass
 
     def clear_pipeline(self):
-        self.detect = False
-        self.estimate = False
-        self.refine = False
+        pass

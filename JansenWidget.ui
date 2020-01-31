@@ -75,7 +75,7 @@
         <string/>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabVideo">
         <property name="sizePolicy">
@@ -355,9 +355,9 @@
         <attribute name="title">
          <string>Vision</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QVBoxLayout" name="visionLayout">
          <item>
-          <widget class="QVision" name="vision" native="true"/>
+          <widget class="QWidget" name="vision" native="true"/>
          </item>
         </layout>
        </widget>
@@ -495,12 +495,6 @@
    <class>QWebEngineView</class>
    <extends>QWidget</extends>
    <header location="global">QtWebEngineWidgets/QWebEngineView</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QVision</class>
-   <extends>QWidget</extends>
-   <header>jansenlib.QVision.QVision</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

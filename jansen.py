@@ -8,6 +8,8 @@ from PyQt5.QtCore import pyqtSlot
 from JansenWidget import Ui_Jansen
 from common.Configuration import Configuration
 
+from jansenlib.QVision import QVision
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger('nujansen^S')
@@ -26,6 +28,11 @@ class Jansen(QMainWindow, Ui_Jansen):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
         self.configuration = Configuration(self)
+
+        self.vision.close()
+        self.vision.setObjectName("vision")
+        self.vision = QVision(self.tabVision)
+        self.visionLayout.addWidget(self.vision)
         
         self.camera.close()  # remove placeholder widget from UI
         camera = QCamera()

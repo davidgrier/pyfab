@@ -144,11 +144,11 @@ class Ui_Jansen(object):
         self.tabWidget.addTab(self.tabHistogram, "")
         self.tabVision = QtWidgets.QWidget()
         self.tabVision.setObjectName("tabVision")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.tabVision)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.vision = QVision(self.tabVision)
+        self.visionLayout = QtWidgets.QVBoxLayout(self.tabVision)
+        self.visionLayout.setObjectName("visionLayout")
+        self.vision = QtWidgets.QWidget(self.tabVision)
         self.vision.setObjectName("vision")
-        self.verticalLayout.addWidget(self.vision)
+        self.visionLayout.addWidget(self.vision)
         self.tabWidget.addTab(self.tabVision, "")
         self.tabHelp = QtWidgets.QWidget()
         self.tabHelp.setObjectName("tabHelp")
@@ -196,7 +196,7 @@ class Ui_Jansen(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(Jansen)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(2)
         self.actionQuit.triggered.connect(Jansen.close)
         self.screen.sigFPS['double'].connect(self.fps.setValue)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
@@ -233,7 +233,6 @@ from PyQt5 import QtWebEngineWidgets
 from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QHistogram.QHistogram import QHistogram
 from jansenlib.QJansenScreen import QJansenScreen
-from jansenlib.QVision.QVision import QVision
 from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
 import help_rc
 
