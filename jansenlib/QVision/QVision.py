@@ -23,14 +23,15 @@ class QWriter(QObject):
 
     def __init__(self, data, filename):
         super(QWriter, self).__init__()
-        self.data = json.dumps(data)
+        self.data = data
         self.filename = filename
 
     @pyqtSlot()
     def write(self):
         logger.info('Saving...')
+        data = json.dumps(self.data)
         with open(self.filename, 'w') as f:
-            f.write(self.data+'\n')
+            f.write(data+'\n')
         logger.info('{} saved!'.format(self.filename))
         self.finished.emit()
 
@@ -87,6 +88,7 @@ class QVision(QWidget):
         self.ui.bRefine.clicked.connect(self.handleRefine)
         self.ui.skipBox.valueChanged.connect(self.handleSkip)
         self.ui.spinTol.valueChanged.connect(self.handleLink)
+
         self.sigCleanup.connect(self.cleanup)
         self.sigPlot.connect(self.plot)
         self.sigPost.connect(self.post_process)
@@ -113,7 +115,7 @@ class QVision(QWidget):
 
     @pyqtSlot(np.ndarray)
     def process(self, image):
-        self.remove(self.rois)
+        self.remove()
         if self.counter == 0:
             self.counter = self.nskip
             i = self.jansen.dvr.framenumber
@@ -134,9 +136,17 @@ class QVision(QWidget):
         else:
             self.counter -= 1
             self.rois = None
-        if self.recording and not self.jansen.dvr.is_recording():
-            self.recording = False
-            self.sigPost.emit()
+        if self.recording:
+            item1, item2 = (self.ui.plot1.getPlotItem(), self.ui.plot2.getPlotItem())
+            plots1, plots2 = (item1.listDataItems(), item2.listDataItems())
+            for plot in plots1:
+                item1.removeItem(plot)
+            for plot in plots2:
+                item2.removeItem(plot)
+            if not self.jansen.dvr.is_recording():
+                self.recording = False
+                self.sigPost.emit()
+            
 
     @pyqtSlot()
     def cleanup(self):
@@ -157,7 +167,7 @@ class QVision(QWidget):
             self._writer.moveToThread(self._thread)
             self._thread.started.connect(self._writer.write)
             self._writer.finished.connect(self.close)
-            self._thread.start(QThread.LowPriority)
+            self._thread.start()
         self.video = Video(instrument=self.instrument)
 
     @pyqtSlot()
@@ -212,6 +222,8 @@ class QVision(QWidget):
     @pyqtSlot(bool)
     def handlePost(self, selected):
         self.real_time = not selected
+        self.remove()
+        self.rois = None
 
     @pyqtSlot(bool)
     def handleSaveFrames(self, selected):
@@ -263,7 +275,8 @@ class QVision(QWidget):
     def draw(self, detections):
         return []
 
-    def remove(self, rois):
+    def remove(self):
+        rois = self.rois
         if rois is not None:
             for rect in rois:
                 self.jansen.screen.removeOverlay(rect)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 from .QVision import QVision
 
 from pylorenzmie.processing import Frame
@@ -51,6 +51,8 @@ class QHVM(QVision):
         self.ui.plot1.showGrid(x=True, y=True)
         self.ui.plot1.setLabel('bottom', 'a_p [um]')
         self.ui.plot1.setLabel('left', 'n_p')
+        self.ui.plot1.addItem(pg.InfiniteLine(self.instrument.n_m, angle=0,
+                                              pen=pg.mkPen('k', width=3, style=Qt.DashLine)))
         self.ui.plot2.setBackground('w')
         self.ui.plot2.getAxis('bottom').setPen(0.1)
         self.ui.plot2.getAxis('left').setPen(0.1)
@@ -86,9 +88,9 @@ class QHVM(QVision):
             norm = pdf/pdf.max()
             rgbs = []
             for val in norm:
-                rgbs.append(self.getRgb(cm.hot, val))
+                rgbs.append(self.getRgb(cm.cool, val))
             pos = [{'pos': data[:, i],
-                    'pen': pg.mkPen(rgbs[i])} for i in range(len(a_p))]
+                    'pen': pg.mkPen(rgbs[i], width=2)} for i in range(len(a_p))]
             scatter = pg.ScatterPlotItem()
             self.ui.plot1.addItem(scatter)
             scatter.setData(pos)
@@ -100,7 +102,7 @@ class QHVM(QVision):
                 curve = pg.PlotCurveItem()
                 self.ui.plot2.addItem(curve)
                 curve.setPen(pg.mkPen(self.getRgb(cm.gist_rainbow,
-                                                  grayscale[j])))
+                                                  grayscale[j]), width=2))
                 curve.setData(x=f/self.video.fps, y=z_p)
         self.sigCleanup.emit()
 
