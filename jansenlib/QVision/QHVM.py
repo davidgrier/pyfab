@@ -60,6 +60,24 @@ class QHVM(QVision):
         self.ui.bRefine.setEnabled(True)
 
     def plot(self):
+        if self.estimate:
+            a_p = []
+            n_p = []
+            framenumbers = []
+            trajectories = []
+            for frame in self.video.frames:
+                for feature in frame.features:
+                    a_p.append(feature.model.particle.a_p)
+                    n_p.append(feature.model.particle.n_p)
+            for trajectory in self.video.trajectories:
+                z_p = []
+                for feature in trajectory.features:
+                    z_p.append(feature.model.particle.z_p)
+                trajectories.append(z_p)
+                framenumbers.append(trajectories.framenumbers)
+            plot1 = self.ui.plot1.getPlotItem()
+            plot1.enableAutoScale()
+            plot1.plot(a_p, n_p)
         self.sigCleanup.emit()
 
     def inflate(self, image):
