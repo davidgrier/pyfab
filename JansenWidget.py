@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'JansenWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -175,7 +175,7 @@ class Ui_Jansen(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         Jansen.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Jansen)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1050, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1050, 31))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -196,7 +196,7 @@ class Ui_Jansen(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(Jansen)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(2)
         self.actionQuit.triggered.connect(Jansen.close)
         self.screen.sigFPS['double'].connect(self.fps.setValue)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)

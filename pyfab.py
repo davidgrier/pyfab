@@ -17,6 +17,11 @@ logging.basicConfig()
 logger = logging.getLogger('pyfab')
 logger.setLevel(logging.DEBUG)
 
+try:
+    ex1 = None
+    from jansenlib.QVision import QVision
+except Exception as ex:
+    ex1 = ex
 
 try:
     from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
@@ -38,6 +43,20 @@ class PyFab(QMainWindow, Ui_PyFab):
 
         self.setupUi(self)
         self.configuration = Configuration(self)
+
+        # Setup vision tab
+        try:
+            self.vision.close()
+            self.vision.setObjectName("vision")
+            self.vision = QVision(self.tabVision)
+            self.visionLayout.addWidget(self.vision)
+            self.setupVision = True
+        except Exception as ex2:
+            err = ex2 if ex1 is None else ex1
+            msg = 'Could not import Machine Vision pipeline: {}'
+            logger.warning(msg.format(err))
+            self.tabWidget.setTabEnabled(2, False)
+            self.setupVision = False
 
         # camera
         self.camera.close()  # remove placeholder widget from UI
@@ -81,6 +100,8 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
+        if self.setupVision:
+            self.vision.jansen = self
         index = 2
         self.hardware.index = index
         self.tabWidget.currentChanged.connect(self.hardware.expose)
@@ -105,6 +126,8 @@ class PyFab(QMainWindow, Ui_PyFab):
         # Signals associated with handling images
         newFrame = self.screen.source.sigNewFrame
         newFrame.connect(self.histogram.updateHistogram)
+        if self.setupVision:
+            newFrame.connect(self.vision.process)
 
         # Signals associated with the CGH pipeline
         # 1. Screen events trigger requests for trap updates
@@ -124,6 +147,20 @@ class PyFab(QMainWindow, Ui_PyFab):
     @pyqtSlot()
     def setDvrSource(self, source):
         self.dvr.source = source
+        if self.setupVision:
+            if source is self.screen.default:
+                self.screen.source.sigNewFrame.connect(self.vision.process)
+                try:
+                    self.screen.sigNewFrame.disconnect(self.vision.process)
+                except Exception:
+                    pass
+            else:
+                self.screen.sigNewFrame.connect(self.vision.process)
+                try:
+                    self.screen.source.sigNewFrame.disconnect(
+                        self.vision.process)
+                except Exception:
+                    pass
 
     #
     # Slots for menu actions
