@@ -1,7 +1,7 @@
 import json
 import os
 
-path = os.path.expanduser(__file__)
+path = os.path.abspath(__file__)
 path = '/'.join(path.split('/')[:-1])
 
 with open(os.path.join(path, '.QVision'), 'r') as f:

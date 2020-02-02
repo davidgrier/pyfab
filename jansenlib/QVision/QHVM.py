@@ -14,11 +14,13 @@ import pyqtgraph as pg
 import matplotlib.cm as cm
 import os
 import json
+from time import time
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+# logger.setLevel(logging.DEBUG)
 
 path = os.path.expanduser('/'.join(cnn.__file__.split('/')[:-1]))
 keras_head_path = path+'/keras_models/predict_stamp_best'
@@ -125,6 +127,7 @@ class QHVM(QVision):
         return inflated, shape
 
     def predict(self, images, framenumbers, post=False):
+        t0 = time()
         features = [[]]
         detections = [[]]
         frames = []
@@ -135,9 +138,11 @@ class QHVM(QVision):
             inflated.append(im)
         if self.detect:
             detections = self.localizer.predict(img_list=inflated)
+            logger.debug('Localize time: {}'.format(time() - t0))
             detections = cnn.filters.nodoubles(detections, tol=0)
             detections = cnn.filters.no_edges(detections, tol=0,
                                               image_shape=shape)
+            logger.debug('Filter time: {}'.format(time() - t0))
             if self.estimator is None:
                 pxls = (201, 201)
             else:
@@ -145,6 +150,7 @@ class QHVM(QVision):
             result = cnn.crop_feature(img_list=inflated,
                                       xy_preds=detections,
                                       new_shape=pxls)
+            logger.debug('Time to crop: {}'.format(time() - t0))
             if post:
                 logger.info("Detection complete!")
             features, est_images, scales = result
@@ -152,6 +158,7 @@ class QHVM(QVision):
                 structure = list(map(len, features))
                 char_predictions = self.estimator.predict(
                     img_list=est_images, scale_list=scales)
+                logger.debug('Estimation time: {}'.format(time() - t0))
                 zpop = char_predictions['z_p']
                 apop = char_predictions['a_p']
                 npop = char_predictions['n_p']
@@ -177,16 +184,19 @@ class QHVM(QVision):
                 m = 'lm' if self.real_time else 'amoeba-lm'
                 for feature in frame.features:
                     feature.model.double_precision = False
-                    feature.lm_settings.options['max_nfev'] = 250
+                    lmsettings = feature.optimizer.lm_settings
+                    lmsettings.options['max_nfev'] = 250
                     for f in self.jansen.screen.filters:
                         if 'samplehold' in str(f):
                             feature.data = feature.data / np.mean(feature.data)
                     result = feature.optimize(method=m)
+                logger.debug('Refine time: {}'.format(time() - t0))
                 if post:
                     if framenumbers[idx] == maxframe:
                         logger.info("Refine complete!".format(frame.framenumber,
                                                               maxframe))
             frames.append(frame)
+        logger.debug('Total prediction time: {}'.format(time() - t0))
         return frames, detections
 
     def init_pipeline(self):
