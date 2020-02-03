@@ -3,7 +3,7 @@
 from PyQt5.QtCore import pyqtSlot, Qt
 from .QVision import QVision
 
-from pylorenzmie.processing import Frame
+from pylorenzmie.analysis import Frame
 from pylorenzmie.theory import Instrument
 
 from scipy.stats import gaussian_kde
@@ -86,26 +86,27 @@ class QHVM(QVision):
                 framenumbers.append(trajectory.framenumbers)
             # Characterization plot
             data = np.vstack([a_p, n_p])
-            pdf = gaussian_kde(data)(data)
-            norm = pdf/pdf.max()
-            rgbs = []
-            for val in norm:
-                rgbs.append(self.getRgb(cm.cool, val))
-            pos = [{'pos': data[:, i],
-                    'pen': pg.mkPen(rgbs[i], width=2)} for i in range(len(a_p))]
-            scatter = pg.ScatterPlotItem()
-            self.ui.plot1.addItem(scatter)
-            scatter.setData(pos)
-            # z(t) plot
-            grayscale = np.linspace(0, 1, len(trajectories), endpoint=True)
-            for j in range(len(trajectories)):
-                z_p = trajectories[j]
-                f = np.array(framenumbers[j])
-                curve = pg.PlotCurveItem()
-                self.ui.plot2.addItem(curve)
-                curve.setPen(pg.mkPen(self.getRgb(cm.gist_rainbow,
-                                                  grayscale[j]), width=2))
-                curve.setData(x=f/self.video.fps, y=z_p)
+            if len(a_p) > 0:
+                pdf = gaussian_kde(data)(data)
+                norm = pdf/pdf.max()
+                rgbs = []
+                for val in norm:
+                    rgbs.append(self.getRgb(cm.cool, val))
+                pos = [{'pos': data[:, i],
+                        'pen': pg.mkPen(rgbs[i], width=2)} for i in range(len(a_p))]
+                scatter = pg.ScatterPlotItem()
+                self.ui.plot1.addItem(scatter)
+                scatter.setData(pos)
+                # z(t) plot
+                grayscale = np.linspace(0, 1, len(trajectories), endpoint=True)
+                for j in range(len(trajectories)):
+                    z_p = trajectories[j]
+                    f = np.array(framenumbers[j])
+                    curve = pg.PlotCurveItem()
+                    self.ui.plot2.addItem(curve)
+                    curve.setPen(pg.mkPen(self.getRgb(cm.gist_rainbow,
+                                                      grayscale[j]), width=2))
+                    curve.setData(x=f/self.video.fps, y=z_p)
         self.sigCleanup.emit()
 
     def draw(self, detections):

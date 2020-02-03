@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, QObject
 from .QVisionWidget import Ui_QVisionWidget
 
-from pylorenzmie.processing import Video, Frame
+from pylorenzmie.analysis import Video, Frame
 
 import numpy as np
 import pyqtgraph as pg
