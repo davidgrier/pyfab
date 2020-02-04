@@ -4,11 +4,62 @@
 
 from .CGH import CGH
 import cupy as cp
+import math
 
 
 class cupyCGH(CGH):
     def __init__(self, *args, **kwargs):
-        super(cudaCGH, self).__init__(*args, **kwargs)
+        super(cupyCGH, self).__init__(*args, **kwargs)
+
+        self.block = (16, 16, 1)
+        self.grid = (math.ceil(self.height / self.block[0]),
+                     math.ceil(self.width / self.block[1]))
+
+        self._outeratan2f = cp.RawKernel(r'''
+        extern "C" __global__
+        void outeratan2f(const float *a, \
+                         const float *b, \
+                         float *out, \
+                         int na, int nb)
+        {
+          float bj;
+          for(int j = threadIdx.b + blockDim.b * blockIdx.b; \
+              j < nb; j += blockDim.b * gridDim.b) {
+            bj = b[j];
+            for(int i = threadIdx.a + blockDim.a * blockIdx.a; \
+                i < na; i += blockDim.a * gridDim.a) {
+              out[i*nb + j] = atan2f(bj, a[i]);
+            }
+          }
+        }
+        ''', 'outeratan2f')
+
+        self._outerhypot = cp.RawKernel(r'''
+        extern "C" __global__
+        void outerhypot(const float *a, \
+                        const float *b, \
+                        float *out, \
+                        int na, int nb)
+        {
+          float bj;
+          for(int j = threadIdx.b + blockDim.b * blockIdx.b; \
+              j < nb; j += blockDim.b * gridDim.b) {
+            bj = b[j];
+            for(int i = threadIdx.a + blockDim.a * blockIdx.a; \
+                i < na; i += blockDim.a * gridDim.a) {
+              out[i*nb + j] = hypot(a[i], bj);
+            }
+          }
+        }
+        ''', 'outerhypot')
+
+    def outeratan2f(self, a, b, out):
+        self._outeratan2f(self.grid, self.block,
+                          a, b, out, cp.int32(a.size), cp.int32(b.size))
+
+    def outerhypot(self, a, b, out):
+        self._outerhypot(self.grid, self.block,
+                         a, b, out, cp.int32(a.size), cp.int32(b.size))
 
     def quantize(self, psi):
         pass
@@ -25,9 +76,8 @@ class cupyCGH(CGH):
         self.iqy = 1j * self.qprp * y
         self.iqxz = 1j * self.qpar * x * x
         self.iqyz = 1j * self.qpar * y * y
-        self.theta = cp.arctan2.outer(y, x)
-        self.qr = cp.hypot.outer(self.qprp * y,
-                                 self.qprp * x)
+        self.theta = self.outerarctan2(y, x)
+        self.qr = self.outerhypot(self.qprp * y, self.qprp * x)
         self.sigUpdateGeometry.emit()
         pass
 
