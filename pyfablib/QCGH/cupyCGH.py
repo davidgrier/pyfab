@@ -62,7 +62,7 @@ class cupyCGH(CGH):
                          a, b, out, cp.int32(a.size), cp.int32(b.size))
 
     def quantize(self, psi):
-        pass
+        return ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
 
     def compute_displace(self, amp, r, buffer):
         ex = cp.exp(self.iqx * r.x() + self.iqxz * r.z())
