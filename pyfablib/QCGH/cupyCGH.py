@@ -65,7 +65,9 @@ class cupyCGH(CGH):
         pass
 
     def compute_displace(self, amp, r, buffer):
-        pass
+        ex = cp.exp(self.iqx * r.x() + self.iqxz * r.z())
+        ey = cp.exp(self.iqy * r.y() + self.iqyz * r.z())
+        cp.outer(amp * ey, ex, buffer)
 
     def updateGeometry(self):
         self._psi = cp.zeros(self.shape, dtype=cp.complex_)
