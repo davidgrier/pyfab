@@ -65,21 +65,31 @@ class cupyCGH(CGH):
         return ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
 
     def compute_displace(self, amp, r, buffer):
-        ex = cp.exp(self.iqx * r.x() + self.iqxz * r.z())
-        ey = cp.exp(self.iqy * r.y() + self.iqyz * r.z())
+        ex = cp.exp(self._iqx * r.x() + self._iqxz * r.z())
+        ey = cp.exp(self._iqy * r.y() + self._iqyz * r.z())
         cp.outer(amp * ey, ex, buffer)
 
     def updateGeometry(self):
+        # GPU variables
         self._psi = cp.zeros(self.shape, dtype=cp.complex_)
+        self._phi = cp.zeros(self.shape, dtype=cp.uint8)
+        self._theta = cp.zeros(self.shape, dtype=cp.float32)
+        self._qr = cp.zeros(self.shape, dtype=cp.float32)
         alpha = cp.cos(cp.radians(self.phis))
         x = alpha*(cp.arange(self.width) - self.xs)
         y = cp.arange(self.height) - self.ys
-        self.iqx = 1j * self.qprp * x
-        self.iqy = 1j * self.qprp * y
-        self.iqxz = 1j * self.qpar * x * x
-        self.iqyz = 1j * self.qpar * y * y
-        self.theta = self.outerarctan2(y, x)
-        self.qr = self.outerhypot(self.qprp * y, self.qprp * x)
+        self._iqx = 1j * self.qprp * x
+        self._iqy = 1j * self.qprp * y
+        self._iqxz = 1j * self.qpar * x * x
+        self._iqyz = 1j * self.qpar * y * y
+        self.outerarctan2(y, x, self._theta)
+        self.outerhypot(self.qprp * y, self.qprp * x, self._qr)
+        # CPU variables
+        self.phi = cp.asnumpy(self._phi)
+        self.iqx = cp.asnumpy(self._iqx)
+        self.iqy = cp.asnumpy(self._iqy)
+        self.theta = cp.asnumpy(self._theta)
+        self.qr = cp.asnumpy(self._qr)
         self.sigUpdateGeometry.emit()
         pass
 
