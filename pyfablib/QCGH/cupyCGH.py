@@ -23,11 +23,11 @@ class cupyCGH(CGH):
                          int na, int nb)
         {
           float bj;
-          for(int j = threadIdx.b + blockDim.b * blockIdx.b; \
-              j < nb; j += blockDim.b * gridDim.b) {
+          for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
+              j < nb; j += blockDim.y * gridDim.y) {
             bj = b[j];
-            for(int i = threadIdx.a + blockDim.a * blockIdx.a; \
-                i < na; i += blockDim.a * gridDim.a) {
+            for(int i = threadIdx.x + blockDim.x * blockIdx.x; \
+                i < na; i += blockDim.x * gridDim.x) {
               out[i*nb + j] = atan2f(bj, a[i]);
             }
           }
@@ -42,11 +42,11 @@ class cupyCGH(CGH):
                         int na, int nb)
         {
           float bj;
-          for(int j = threadIdx.b + blockDim.b * blockIdx.b; \
-              j < nb; j += blockDim.b * gridDim.b) {
+          for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
+              j < nb; j += blockDim.y * gridDim.y) {
             bj = b[j];
-            for(int i = threadIdx.a + blockDim.a * blockIdx.a; \
-                i < na; i += blockDim.a * gridDim.a) {
+            for(int i = threadIdx.x + blockDim.x * blockIdx.x; \
+                i < na; i += blockDim.x * gridDim.x) {
               out[i*nb + j] = hypot(a[i], bj);
             }
           }
@@ -55,23 +55,25 @@ class cupyCGH(CGH):
 
     def outeratan2f(self, a, b, out):
         self._outeratan2f(self.grid, self.block,
-                          a, b, out, cp.int32(a.size), cp.int32(b.size))
+                          (a, b, out, cp.int32(a.size), cp.int32(b.size)))
 
     def outerhypot(self, a, b, out):
         self._outerhypot(self.grid, self.block,
-                         a, b, out, cp.int32(a.size), cp.int32(b.size))
+                         (a, b, out, cp.int32(a.size), cp.int32(b.size)))
 
     def quantize(self, psi):
-        return ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
+        phi = ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
+        phi.get(out=self.phi)
+        return self.phi
 
     def compute_displace(self, amp, r, buffer):
-        ex = cp.exp(self._iqx * r.x() + self._iqxz * r.z())
-        ey = cp.exp(self._iqy * r.y() + self._iqyz * r.z())
+        ex = cp.exp(self._iqx * r.x() + self._iqxz * r.z(), dtype=cp.complex64)
+        ey = cp.exp(self._iqy * r.y() + self._iqyz * r.z(), dtype=cp.complex64)
         cp.outer(amp * ey, ex, buffer)
 
     def updateGeometry(self):
         # GPU variables
-        self._psi = cp.zeros(self.shape, dtype=cp.complex_)
+        self._psi = cp.zeros(self.shape, dtype=cp.complex64)
         self._phi = cp.zeros(self.shape, dtype=cp.uint8)
         self._theta = cp.zeros(self.shape, dtype=cp.float32)
         self._qr = cp.zeros(self.shape, dtype=cp.float32)
@@ -82,7 +84,7 @@ class cupyCGH(CGH):
         self._iqy = 1j * self.qprp * y
         self._iqxz = 1j * self.qpar * x * x
         self._iqyz = 1j * self.qpar * y * y
-        self.outerarctan2(y, x, self._theta)
+        self.outeratan2f(y, x, self._theta)
         self.outerhypot(self.qprp * y, self.qprp * x, self._qr)
         # CPU variables
         self.phi = cp.asnumpy(self._phi)

@@ -265,7 +265,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(7)
         self.actionQuit.triggered.connect(PyFab.close)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
         self.dvr.recording['bool'].connect(self.filters.setDisabled)

@@ -157,7 +157,7 @@ class cudaCGH(CGH):
         cumath.exp(self._iqx * r.x() + self._iqxz * r.z(), out=self._ex)
         cumath.exp(self._iqy * r.y() + self._iqyz * r.z(), out=self._ey)
         self._ey *= amp
-        self.outer(self._ey, self._ex, buffer),
+        self.outer(self._ey, self._ex, buffer)
 
     def updateGeometry(self):
         # GPU storage

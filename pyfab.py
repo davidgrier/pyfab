@@ -24,7 +24,7 @@ except Exception as ex:
     ex1 = ex
 
 try:
-    from pyfablib.QCGH.cudaCGH import cudaCGH as CGH
+    from pyfablib.QCGH.cupyCGH import cupyCGH as CGH
 except Exception as ex:
     logger.warning('Could not import GPU pipeline: {}'.format(ex))
     from pyfablib.QCGH.CGH import CGH
