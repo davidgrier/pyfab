@@ -89,6 +89,7 @@ class PyFab(QMainWindow, Ui_PyFab):
 
     def closeEvent(self, event):
         self.saveSettings()
+        self.pattern.clearTraps()
         self.screen.close()
         self.slm.close()
         self.cgh.device.stop()
