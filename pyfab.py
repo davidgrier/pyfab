@@ -103,7 +103,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
         if self.setupVision:
             self.vision.jansen = self
-        index = 2
+        index = 3
         self.hardware.index = index
         self.tabWidget.currentChanged.connect(self.hardware.expose)
         self.tabWidget.setTabEnabled(index, self.hardware.has_content())
