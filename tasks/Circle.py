@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Assemble circle
 
-from .GuidedMove import GuidedMove
+from .motion.GuidedMove import GuidedMove
 import numpy as np
 
 
@@ -14,8 +14,8 @@ class Circle(GuidedMove):
     def calculate_targets(self, traps):
         vertices = []
         radius = 400
-        xc = self.parent.cgh.xc
-        yc = self.parent.cgh.yc
+        xc = self.parent.cgh.device.xc
+        yc = self.parent.cgh.device.yc
         trap_list = traps.flatten()
         for idx, trap in enumerate(trap_list):
             theta = 2*np.pi*(idx+1) / len(trap_list)

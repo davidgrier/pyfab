@@ -54,7 +54,7 @@ class GuidedMove(Move):
                                                     r_is=self.targets)
             for trap in self.trajectories.keys():
                 self.trajectories[trap].stitch(return_trajectories[trap])
-        self.N = None
+        self.N = 0
         self.n = 0
         if len(self.moving_traps) > 0:
             if self.trajectories is not None:
@@ -253,6 +253,8 @@ class GuidedMove(Move):
         for idx, trap in enumerate(trap_list):
             r_t = np.array((trap.r.x(), trap.r.y(), trap.r.z()))
             t.append(r_t)
+        if len(t) == 0:
+            return []
         v = np.vstack(target_list)
         t = np.vstack(t)
         # Determine when to switch algorithms
