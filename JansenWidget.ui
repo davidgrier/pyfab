@@ -75,7 +75,7 @@
         <string/>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="tabVideo">
         <property name="sizePolicy">
@@ -496,6 +496,9 @@
    <extends>QWidget</extends>
    <header location="global">QtWebEngineWidgets/QWebEngineView</header>
    <container>1</container>
+   <slots>
+    <slot>back()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources>
@@ -563,6 +566,22 @@
     <hint type="destinationlabel">
      <x>847</x>
      <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bback</sender>
+   <signal>clicked()</signal>
+   <receiver>browser</receiver>
+   <slot>back()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>847</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>847</x>
+     <y>403</y>
     </hint>
    </hints>
   </connection>

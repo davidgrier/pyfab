@@ -196,11 +196,12 @@ class Ui_Jansen(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(Jansen)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(3)
         self.actionQuit.triggered.connect(Jansen.close)
         self.screen.sigFPS['double'].connect(self.fps.setValue)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
         self.dvr.recording['bool'].connect(self.filters.setDisabled)
+        self.bback.clicked.connect(self.browser.back)
         QtCore.QMetaObject.connectSlotsByName(Jansen)
 
     def retranslateUi(self, Jansen):
