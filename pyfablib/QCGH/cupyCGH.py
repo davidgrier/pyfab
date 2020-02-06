@@ -53,6 +53,36 @@ class cupyCGH(CGH):
         }
         ''', 'outerhypot')
 
+        self._phase = cp.RawKernel(r'''
+        # include <cuComplex.h>
+
+        extern "C" __global__
+        void phase(cuFloatComplex *psi, \
+                   unsigned char *out, \
+                   int nx, int ny)
+        {
+          int i = threadIdx.x + blockDim.x * blockIdx.x;
+          int j = threadIdx.y + blockDim.y * blockIdx.y;
+
+          int n;
+          float phi;
+          float argpsi;
+          const float RAD2BYTE = 40.743664;
+
+          float real;
+          float imag;
+
+          if (i < nx && j < ny){
+            n = i*ny + j;
+            real = cuCrealf(psi[n]);
+            imag = cuCimagf(psi[n]);
+            argpsi = atan2(imag, real);
+            phi = RAD2BYTE * argpsi + 127.;
+            out[n] = (unsigned char) phi;
+          }
+        }
+        ''', 'phase')
+
     def outeratan2f(self, a, b, out):
         self._outeratan2f(self.grid, self.block,
                           (a, b, out, cp.int32(a.size), cp.int32(b.size)))
@@ -61,9 +91,15 @@ class cupyCGH(CGH):
         self._outerhypot(self.grid, self.block,
                          (a, b, out, cp.int32(a.size), cp.int32(b.size)))
 
+    def phase(self, a, out):
+        self._phase(self.grid, self.block,
+                    (a, out, cp.int32(a.shape[0]), cp.int32(a.shape[1])))
+
     def quantize(self, psi):
-        phi = ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
-        phi.get(out=self.phi)
+        #phi = ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
+        # phi.get(out=self.phi)
+        self.phase(psi, self._phi)
+        self._phi.get(out=self.phi)
         return self.phi
 
     def compute_displace(self, amp, r, buffer):
