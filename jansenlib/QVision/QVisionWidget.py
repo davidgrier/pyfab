@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'QVisionWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -39,7 +39,7 @@ class Ui_QVisionWidget(object):
         self.skipBox.setSizePolicy(sizePolicy)
         self.skipBox.setWhatsThis("")
         self.skipBox.setPrefix("")
-        self.skipBox.setMaximum(50)
+        self.skipBox.setMaximum(1000)
         self.skipBox.setProperty("value", 5)
         self.skipBox.setObjectName("skipBox")
         self.gridLayout.addWidget(self.skipBox, 2, 1, 1, 1)
@@ -74,6 +74,16 @@ class Ui_QVisionWidget(object):
         self.bpost.setChecked(True)
         self.bpost.setObjectName("bpost")
         self.gridLayout.addWidget(self.bpost, 1, 1, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.groupProcess)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 4, 0, 1, 1)
+        self.threshBox = QtWidgets.QDoubleSpinBox(self.groupProcess)
+        self.threshBox.setDecimals(1)
+        self.threshBox.setMinimum(20.0)
+        self.threshBox.setMaximum(100.0)
+        self.threshBox.setProperty("value", 50.0)
+        self.threshBox.setObjectName("threshBox")
+        self.gridLayout.addWidget(self.threshBox, 4, 1, 1, 1)
         self.verticalLayout.addWidget(self.groupProcess)
         self.groupPipeline = QtWidgets.QGroupBox(QVisionWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -164,6 +174,10 @@ class Ui_QVisionWidget(object):
         self.breal.setText(_translate("QVisionWidget", "Real-time"))
         self.bpost.setStatusTip(_translate("QVisionWidget", "Process data after recording video"))
         self.bpost.setText(_translate("QVisionWidget", "Post-process"))
+        self.label_3.setStatusTip(_translate("QVisionWidget", "Confidence threshold for detections. Throw away features detected below this confidence."))
+        self.label_3.setText(_translate("QVisionWidget", "Confidence"))
+        self.threshBox.setStatusTip(_translate("QVisionWidget", "Confidence threshold for detections. Throw away features detected below this confidence."))
+        self.threshBox.setSuffix(_translate("QVisionWidget", " %"))
         self.groupPipeline.setTitle(_translate("QVisionWidget", "Analysis pipeline"))
         self.bDetect.setStatusTip(_translate("QVisionWidget", "Deep neural network (x, y) feature detection"))
         self.bDetect.setText(_translate("QVisionWidget", "Detect"))

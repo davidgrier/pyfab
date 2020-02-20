@@ -65,6 +65,7 @@ class QVision(QWidget):
         self.refine = False
         self.nskip = 0
         self.link_tol = 20.
+        self.threshold = .5
         self.counter = self.nskip
         self.real_time = True
         self.save_frames = False
@@ -88,6 +89,7 @@ class QVision(QWidget):
         self.ui.bRefine.clicked.connect(self.handleRefine)
         self.ui.skipBox.valueChanged.connect(self.handleSkip)
         self.ui.spinTol.valueChanged.connect(self.handleLink)
+        self.ui.threshBox.valueChanged.connect(self.handleThresh)
 
         self.sigCleanup.connect(self.cleanup)
         self.sigPlot.connect(self.plot)
@@ -105,6 +107,7 @@ class QVision(QWidget):
         self.ui.breal.setChecked(self.real_time)
         self.ui.skipBox.setProperty("value", self.nskip)
         self.ui.spinTol.setProperty("value", self.link_tol)
+        self.ui.threshBox.setProperty("value", float(self.threshold*100))
 
     def configurePlots(self):
         pass
@@ -244,6 +247,10 @@ class QVision(QWidget):
     @pyqtSlot(float)
     def handleLink(self, tol):
         self.link_tol = tol
+
+    @pyqtSlot(float)
+    def handleThresh(self, thresh):
+        self.threshold = thresh
 
     @pyqtSlot()
     def post_process(self):

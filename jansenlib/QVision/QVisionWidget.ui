@@ -95,7 +95,7 @@
          <string/>
         </property>
         <property name="maximum">
-         <number>50</number>
+         <number>1000</number>
         </property>
         <property name="value">
          <number>5</number>
@@ -178,6 +178,38 @@
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="statusTip">
+         <string>Confidence threshold for detections. Throw away features detected below this confidence.</string>
+        </property>
+        <property name="text">
+         <string>Confidence</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="threshBox">
+        <property name="statusTip">
+         <string>Confidence threshold for detections. Throw away features detected below this confidence.</string>
+        </property>
+        <property name="suffix">
+         <string> %</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>20.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>50.000000000000000</double>
         </property>
        </widget>
       </item>

@@ -67,6 +67,13 @@ class QHVM(QVision):
         self.ui.bEstimate.setEnabled(True)
         self.ui.bRefine.setEnabled(True)
 
+    @pyqtSlot(float)
+    def handleThresh(self, thresh):
+        thresh /= 100.
+        self.threshold = thresh
+        if self.localizer is not None:
+            self.localizer.threshold = thresh
+
     @pyqtSlot()
     def plot(self):
         if self.estimate:
@@ -204,7 +211,8 @@ class QHVM(QVision):
         self.jansen.screen.source.blockSignals(True)
         if self.localizer is None:
             self.localizer = cnn.Localizer(configuration='tinyholo',
-                                           weights='_500k')
+                                           weights='_500k',
+                                           threshold=self.threshold)
         if self.estimate:
             if self.estimator is None:
                 self.estimator = cnn.Estimator(model_path=keras_model_path,
