@@ -123,11 +123,15 @@ class Jansen(QMainWindow, Ui_Jansen):
     def saveSettings(self):
         if self.doconfig:
             self.configuration.save(self.camera)
+            if self.setupVision:
+                self.configuration.save(self.vision)
 
     @pyqtSlot()
     def restoreSettings(self):
         if self.doconfig:
             self.configuration.restore(self.camera)
+            if self.setupVision:
+                self.configuration.restore(self.vision)
 
 
 def main():

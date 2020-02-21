@@ -187,12 +187,16 @@ class PyFab(QMainWindow, Ui_PyFab):
         if self.doconfig:
             self.configuration.save(self.camera)
             self.configuration.save(self.cgh)
+            if self.setupVision:
+                self.configuration.save(self.vision)
 
     @pyqtSlot()
     def restoreSettings(self):
         if self.doconfig:
             self.configuration.restore(self.camera)
             self.configuration.restore(self.cgh)
+            if self.setupVision:
+                self.configuration.restore(self.vision)
 
     @pyqtSlot()
     def pauseTasks(self):

@@ -75,7 +75,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="skipBox">
+       <widget class="QSpinBox" name="nskip">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>3</horstretch>
@@ -122,7 +122,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QDoubleSpinBox" name="spinTol">
+       <widget class="QDoubleSpinBox" name="linkTol">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -147,7 +147,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QRadioButton" name="breal">
+       <widget class="QRadioButton" name="realTime">
         <property name="toolTip">
          <string/>
         </property>
@@ -163,7 +163,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QRadioButton" name="bpost">
+       <widget class="QRadioButton" name="postProcess">
         <property name="toolTip">
          <string/>
         </property>
@@ -192,7 +192,7 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QDoubleSpinBox" name="threshBox">
+       <widget class="QDoubleSpinBox" name="threshold">
         <property name="statusTip">
          <string>Confidence threshold for detections. Throw away features detected below this confidence.</string>
         </property>
@@ -320,7 +320,7 @@
        <number>2</number>
       </property>
       <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkFrames">
+       <widget class="QCheckBox" name="saveFrames">
         <property name="statusTip">
          <string>Export Frames from video recordings</string>
         </property>
@@ -336,7 +336,7 @@
        </widget>
       </item>
       <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkTrajectories">
+       <widget class="QCheckBox" name="saveTrajectories">
         <property name="statusTip">
          <string>Export Trajectories from video recordings</string>
         </property>
@@ -346,7 +346,7 @@
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QCheckBox" name="checkFeatureData">
+       <widget class="QCheckBox" name="saveFeatureData">
         <property name="statusTip">
          <string>Save cropped Feature data when exporting Frames and/or Trajectories</string>
         </property>

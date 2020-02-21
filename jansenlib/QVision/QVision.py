@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, QObject
 from .QVisionWidget import Ui_QVisionWidget
+from common.QSettingsWidget import QSettingsWidget
 
 from pylorenzmie.analysis import Video, Frame
 
@@ -36,22 +37,44 @@ class QWriter(QObject):
         self.finished.emit()
 
 
-class QVision(QWidget):
+class QVision(QSettingsWidget):
 
     sigPlot = pyqtSignal()
     sigCleanup = pyqtSignal()
     sigPost = pyqtSignal()
 
     def __init__(self, parent=None):
-        super(QVision, self).__init__(parent)
+
+        # Set serialized properties
+        self.nskip = 0
+        self.linkTol = 20.
+        self.threshold = 50.
+        self.counter = self.nskip
+        self._realTime = True
+        self._postProcess = False
+        self.saveFrames = False
+        self.saveTrajectories = False
+        self.saveFeatureData = False
+
+        # Set non-serialized properties
+        self.detect = False
+        self.estimate = False
+        self.refine = False
+        self.localizer = None
+        self.estimator = None
+
+        # Setup Ui
         self.ui = Ui_QVisionWidget()
-        self.ui.setupUi(self)
+        super(QVision, self).__init__(parent=parent, device=self, ui=self.ui)
+        self.connectVisionSignals()
 
         self.jansen = None
 
+        # pylorenzmie objects
         self.instrument = None
         self.video = Video(instrument=self.instrument)
 
+        # Miscellaneous
         self.filename = None
         self.frames = []
         self.framenumbers = []
@@ -60,37 +83,31 @@ class QVision(QWidget):
 
         self.recording = False
 
-        self.detect = False
-        self.estimate = False
-        self.refine = False
-        self.nskip = 0
-        self.link_tol = 20.
-        self.threshold = .5
-        self.counter = self.nskip
-        self.real_time = True
-        self.save_frames = False
-        self.save_trajectories = False
-        self.save_feature_data = False
-
         self.rois = None
         self.pen = pg.mkPen(color='b', width=5)
 
-        self.configureUi()
-        self.connectSignals()
+    #
+    # Methods to overwrite in subclass
+    #
+    def configurePlots(self):
+        pass
 
-    def connectSignals(self):
-        self.ui.breal.toggled.connect(self.handleRealTime)
-        self.ui.bpost.toggled.connect(self.handlePost)
-        self.ui.checkFrames.clicked.connect(self.handleSaveFrames)
-        self.ui.checkTrajectories.clicked.connect(self.handleSaveTrajectories)
-        self.ui.checkFeatureData.clicked.connect(self.handleSaveFeatureData)
+    def init_pipeline(self):
+        pass
+
+    def clear_pipeline(self):
+        pass
+
+    def draw(self, detections):
+        return []
+
+    #
+    # Ui handling
+    #
+    def connectVisionSignals(self):
         self.ui.bDetect.clicked.connect(self.handleDetect)
         self.ui.bEstimate.clicked.connect(self.handleEstimate)
         self.ui.bRefine.clicked.connect(self.handleRefine)
-        self.ui.skipBox.valueChanged.connect(self.handleSkip)
-        self.ui.spinTol.valueChanged.connect(self.handleLink)
-        self.ui.threshBox.valueChanged.connect(self.handleThresh)
-
         self.sigCleanup.connect(self.cleanup)
         self.sigPlot.connect(self.plot)
         self.sigPost.connect(self.post_process)
@@ -102,16 +119,39 @@ class QVision(QWidget):
         self.ui.bDetect.setEnabled(False)
         self.ui.bEstimate.setEnabled(False)
         self.ui.bRefine.setEnabled(False)
-        self.ui.checkFrames.setChecked(self.save_frames)
-        self.ui.checkTrajectories.setChecked(self.save_trajectories)
-        self.ui.breal.setChecked(self.real_time)
-        self.ui.skipBox.setProperty("value", self.nskip)
-        self.ui.spinTol.setProperty("value", self.link_tol)
-        self.ui.threshBox.setProperty("value", float(self.threshold*100))
 
-    def configurePlots(self):
-        pass
+    def closeEvent(self):
+        logger.debug('Closing vision pipeline')
+        self.remove()
+        self.clear_pipeline()
 
+    #
+    # Special getters and setters
+    #
+    @property
+    def realTime(self):
+        return self._realTime
+
+    @realTime.setter
+    def realTime(self, realTime):
+        self._postProcess = not realTime
+        self._realTime = realTime
+
+    @property
+    def postProcess(self):
+        return self._postProcess
+
+    @postProcess.setter
+    def postProcess(self, postProcess):
+        self._postProcess = postProcess
+        self._realTime = not postProcess
+        if postProcess:
+            self.remove()
+            self.rois = None
+
+    #
+    # Slots
+    #
     @pyqtSlot()
     def plot(self):
         self.sigCleanup.emit()
@@ -122,7 +162,7 @@ class QVision(QWidget):
         if self.counter == 0:
             self.counter = self.nskip
             i = self.jansen.dvr.framenumber
-            if self.real_time:
+            if self.realTime:
                 frames, detections = self.predict([image], [i])
 
                 frame = frames[0]
@@ -153,13 +193,13 @@ class QVision(QWidget):
 
     @pyqtSlot()
     def cleanup(self):
-        if self.save_frames or self.save_trajectories:
+        if self.saveFrames or self.saveTrajectories:
             omit, omit_feat = ([], [])
-            if not self.save_frames:
+            if not self.saveFrames:
                 omit.append('frames')
-            if not self.save_trajectories:
+            if not self.saveTrajectories:
                 omit.append('trajectories')
-            if not self.save_feature_data:
+            if not self.saveFeatureData:
                 omit_feat.append('data')
             filename = self.jansen.dvr.filename.split(".")[0] + '.json'
             out = self.video.serialize(omit=omit,
@@ -218,45 +258,11 @@ class QVision(QWidget):
         else:
             self.clear_pipeline()
 
-    @pyqtSlot(bool)
-    def handleRealTime(self, selected):
-        self.real_time = selected
-
-    @pyqtSlot(bool)
-    def handlePost(self, selected):
-        self.real_time = not selected
-        self.remove()
-        self.rois = None
-
-    @pyqtSlot(bool)
-    def handleSaveFrames(self, selected):
-        self.save_frames = selected
-
-    @pyqtSlot(bool)
-    def handleSaveTrajectories(self, selected):
-        self.save_trajectories = selected
-
-    @pyqtSlot(bool)
-    def handleSaveFeatureData(self, selected):
-        self.save_feature_data = selected
-
-    @pyqtSlot(int)
-    def handleSkip(self, nskip):
-        self.nskip = nskip
-
-    @pyqtSlot(float)
-    def handleLink(self, tol):
-        self.link_tol = tol
-
-    @pyqtSlot(float)
-    def handleThresh(self, thresh):
-        self.threshold = thresh
-
     @pyqtSlot()
     def post_process(self):
         self.video.fps = self.jansen.screen.fps
         if self.detect:
-            if not self.real_time:
+            if not self.realTime:
                 self.jansen.screen.source.blockSignals(True)
                 self.jansen.screen.pauseSignals(True)
                 frames, detections = self.predict(self.frames,
@@ -265,12 +271,15 @@ class QVision(QWidget):
                 self.video.add(frames)
                 self.jansen.screen.source.blockSignals(False)
                 self.jansen.screen.pauseSignals(False)
-            self.video.set_trajectories(search_range=self.link_tol,
+            self.video.set_trajectories(search_range=self.linkTol,
                                         memory=int(self.nskip+3))
         self.frames = []
         self.framenumbers = []
         self.sigPlot.emit()
 
+    #
+    # Methods
+    #
     def predict(self, images, framenumbers, post=False):
         frames = []
         detections = []
@@ -278,9 +287,6 @@ class QVision(QWidget):
             frames.append(Frame())
             detections.append([])
         return frames, detections
-
-    def draw(self, detections):
-        return []
 
     def remove(self):
         rois = self.rois
@@ -294,9 +300,3 @@ class QVision(QWidget):
         for i in range(len(clr)):
             rgb.append(int(255*clr[i]))
         return tuple(rgb)
-
-    def init_pipeline(self):
-        pass
-
-    def clear_pipeline(self):
-        pass
