@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+from PyQt5.QtCore import pyqtSlot
+import numpy as np
+
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -54,6 +58,7 @@ class Task(object):
         """Operation performed to complete the task."""
         pass
 
+    @pyqtSlot(np.ndarray)
     def process(self, frame):
         if not self.initialized:
             self.initialize(frame)
