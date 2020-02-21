@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QTimer, QObject)
+from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QTimer)
 from PyQt5.QtWidgets import (QFrame, QComboBox, QSpinBox,
                              QDoubleSpinBox, QCheckBox, QRadioButton,
                              QPushButton)
@@ -158,7 +158,7 @@ class QSettingsWidget(QFrame):
             if wid.isTristate():
                 wid.setCheckState(value)
             else:
-                wid.setCheckState(2 * value)
+                wid.setChecked(value)
         elif isinstance(wid, QRadioButton):
             wid.setChecked(value)
         elif isinstance(wid, QPushButton):
