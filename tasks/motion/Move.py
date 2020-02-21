@@ -2,7 +2,7 @@
 
 """Framework for moving all current traps along some trajectory"""
 
-from .Task import Task
+from ..Task import Task
 import numpy as np
 from PyQt5.QtGui import QVector3D
 
@@ -20,7 +20,7 @@ class Move(Task):
     def initialize(self, frame):
         self.traps = self.parent.pattern.pattern
         self.trajectories = self.parameterize(self.traps)
-        self.N = None
+        self.N = 0
         self.n = 0
         if self.traps.count() > 0:
             if self.trajectories is not None:

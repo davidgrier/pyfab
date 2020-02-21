@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'QVideoFilterWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -33,9 +33,6 @@ class Ui_QVideoFilterWidget(object):
         self.ndvi = QtWidgets.QCheckBox(QVideoFilterWidget)
         self.ndvi.setObjectName("ndvi")
         self.verticalLayout.addWidget(self.ndvi)
-        self.detect = QtWidgets.QCheckBox(QVideoFilterWidget)
-        self.detect.setObjectName("detect")
-        self.verticalLayout.addWidget(self.detect)
 
         self.retranslateUi(QVideoFilterWidget)
         QtCore.QMetaObject.connectSlotsByName(QVideoFilterWidget)
@@ -48,7 +45,6 @@ class Ui_QVideoFilterWidget(object):
         self.normalize.setText(_translate("QVideoFilterWidget", "Normalize"))
         self.samplehold.setText(_translate("QVideoFilterWidget", "Sample and Hold"))
         self.ndvi.setText(_translate("QVideoFilterWidget", "NDVI"))
-        self.detect.setText(_translate("QVideoFilterWidget", "Detect"))
 
 
 if __name__ == "__main__":

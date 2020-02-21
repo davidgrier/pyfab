@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Move to focal plane
 
-from .GuidedMove import GuidedMove
+from .motion.GuidedMove import GuidedMove
 import numpy as np
 
 
@@ -11,8 +11,7 @@ class MoveToCoordinate(GuidedMove):
     By default this task brings all traps to the focal plane."""
 
     def __init__(self, x=None, y=None, z=0, correct=False,
-                 traps=None,
-                 speed=None, **kwargs):
+                 traps=None, speed=None, **kwargs):
         super(MoveToCoordinate, self).__init__(**kwargs)
         self.x = x
         self.y = y

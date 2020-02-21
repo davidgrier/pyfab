@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Assemble cube
 
-from .GuidedMove import GuidedMove
+from .motion.GuidedMove import GuidedMove
 import numpy as np
 
 
@@ -18,8 +18,8 @@ class Cube(GuidedMove):
         else:
             vertices = []
             s = 300
-            xc = self.parent.cgh.xc
-            yc = self.parent.cgh.yc
+            xc = self.parent.cgh.device.xc
+            yc = self.parent.cgh.device.yc
             samples = list()
             signs = [1, -1]
             while len(samples) < 4:

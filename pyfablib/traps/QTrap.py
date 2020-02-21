@@ -77,7 +77,7 @@ class QTrap(QObject):
     def updateAppearance(self):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
-        self.spot['size'] = np.clip(10. + self.r.z() / 10., 5., 20.)
+        self.spot['size'] = np.clip(10. - self.r.z() / 20., 5., 30.)
 
     def updateStructure(self):
         """Update structuring field for changes in trap properties

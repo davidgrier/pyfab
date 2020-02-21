@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'FabWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_PyFab(object):
     def setupUi(self, PyFab):
@@ -140,6 +139,16 @@ class Ui_PyFab(object):
         self.histogram.setObjectName("histogram")
         self.verticalLayout_3.addWidget(self.histogram)
         self.tabWidget.addTab(self.tabHistogram, "")
+        self.tabVision = QtWidgets.QWidget()
+        self.tabVision.setObjectName("tabVision")
+        self.visionLayout = QtWidgets.QVBoxLayout(self.tabVision)
+        self.visionLayout.setObjectName("visionLayout")
+        self.vision = QtWidgets.QWidget(self.tabVision)
+        self.vision.setEnabled(True)
+        self.vision.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.vision.setObjectName("vision")
+        self.visionLayout.addWidget(self.vision)
+        self.tabWidget.addTab(self.tabVision, "")
         self.tabHardware = QtWidgets.QWidget()
         self.tabHardware.setObjectName("tabHardware")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.tabHardware)
@@ -209,14 +218,14 @@ class Ui_PyFab(object):
         self.bback.setObjectName("bback")
         self.verticalLayout_2.addWidget(self.bback)
         self.browser = QtWebEngineWidgets.QWebEngineView(self.tabHelp)
-        self.browser.setUrl(QtCore.QUrl("qrc:/help/help/pyfab.html"))
+        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/pyfab.html"))
         self.browser.setObjectName("browser")
         self.verticalLayout_2.addWidget(self.browser)
         self.tabWidget.addTab(self.tabHelp, "")
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1072, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1072, 31))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -256,7 +265,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(6)
+        self.tabWidget.setCurrentIndex(7)
         self.actionQuit.triggered.connect(PyFab.close)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
         self.dvr.recording['bool'].connect(self.filters.setDisabled)
@@ -288,6 +297,7 @@ class Ui_PyFab(object):
         self.groupFilters.setTitle(_translate("PyFab", "Video Filters"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVideo), _translate("PyFab", "Video"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHistogram), _translate("PyFab", "Histogram"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVision), _translate("PyFab", "Vision"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHardware), _translate("PyFab", "Hardware"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTraps), _translate("PyFab", "Traps"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabCGH), _translate("PyFab", "CGH"))
@@ -314,7 +324,6 @@ class Ui_PyFab(object):
         self.actionStopTasks.setShortcut(_translate("PyFab", "Ctrl+A"))
         self.actionSaveHologramAs.setText(_translate("PyFab", "Sa&ve Hologram As ..."))
 
-
 from PyQt5 import QtWebEngineWidgets
 from jansenlib.QDVR.QDVR import QDVR
 from jansenlib.QHistogram.QHistogram import QHistogram
@@ -326,7 +335,6 @@ from pyfablib.QSLMWidget import QSLMWidget
 from pyfablib.traps.QTrapWidget import QTrapWidget
 import help_rc
 
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -335,3 +343,4 @@ if __name__ == "__main__":
     ui.setupUi(PyFab)
     PyFab.show()
     sys.exit(app.exec_())
+

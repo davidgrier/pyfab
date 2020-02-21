@@ -8,7 +8,6 @@ from .QVideoFilterWidget import Ui_QVideoFilterWidget
 
 from .vmedian import vmedian
 from .vmax import vmax
-from .QDetector import QDetector
 import numpy as np
 import cv2
 from matplotlib.pylab import cm
@@ -41,7 +40,6 @@ class QVideoFilter(QFrame):
     def init_filters(self):
         self.median = vmedian(order=3)
         self.deflicker = vmax(order=4)
-        #self.detector = QDetector(parent=self.parent().screen)
 
     def connectSignals(self):
         self.ui.median.clicked.connect(self.handleMedian)
@@ -49,7 +47,6 @@ class QVideoFilter(QFrame):
         self.ui.normalize.clicked.connect(self.handleNormalize)
         self.ui.samplehold.clicked.connect(self.handleSample)
         self.ui.ndvi.clicked.connect(self.handleNDVI)
-        self.ui.detect.clicked.connect(self.handleDetect)
 
     @pyqtSlot(bool)
     def handleMedian(self, selected):
@@ -86,8 +83,6 @@ class QVideoFilter(QFrame):
             self.background = np.clip(self.median.get(), 1, 255)
         nrm = (frame.astype(float) - 13) / (self.background - 13)
         n = np.clip(100 * nrm, 0, 255).astype(np.uint8)
-        if np.amax(n) == 255:
-            print('There is saturation!' + np.random.choice(['!', '?']))
         return n
 
     @pyqtSlot(bool)
@@ -117,11 +112,3 @@ class QVideoFilter(QFrame):
             self.register(self.ndvi)
         else:
             self.unregister(self.ndvi)
-
-    @pyqtSlot(bool)
-    def handleDetect(self, selected):
-        if selected:
-            self.register(self.detector.detect)
-        else:
-            self.unregister(self.detector.detect)
-            self.detector.remove()

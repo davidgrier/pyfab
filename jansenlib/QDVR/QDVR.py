@@ -110,7 +110,7 @@ class QDVR(QFrame, Ui_QDVRWidget):
             self.stop()
         logger.debug('Starting Recording')
         if os.path.splitext(self.filename)[1] == '.avi':
-            shape = (self.source.height(), self.source.width())
+            shape = (self.source.height, self.source.width)
             self._writer = QVideoWriter(self.filename, shape,
                                         fps=self.screen.fps,
                                         nframes=nframes)

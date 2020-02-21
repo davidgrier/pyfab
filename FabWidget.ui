@@ -63,7 +63,7 @@
         <string/>
        </property>
        <property name="currentIndex">
-        <number>6</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="tabVideo">
         <property name="sizePolicy">
@@ -358,6 +358,23 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="tabVision">
+        <attribute name="title">
+         <string>Vision</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="visionLayout">
+         <item>
+          <widget class="QWidget" name="vision" native="true">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="tabHardware">
         <attribute name="title">
          <string>Hardware</string>
@@ -530,8 +547,8 @@
           </widget>
          </item>
          <item>
-          <widget class="QWebEngineView" name="browser">
-           <property name="url">
+          <widget class="QWebEngineView" name="browser" native="true">
+           <property name="url" stdset="0">
             <url>
              <string>qrc:/help/help/pyfab.html</string>
             </url>
@@ -551,7 +568,7 @@
      <x>0</x>
      <y>0</y>
      <width>1072</width>
-     <height>22</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

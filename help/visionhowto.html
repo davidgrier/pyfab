@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Machine vision</title>
+</head>
+
+<body>
+<h2>Machine vision</h2>
+<dl>
+  <dt>Processing</dt>
+  <dd>First, decide whether to choose <b>Real-time</b> or <b>Post-process</b>. <b>Post-process</b>
+    will run a holographic analysis after a video is recorded if any analysis
+    pipelines are chosen. <b>Real-time</b> analysis will do so every frame, after
+    skipping as many frames as specified by the <b>skip</b> box below. The <b>skip</b> box
+    is useful when the user wants to record raw data at a frame rate faster than
+    what real-time analysis can perform, but still wants feedback.
+    The <b>Search range</b> is the parameter that <tt>trackpy.link</tt> demands to
+    link together trajectories across frames. It is the maximum distance features
+    can move between frames, which scales with the translational speed of the feature. Last, <b>Confidence</b> allows a user to deal with false positive detections by throwing away features below a certain threshold.
+  </dd>
+
+  <dt>Analysis pipeline</dt>
+  <dd>If <b>Detect</b> is chosen, tracking capability is enabled. If <b>Estimate</b> is chosen,
+    tracking results are combined with parameter estimation. If <b>Refine</b> is
+    chosen, those results are fed into an optimization scheme to acheieve precise
+    estimates for a feature's parameters.
+  </dd>
+
+  <dt>Save</dt>
+  <dd>This panel allows the user to export data after a video recording. If <b>Frames</b>
+    or <b>Trajectories</b> are checked, then data is exported as a json serialized <tt>pylorenzmie</tt>
+    <tt>Video</tt> with the same filename and in the same directory as the recorded
+    data. If <b>Feature data</b> is checked, the <tt>Video</tt> is serialized with <tt>Frames</tt> and <tt>Trajectories</tt>
+    that have <tt>Features</tt> populated with cropped, recorded data. This serialization takes
+    some time to perform and the video feed will freeze during the process.
+  </dd>
+</dl>
+
+
+<hr>
+</body> </html>

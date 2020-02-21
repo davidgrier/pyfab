@@ -2,49 +2,68 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
-from JansenWidget import Ui_MainWindow
+from PyQt5.QtCore import pyqtSlot
+
+from JansenWidget import Ui_Jansen
 from common.Configuration import Configuration
 
 import logging
 logging.basicConfig()
-logger = logging.getLogger('nujansen')
+logger = logging.getLogger('nujansen^S')
 logger.setLevel(logging.DEBUG)
 
 try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker
+    ex1 = None
+    from jansenlib.QVision import QVision
 except Exception as ex:
-    logger.warning(ex)
-from jansenlib.video.QOpenCV.QOpenCV import QOpenCV
+    ex1 = ex
+
+try:
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
+except Exception as ex:
+    logger.warning('Could not import Spinnaker camera: {}'.format(ex))
+    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
 
 
-class Jansen(QMainWindow, Ui_MainWindow):
+class Jansen(QMainWindow, Ui_Jansen):
 
     def __init__(self, parent=None, noconfig=False):
         super(Jansen, self).__init__(parent)
         self.setupUi(self)
         self.configuration = Configuration(self)
+
+        # Setup vision tab
         try:
-            camera = QSpinnaker()
-        except:
-            camera = QOpenCV()
-        self.installCamera(camera)
+            self.vision.close()
+            self.vision.setObjectName("vision")
+            self.vision = QVision(self.tabVision)
+            self.visionLayout.addWidget(self.vision)
+            self.setupVision = True
+        except Exception as ex2:
+            err = ex2 if ex1 is None else ex1
+            msg = 'Could not import Machine Vision pipeline: {}'
+            logger.warning(msg.format(err))
+            self.tabWidget.setTabEnabled(2, False)
+            self.setupVision = False
+
+        # Setup camera
+        self.camera.close()  # remove placeholder widget from UI
+        camera = QCamera()
+        self.camera = camera
+        self.screen.camera = camera
+        self.cameraLayout.addWidget(camera)
+
         self.configureUi()
         self.connectSignals()
 
         self.doconfig = not noconfig
         if self.doconfig:
-            self.restoreConfiguration()
+            self.restoreSettings()
 
     def closeEvent(self, event):
-        self.saveConfiguration()
+        self.saveSettings()
         self.screen.close()
         self.deleteLater()
-
-    def installCamera(self, camera):
-        self.camera.close()  # remove placeholder widget
-        self.camera = camera
-        self.cameraLayout.addWidget(camera)
-        self.screen.camera = camera
 
     def configureUi(self):
         self.filters.screen = self.screen
@@ -52,6 +71,8 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'jansen.avi'
+        if self.setupVision:
+            self.vision.jansen = self
         self.adjustSize()
 
     def connectSignals(self):
@@ -63,28 +84,54 @@ class Jansen(QMainWindow, Ui_MainWindow):
         self.actionSavePhotoAs.triggered.connect(
             lambda: self.savePhoto(True))
 
+        # Signals associated with handling images
+        self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
+        if self.setupVision:
+            self.screen.sigNewFrame.connect(self.vision.process)
+
+    @pyqtSlot()
     def setDvrSource(self, source):
         self.dvr.source = source
 
-    def savePhoto(self, select=False):
-        filename = self.configuration.filename(suffix='.png')
+    #
+    # Slots for menu actions
+    #
+    def saveImage(self, qimage, select=False):
+        if qimage is None:
+            return
         if select:
             getname = QFileDialog.getSaveFileName
-            filename, _ = getname(self, 'Save Snapshot',
+            filename, _ = getname(self, 'Save Image',
                                   directory=filename,
                                   filter='Image files (*.png)')
+        else:
+            filename = self.configuration.filename(suffix='.png')
         if filename:
-            qimage = self.screen.imageItem.qimage
-            qimage.mirrored(vertical=True).save(filename)
+            qimage.save(filename)
             self.statusBar().showMessage('Saved ' + filename)
 
-    def restoreConfiguration(self):
-        if self.doconfig:
-            self.configuration.restore(self.camera)
+    @pyqtSlot()
+    def savePhoto(self, select=False):
+        qimage = self.screen.imageItem.qimage.mirrored(vertical=True)
+        self.saveImage(qimage, select=select)
 
-    def saveConfiguration(self):
+    @pyqtSlot()
+    def savePhotoAs(self):
+        self.savePhoto(select=True)
+
+    @pyqtSlot()
+    def saveSettings(self):
         if self.doconfig:
             self.configuration.save(self.camera)
+            if self.setupVision:
+                self.configuration.save(self.vision)
+
+    @pyqtSlot()
+    def restoreSettings(self):
+        if self.doconfig:
+            self.configuration.restore(self.camera)
+            if self.setupVision:
+                self.configuration.restore(self.vision)
 
 
 def main():

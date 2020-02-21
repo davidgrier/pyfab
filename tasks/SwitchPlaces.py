@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Switch places
 
-from .GuidedMove import GuidedMove
+from .motion.GuidedMove import GuidedMove
 import numpy as np
 
 
