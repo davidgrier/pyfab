@@ -144,7 +144,7 @@ class CGH(QObject):
                 trap.needsRefresh = False
             try:
                 self._psi += trap.structure * trap.psi
-            except Exception:
+            except Exception as e:
                 self._psi += trap.psi
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)

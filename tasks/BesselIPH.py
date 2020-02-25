@@ -14,8 +14,8 @@ class BesselIPH(Task):
         super(BesselIPH, self).__init__(**kwargs)
 
     def dotask(self):
-        xc = self.parent.cgh.xc
-        yc = self.parent.cgh.yc
-        zc = self.parent.cgh.zc
+        xc = self.parent.cgh.device.xc
+        yc = self.parent.cgh.device.yc
+        zc = self.parent.cgh.device.zc
         trap = QBesselIPHTrap(r=QVector3D(xc, yc, zc))
         self.parent.pattern.addTrap(trap)

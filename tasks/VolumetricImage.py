@@ -21,7 +21,7 @@ class VolumetricImage(Task):
 
     def dotask(self):
         fn, fn_ext = os.path.splitext(self.parent.dvr.filename)
-        zmax = -1200
+        zmax = -400
         z = self.trap.r.z()
         dz = -10
         dr = QVector3D(0, 0, dz)

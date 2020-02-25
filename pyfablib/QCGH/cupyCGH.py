@@ -97,7 +97,7 @@ class cupyCGH(CGH):
 
     def quantize(self, psi):
         #phi = ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
-        # phi.get(out=self.phi)
+        #phi.get(out=self.phi)
         self.phase(psi, self._phi)
         self._phi.get(out=self.phi)
         return self.phi
@@ -112,24 +112,29 @@ class cupyCGH(CGH):
         self._psi = cp.zeros(self.shape, dtype=cp.complex64)
         self._phi = cp.zeros(self.shape, dtype=cp.uint8)
         self._theta = cp.zeros(self.shape, dtype=cp.float32)
-        self._qr = cp.zeros(self.shape, dtype=cp.float32)
-        alpha = cp.cos(cp.radians(self.phis))
-        x = alpha*(cp.arange(self.width) - self.xs)
-        y = cp.arange(self.height) - self.ys
-        self._iqx = 1j * self.qprp * x
-        self._iqy = 1j * self.qprp * y
-        self._iqxz = 1j * self.qpar * x * x
-        self._iqyz = 1j * self.qpar * y * y
-        self.outeratan2f(y, x, self._theta)
-        self.outerhypot(self.qprp * y, self.qprp * x, self._qr)
+        self._rho = cp.zeros(self.shape, dtype=cp.float32)
+        alpha = cp.cos(cp.radians(self.phis, dtype=cp.float32))
+        x = alpha*(cp.arange(self.width, dtype=cp.float32) - cp.float32(self.xs))
+        y = cp.arange(self.height, dtype=cp.float32) - cp.float32(self.ys)
+        x = x.astype(cp.complex64)
+        y = y.astype(cp.complex64)
+        self._iqx = 1j * cp.float32(self.qprp) * x
+        self._iqy = 1j * cp.float32(self.qprp) * y
+        self._iqxz = 1j * cp.float32(self.qpar) * x * x
+        self._iqyz = 1j * cp.float32(self.qpar) * y * y
+        self.outeratan2f(y.real, x.real, self._theta)
+        self.outerhypot(y.real, x.real, self._rho)
         # CPU variables
         self.phi = cp.asnumpy(self._phi)
         self.iqx = cp.asnumpy(self._iqx)
         self.iqy = cp.asnumpy(self._iqy)
         self.theta = cp.asnumpy(self._theta)
-        self.qr = cp.asnumpy(self._qr)
+        self.qr = cp.asnumpy(self._rho)
         self.sigUpdateGeometry.emit()
-        pass
 
     def bless(self, field):
-        pass
+        if type(field) is complex:
+            gpu_field = cp.ones(self.shape, dtype=cp.complex64)
+        else:
+            gpu_field = cp.asarray(field.astype(cp.complex64))
+        return gpu_field
