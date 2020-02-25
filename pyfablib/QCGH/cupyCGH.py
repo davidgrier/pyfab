@@ -116,14 +116,12 @@ class cupyCGH(CGH):
         alpha = cp.cos(cp.radians(self.phis, dtype=cp.float32))
         x = alpha*(cp.arange(self.width, dtype=cp.float32) - cp.float32(self.xs))
         y = cp.arange(self.height, dtype=cp.float32) - cp.float32(self.ys)
-        x = x.astype(cp.complex64)
-        y = y.astype(cp.complex64)
         self._iqx = 1j * cp.float32(self.qprp) * x
         self._iqy = 1j * cp.float32(self.qprp) * y
         self._iqxz = 1j * cp.float32(self.qpar) * x * x
         self._iqyz = 1j * cp.float32(self.qpar) * y * y
-        self.outeratan2f(y.real, x.real, self._theta)
-        self.outerhypot(y.real, x.real, self._rho)
+        self.outeratan2f(y, x, self._theta)
+        self.outerhypot(y, x, self._rho)
         # CPU variables
         self.phi = cp.asnumpy(self._phi)
         self.iqx = cp.asnumpy(self._iqx)
