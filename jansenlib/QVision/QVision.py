@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, QObject
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
 from .QVisionWidget import Ui_QVisionWidget
 from common.QSettingsWidget import QSettingsWidget
 
@@ -45,16 +45,15 @@ class QVision(QSettingsWidget):
 
     def __init__(self, parent=None):
 
-        # Set serialized properties
-        self.nskip = 0
-        self.linkTol = 20.
-        self.threshold = 50.
-        self.counter = self.nskip
+        # Initialize serialized properties
+        self._nskip = 0
+        self._linkTol = 20.
+        self._threshold = 50.
         self._realTime = True
         self._postProcess = False
-        self.saveFrames = False
-        self.saveTrajectories = False
-        self.saveFeatureData = False
+        self._saveFrames = False
+        self._saveTrajectories = False
+        self._saveFeatureData = False
 
         # Set non-serialized properties
         self.detect = False
@@ -75,6 +74,8 @@ class QVision(QSettingsWidget):
         self.video = Video(instrument=self.instrument)
 
         # Miscellaneous
+        self.counter = self._nskip
+        
         self.filename = None
         self.frames = []
         self.framenumbers = []
@@ -101,6 +102,10 @@ class QVision(QSettingsWidget):
     def draw(self, detections):
         return []
 
+    @pyqtSlot()
+    def plot(self):
+        self.sigCleanup.emit()
+
     #
     # Ui handling
     #
@@ -126,41 +131,13 @@ class QVision(QSettingsWidget):
         self.clear_pipeline()
 
     #
-    # Special getters and setters
-    #
-    @property
-    def realTime(self):
-        return self._realTime
-
-    @realTime.setter
-    def realTime(self, realTime):
-        self._postProcess = not realTime
-        self._realTime = realTime
-
-    @property
-    def postProcess(self):
-        return self._postProcess
-
-    @postProcess.setter
-    def postProcess(self, postProcess):
-        self._postProcess = postProcess
-        self._realTime = not postProcess
-        if postProcess:
-            self.remove()
-            self.rois = None
-
-    #
     # Slots
     #
-    @pyqtSlot()
-    def plot(self):
-        self.sigCleanup.emit()
-
     @pyqtSlot(np.ndarray)
     def process(self, image):
         self.remove()
         if self.counter == 0:
-            self.counter = self.nskip
+            self.counter = self._nskip
             i = self.jansen.dvr.framenumber
             if self.realTime:
                 frames, detections = self.predict([image], [i])
@@ -189,6 +166,25 @@ class QVision(QSettingsWidget):
             if not self.jansen.dvr.is_recording():
                 self.recording = False
                 self.sigPost.emit()
+
+    @pyqtSlot()
+    def post_process(self):
+        self.video.fps = self.jansen.screen.fps
+        if self.detect:
+            if not self.realTime:
+                self.jansen.screen.source.blockSignals(True)
+                self.jansen.screen.pauseSignals(True)
+                frames, detections = self.predict(self.frames,
+                                                  self.framenumbers,
+                                                  post=True)
+                self.video.add(frames)
+                self.jansen.screen.source.blockSignals(False)
+                self.jansen.screen.pauseSignals(False)
+            self.video.set_trajectories(search_range=self.linkTol,
+                                        memory=int(self.nskip+3))
+        self.frames = []
+        self.framenumbers = []
+        self.sigPlot.emit()
             
 
     @pyqtSlot()
@@ -258,25 +254,6 @@ class QVision(QSettingsWidget):
         else:
             self.clear_pipeline()
 
-    @pyqtSlot()
-    def post_process(self):
-        self.video.fps = self.jansen.screen.fps
-        if self.detect:
-            if not self.realTime:
-                self.jansen.screen.source.blockSignals(True)
-                self.jansen.screen.pauseSignals(True)
-                frames, detections = self.predict(self.frames,
-                                                  self.framenumbers,
-                                                  post=True)
-                self.video.add(frames)
-                self.jansen.screen.source.blockSignals(False)
-                self.jansen.screen.pauseSignals(False)
-            self.video.set_trajectories(search_range=self.linkTol,
-                                        memory=int(self.nskip+3))
-        self.frames = []
-        self.framenumbers = []
-        self.sigPlot.emit()
-
     #
     # Methods
     #
@@ -300,3 +277,76 @@ class QVision(QSettingsWidget):
         for i in range(len(clr)):
             rgb.append(int(255*clr[i]))
         return tuple(rgb)
+
+
+    #
+    # PyQt serialized properties
+    #
+    @pyqtProperty(bool)
+    def realTime(self):
+        return self._realTime
+
+    @realTime.setter
+    def realTime(self, realTime):
+        self._postProcess = not realTime
+        self._realTime = realTime
+
+    @pyqtProperty(bool)
+    def postProcess(self):
+        return self._postProcess
+
+    @postProcess.setter
+    def postProcess(self, postProcess):
+        self._postProcess = postProcess
+        self._realTime = not postProcess
+        if postProcess:
+            self.remove()
+            self.rois = None
+
+    @pyqtProperty(int)
+    def nskip(self):
+        return self._nskip
+
+    @nskip.setter
+    def nskip(self, n):
+        self._nskip = n
+
+    @pyqtProperty(float)
+    def linkTol(self):
+        return self._linkTol
+
+    @linkTol.setter
+    def linkTol(self, tol):
+        self._linkTol = tol
+
+    @pyqtProperty(float)
+    def threshold(self):
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, thresh):
+        self._threshold = thresh
+
+    @pyqtProperty(bool)
+    def saveFrames(self):
+        return self._saveFrames
+
+    @saveFrames.setter
+    def saveFrames(self, save):
+        self._saveFrames = save
+
+    @pyqtProperty(bool)
+    def saveTrajectories(self):
+        return self._saveTrajectories
+
+    @saveTrajectories.setter
+    def saveTrajectories(self, save):
+        self._saveTrajectories = save
+
+    @pyqtProperty(bool)
+    def saveFeatureData(self):
+        return self._saveFeatureData
+
+    @saveFeatureData.setter
+    def saveFeatureData(self, save):
+        self._saveFeatureData = save
