@@ -32,16 +32,8 @@ class QCustomTrap(QTrap):
         # Allocate integration range
         self.T = 2 * np.pi
         t = np.linspace(0, self.T, 500, endpoint=True)
-        # Allocate geometrical buffers
-        structure = np.zeros(self.cgh.shape, np.complex_)
-        integrand = np.ones((t.size,
-                             self.cgh.shape[0],
-                             self.cgh.shape[1]),
-                            dtype=np.complex_)
-        alpha = np.cos(np.radians(self.cgh.phis))
-        x = alpha*(np.arange(self.cgh.width) - self.cgh.xs)
-        y = np.arange(self.cgh.height) - self.cgh.ys
-        xv, yv = np.meshgrid(x, y)
+        # Get geometrical buffers
+        structure, integrand, xv, yv = self.getBuffers(t)
         # Evaluate parameters for integration
         f = self.cgh.focalLength
         lamb = self.cgh.wavelength
@@ -53,15 +45,31 @@ class QCustomTrap(QTrap):
         L = np.trapz(np.sqrt(dx_0**2 + dy_0**2), x=t)
         # Evaluate integrand at all points along the curve
         for idx, ti in enumerate(t):
+            xi, yi, zi = (x_0[idx], y_0[idx], z_0[idx])
+            dxi, dyi = (dx_0[idx], dy_0[idx])
+            Si = S[idx]
+            inti = integrand[idx]
             self.integrand(ti, xv, yv, S_T, L,
                            self.rho, self.m,
-                           f, lamb, x_0[idx], y_0[idx], z_0[idx],
-                           S[idx], dx_0[idx], dy_0[idx],
-                           integrand[idx])
+                           f, lamb, xi, yi, zi,
+                           Si, dxi, dyi,
+                           inti)
         # Integrate
         self.integrate(integrand, structure, t, self.cgh.shape)
         self.structure = structure
         print("Time to compute: {}".format(time() - t0))
+
+    def getBuffers(self, t):
+        structure = np.zeros(self.cgh.shape, np.complex_)
+        integrand = np.ones((t.size,
+                             self.cgh.shape[0],
+                             self.cgh.shape[1]),
+                            dtype=np.complex_)
+        alpha = np.cos(np.radians(self.cgh.phis))
+        x = alpha*(np.arange(self.cgh.width) - self.cgh.xs)
+        y = np.arange(self.cgh.height) - self.cgh.ys
+        xv, yv = np.meshgrid(x, y)
+        return structure, integrand, xv, yv
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
