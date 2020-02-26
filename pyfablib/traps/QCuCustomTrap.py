@@ -38,7 +38,7 @@ class QCuCustomTrap(QCustomTrap):
                     sumImag = 0;
                     for (int k = threadIdx.z + blockDim.z * blockIdx.z; \
                          k < nt; k += blockDim.z * gridDim.z) {
-                        intgrnd = integrand[k*ny + j*nx + i];
+                        intgrnd = integrand[k*ny*nx + i*ny + j];
                         if (k == 0 || k == nt-1) {
                             coeff = 1;
                         }
@@ -55,7 +55,7 @@ class QCuCustomTrap(QCustomTrap):
                     }
                     sumReal *= dt/3;
                     sumImag *= dt/3;
-                    out[j*nx + i] = make_cuFloatComplex(sumReal, sumImag);
+                    out[i*ny + j] = make_cuFloatComplex(sumReal, sumImag);
                 }
             }
         }
