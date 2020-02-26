@@ -2,8 +2,12 @@
 
 """QTiltedRingTrap.py: Tilted ring using parametric drawing tool."""
 
-from .QCustomTrap import QCustomTrap
 import numpy as np
+
+try:
+    from .QCuCustomTrap import QCuCustomTrap as QCustomTrap
+except Exception:
+    from .QCustomTrap import QCustomTrap
 
 
 class QTiltedRingTrap(QCustomTrap):

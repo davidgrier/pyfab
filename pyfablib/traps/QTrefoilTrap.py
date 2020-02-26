@@ -2,8 +2,12 @@
 
 """QTrefoilTrap.py: Trefoil knot trap using parametric drawing tool."""
 
-from .QCustomTrap import QCustomTrap
 import numpy as np
+
+try:
+    from .QCuCustomTrap import QCuCustomTrap as QCustomTrap
+except Exception:
+    from .QCustomTrap import QCustomTrap
 
 
 class QTrefoilTrap(QCustomTrap):
