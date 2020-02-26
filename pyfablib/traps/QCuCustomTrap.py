@@ -19,18 +19,43 @@ class QCuCustomTrap(QCustomTrap):
         self.grid = None
 
         self._integrate = cp.RawKernel(r"""
+        #include <cuComplex.h>
+
         extern "C" __global__
-        void integrate(const float *integrand, const float *t, \
-                       float *out, int nx, int ny, int nt)
+        void integrate(const cuFloatComplex *integrand, \
+                       cuFloatComplex *out, \
+                       float dt, \
+                       int nx, int ny, int nt)
         {
+            float coeff;
+            float sumReal, sumImag, tempReal, tempImag;
+            cuFloatComplex intgrnd;
             for (int i = threadIdx.x + blockDim.x * blockIdx.x; \
                  i < nx; i += blockDim.x * gridDim.x) {
                 for (int j = threadIdx.y + blockDim.y * blockIdx.y; \
                      j < ny; j += blockDim.y * gridDim.y) {
+                    sumReal = 0;
+                    sumImag = 0;
                     for (int k = threadIdx.z + blockDim.z * blockIdx.z; \
                          k < nt; k += blockDim.z * gridDim.z) {
-                        ;
+                        intgrnd = integrand[k*ny + j*nx + i];
+                        if (k == 0 || k == nt-1) {
+                            coeff = 1;
+                        }
+                        else if (k % 2 == 0) {
+                            coeff = 2;
+                        }
+                        else {
+                            coeff = 4;
+                        }
+                        tempReal = cuCrealf(intgrnd) * coeff;
+                        tempImag = cuCimagf(intgrnd) * coeff;
+                        sumReal += tempReal;
+                        sumImag += tempImag;
                     }
+                    sumReal *= dt/3;
+                    sumImag *= dt/3;
+                    out[j*nx + i] = make_cuFloatComplex(sumReal, sumImag);
                 }
             }
         }
@@ -40,15 +65,16 @@ class QCuCustomTrap(QCustomTrap):
         self.block = (16, 16, 1)
         self.grid = (math.ceil(self.cgh.height / self.block[0]),
                      math.ceil(self.cgh.width / self.block[1]))
-        structure = cp.zeros(self.cgh.shape, np.complex_)
+        structure = cp.zeros(self.cgh.shape, np.complex64)
         integrand = cp.ones((t.size,
                              self.cgh.shape[0],
                              self.cgh.shape[1]),
-                            dtype=np.complex_)
+                            dtype=np.complex64)
         alpha = np.cos(np.radians(self.cgh.phis))
         x = alpha*(np.arange(self.cgh.width) - self.cgh.xs)
         y = np.arange(self.cgh.height) - self.cgh.ys
-        x, y = (cp.asarray(x), cp.asarray(y))
+        x, y = (cp.asarray(x, dtype=cp.float32),
+                cp.asarray(y, dtype=np.float32))
         xv, yv = cp.meshgrid(x, y)
         return structure, integrand, xv, yv
 
@@ -65,9 +91,9 @@ class QCuCustomTrap(QCustomTrap):
     def integrate(self, integrand, structure, t, shape):
         nx, ny = shape
         nt = t.size
-        t = cp.asarray(t)
+        dt = cp.float32((t[-1] - t[0]) / t.size)
         self._integrate(self.grid, self.block,
-                        (integrand, t, structure,
+                        (integrand, structure, dt,
                          cp.int32(nx), cp.int32(ny), cp.int32(nt)))
         structure = cp.asnumpy(structure)
-        del integrand
+        integrand = None
