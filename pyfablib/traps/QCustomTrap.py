@@ -20,7 +20,7 @@ from time import time
 
 class QCustomTrap(QTrap):
 
-    def __init__(self, rho=8., m=1, alpha=50, **kwargs):
+    def __init__(self, rho=8., m=1, alpha=1., **kwargs):
         super(QCustomTrap, self).__init__(alpha=alpha, **kwargs)
         self._rho = rho
         self._m = m
@@ -31,9 +31,10 @@ class QCustomTrap(QTrap):
         t0 = time()
         # Allocate integration range
         self.T = 2 * np.pi
-        t = np.linspace(0, self.T, 500, endpoint=True)
+        npts = 2000
+        t = np.linspace(0, self.T, npts, endpoint=True)
         # Get geometrical buffers
-        structure, integrand, xv, yv = self.getBuffers(t)
+        structure, xv, yv = self.getBuffers(t)
         # Evaluate parameters for integration
         f = self.cgh.focalLength
         lamb = self.cgh.wavelength
@@ -44,32 +45,19 @@ class QCustomTrap(QTrap):
         S_T = self.S(self.T)
         L = np.trapz(np.sqrt(dx_0**2 + dy_0**2), x=t)
         # Evaluate integrand at all points along the curve
-        for idx, ti in enumerate(t):
-            xi, yi, zi = (x_0[idx], y_0[idx], z_0[idx])
-            dxi, dyi = (dx_0[idx], dy_0[idx])
-            Si = S[idx]
-            inti = integrand[idx]
-            self.integrand(ti, xv, yv, S_T, L,
-                           self.rho, self.m,
-                           f, lamb, xi, yi, zi,
-                           Si, dxi, dyi,
-                           inti)
-        # Integrate
-        self.integrate(integrand, structure, t, self.cgh.shape)
+        self.integrate(t, xv, yv, S_T, L, self.rho, self.m, f, lamb,
+                       x_0, y_0, z_0, S, dx_0, dy_0,
+                       structure, self.cgh.shape)
         self.structure = structure
         print("Time to compute: {}".format(time() - t0))
 
     def getBuffers(self, t):
         structure = np.zeros(self.cgh.shape, np.complex_)
-        integrand = np.ones((t.size,
-                             self.cgh.shape[0],
-                             self.cgh.shape[1]),
-                            dtype=np.complex_)
         alpha = np.cos(np.radians(self.cgh.phis))
         x = alpha*(np.arange(self.cgh.width) - self.cgh.xs)
         y = np.arange(self.cgh.height) - self.cgh.ys
         xv, yv = np.meshgrid(x, y)
-        return structure, integrand, xv, yv
+        return structure, xv, yv
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
@@ -114,22 +102,28 @@ class QCustomTrap(QTrap):
 
     @staticmethod
     @njit(parallel=True, cache=True)
-    def integrand(t, x, y, S_T, L, rho, m, f, lamb,
-                  x_0, y_0, z_0, S, dx_0, dy_0, buff):
-        buff *= np.exp(1.j * (y * x_0 - x * y_0) / rho**2
-                       + 1.j * 2*np.pi * m * S / S_T)
-        buff *= np.exp(1.j*np.pi * z_0 *
-                       ((x - x_0)**2 + (y - y_0)**2)
-                       / (lamb * f**2))
-        buff *= np.sqrt(dx_0**2 + dy_0**2) / L
-
-    @staticmethod
-    @njit(parallel=True, cache=True)
-    def integrate(integrand, structure, t, shape):
+    def integrate(t, x, y, S_T, L, rho, m, f, lamb,
+                  x_0, y_0, z_0, S, dx_0, dy_0, out, shape):
         nx, ny = shape
-        for idx in prange(nx*ny):
-            i, j = (idx % (nx-1), idx % (ny-1))
-            structure[i, j] = np.trapz(integrand[:, i, j], x=t)
+        nt = t.size
+        dt = (t[-1] - t[0]) / nt
+        for idx in prange(nx*ny*nt):
+            i, j, k = (idx % (nx-1), idx % (ny-1), idx % (nt-1))
+            integrand = np.exp(
+                1.j * (y[i, j] * x_0[k] - x[i, j] * y_0[k]) / rho**2
+                + 1.j * 2*np.pi * m * S[k] / S_T)
+            integrand *= np.exp(
+                1.j*np.pi * z_0[k] *
+                ((x[i, j] - x_0[k])**2 + (y[i, j] - y_0[k])**2)
+                / (lamb * f**2))
+            integrand *= np.sqrt(dx_0[k]**2 + dy_0[k]**2) / L
+            if (k == 0) or (k == nt-1):
+                coeff = 1
+            elif k % 2 == 0:
+                coeff = 2
+            else:
+                coeff = 4
+            out[i, j] += (dt/3)*coeff*integrand
 
     def S(self, T):
         '''

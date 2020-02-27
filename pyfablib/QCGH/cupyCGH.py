@@ -6,6 +6,8 @@ from .CGH import CGH
 import cupy as cp
 import math
 
+cp.cuda.Device()
+
 
 class cupyCGH(CGH):
     def __init__(self, *args, **kwargs):
@@ -97,7 +99,7 @@ class cupyCGH(CGH):
 
     def quantize(self, psi):
         #phi = ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
-        #phi.get(out=self.phi)
+        # phi.get(out=self.phi)
         self.phase(psi, self._phi)
         self._phi.get(out=self.phi)
         return self.phi
@@ -114,7 +116,8 @@ class cupyCGH(CGH):
         self._theta = cp.zeros(self.shape, dtype=cp.float32)
         self._rho = cp.zeros(self.shape, dtype=cp.float32)
         alpha = cp.cos(cp.radians(self.phis, dtype=cp.float32))
-        x = alpha*(cp.arange(self.width, dtype=cp.float32) - cp.float32(self.xs))
+        x = alpha*(cp.arange(self.width, dtype=cp.float32) -
+                   cp.float32(self.xs))
         y = cp.arange(self.height, dtype=cp.float32) - cp.float32(self.ys)
         self._iqx = 1j * cp.float32(self.qprp) * x
         self._iqy = 1j * cp.float32(self.qprp) * y

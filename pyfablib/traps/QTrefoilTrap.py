@@ -6,6 +6,8 @@ import numpy as np
 
 try:
     from .QCuCustomTrap import QCuCustomTrap as QCustomTrap
+    import cupy as cp
+    cp.cuda.Device()
 except Exception:
     from .QCustomTrap import QCustomTrap
 
