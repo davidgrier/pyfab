@@ -43,11 +43,12 @@ class QTrap(QObject):
 
         # appearance
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
-                      states.selected: pg.mkBrush(255, 100, 100, 120),
+                      states.selected: pg.mkBrush(255, 105, 180, 120),
                       states.grouping: pg.mkBrush(255, 255, 100, 120)}
+        self.baseSize = 15.
         self.spot = {'pos': QPointF(),
-                     'size': 10.,
-                     'pen': pg.mkPen('k', width=0.5),
+                     'size': self.baseSize,
+                     'pen': pg.mkPen('w', width=0.2),
                      'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
 
@@ -77,7 +78,7 @@ class QTrap(QObject):
     def updateAppearance(self):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
-        self.spot['size'] = np.clip(10. - self.r.z() / 20., 5., 30.)
+        self.spot['size'] = np.clip(self.baseSize - self.r.z() / 20., 10., 35.)
 
     def updateStructure(self):
         """Update structuring field for changes in trap properties

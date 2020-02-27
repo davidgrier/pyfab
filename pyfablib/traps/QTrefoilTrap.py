@@ -14,10 +14,10 @@ except Exception:
 
 class QTrefoilTrap(QCustomTrap):
 
-    def __init__(self, s=.1, **kwargs):
+    def __init__(self, s=.001, **kwargs):
         super(QTrefoilTrap, self).__init__(**kwargs)
         self._s = s
-        self.registerProperty('s', tooltip=True)
+        self.registerProperty('s', decimals=3, tooltip=True)
 
     @property
     def s(self):

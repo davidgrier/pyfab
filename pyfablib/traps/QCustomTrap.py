@@ -15,7 +15,6 @@ from .QTrap import QTrap
 import numpy as np
 from numba import njit, prange
 from pyqtgraph.Qt import QtGui
-from time import time
 
 
 class QCustomTrap(QTrap):
@@ -24,11 +23,10 @@ class QCustomTrap(QTrap):
         super(QCustomTrap, self).__init__(alpha=alpha, **kwargs)
         self._rho = rho
         self._m = m
-        self.registerProperty('rho', tooltip=True)
+        self.registerProperty('rho', decimals=2, tooltip=True)
         self.registerProperty('m', decimals=0, tooltip=True)
 
     def updateStructure(self):
-        t0 = time()
         # Allocate integration range
         self.T = 2 * np.pi
         npts = 2000
@@ -49,7 +47,6 @@ class QCustomTrap(QTrap):
                        x_0, y_0, z_0, S, dx_0, dy_0,
                        structure, self.cgh.shape)
         self.structure = structure
-        print("Time to compute: {}".format(time() - t0))
 
     def getBuffers(self, t):
         structure = np.zeros(self.cgh.shape, np.complex_)
@@ -62,7 +59,7 @@ class QCustomTrap(QTrap):
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
         font = QtGui.QFont('Sans Serif', 10, QtGui.QFont.Black)
-        sym.addText(0, 0, font, '+')
+        sym.addText(0, 0, font, '*')
         # Scale symbol to unit square
         box = sym.boundingRect()
         scale = 1./max(box.width(), box.height())
