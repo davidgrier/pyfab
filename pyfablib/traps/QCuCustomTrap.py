@@ -120,16 +120,6 @@ class QCuCustomTrap(QCustomTrap):
         xv, yv = cp.meshgrid(x, y)
         return structure, xv, yv
 
-    @staticmethod
-    def integrand(t, x, y, S_T, L, rho, m, f, lamb,
-                  x_0, y_0, z_0, S, dx_0, dy_0, buff):
-        buff *= cp.exp(1.j * (y * x_0 - x * y_0) / rho**2
-                       + 1.j * 2*np.pi * m * S / S_T)
-        buff *= cp.exp(1.j*np.pi * z_0 *
-                       ((x - x_0)**2 + (y - y_0)**2)
-                       / (lamb * f**2))
-        buff *= cp.sqrt(dx_0**2 + dy_0**2) / L
-
     def integrate(self, t, x, y, S_T, L, rho, m, f, lamb,
                   x_0, y_0, z_0, S, dx_0, dy_0, out, shape):
         # Get shape and step size
