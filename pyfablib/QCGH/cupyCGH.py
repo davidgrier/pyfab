@@ -19,12 +19,12 @@ class cupyCGH(CGH):
 
         self._outeratan2f = cp.RawKernel(r'''
         extern "C" __global__
-        void outeratan2f(const float *a, \
-                         const float *b, \
-                         float *out, \
+        void outeratan2f(const double *a, \
+                         const double *b, \
+                         double *out, \
                          int na, int nb)
         {
-          float bj;
+          double bj;
           for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
               j < nb; j += blockDim.y * gridDim.y) {
             bj = b[j];
@@ -38,12 +38,12 @@ class cupyCGH(CGH):
 
         self._outerhypot = cp.RawKernel(r'''
         extern "C" __global__
-        void outerhypot(const float *a, \
-                        const float *b, \
-                        float *out, \
+        void outerhypot(const double *a, \
+                        const double *b, \
+                        double *out, \
                         int na, int nb)
         {
-          float bj;
+          double bj;
           for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
               j < nb; j += blockDim.y * gridDim.y) {
             bj = b[j];
@@ -113,24 +113,26 @@ class cupyCGH(CGH):
         # GPU variables
         self._psi = cp.zeros(self.shape, dtype=cp.complex64)
         self._phi = cp.zeros(self.shape, dtype=cp.uint8)
-        self._theta = cp.zeros(self.shape, dtype=cp.float32)
-        self._rho = cp.zeros(self.shape, dtype=cp.float32)
-        alpha = cp.cos(cp.radians(self.phis, dtype=cp.float32))
-        x = alpha*(cp.arange(self.width, dtype=cp.float32) -
-                   cp.float32(self.xs))
-        y = cp.arange(self.height, dtype=cp.float32) - cp.float32(self.ys)
-        self._iqx = 1j * cp.float32(self.qprp) * x
-        self._iqy = 1j * cp.float32(self.qprp) * y
-        self._iqxz = 1j * cp.float32(self.qpar) * x * x
-        self._iqyz = 1j * cp.float32(self.qpar) * y * y
+        self._theta = cp.zeros(self.shape, dtype=cp.float64)
+        self._rho = cp.zeros(self.shape, dtype=cp.float64)
+        alpha = cp.cos(cp.radians(self.phis, dtype=cp.float64))
+        x = alpha*(cp.arange(self.width, dtype=cp.float64) -
+                   cp.float64(self.xs))
+        y = cp.arange(self.height, dtype=cp.float64) - cp.float64(self.ys)
+        qx = self.qprp * x
+        qy = self.qprp * y
+        self._iqx = (1j * qx).astype(cp.complex64)
+        self._iqy = (1j * qy).astype(cp.complex64)
+        self._iqxz = (1j * self.qpar * x * x).astype(cp.complex64)
+        self._iqyz = (1j * self.qpar * y * y).astype(cp.complex64)
         self.outeratan2f(y, x, self._theta)
-        self.outerhypot(y, x, self._rho)
+        self.outerhypot(qy, qx, self._rho)
         # CPU variables
-        self.phi = cp.asnumpy(self._phi)
-        self.iqx = cp.asnumpy(self._iqx)
-        self.iqy = cp.asnumpy(self._iqy)
-        self.theta = cp.asnumpy(self._theta)
-        self.qr = cp.asnumpy(self._rho)
+        self.phi = self._phi.get()
+        self.iqx = self._iqx.get()
+        self.iqy = self._iqy.get()
+        self.theta = self._theta.get()
+        self.qr = self._rho.get()
         self.sigUpdateGeometry.emit()
 
     def bless(self, field):
