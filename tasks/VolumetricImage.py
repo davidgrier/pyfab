@@ -21,12 +21,12 @@ class VolumetricImage(Task):
 
     def dotask(self):
         fn, fn_ext = os.path.splitext(self.parent.dvr.filename)
-        zmax = -400
+        zmax = -100
         z = self.trap.r.z()
-        dz = -10
+        dz = -3
         dr = QVector3D(0, 0, dz)
         while z >= zmax:
-            prefix = fn+'_'+str(abs(z))
+            prefix = fn+'_'+str(z)
             self.register('MaxTask', prefix=prefix)
             self.register('Translate', traps=self.trap, dr=dr)
             z += dz
