@@ -129,8 +129,8 @@ class cupyCGH(CGH):
         self.outerhypot(qy, qx, self._rho)
         # CPU variables
         self.phi = self._phi.get()
-        self.iqx = self._iqx.get().astype(cp.float64)
-        self.iqy = self._iqy.get().astype(cp.float64)
+        self.iqx = self._iqx.get()
+        self.iqy = self._iqy.get()
         self.theta = self._theta.get().astype(cp.float64)
         self.qr = self._rho.get().astype(cp.float64)
         self.sigUpdateGeometry.emit()
