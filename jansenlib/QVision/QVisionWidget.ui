@@ -102,50 +102,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="statusTip">
-         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory</string>
-        </property>
-        <property name="text">
-         <string>Search range</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QDoubleSpinBox" name="linkTol">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="statusTip">
-         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory.</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="suffix">
-         <string> pixels</string>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <double>5.000000000000000</double>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QRadioButton" name="realTime">
         <property name="toolTip">
@@ -192,7 +148,7 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QDoubleSpinBox" name="threshold">
+       <widget class="QDoubleSpinBox" name="confidence">
         <property name="statusTip">
          <string>Confidence threshold for detections. Throw away features detected below this confidence.</string>
         </property>
@@ -203,13 +159,92 @@
          <number>1</number>
         </property>
         <property name="minimum">
-         <double>20.000000000000000</double>
+         <double>5.000000000000000</double>
         </property>
         <property name="maximum">
          <double>100.000000000000000</double>
         </property>
         <property name="value">
          <double>50.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QSpinBox" name="maxSize">
+        <property name="statusTip">
+         <string>Maximum edge length that is considered a detection. Useful for real-time processing and eliminating artifacts.</string>
+        </property>
+        <property name="suffix">
+         <string> pixels</string>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>100000</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
+        </property>
+        <property name="value">
+         <number>600</number>
+        </property>
+        <property name="displayIntegerBase">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="statusTip">
+         <string>Maximum edge length that is considered a detection. Useful for real-time processing and eliminating artifacts.</string>
+        </property>
+        <property name="text">
+         <string>Maximum size</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="statusTip">
+         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory</string>
+        </property>
+        <property name="text">
+         <string>Search range</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QDoubleSpinBox" name="linkTol">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="statusTip">
+         <string>Maximum distance features can move between frames in order to be linked to the same Trajectory.</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="suffix">
+         <string> pixels</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <double>5.000000000000000</double>
         </property>
        </widget>
       </item>

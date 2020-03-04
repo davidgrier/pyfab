@@ -44,6 +44,13 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.setupUi(self)
         self.configuration = Configuration(self)
 
+        # camera
+        self.camera.close()  # remove placeholder widget from UI
+        camera = QCamera()
+        self.camera = camera
+        self.screen.camera = camera
+        self.cameraLayout.addWidget(camera)
+
         # Setup vision tab
         try:
             self.vision.close()
@@ -57,13 +64,6 @@ class PyFab(QMainWindow, Ui_PyFab):
             logger.warning(msg.format(err))
             self.tabWidget.setTabEnabled(2, False)
             self.setupVision = False
-
-        # camera
-        self.camera.close()  # remove placeholder widget from UI
-        camera = QCamera()
-        self.camera = camera
-        self.screen.camera = camera
-        self.cameraLayout.addWidget(camera)
 
         # spatial light modulator
         self.slm = QSLM(self)

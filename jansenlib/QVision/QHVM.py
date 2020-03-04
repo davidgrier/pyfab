@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtCore import pyqtSlot, pyqtProperty, Qt
 from .QVision import QVision
 
 from pylorenzmie.analysis import Frame
@@ -46,6 +46,9 @@ class QHVM(QVision):
         self.configurePlots()
         self.configureChildUi()
 
+    #
+    # Configuration for QHVM-specific functionality
+    #
     def configurePlots(self):
         self.ui.plot1.setBackground('w')
         self.ui.plot1.getAxis('bottom').setPen(0.1)
@@ -67,12 +70,9 @@ class QHVM(QVision):
         self.ui.bEstimate.setEnabled(True)
         self.ui.bRefine.setEnabled(True)
 
-    @pyqtSlot(float)
-    def handleThresh(self, thresh):
-        self.threshold = thresh
-        if self.localizer is not None:
-            self.localizer.threshold = thresh/100.
-
+    #
+    # Overwrite QVision methods for HVM
+    #
     @pyqtSlot()
     def plot(self):
         if self.estimate:
@@ -124,15 +124,6 @@ class QHVM(QVision):
             rois.append(roi)
         return rois
 
-    def inflate(self, image):
-        if len(image.shape) == 2:
-            shape = image.shape
-            inflated = np.stack((image,)*3, axis=-1)
-        else:
-            shape = (image.shape[0], image.shape[1])
-            inflated = image
-        return inflated, shape
-
     def predict(self, images, framenumbers, post=False):
         t0 = time()
         features = [[]]
@@ -146,9 +137,7 @@ class QHVM(QVision):
         if self.detect:
             detections = self.localizer.predict(img_list=inflated)
             logger.debug('Localize time: {}'.format(time() - t0))
-            detections = cnn.filters.nodoubles(detections, tol=0)
-            detections = cnn.filters.no_edges(detections, tol=0,
-                                              image_shape=shape)
+            detections = self.filter(detections, shape=shape)
             logger.debug('Filter time: {}'.format(time() - t0))
             if self.estimator is None:
                 pxls = (201, 201)
@@ -211,7 +200,7 @@ class QHVM(QVision):
         if self.localizer is None:
             self.localizer = cnn.Localizer(configuration='tinyholo',
                                            weights='_500k',
-                                           threshold=self.threshold/100.)
+                                           threshold=self.confidence/100.)
         if self.estimate:
             if self.estimator is None:
                 self.estimator = cnn.Estimator(model_path=keras_model_path,
@@ -223,3 +212,45 @@ class QHVM(QVision):
         self.detect = False
         self.estimate = False
         self.refine = False
+
+    #
+    # Helper routines
+    #
+    def inflate(self, image):
+        if len(image.shape) == 2:
+            shape = image.shape
+            inflated = np.stack((image,)*3, axis=-1)
+        else:
+            shape = (image.shape[0], image.shape[1])
+            inflated = image
+        return inflated, shape
+
+    def filter(self, detections, shape=(0, 0)):
+        # Doubles
+        detections = cnn.filters.nodoubles(detections, tol=0)
+        # Edges
+        detections = cnn.filters.no_edges(detections, tol=0,
+                                          image_shape=shape)
+        # By size
+        filtered = []
+        for i in range(len(detections)):
+            filtered.append([])
+            for j in range(len(detections[i])):
+                bbox = detections[i][j]['bbox']
+                w, h = (bbox[2], bbox[3])
+                if not max(w, h) > self.maxSize:
+                    filtered[i].append(detections[i][j])
+        return filtered
+
+    #
+    # Overwrite setters and getters from QVision
+    #
+    @pyqtProperty(float)
+    def confidence(self):
+        return self._confidence
+        
+    @confidence.setter
+    def confidence(self, thresh):
+        self._confidence = thresh
+        if self.localizer is not None:
+            self.localizer.threshold = thresh/100.

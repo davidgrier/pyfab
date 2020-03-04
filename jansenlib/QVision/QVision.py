@@ -48,7 +48,8 @@ class QVision(QSettingsWidget):
         # Initialize serialized properties
         self._nskip = 0
         self._linkTol = 20.
-        self._threshold = 50.
+        self._confidence = 50.
+        self._maxSize = 603
         self._realTime = True
         self._postProcess = False
         self._saveFrames = False
@@ -312,20 +313,30 @@ class QVision(QSettingsWidget):
         self._nskip = n
 
     @pyqtProperty(float)
+    def confidence(self):
+        return self._confidence
+
+    @confidence.setter
+    def confidence(self, thresh):
+        self._confidence = thresh
+
+    @pyqtProperty(int)
+    def maxSize(self):
+        return self._maxSize
+
+    @maxSize.setter
+    def maxSize(self, l):
+        m = max(self.jansen.screen.source.width, self.jansen.screen.source.height)
+        self.ui.maxSize.setMaximum(m)
+        self._maxSize = l
+        
+    @pyqtProperty(float)
     def linkTol(self):
         return self._linkTol
 
     @linkTol.setter
     def linkTol(self, tol):
         self._linkTol = tol
-
-    @pyqtProperty(float)
-    def threshold(self):
-        return self._threshold
-
-    @threshold.setter
-    def threshold(self, thresh):
-        self._threshold = thresh
 
     @pyqtProperty(bool)
     def saveFrames(self):
