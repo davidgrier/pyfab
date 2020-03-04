@@ -19,12 +19,12 @@ class cupyCGH(CGH):
 
         self._outeratan2f = cp.RawKernel(r'''
         extern "C" __global__
-        void outeratan2f(const double *a, \
-                         const double *b, \
-                         double *out, \
+        void outeratan2f(const float *a, \
+                         const float *b, \
+                         float *out, \
                          int na, int nb)
         {
-          double bj;
+          float bj;
           for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
               j < nb; j += blockDim.y * gridDim.y) {
             bj = b[j];
@@ -38,12 +38,12 @@ class cupyCGH(CGH):
 
         self._outerhypot = cp.RawKernel(r'''
         extern "C" __global__
-        void outerhypot(const double *a, \
-                        const double *b, \
-                        double *out, \
+        void outerhypot(const float *a, \
+                        const float *b, \
+                        float *out, \
                         int na, int nb)
         {
-          double bj;
+          float bj;
           for(int j = threadIdx.y + blockDim.y * blockIdx.y; \
               j < nb; j += blockDim.y * gridDim.y) {
             bj = b[j];
@@ -113,12 +113,12 @@ class cupyCGH(CGH):
         # GPU variables
         self._psi = cp.zeros(self.shape, dtype=cp.complex64)
         self._phi = cp.zeros(self.shape, dtype=cp.uint8)
-        self._theta = cp.zeros(self.shape, dtype=cp.float64)
-        self._rho = cp.zeros(self.shape, dtype=cp.float64)
-        alpha = cp.cos(cp.radians(self.phis, dtype=cp.float64))
-        x = alpha*(cp.arange(self.width, dtype=cp.float64) -
+        self._theta = cp.zeros(self.shape, dtype=cp.float32)
+        self._rho = cp.zeros(self.shape, dtype=cp.float32)
+        alpha = cp.cos(cp.radians(self.phis, dtype=cp.float32))
+        x = alpha*(cp.arange(self.width, dtype=cp.float32) -
                    cp.float64(self.xs))
-        y = cp.arange(self.height, dtype=cp.float64) - cp.float64(self.ys)
+        y = cp.arange(self.height, dtype=cp.float32) - cp.float32(self.ys)
         qx = self.qprp * x
         qy = self.qprp * y
         self._iqx = (1j * qx).astype(cp.complex64)
@@ -129,10 +129,10 @@ class cupyCGH(CGH):
         self.outerhypot(qy, qx, self._rho)
         # CPU variables
         self.phi = self._phi.get()
-        self.iqx = self._iqx.get()
-        self.iqy = self._iqy.get()
-        self.theta = self._theta.get()
-        self.qr = self._rho.get()
+        self.iqx = self._iqx.get().astype(cp.float64)
+        self.iqy = self._iqy.get().astype(cp.float64)
+        self.theta = self._theta.get().astype(cp.float64)
+        self.qr = self._rho.get().astype(cp.float64)
         self.sigUpdateGeometry.emit()
 
     def bless(self, field):
