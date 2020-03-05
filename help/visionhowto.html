@@ -13,9 +13,12 @@
     skipping as many frames as specified by the <b>skip</b> box below. The <b>skip</b> box
     is useful when the user wants to record raw data at a frame rate faster than
     what real-time analysis can perform, but still wants feedback.
-    The <b>Search range</b> is the parameter that <tt>trackpy.link</tt> demands to
+    <b>Confidence</b> allows a user to deal with false positives by restricting detections to
+    below a confidence threshold, and <b>maximum size</b> lightens the load for real-time analysis by restricting
+    to below a size threshold. 
+    Last, <b>Search range</b> is the parameter that <tt>trackpy.link</tt> demands to
     link together trajectories across frames. It is the maximum distance features
-    can move between frames, which scales with the translational speed of the feature. Last, <b>Confidence</b> allows a user to deal with false positive detections by throwing away features below a certain threshold.
+    can move between frames, which scales with the translational speed of the feature.
   </dd>
 
   <dt>Analysis pipeline</dt>
