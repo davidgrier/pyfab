@@ -177,15 +177,16 @@ class QHVM(QVision):
                           framenumber=framenumbers[idx],
                           instrument=self.video.instrument)
             if self.refine:
-                m = 'lm' if self.real_time else 'amoeba-lm'
-                for feature in frame.features:
-                    feature.model.double_precision = False
-                    lmsettings = feature.optimizer.lm_settings
-                    lmsettings.options['max_nfev'] = 250
+                m = 'lm' if self.realTime else 'amoeba-lm'
+                for f in frame.features:
+                    f.model.double_precision = False
+                    f.optimizer.mask.settings['distribution'] = 'fast'
+                    lmsettings = f.optimizer.lm_settings
+                    lmsettings.options['max_nfev'] = 100
                     for f in self.jansen.screen.filters:
                         if 'samplehold' in str(f):
-                            feature.data = feature.data / np.mean(feature.data)
-                    result = feature.optimize(method=m)
+                            f.data = f.data / np.mean(f.data)
+                    result = f.optimize(method=m, verbose=False)
                 logger.debug('Refine time: {}'.format(time() - t0))
                 if post:
                     if framenumbers[idx] == maxframe:
@@ -248,7 +249,7 @@ class QHVM(QVision):
     @pyqtProperty(float)
     def confidence(self):
         return self._confidence
-        
+
     @confidence.setter
     def confidence(self, thresh):
         self._confidence = thresh
