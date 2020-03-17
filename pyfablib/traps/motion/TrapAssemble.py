@@ -19,6 +19,8 @@ class TrapAssemble(TrapMove):
         self._targets = None
 
         self._padding = 1.  # [um]
+        self._tsteps = 100
+        self._zrange = (-5, 50)   # [um]
 
     #
     # Setters for user interaction
@@ -41,24 +43,65 @@ class TrapAssemble(TrapMove):
     #
     @pyqtProperty(float)
     def padding(self):
-        '''Spacing between traps [um]'''
+        '''Spacing between traps. Used for graph discretization [um]'''
         return self._padding
 
     @padding.setter
     def padding(self, padding):
         self._padding = padding
 
+    @pyqtProperty(tuple)
+    def zrange(self):
+        '''z-range in chamber that traps can travel [um]'''
+        return self._zrange
+
+    @zrange.setter
+    def zrange(self, zrange):
+        self._zrange = zrange
+
+    @pyqtProperty(int)
+    def tsteps(self):
+        '''Maximum number of steps to get to destination'''
+        return self._tsteps
+
+    @tsteps.setter
+    def tsteps(self, steps):
+        self._tsteps = steps
+
     #
     # Finding trajectories
     #
     def parameterize(self, traps):
+        cgh = self.parent().cgh.device
+        mpp = cgh.cameraPitch/cgh.magnification
+        w, h = (self.parent().screen.source.width,
+                self.parent().screen.source.height)
+        zmin, zmax = (int(self.zrange[0]/mpp),
+                      int(self.zrange[1]/mpp))
+        tsteps = self.tsteps
+        padding = int(self.padding / mpp)
+        # Initialize graph w/ obstacles at all traps we ARENT moving
+        # Bottom left is (0, 0)
+        x = np.arange(0, w+padding, padding)
+        y = np.arange(0, h+padding, padding)
+        z = np.arange(zmin, zmax+padding, padding)
+        yv, xv, zv = np.meshgrid(y, x, z)
+        g = np.zeros((tsteps, *xv.shape), dtype=np.uint8)
+        # LOOP over all traps we are moving, finding the shortest
+        # path for each with A* and then updating the graph with
+        # new path as a obstacle. Start w/ traps closest to their targets
+
+        # Smooth out trajectories with some reasonable step size
+
+        '''
         self._t = 0
         self._tf = 0
         trajectories = {}
         for trap in traps.flatten():
-            r_i = (trap.r.x(), trap.r.y(), trap.r.z())
-            trajectories[trap] = Trajectory(r_i)
+                r_i = (trap.r.x(), trap.r.y(), trap.r.z())
+                trajectories[trap] = Trajectory(r_i)
         self._trajectories = trajectories
+        '''
 
     #
     # Trap-target pairing
