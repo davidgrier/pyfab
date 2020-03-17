@@ -33,16 +33,12 @@ class TrapMove(QObject):
     def traps(self, traps):
         self._traps = traps
         if traps is not None:
-            trajectories = {}
-            for trap in traps.flatten():
-                r_i = (trap.r.x(), trap.r.y(), trap.r.z())
-                trajectories[trap] = Trajectory(r_i)
-            self.trajectories = trajectories
             traps.select(True)
 
     def start(self):
+        traps = self.traps
+        self.parameterize(traps)
         self._counter = 0
-        self.parameterize()
         self._running = True
 
     #
@@ -74,13 +70,14 @@ class TrapMove(QObject):
         '''Dictionary with QTrap keys and Trajectory values'''
         return self._trajectories
 
-    @trajectories.setter
-    def trajectories(self, trajectories):
-        self._trajectories = trajectories
-
-    def parameterize(self):
+    def parameterize(self, traps):
         self._t = 0
         self._tf = 0
+        trajectories = {}
+        for trap in traps.flatten():
+            r_i = (trap.r.x(), trap.r.y(), trap.r.z())
+            trajectories[trap] = Trajectory(r_i)
+        self._trajectories = trajectories
 
     #
     # Properties and methods for core movement functionality
