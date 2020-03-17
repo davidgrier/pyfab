@@ -8,6 +8,7 @@ from FabWidget import Ui_PyFab
 
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
+from pyfablib.traps.motion.TrapAssemble import TrapAssemble
 from tasks.taskmenu import buildTaskMenu
 from tasks.Taskmanager import Taskmanager
 from common.Configuration import Configuration
@@ -44,7 +45,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.setupUi(self)
         self.configuration = Configuration(self)
 
-        # camera
+        # Camera
         self.camera.close()  # remove placeholder widget from UI
         camera = QCamera()
         self.camera = camera
@@ -65,19 +66,22 @@ class PyFab(QMainWindow, Ui_PyFab):
             self.tabWidget.setTabEnabled(2, False)
             self.setupVision = False
 
-        # spatial light modulator
+        # Spatial light modulator
         self.slm = QSLM(self)
 
-        # computation pipeline
+        # Computation pipeline
         self.cgh.device = CGH(self, shape=self.slm.shape)
         self.cgh.device.start()
 
-        # trapping pattern is an interactive overlay
+        # Trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
         self.pattern = QTrappingPattern(parent=self)
         self.screen.addOverlay(self.pattern)
 
-        # process automation
+        # Trap automated assembly framework
+        self.assembler = TrapAssemble(parent=self)
+
+        # Process automation
         self.tasks = Taskmanager(self)
 
         self.configureUi()
@@ -126,6 +130,7 @@ class PyFab(QMainWindow, Ui_PyFab):
 
         # Signals associated with handling images
         self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
+        self.screen.source.sigNewFrame.connect(self.assembler.move)
         if self.setupVision:
             self.screen.sigNewFrame.connect(self.vision.process)
 

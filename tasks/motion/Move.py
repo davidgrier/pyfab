@@ -67,7 +67,8 @@ class Move(Task):
 
 class Trajectory(object):
     '''
-    Creates and manipulates a parameterized trajectory in cartesian coordinates
+    Creates and manipulates a parameterized trajectory in
+    cartesian coordinates
     '''
 
     def __init__(self, r_i, **kwargs):
