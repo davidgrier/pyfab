@@ -144,16 +144,21 @@ class TrapAssemble(TrapMove):
             elif i != 0:
                 xneighbors.append(i-1)
             yneighbors = [j]
-            if j == ny-1:
+            if j != ny-1:
                 yneighbors.append(j+1)
-            elif j == 0:
+            elif j != 0:
                 yneighbors.append(j-1)
             zneighbors = [k]
-            if k == nz-1:
+            if k != nz-1:
                 zneighbors.append(k+1)
-            elif k == 0:
+            elif k != 0:
                 zneighbors.append(k-1)
-            # Determine neighbors...
+            neighbors = []
+            for x in xneighbors:
+                for y in yneighbors:
+                    for z in zneighbors:
+                        neighbors.append((t+1, x, y, z))
+            return neighbors
 
     def shortest_path(loc1, loc2, G):
         pass
