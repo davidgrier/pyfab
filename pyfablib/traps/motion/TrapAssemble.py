@@ -89,7 +89,7 @@ class TrapAssemble(TrapMove):
         y = np.arange(0, h+padding, padding)
         z = np.arange(zmin, zmax+padding, padding)
         xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
-        g = np.zeros((tsteps, *xv.shape), dtype=np.uint8)
+        G = np.full((tsteps, *xv.shape), np.inf, dtype=np.float16)
         # Find initial/final positions of traps in graph and
         # set traps nodes not in group off-limits
         group = traps.flatten()
@@ -99,7 +99,7 @@ class TrapAssemble(TrapMove):
             r0 = np.array([trap.r.x(), trap.r.y(), trap.r.z()])
             i0, j0, k0 = self.locate(r0, xv, yv, zv)
             if trap not in group:
-                g[:, i0, j0, k0] = np.inf
+                G[:, i0, j0, k0] = -1
             else:
                 rf = self.targets[trap]
                 i, j, k = self.locate(rf, xv, yv, zv)
@@ -118,14 +118,14 @@ class TrapAssemble(TrapMove):
         # new path as obstacle. Start w/ traps closest to their targets
         trajectories = {}
         for trap in group:
-            trajectory = self.shortest_path(r_0[trap], r_f[trap], g)
+            trajectory = self.shortest_path(r_0[trap], r_f[trap], G)
             trajectories[trap] = trajectory
         # Smooth out trajectories with some reasonable step size
 
     def w(u, v, xv, yv, zv):
         '''
         Given (i, j, k) positions of two nodes, return
-        euclidian distance between them
+        euclidian distance between them.
         '''
         return np.sqrt((xv[v] - xv[u])**2+(yv[v] - yv[u])**2+(zv[v] - zv[u])**2)
 
@@ -157,7 +157,9 @@ class TrapAssemble(TrapMove):
             for x in xneighbors:
                 for y in yneighbors:
                     for z in zneighbors:
-                        neighbors.append((t+1, x, y, z))
+                        node = (t+1, x, y, z)
+                        if G[node] != -1:
+                            neighbors.append(node)
             return neighbors
 
     def shortest_path(loc1, loc2, G):
