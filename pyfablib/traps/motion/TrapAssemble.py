@@ -72,6 +72,8 @@ class TrapAssemble(TrapMove):
     # Finding trajectories
     #
     def parameterize(self, traps):
+        # Get tunables
+        pattern = self.parent().pattern.pattern
         cgh = self.parent().cgh.device
         mpp = cgh.cameraPitch/cgh.magnification
         w, h = (self.parent().screen.source.width,
@@ -85,23 +87,43 @@ class TrapAssemble(TrapMove):
         x = np.arange(0, w+padding, padding)
         y = np.arange(0, h+padding, padding)
         z = np.arange(zmin, zmax+padding, padding)
-        yv, xv, zv = np.meshgrid(y, x, z)
+        xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
         g = np.zeros((tsteps, *xv.shape), dtype=np.uint8)
+        # Find initial/final positions of traps in graph and
+        # set traps nodes not in group off-limits
+        group = traps.flatten()
+        r_0 = {}
+        r_f = {}
+        for trap in pattern.flatten():
+            r0 = np.array([trap.r.x(), trap.r.y(), trap.r.z()])
+            i0, j0, k0 = self.locate(r0, xv, yv, zv)
+            if trap not in group:
+                g[:, i0, j0, k0] = np.inf
+            else:
+                rf = self.targets[trap]
+                i, j, k = self.locate(rf, xv, yv, zv)
+                r_0[trap] = (i0, j0, k0)
+                r_f[trap] = (i, j, k)
         # LOOP over all traps we are moving, finding the shortest
         # path for each with A* and then updating the graph with
-        # new path as a obstacle. Start w/ traps closest to their targets
-
+        # new path as obstacle. Start w/ traps closest to their targets
+        for trap in group:
+            pass
         # Smooth out trajectories with some reasonable step size
 
+    def locate(self, r, xv, yv, zv):
         '''
-        self._t = 0
-        self._tf = 0
-        trajectories = {}
-        for trap in traps.flatten():
-                r_i = (trap.r.x(), trap.r.y(), trap.r.z())
-                trajectories[trap] = Trajectory(r_i)
-        self._trajectories = trajectories
+        Locates closest position to r in (x, y, z)
+        coordinate system
         '''
+        nx, ny, nz = xv.shape
+        dx = xv - r[0]
+        dy = yv - r[1]
+        dz = zv - r[2]
+        norm = np.sqrt(dx**2+dy**2+dz**2)
+        idx = np.argmin(norm.flatten())
+        i, j, k = np.unravel_index(idx, norm.shape)
+        return (i, j, k)
 
     #
     # Trap-target pairing

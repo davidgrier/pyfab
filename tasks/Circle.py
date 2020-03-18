@@ -23,17 +23,15 @@ class Circle(Task):
         # Set traps from last QTrapGroup
         assembler.traps = group
         # Calculate vertices of circle
-        """
         vertices = []
         radius = 400  # pixels
         xc, yc = (cgh.xc, cgh.yc)
         traps = assembler.traps.flatten()
-        ntraps = assembler.traps.count()
+        ntraps = len(traps)
         for idx, trap in enumerate(traps):
             theta = 2*np.pi*(idx+1) / ntraps
             vertices.append(np.array([xc + radius*np.cos(theta),
                                       yc + radius*np.sin(theta),
                                       50]))
         assembler.targets = vertices
-        """
         assembler.start()
