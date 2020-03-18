@@ -113,23 +113,61 @@ class TrapAssemble(TrapMove):
                            zv[r_f[trap]] - zv[r_0[trap]]])
             return dr.dot(dr)
         group = sorted(group, key=dist)
-      # LOOP over all traps we are moving, finding the shortest
+        # LOOP over all traps we are moving, finding the shortest
         # path for each with A* and then updating the graph with
-        # new path as obstacle. Start w/ traps closest to their targets
+        # new path as obstacle.
         trajectories = {}
         for trap in group:
-            trajectory = self.shortest_path(r_0[trap], r_f[trap], G)
+            trajectory = self.shortest_path(
+                r_0[trap], r_f[trap], G, (xv, yv, zv))
             trajectories[trap] = trajectory
         # Smooth out trajectories with some reasonable step size
+        print(trajectories)
 
-    def w(u, v, xv, yv, zv):
+    def shortest_path(self, source, target, G, rv):
+        '''
+        A* graph search to find shortest path between loc1
+        and loc2 in G, using weights defined by rv = (xv, yv, zv)
+        coordinate system.
+        '''
+        xv, yv, zv = rv
+        trajectory = Trajectory(np.array([xv[source], yv[source], zv[source]]))
+        path = {}
+        source = (0, *source)
+        target = (G.shape[-1]-1, *target)
+        G[source] = 0
+        heap = [(0, source)]
+        while heap:
+            progress, min_node = heapq.heappop(heap)
+            for v in self.neighbors(min_node, G):
+                next = self.w(min_node[1:], v[1:], xv, yv, zv)
+                heuristic = self.w(v[1:], target[1:], xv, yv, zv)
+                weight = progress + next + heuristic
+                print(weight)
+                if (G[v] == np.inf) or (weight < G[v]):
+                    G[v] = weight
+                    heapq.heappush(heap, (weight, v))
+                    path[v] = min_node
+        node = target
+        G[node] = -1
+        while node != source:
+            r = np.array([xv[node[1:]], yv[node[1:]], zv[node[1:]]])
+            trajectory.add(r)
+            print(node)
+            node = path[node]
+            G[node] = -1
+        self.reset(G)
+        print(trajectory.trajectory)
+        return trajectory
+
+    def w(self, u, v, xv, yv, zv):
         '''
         Given (i, j, k) positions of two nodes, return
         euclidian distance between them.
         '''
         return np.sqrt((xv[v] - xv[u])**2+(yv[v] - yv[u])**2+(zv[v] - zv[u])**2)
 
-    def neighbors(u, G):
+    def neighbors(self, u, G):
         '''
         Given node (t, i, j, k), return all neighboring nodes in G.
         '''
@@ -162,8 +200,11 @@ class TrapAssemble(TrapMove):
                             neighbors.append(node)
             return neighbors
 
-    def shortest_path(loc1, loc2, G):
-        pass
+    def reset(self, G):
+        g = G.flatten()
+        idxs = np.where(g != -1)
+        g[idxs] = np.inf
+        G = g.reshape(G.shape)
 
     def locate(self, r, xv, yv, zv):
         '''

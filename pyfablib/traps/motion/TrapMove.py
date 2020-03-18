@@ -131,6 +131,11 @@ class Trajectory(object):
                                           np.array([self.r_f + d])),
                                          axis=0)
 
+    def add(self, r):
+        self.trajectory = np.concatenate((self.trajectory,
+                                          np.array([r])),
+                                         axis=0)
+
     def stitch(self, trajectory):
         '''Adds another trajectory to the end of the trajectory
         '''
