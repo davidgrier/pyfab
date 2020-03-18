@@ -9,6 +9,7 @@ from .TrapMove import TrapMove, Trajectory
 from PyQt5.QtCore import pyqtProperty
 import numpy as np
 import itertools
+import heapq
 
 
 class TrapAssemble(TrapMove):
@@ -20,7 +21,7 @@ class TrapAssemble(TrapMove):
 
         self._padding = 1.  # [um]
         self._tsteps = 100
-        self._zrange = (-5, 50)   # [um]
+        self._zrange = (-5, 10)   # [um]
 
     #
     # Setters for user interaction
@@ -112,7 +113,7 @@ class TrapAssemble(TrapMove):
                            zv[r_f[trap]] - zv[r_0[trap]]])
             return dr.dot(dr)
         group = sorted(group, key=dist)
-        # LOOP over all traps we are moving, finding the shortest
+      # LOOP over all traps we are moving, finding the shortest
         # path for each with A* and then updating the graph with
         # new path as obstacle. Start w/ traps closest to their targets
         trajectories = {}
@@ -120,6 +121,39 @@ class TrapAssemble(TrapMove):
             trajectory = self.shortest_path(r_0[trap], r_f[trap], g)
             trajectories[trap] = trajectory
         # Smooth out trajectories with some reasonable step size
+
+    def w(u, v, xv, yv, zv):
+        '''
+        Given (i, j, k) positions of two nodes, return
+        euclidian distance between them
+        '''
+        return np.sqrt((xv[v] - xv[u])**2+(yv[v] - yv[u])**2+(zv[v] - zv[u])**2)
+
+    def neighbors(u, G):
+        '''
+        Given node (t, i, j, k), return all neighboring nodes in G.
+        '''
+        (t, i, j, k) = u
+        (nt, nx, ny, nz) = G.shape
+        if t == nt-1:
+            return []
+        else:
+            xneighbors = [i]
+            if i != nx-1:
+                xneighbors.append(i+1)
+            elif i != 0:
+                xneighbors.append(i-1)
+            yneighbors = [j]
+            if j == ny-1:
+                yneighbors.append(j+1)
+            elif j == 0:
+                yneighbors.append(j-1)
+            zneighbors = [k]
+            if k == nz-1:
+                zneighbors.append(k+1)
+            elif k == 0:
+                zneighbors.append(k-1)
+            # Determine neighbors...
 
     def shortest_path(loc1, loc2, G):
         pass
