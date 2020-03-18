@@ -104,12 +104,25 @@ class TrapAssemble(TrapMove):
                 i, j, k = self.locate(rf, xv, yv, zv)
                 r_0[trap] = (i0, j0, k0)
                 r_f[trap] = (i, j, k)
+        # Sort traps by distance from targets
+
+        def dist(trap):
+            dr = np.array([xv[r_f[trap]] - xv[r_0[trap]],
+                           yv[r_f[trap]] - yv[r_0[trap]],
+                           zv[r_f[trap]] - zv[r_0[trap]]])
+            return dr.dot(dr)
+        group = sorted(group, key=dist)
         # LOOP over all traps we are moving, finding the shortest
         # path for each with A* and then updating the graph with
         # new path as obstacle. Start w/ traps closest to their targets
+        trajectories = {}
         for trap in group:
-            pass
+            trajectory = self.shortest_path(r_0[trap], r_f[trap], g)
+            trajectories[trap] = trajectory
         # Smooth out trajectories with some reasonable step size
+
+    def shortest_path(loc1, loc2, G):
+        pass
 
     def locate(self, r, xv, yv, zv):
         '''
