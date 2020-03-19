@@ -19,8 +19,8 @@ class TrapAssemble(TrapMove):
 
         self._targets = None
 
-        self._padding = 1.  # [um]
-        self._tsteps = 50
+        self._padding = 1.5  # [um]
+        self._tsteps = 300
         self._zrange = (-5, 10)   # [um]
 
     #
@@ -139,20 +139,30 @@ class TrapAssemble(TrapMove):
         print("TARGET: ", target)
         G[source] = 0
         heap = [(0, source)]
+        open = [source]
         # Case of 2 traps? What if source = target?
-        while heap:
+        while open:
             m, node = heapq.heappop(heap)
-            for neighbor in self.neighbors(node, target, G):
-                next = np.float16(1)
-                heuristic = self.w(neighbor, target)
-                weight = G[node] + next
-                if (G[neighbor] == np.inf) or (weight < G[neighbor]):
-                    G[neighbor] = weight
-                    heapq.heappush(heap, (weight+heuristic, neighbor))
+            open.remove(node)
+            if node[1:] == target[1:]:
+                target = node
+                break
+            g = G[node]
+            neighbors = self.neighbors(node, target, G)
+            for neighbor in neighbors:
+                g_current = G[neighbor]
+                g_tentative = g + self.w(node, neighbor, target)
+                if g_tentative < g_current:
                     path[neighbor] = node
+                    G[neighbor] = g_tentative
+                    if neighbor not in open:
+                        h = self.h(neighbor, target)
+                        open.append(neighbor)
+                        heapq.heappush(
+                            heap, (g_tentative+h, neighbor))
         node = target
-        t = G.shape[0]-1
-        trajectory.data = np.zeros((G.shape[0], 3))
+        t = target[0]
+        trajectory.data = np.zeros((target[0]+1, 3))
         while True:
             r = np.array([xv[node[1:]], yv[node[1:]], zv[node[1:]]])
             trajectory.data[t] = r
@@ -162,17 +172,31 @@ class TrapAssemble(TrapMove):
                 break
             node = path[node]
             t -= 1
+        (tf, x, y, z) = target
+        G[tf:, x, y, z] = -1
         self.reset(G)
         print(trajectory.data)
         return trajectory
 
+    '''
     def w(self, u, v):
-        '''
-        Given (t, i, j, k) positions of two nodes, return
+                Given (t, i, j, k) positions of two nodes, return
         euclidian distance between them.
-        '''
-        dr = np.array(v) - np.array(u)
+        
+        dr = np.array(v[1:]) - np.array(u[1:])
         return np.float16(np.sqrt(dr.dot(dr)))
+    '''
+
+    def w(self, node, neighbor, target):
+        '''
+        Edge length from node to neighbor, given that you're
+        headed toward target
+        '''
+        return 0 if neighbor[1:] == target[1:] else 1
+
+    def h(self, u, target):
+        dr = np.array(target[1:]) - np.array(u[1:])
+        return np.float16(np.sqrt(2*dr.dot(dr)))
 
     def neighbors(self, u, target, G):
         '''
@@ -181,22 +205,25 @@ class TrapAssemble(TrapMove):
         (t, i, j, k) = u
         (nt, nx, ny, nz) = G.shape
         if t == nt-1:
+            print("DEAD END")
             return []
+        elif u[1:] == target[1:]:
+            return [(t+1, *target[1:])]
         else:
             xneighbors = [i]
             if i != nx-1:
                 xneighbors.append(i+1)
-            elif i != 0:
+            if i != 0:
                 xneighbors.append(i-1)
             yneighbors = [j]
             if j != ny-1:
                 yneighbors.append(j+1)
-            elif j != 0:
+            if j != 0:
                 yneighbors.append(j-1)
             zneighbors = [k]
             if k != nz-1:
                 zneighbors.append(k+1)
-            elif k != 0:
+            if k != 0:
                 zneighbors.append(k-1)
             neighbors = []
             for x in xneighbors:
@@ -213,7 +240,9 @@ class TrapAssemble(TrapMove):
 
     def reset(self, G):
         g = G.flatten()
-        idxs = np.where(g != -1)
+        idxs = np.where(g != -1)[0]
+        print("Total number of Nodes: ", g.size)
+        print("Number of off-limit Nodes: ", g.size-idxs.size)
         g[idxs] = np.inf
         G = g.reshape(G.shape)
 
