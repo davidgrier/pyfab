@@ -18,8 +18,8 @@ class TrapMove(QObject):
         self._maxStep = 0.
 
         self._running = False
-        self._t = 0
-        self._tf = 0
+        self.t = 0
+        self.tf = 0
 
     #
     # Essential properties and methods for user interaction
@@ -70,14 +70,18 @@ class TrapMove(QObject):
         '''Dictionary with QTrap keys and Trajectory values'''
         return self._trajectories
 
+    @trajectories.setter
+    def trajectories(self, trajectories):
+        self._trajectories = trajectories
+
     def parameterize(self, traps):
-        self._t = 0
-        self._tf = 0
+        self.t = 0
+        self.tf = 0
         trajectories = {}
         for trap in traps.flatten():
             r_i = (trap.r.x(), trap.r.y(), trap.r.z())
             trajectories[trap] = Trajectory(r_i)
-        self._trajectories = trajectories
+        self.trajectories = trajectories
 
     #
     # Properties and methods for core movement functionality
@@ -91,17 +95,22 @@ class TrapMove(QObject):
     @pyqtSlot(np.ndarray)
     def move(self, frame):
         if self._running:
+            done = False
             if self._counter == 0:
-                if self._t < self._tf:
+                if self.t < self.tf:
+                    done = True
                     for trap in self.traps.flatten():
-                        trajectory = self.trajectories[trap].trajectory
-                        r_t = QVector3D(*trajectory[self._t])
-                        trap.moveTo(r_t)
-                    self._t += 1
+                        trajectory = self.trajectories[trap].data
+                        if self.t < trajectory.shape[0]:
+                            r_t = trajectory[self.t]
+                            r_t = QVector3D(*r_t)
+                            trap.moveTo(r_t)
+                            done = False
+                    self.t += 1
                 self._counter = self.wait
             else:
                 self._counter -= 1
-            if self._t == self._tf:
+            if (self.t == self.tf) or done:
                 self._running = False
 
 

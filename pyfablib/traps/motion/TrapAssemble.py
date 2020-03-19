@@ -20,7 +20,7 @@ class TrapAssemble(TrapMove):
         self._targets = None
 
         self._padding = 1.5  # [um]
-        self._tsteps = 300
+        self._tmax = 300
         self._zrange = (-5, 10)   # [um]
 
     #
@@ -61,13 +61,13 @@ class TrapAssemble(TrapMove):
         self._zrange = zrange
 
     @pyqtProperty(int)
-    def tsteps(self):
+    def tmax(self):
         '''Maximum number of steps to get to destination'''
-        return self._tsteps
+        return self._tmax
 
-    @tsteps.setter
-    def tsteps(self, steps):
-        self._tsteps = steps
+    @tmax.setter
+    def tmax(self, t):
+        self._tmax = t
 
     #
     # Finding trajectories
@@ -81,7 +81,7 @@ class TrapAssemble(TrapMove):
                 self.parent().screen.source.height)
         zmin, zmax = (int(self.zrange[0]/mpp),
                       int(self.zrange[1]/mpp))
-        tsteps = self.tsteps
+        tmax = self.tmax
         padding = int(self.padding / mpp)
         # Initialize graph w/ obstacles at all traps we ARENT moving
         # Bottom left is (0, 0)
@@ -89,7 +89,7 @@ class TrapAssemble(TrapMove):
         y = np.arange(0, h+padding, padding)
         z = np.arange(zmin, zmax+padding, padding)
         xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
-        G = np.full((tsteps, *xv.shape), np.inf, dtype=np.float16)
+        G = np.full((tmax, *xv.shape), np.inf, dtype=np.float16)
         # Find initial/final positions of traps in graph and
         # set traps nodes not in group off-limits
         group = traps.flatten()
@@ -122,13 +122,16 @@ class TrapAssemble(TrapMove):
                 r_0[trap], r_f[trap], G, (xv, yv, zv))
             trajectories[trap] = trajectory
         # Smooth out trajectories with some reasonable step size
-        print(trajectories)
+        self.trajectories = trajectories
+        self.t = 0
+        self.tf = self.tmax
 
     def shortest_path(self, source, target, G, rv):
         '''
-        A* graph search to find shortest path between loc1
-        and loc2 in G, using weights defined by rv = (xv, yv, zv)
-        coordinate system.
+        A* graph search to find shortest path between source
+        and target in G, using edges defined by self.neighbors,
+        graph weights defined by self.w, and heuristic
+        defined by self.h.
         '''
         xv, yv, zv = rv
         trajectory = Trajectory()
@@ -140,7 +143,6 @@ class TrapAssemble(TrapMove):
         G[source] = 0
         heap = [(0, source)]
         open = [source]
-        # Case of 2 traps? What if source = target?
         while open:
             m, node = heapq.heappop(heap)
             open.remove(node)
@@ -177,15 +179,6 @@ class TrapAssemble(TrapMove):
         self.reset(G)
         print(trajectory.data)
         return trajectory
-
-    '''
-    def w(self, u, v):
-                Given (t, i, j, k) positions of two nodes, return
-        euclidian distance between them.
-        
-        dr = np.array(v[1:]) - np.array(u[1:])
-        return np.float16(np.sqrt(dr.dot(dr)))
-    '''
 
     def w(self, node, neighbor, target):
         '''

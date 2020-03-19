@@ -24,7 +24,7 @@ class Circle(Task):
         assembler.traps = group
         # Calculate vertices of circle
         vertices = []
-        radius = 400  # pixels
+        radius = 200  # pixels
         xc, yc = (cgh.xc, cgh.yc)
         traps = assembler.traps.flatten()
         ntraps = len(traps)
