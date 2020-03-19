@@ -111,43 +111,41 @@ class Trajectory(object):
     cartesian coordinates
     '''
 
-    def __init__(self, r_i, **kwargs):
+    def __init__(self, r_i=(0, 0, 0), **kwargs):
         super(Trajectory, self).__init__(**kwargs)
-        self.trajectory = np.zeros(shape=(1, 3))
-        self.trajectory[0] = np.array([r_i[0], r_i[1], r_i[2]])
+        self.data = np.zeros(shape=(1, 3))
+        self.data[0] = np.array(r_i)
         self.last_step = None
 
     @property
     def r_f(self):
-        return self.trajectory[-1]
+        return self.data[-1]
 
     @property
     def r_i(self):
-        return self.trajectory[0]
+        return self.data[0]
 
     def step(self, d):
-        self.last_step = d
-        self.trajectory = np.concatenate((self.trajectory,
-                                          np.array([self.r_f + d])),
-                                         axis=0)
+        self.data = np.concatenate((self.data,
+                                    np.array([self.r_f + d])),
+                                   axis=0)
 
     def add(self, r):
-        self.trajectory = np.concatenate((self.trajectory,
-                                          np.array([r])),
-                                         axis=0)
+        self.data = np.concatenate((self.data,
+                                    np.array([r])),
+                                   axis=0)
 
     def stitch(self, trajectory):
         '''Adds another trajectory to the end of the trajectory
         '''
-        self.trajectory = np.append(self.trajectory,
-                                    trajectory.trajectory, axis=0)
+        self.data = np.append(self.data,
+                              trajectory.data, axis=0)
 
     def __str__(self):
         np.set_printoptions(
             formatter={'float': lambda x: "{0:0.2f}".format(x)})
-        data = [self.trajectory.shape,
+        data = [self.data.shape,
                 self.r_i,
-                self.r_f,
-                self.last_step]
-        string = "Trajectory(shape={}, r_i={}, r_f={}, last_step={})"
+                self.r_f]
+        string = "Trajectory(shape={}, r_i={}, r_f={})"
         return string.format(*data)

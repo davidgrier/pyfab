@@ -20,7 +20,7 @@ class TrapAssemble(TrapMove):
         self._targets = None
 
         self._padding = 1.  # [um]
-        self._tsteps = 100
+        self._tsteps = 50
         self._zrange = (-5, 10)   # [um]
 
     #
@@ -131,43 +131,50 @@ class TrapAssemble(TrapMove):
         coordinate system.
         '''
         xv, yv, zv = rv
-        trajectory = Trajectory(np.array([xv[source], yv[source], zv[source]]))
+        trajectory = Trajectory()
         path = {}
         source = (0, *source)
-        target = (G.shape[-1]-1, *target)
+        target = (G.shape[0]-1, *target)
+        print("SOURCE: ", source)
+        print("TARGET: ", target)
         G[source] = 0
         heap = [(0, source)]
+        # Case of 2 traps? What if source = target?
         while heap:
-            progress, min_node = heapq.heappop(heap)
-            for v in self.neighbors(min_node, G):
-                next = self.w(min_node[1:], v[1:], xv, yv, zv)
-                heuristic = self.w(v[1:], target[1:], xv, yv, zv)
-                weight = progress + next + heuristic
-                print(weight)
-                if (G[v] == np.inf) or (weight < G[v]):
-                    G[v] = weight
-                    heapq.heappush(heap, (weight, v))
-                    path[v] = min_node
+            m, node = heapq.heappop(heap)
+            for neighbor in self.neighbors(node, target, G):
+                next = np.float16(1)
+                heuristic = self.w(neighbor, target)
+                weight = G[node] + next
+                if (G[neighbor] == np.inf) or (weight < G[neighbor]):
+                    G[neighbor] = weight
+                    heapq.heappush(heap, (weight+heuristic, neighbor))
+                    path[neighbor] = node
         node = target
-        G[node] = -1
-        while node != source:
+        t = G.shape[0]-1
+        trajectory.data = np.zeros((G.shape[0], 3))
+        while True:
             r = np.array([xv[node[1:]], yv[node[1:]], zv[node[1:]]])
-            trajectory.add(r)
-            print(node)
-            node = path[node]
+            trajectory.data[t] = r
             G[node] = -1
+            print(node)
+            if node == source:
+                break
+            node = path[node]
+            t -= 1
         self.reset(G)
-        print(trajectory.trajectory)
+        print(trajectory.data)
         return trajectory
 
-    def w(self, u, v, xv, yv, zv):
+    def w(self, u, v):
         '''
-        Given (i, j, k) positions of two nodes, return
+        Given (t, i, j, k) positions of two nodes, return
         euclidian distance between them.
         '''
-        return np.sqrt((xv[v] - xv[u])**2+(yv[v] - yv[u])**2+(zv[v] - zv[u])**2)
+        dr = np.array(v) - np.array(u)
+        return np.float16(np.sqrt(dr.dot(dr)))
 
-    def neighbors(self, u, G):
+    def neighbors(self, u, target, G):
         '''
         Given node (t, i, j, k), return all neighboring nodes in G.
         '''
@@ -197,7 +204,11 @@ class TrapAssemble(TrapMove):
                     for z in zneighbors:
                         node = (t+1, x, y, z)
                         if G[node] != -1:
-                            neighbors.append(node)
+                            ds = np.absolute(
+                                np.array(target)-np.array(node))
+                            dt, dr = (ds[0], ds[1:])
+                            if dt >= dr.sum():
+                                neighbors.append(node)
             return neighbors
 
     def reset(self, G):
