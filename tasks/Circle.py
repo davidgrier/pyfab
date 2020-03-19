@@ -28,10 +28,12 @@ class Circle(Task):
         xc, yc = (cgh.xc, cgh.yc)
         traps = assembler.traps.flatten()
         ntraps = len(traps)
+        zrange = np.arange(0, 100, 2)
         for idx, trap in enumerate(traps):
             theta = 2*np.pi*(idx+1) / ntraps
+            z = np.random.choice(zrange)
             vertices.append(np.array([xc + radius*np.cos(theta),
                                       yc + radius*np.sin(theta),
-                                      50]))
+                                      z]))
         assembler.targets = vertices
         assembler.start()

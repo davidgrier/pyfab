@@ -14,7 +14,8 @@ class TrapMove(QObject):
         self._traps = None
         self._trajectories = None
 
-        self._stepRate = 3.
+        self._stepRate = 1.
+        self._wait = None
         self._maxStep = 0.
 
         self._running = False
@@ -36,9 +37,17 @@ class TrapMove(QObject):
             traps.select(True)
 
     def start(self):
+        # Set number of frames to wait between movements
+        fps = self.parent().screen.fps
+        stepRate = self.stepRate
+        self._wait = round(fps/stepRate)
+        # Wait for a few seconds to start
+        seconds = 2
+        self._counter = round(fps/(1./seconds))
+        # Find trajectories
         traps = self.traps
         self.parameterize(traps)
-        self._counter = 0
+        # Go!
         self._running = True
 
     #
@@ -86,11 +95,6 @@ class TrapMove(QObject):
     #
     # Properties and methods for core movement functionality
     #
-    @property
-    def wait(self):
-        fps = self.parent().screen.fps
-        stepRate = self.stepRate
-        return round(fps/stepRate)
 
     @pyqtSlot(np.ndarray)
     def move(self, frame):
@@ -107,7 +111,7 @@ class TrapMove(QObject):
                             trap.moveTo(r_t)
                             done = False
                     self.t += 1
-                self._counter = self.wait
+                self._counter = self._wait
             else:
                 self._counter -= 1
             if (self.t == self.tf) or done:

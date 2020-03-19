@@ -19,7 +19,7 @@ class TrapAssemble(TrapMove):
 
         self._targets = None
 
-        self._padding = 1.5  # [um]
+        self._padding = 1  # [um]
         self._tmax = 300
         self._zrange = (-5, 10)   # [um]
 
@@ -122,6 +122,8 @@ class TrapAssemble(TrapMove):
                 r_0[trap], r_f[trap], G, (xv, yv, zv))
             trajectories[trap] = trajectory
         # Smooth out trajectories with some reasonable step size
+
+        # Set trajectories and global indices for TrapMove.move
         self.trajectories = trajectories
         self.t = 0
         self.tf = self.tmax
@@ -133,6 +135,7 @@ class TrapAssemble(TrapMove):
         graph weights defined by self.w, and heuristic
         defined by self.h.
         '''
+        # Initialize
         xv, yv, zv = rv
         trajectory = Trajectory()
         path = {}
@@ -140,6 +143,7 @@ class TrapAssemble(TrapMove):
         target = (G.shape[0]-1, *target)
         print("SOURCE: ", source)
         print("TARGET: ", target)
+        # A star search
         G[source] = 0
         heap = [(0, source)]
         open = [source]
@@ -162,6 +166,7 @@ class TrapAssemble(TrapMove):
                         open.append(neighbor)
                         heapq.heappush(
                             heap, (g_tentative+h, neighbor))
+        # Reconstruct path and set off-limit nodes in graph
         node = target
         t = target[0]
         trajectory.data = np.zeros((target[0]+1, 3))
