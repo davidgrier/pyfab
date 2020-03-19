@@ -11,6 +11,10 @@ import numpy as np
 import itertools
 import heapq
 
+import logging
+logger = logging.getLogger('TrapAssemble')
+logger.setLevel(logging.INFO)
+
 
 class TrapAssemble(TrapMove):
 
@@ -37,6 +41,7 @@ class TrapAssemble(TrapMove):
             self._targets = dict(targets)
         else:
             targets = list(targets)
+            logger.info("Pairing traps to targets")
             self._targets = self._pair(targets)
 
     #
@@ -118,6 +123,9 @@ class TrapAssemble(TrapMove):
         # new path as obstacle.
         trajectories = {}
         for trap in group:
+            r = (trap.r.x(), trap.r.y(), trap.r.z())
+            logger.info(
+                "Calculating shortest path for position ({}, {}, {})".format(*r))
             trajectory = self.shortest_path(
                 r_0[trap], r_f[trap], G, (xv, yv, zv))
             trajectories[trap] = trajectory
@@ -141,8 +149,6 @@ class TrapAssemble(TrapMove):
         path = {}
         source = (0, *source)
         target = (G.shape[0]-1, *target)
-        print("SOURCE: ", source)
-        print("TARGET: ", target)
         # A star search
         G[source] = 0
         heap = [(0, source)]
@@ -174,7 +180,6 @@ class TrapAssemble(TrapMove):
             r = np.array([xv[node[1:]], yv[node[1:]], zv[node[1:]]])
             trajectory.data[t] = r
             G[node] = -1
-            print(node)
             if node == source:
                 break
             node = path[node]
@@ -182,7 +187,6 @@ class TrapAssemble(TrapMove):
         (tf, x, y, z) = target
         G[tf:, x, y, z] = -1
         self.reset(G)
-        print(trajectory.data)
         return trajectory
 
     def w(self, node, neighbor, target):
@@ -203,7 +207,6 @@ class TrapAssemble(TrapMove):
         (t, i, j, k) = u
         (nt, nx, ny, nz) = G.shape
         if t == nt-1:
-            print("DEAD END")
             return []
         elif u[1:] == target[1:]:
             return [(t+1, *target[1:])]
@@ -239,8 +242,6 @@ class TrapAssemble(TrapMove):
     def reset(self, G):
         g = G.flatten()
         idxs = np.where(g != -1)[0]
-        print("Total number of Nodes: ", g.size)
-        print("Number of off-limit Nodes: ", g.size-idxs.size)
         g[idxs] = np.inf
         G = g.reshape(G.shape)
 
