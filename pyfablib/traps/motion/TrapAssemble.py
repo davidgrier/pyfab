@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brownian molecular dynamics simulation for moving
-a set of traps to a set of targets
+A* graph search for moving a set of traps to a set of targets
 """
 
 from .TrapMove import TrapMove, Trajectory
