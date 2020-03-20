@@ -14,7 +14,7 @@ class TrapMove(QObject):
         self._traps = None
         self._trajectories = None
 
-        self._stepRate = 1.
+        self._stepRate = 2
         self._wait = None
         self._maxStep = 0.
 
@@ -46,7 +46,11 @@ class TrapMove(QObject):
         self._counter = round(fps/(1./seconds))
         # Find trajectories
         traps = self.traps
+        self.parent().screen.source.blockSignals(True)
+        self.parent().screen.pauseSignals(True)
         self.parameterize(traps)
+        self.parent().screen.source.blockSignals(False)
+        self.parent().screen.pauseSignals(False)
         # Go!
         self._running = True
 

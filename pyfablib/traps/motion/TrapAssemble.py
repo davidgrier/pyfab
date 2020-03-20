@@ -7,6 +7,8 @@ a set of traps to a set of targets
 
 from .TrapMove import TrapMove, Trajectory
 from PyQt5.QtCore import pyqtProperty
+from math import ceil
+from queue import Queue
 import numpy as np
 import itertools
 import heapq
@@ -23,9 +25,10 @@ class TrapAssemble(TrapMove):
 
         self._targets = None
 
-        self._padding = 1  # [um]
-        self._tmax = 300
-        self._zrange = (-5, 10)   # [um]
+        self._particleSpacing = 1  # [um]
+        self._gridSpacing = .5     # [um]
+        self._tmax = 300           # [steps]
+        self._zrange = (-5, 10)    # [um]
 
     #
     # Setters for user interaction
@@ -42,19 +45,30 @@ class TrapAssemble(TrapMove):
         else:
             targets = list(targets)
             logger.info("Pairing traps to targets")
-            self._targets = self._pair(targets)
+            self._targets = self.pair(targets)
 
     #
     # Tunable parameters
     #
     @pyqtProperty(float)
-    def padding(self):
+    def particleSpacing(self):
         '''Spacing between traps. Used for graph discretization [um]'''
-        return self._padding
+        return self._spacing
 
-    @padding.setter
-    def padding(self, padding):
-        self._padding = padding
+    @particleSpacing.setter
+    def particleSpacing(self, spacing):
+        self._particleSpacing = spacing
+
+    @pyqtProperty(float)
+    def gridSpacing(self):
+        return self._gridSpacing
+
+    @gridSpacing.setter
+    def gridSpacing(self, spacing):
+        if spacing > self.particleSpacing:
+            raise ValueError(
+                "Spacing between grid points must be smaller than spacing between particles.")
+        self._gridSpacing = spacing
 
     @pyqtProperty(tuple)
     def zrange(self):
@@ -81,18 +95,19 @@ class TrapAssemble(TrapMove):
         # Get tunables
         pattern = self.parent().pattern.pattern
         cgh = self.parent().cgh.device
-        mpp = cgh.cameraPitch/cgh.magnification
+        mpp = cgh.cameraPitch/cgh.magnification              # [microns/pixel]
         w, h = (self.parent().screen.source.width,
-                self.parent().screen.source.height)
+                self.parent().screen.source.height)          # [pixels]
         zmin, zmax = (int(self.zrange[0]/mpp),
-                      int(self.zrange[1]/mpp))
-        tmax = self.tmax
-        padding = int(self.padding / mpp)
+                      int(self.zrange[1]/mpp))               # [pixels]
+        tmax = self.tmax                                     # [steps]
+        gridSpacing = int(self.gridSpacing / mpp)            # [pixels]
+        particleSpacing = int(self.gridSpacing / mpp)        # [pixels]
+        spacing = ceil(particleSpacing / gridSpacing)        # [steps]
         # Initialize graph w/ obstacles at all traps we ARENT moving
-        # Bottom left is (0, 0)
-        x = np.arange(0, w+padding, padding)
-        y = np.arange(0, h+padding, padding)
-        z = np.arange(zmin, zmax+padding, padding)
+        x = np.arange(0, w+gridSpacing, gridSpacing)
+        y = np.arange(0, h+gridSpacing, gridSpacing)
+        z = np.arange(zmin, zmax+gridSpacing, gridSpacing)
         xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
         G = np.full((tmax, *xv.shape), np.inf, dtype=np.float16)
         # Find initial/final positions of traps in graph and
@@ -104,7 +119,10 @@ class TrapAssemble(TrapMove):
             r0 = np.array([trap.r.x(), trap.r.y(), trap.r.z()])
             i0, j0, k0 = self.locate(r0, xv, yv, zv)
             if trap not in group:
-                G[:, i0, j0, k0] = -1
+                remove = []
+                for t in range(tmax):
+                    remove.append((t, i0, j0, k0))
+                self.update(G, remove, spacing)
             else:
                 rf = self.targets[trap]
                 i, j, k = self.locate(rf, xv, yv, zv)
@@ -126,9 +144,13 @@ class TrapAssemble(TrapMove):
             r = (trap.r.x(), trap.r.y(), trap.r.z())
             logger.info(
                 "Calculating shortest path for position ({}, {}, {})".format(*r))
-            trajectory = self.shortest_path(
-                r_0[trap], r_f[trap], G, (xv, yv, zv))
+            source, target = (r_0[trap], r_f[trap])
+            trajectory, path = self.shortest_path(
+                source, target, G, (xv, yv, zv))
             trajectories[trap] = trajectory
+            if trap is not group[-1]:
+                self.update(G, path, spacing)
+                self.reset(G)
         # Smooth out trajectories with some reasonable step size
 
         # Set trajectories and global indices for TrapMove.move
@@ -139,14 +161,12 @@ class TrapAssemble(TrapMove):
     def shortest_path(self, source, target, G, rv):
         '''
         A* graph search to find shortest path between source
-        and target in G, using edges defined by self.neighbors,
-        graph weights defined by self.w, and heuristic
-        defined by self.h.
+        and target in densely connected G, using edges defined
+        by self.neighbors, graph weights defined by self.w, and
+        heuristic defined by self.h.
         '''
         # Initialize
-        xv, yv, zv = rv
-        trajectory = Trajectory()
-        path = {}
+        previous = {}
         source = (0, *source)
         target = (G.shape[0]-1, *target)
         # A star search
@@ -156,51 +176,84 @@ class TrapAssemble(TrapMove):
         while open:
             m, node = heapq.heappop(heap)
             open.remove(node)
+            # Break if search reaches correct (x, y, z)
             if node[1:] == target[1:]:
                 target = node
                 break
+            # Update priority queue and  for all neighboring nodes
             g = G[node]
             neighbors = self.neighbors(node, target, G)
             for neighbor in neighbors:
                 g_current = G[neighbor]
                 g_tentative = g + self.w(node, neighbor, target)
                 if g_tentative < g_current:
-                    path[neighbor] = node
+                    previous[neighbor] = node
                     G[neighbor] = g_tentative
                     if neighbor not in open:
                         h = self.h(neighbor, target)
                         open.append(neighbor)
                         heapq.heappush(
                             heap, (g_tentative+h, neighbor))
-        # Reconstruct path and set off-limit nodes in graph
+        # Reconstruct path in (t, i, j, k) space and (x, y, z)
+        xv, yv, zv = rv
+        trajectory = Trajectory()
+        trajectory.data = np.zeros((target[0]+1, 3))
         node = target
         t = target[0]
-        trajectory.data = np.zeros((target[0]+1, 3))
+        path = []
         while True:
             r = np.array([xv[node[1:]], yv[node[1:]], zv[node[1:]]])
             trajectory.data[t] = r
-            G[node] = -1
+            path.insert(0, node)
             if node == source:
                 break
-            node = path[node]
+            node = previous[node]
             t -= 1
-        (tf, x, y, z) = target
-        G[tf:, x, y, z] = -1
-        self.reset(G)
-        return trajectory
+        return trajectory, path
 
-    def w(self, node, neighbor, target):
+    def update(self, G, path, spacing):
+        Q = Queue()
+        for node in path:
+            Q.put((1, node))
+        remove = []
+        target = path[-1]
+        while not Q.empty():
+            dist, node = Q.get()
+            remove.append(node)
+            if dist < spacing:
+                neighbors = self.neighbors(node, target, G, removing=True)
+                for neighbor in neighbors:
+                    Q.put((dist+1, neighbor))
+        for node in remove:
+            G[node] = -1
+
+    @staticmethod
+    def reset(G):
+        g = G.flatten()
+        idxs = np.where(g != -1)[0]
+        g[idxs] = np.inf
+        G = g.reshape(G.shape)
+
+    @staticmethod
+    def w(node, neighbor, target):
         '''
         Edge length from node to neighbor, given that you're
         headed toward target
         '''
         return 0 if neighbor[1:] == target[1:] else 1
 
-    def h(self, u, target):
+    @staticmethod
+    def h(u, target):
+        '''
+        Heuristic for A* search. Choose euclidean distance
+        of shortest possible time-like path to target's
+        (x, y, z) position
+        '''
         dr = np.array(target[1:]) - np.array(u[1:])
         return np.float16(np.sqrt(2*dr.dot(dr)))
 
-    def neighbors(self, u, target, G):
+    @staticmethod
+    def neighbors(u, target, G, removing=False):
         '''
         Given node (t, i, j, k), return all neighboring nodes in G.
         '''
@@ -208,7 +261,7 @@ class TrapAssemble(TrapMove):
         (nt, nx, ny, nz) = G.shape
         if t == nt-1:
             return []
-        elif u[1:] == target[1:]:
+        elif u[1:] == target[1:] and not removing:
             return [(t+1, *target[1:])]
         else:
             xneighbors = [i]
@@ -239,13 +292,8 @@ class TrapAssemble(TrapMove):
                                 neighbors.append(node)
             return neighbors
 
-    def reset(self, G):
-        g = G.flatten()
-        idxs = np.where(g != -1)[0]
-        g[idxs] = np.inf
-        G = g.reshape(G.shape)
-
-    def locate(self, r, xv, yv, zv):
+    @staticmethod
+    def locate(r, xv, yv, zv):
         '''
         Locates closest position to r in (x, y, z)
         coordinate system
@@ -262,7 +310,7 @@ class TrapAssemble(TrapMove):
     #
     # Trap-target pairing
     #
-    def _pair(self, targets):
+    def pair(self, targets):
         '''
         Wrapper method that determines which way to pair
         traps to vertex locaitons. Searches all possibilities
@@ -299,7 +347,8 @@ class TrapAssemble(TrapMove):
             targets[trap] = pairing[idx]
         return targets
 
-    def _pair_search(self, v, t):
+    @staticmethod
+    def _pair_search(v, t):
         '''
         Algorithm that finds best trap-target pairings for
         small trap limit
@@ -322,7 +371,8 @@ class TrapAssemble(TrapMove):
                 i_min = i
         return v_perms[i_min]
 
-    def _pair_genetic(self, v, t):
+    @staticmethod
+    def _pair_genetic(v, t):
         '''
         Genetic algorithm that finds best trap-target pairings.
 
@@ -334,7 +384,7 @@ class TrapAssemble(TrapMove):
             total distance traveled
         '''
         N = t.shape[0]
-        fac = N // 5 if N >= 5 else 1
+        fac = N // 3
         # Init number of generations, size of generations, first generation
         total_gens = 120*fac
         gen_size = 40*fac

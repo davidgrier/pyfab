@@ -76,7 +76,7 @@ class QVision(QSettingsWidget):
 
         # Miscellaneous
         self.counter = self._nskip
-        
+
         self.filename = None
         self.frames = []
         self.framenumbers = []
@@ -158,7 +158,8 @@ class QVision(QSettingsWidget):
             self.counter -= 1
             self.rois = None
         if self.recording:
-            item1, item2 = (self.ui.plot1.getPlotItem(), self.ui.plot2.getPlotItem())
+            item1, item2 = (self.ui.plot1.getPlotItem(),
+                            self.ui.plot2.getPlotItem())
             plots1, plots2 = (item1.listDataItems(), item2.listDataItems())
             for plot in plots1:
                 item1.removeItem(plot)
@@ -186,7 +187,6 @@ class QVision(QSettingsWidget):
         self.frames = []
         self.framenumbers = []
         self.sigPlot.emit()
-            
 
     @pyqtSlot()
     def cleanup(self):
@@ -279,7 +279,6 @@ class QVision(QSettingsWidget):
             rgb.append(int(255*clr[i]))
         return tuple(rgb)
 
-
     #
     # PyQt serialized properties
     #
@@ -326,10 +325,11 @@ class QVision(QSettingsWidget):
 
     @maxSize.setter
     def maxSize(self, l):
-        m = max(self.jansen.screen.source.width, self.jansen.screen.source.height)
+        m = max(self.jansen.screen.source.width,
+                self.jansen.screen.source.height)
         self.ui.maxSize.setMaximum(m)
         self._maxSize = l
-        
+
     @pyqtProperty(float)
     def linkTol(self):
         return self._linkTol
