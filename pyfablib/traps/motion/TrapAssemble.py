@@ -53,7 +53,7 @@ class TrapAssemble(TrapMove):
     @pyqtProperty(float)
     def particleSpacing(self):
         '''Spacing between traps. Used for graph discretization [um]'''
-        return self._spacing
+        return self._particleSpacing
 
     @particleSpacing.setter
     def particleSpacing(self, spacing):
@@ -102,7 +102,7 @@ class TrapAssemble(TrapMove):
                       int(self.zrange[1]/mpp))               # [pixels]
         tmax = self.tmax                                     # [steps]
         gridSpacing = int(self.gridSpacing / mpp)            # [pixels]
-        particleSpacing = int(self.gridSpacing / mpp)        # [pixels]
+        particleSpacing = int(self.particleSpacing / mpp)    # [pixels]
         spacing = ceil(particleSpacing / gridSpacing)        # [steps]
         # Initialize graph w/ obstacles at all traps we ARENT moving
         x = np.arange(0, w+gridSpacing, gridSpacing)
@@ -119,10 +119,10 @@ class TrapAssemble(TrapMove):
             r0 = np.array([trap.r.x(), trap.r.y(), trap.r.z()])
             i0, j0, k0 = self.locate(r0, xv, yv, zv)
             if trap not in group:
-                remove = []
+                path = []
                 for t in range(tmax):
-                    remove.append((t, i0, j0, k0))
-                self.update(G, remove, spacing)
+                    path.append((t, i0, j0, k0))
+                self.update(G, path, spacing)
             else:
                 rf = self.targets[trap]
                 i, j, k = self.locate(rf, xv, yv, zv)
@@ -209,6 +209,12 @@ class TrapAssemble(TrapMove):
                 break
             node = previous[node]
             t -= 1
+        # Extend path all the way up to tmax
+        tmax = G.shape[0] - 1
+        tf, i, j, k = target
+        for t in range(tmax - tf):
+            path.append((t+tf+1, i, j, k))
+
         return trajectory, path
 
     def update(self, G, path, spacing):
@@ -225,12 +231,12 @@ class TrapAssemble(TrapMove):
                 for neighbor in neighbors:
                     Q.put((dist+1, neighbor))
         for node in remove:
-            G[node] = -1
+            G[node] = np.nan
 
     @staticmethod
     def reset(G):
         g = G.flatten()
-        idxs = np.where(g != -1)[0]
+        idxs = np.where(g != np.nan)[0]
         g[idxs] = np.inf
         G = g.reshape(G.shape)
 
@@ -284,7 +290,7 @@ class TrapAssemble(TrapMove):
                 for y in yneighbors:
                     for z in zneighbors:
                         node = (t+1, x, y, z)
-                        if G[node] != -1:
+                        if G[node] != np.nan:
                             ds = np.absolute(
                                 np.array(target)-np.array(node))
                             dt, dr = (ds[0], ds[1:])

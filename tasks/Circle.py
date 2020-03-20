@@ -25,7 +25,7 @@ class Circle(Assemble):
                 z = np.random.choice(zrange)
                 vertices.append(np.array([xc + radius*np.cos(theta),
                                           yc + radius*np.sin(theta),
-                                          z]))
+                                          0]))
             # Set vertices and begin assembly
             self.assembler.targets = vertices
             self.assembler.start()
