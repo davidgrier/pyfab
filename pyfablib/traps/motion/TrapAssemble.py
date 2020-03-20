@@ -14,7 +14,7 @@ import itertools
 import heapq
 
 import logging
-logger = logging.getLogger('TrapAssemble')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
@@ -160,17 +160,6 @@ class TrapAssemble(TrapMove):
         self.t = 0
         self.tf = self.tmax
 
-    def tune(self, trajectories):
-        '''
-        Post process trajectories by setting 
-        exact initial and final values.
-        '''
-        vertices = self.targets
-        for trap in trajectories.keys():
-            r0 = (trap.r.x(), trap.r.y(), trap.r.z())
-            trajectories[trap].data[0] = np.array(r0)
-            trajectories[trap].data[-1] = vertices[trap]
-
     def shortest_path(self, source, target, G, rv):
         '''
         A* graph search to find shortest path between source
@@ -230,35 +219,9 @@ class TrapAssemble(TrapMove):
 
         return trajectory, path
 
-    def update(self, G, path, spacing):
-        '''
-        Update graph by chopping out nodes in path
-        along with as many grid squares close to that
-        path as in spacing
-        '''
-        Q = Queue()
-        for node in path:
-            Q.put((1, node))
-        remove = []
-        target = path[-1]
-        while not Q.empty():
-            dist, node = Q.get()
-            remove.append(node)
-            if dist < spacing:
-                neighbors = self.neighbors(node, target, G, removing=True)
-                for neighbor in neighbors:
-                    Q.put((dist+1, neighbor))
-        for node in remove:
-            G[node] = np.nan
-
-    @staticmethod
-    def reset(G):
-        '''Reset all active nodes in G to infinity'''
-        g = G.flatten()
-        idxs = np.where(g != np.nan)[0]
-        g[idxs] = np.inf
-        G = g.reshape(G.shape)
-
+    #
+    # Functions that define Graph structure
+    #
     @staticmethod
     def w(node, neighbor, target):
         '''
@@ -317,6 +280,41 @@ class TrapAssemble(TrapMove):
                                 neighbors.append(node)
             return neighbors
 
+    #
+    # Updating and reseting graph for next iteration
+    #
+    def update(self, G, path, spacing):
+        '''
+        Update graph by chopping out nodes in path
+        along with as many grid squares close to that
+        path as in spacing
+        '''
+        Q = Queue()
+        for node in path:
+            Q.put((1, node))
+        remove = []
+        target = path[-1]
+        while not Q.empty():
+            dist, node = Q.get()
+            remove.append(node)
+            if dist < spacing:
+                neighbors = self.neighbors(node, target, G, removing=True)
+                for neighbor in neighbors:
+                    Q.put((dist+1, neighbor))
+        for node in remove:
+            G[node] = np.nan
+
+    @staticmethod
+    def reset(G):
+        '''Reset all active nodes in G to infinity'''
+        g = G.flatten()
+        idxs = np.where(g != np.nan)[0]
+        g[idxs] = np.inf
+        G = g.reshape(G.shape)
+
+    #
+    # Moving between discrete and continuous space
+    #
     @staticmethod
     def locate(r, xv, yv, zv):
         '''
@@ -331,6 +329,17 @@ class TrapAssemble(TrapMove):
         idx = np.argmin(norm.flatten())
         i, j, k = np.unravel_index(idx, norm.shape)
         return (i, j, k)
+
+    def tune(self, trajectories):
+        '''
+        Post process trajectories by setting 
+        exact initial and final values.
+        '''
+        vertices = self.targets
+        for trap in trajectories.keys():
+            r0 = (trap.r.x(), trap.r.y(), trap.r.z())
+            trajectories[trap].data[0] = np.array(r0)
+            trajectories[trap].data[-1] = vertices[trap]
 
     #
     # Trap-target pairing
