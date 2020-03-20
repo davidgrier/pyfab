@@ -107,6 +107,8 @@ class TrapAssemble(TrapMove):
         # Initialize graph w/ obstacles at all traps we ARENT moving
         x = np.arange(0, w+gridSpacing, gridSpacing)
         y = np.arange(0, h+gridSpacing, gridSpacing)
+        if zmax < zmin:
+            gridSpacing *= -1
         z = np.arange(zmin, zmax+gridSpacing, gridSpacing)
         xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
         G = np.full((tmax, *xv.shape), np.inf, dtype=np.float16)
@@ -151,12 +153,23 @@ class TrapAssemble(TrapMove):
             if trap is not group[-1]:
                 self.update(G, path, spacing)
                 self.reset(G)
-        # Smooth out trajectories with some reasonable step size
-
+        # Do any post-processing of trajectories
+        self.tune(trajectories)
         # Set trajectories and global indices for TrapMove.move
         self.trajectories = trajectories
         self.t = 0
         self.tf = self.tmax
+
+    def tune(self, trajectories):
+        '''
+        Post process trajectories by setting 
+        exact initial and final values.
+        '''
+        vertices = self.targets
+        for trap in trajectories.keys():
+            r0 = (trap.r.x(), trap.r.y(), trap.r.z())
+            trajectories[trap].data[0] = np.array(r0)
+            trajectories[trap].data[-1] = vertices[trap]
 
     def shortest_path(self, source, target, G, rv):
         '''
@@ -218,6 +231,11 @@ class TrapAssemble(TrapMove):
         return trajectory, path
 
     def update(self, G, path, spacing):
+        '''
+        Update graph by chopping out nodes in path
+        along with as many grid squares close to that
+        path as in spacing
+        '''
         Q = Queue()
         for node in path:
             Q.put((1, node))
@@ -235,6 +253,7 @@ class TrapAssemble(TrapMove):
 
     @staticmethod
     def reset(G):
+        '''Reset all active nodes in G to infinity'''
         g = G.flatten()
         idxs = np.where(g != np.nan)[0]
         g[idxs] = np.inf

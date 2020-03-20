@@ -13,6 +13,12 @@ class Circle(Assemble):
 
     def dotask(self):
         if self.assembler.traps is not None:
+            # Set tunables
+            self.assembler.stepRate = 3         # [steps/s]
+            self.assembler.particleSpacing = 1  # [um]
+            self.assembler.gridSpacing = .5     # [um]
+            self.assembler.zrange = (5, -10)    # [um]
+            self.assembler.tmax = 300           # [steps]
             # Calculate vertices of circle
             vertices = []
             radius = 200  # pixels
