@@ -20,6 +20,13 @@ class MoveToCoordinate(Assemble):
 
     def dotask(self):
         if self.assembler.traps is not None:
+            # Set tunables
+            self.assembler.stepRate = 3         # [steps/s]
+            self.assembler.particleSpacing = 1  # [um]
+            self.assembler.gridSpacing = .5     # [um]
+            self.assembler.zrange = (5, -10)    # [um]
+            self.assembler.tmax = 300           # [steps]
+            # Pair
             traps = self.assembler.traps.flatten()
             x, y, z = (self.x, self.y, self.z)
             if len(traps) != 1:

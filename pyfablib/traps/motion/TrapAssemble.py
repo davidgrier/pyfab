@@ -97,12 +97,12 @@ class TrapAssemble(TrapMove):
         mpp = cgh.cameraPitch/cgh.magnification              # [microns/pixel]
         w, h = (self.parent().screen.source.width,
                 self.parent().screen.source.height)          # [pixels]
-        zmin, zmax = (int(self.zrange[0]/mpp),
-                      int(self.zrange[1]/mpp))               # [pixels]
+        zmin, zmax = (self.zrange[0]/mpp,
+                      self.zrange[1]/mpp)               # [pixels]
         tmax = self.tmax                                     # [steps]
-        gridSpacing = int(self.gridSpacing / mpp)            # [pixels]
-        particleSpacing = int(self.particleSpacing / mpp)    # [pixels]
-        spacing = ceil(particleSpacing / gridSpacing)        # [steps]
+        gridSpacing = self.gridSpacing / mpp            # [pixels]
+        particleSpacing = self.particleSpacing / mpp    # [pixels]
+        # spacing = ceil(particleSpacing / gridSpacing)        # [steps]
         # Initialize graph w/ obstacles at all traps we ARENT moving
         x = np.arange(0, w+gridSpacing, gridSpacing)
         y = np.arange(0, h+gridSpacing, gridSpacing)
@@ -123,7 +123,8 @@ class TrapAssemble(TrapMove):
                 path = []
                 for t in range(tmax):
                     path.append((t, i0, j0, k0))
-                self.update(G, path, spacing)
+                self.update(
+                    G, path, particleSpacing, (xv, yv, zv))
             else:
                 rf = self.targets[trap]
                 i, j, k = self.locate(rf, xv, yv, zv)
@@ -150,7 +151,9 @@ class TrapAssemble(TrapMove):
                 source, target, G, (xv, yv, zv))
             trajectories[trap] = trajectory
             if trap is not group[-1]:
-                self.update(G, path, spacing)
+                self.update(
+                    G, path, particleSpacing, (xv, yv, zv))
+                #print(np.where(G == np.nan)[0].size)
                 self.reset(G)
         # Do any post-processing of trajectories
         self.tune(trajectories)
@@ -240,7 +243,7 @@ class TrapAssemble(TrapMove):
         return np.float16(np.sqrt(2*dr.dot(dr)))
 
     @staticmethod
-    def neighbors(u, target, G, removing=False):
+    def neighbors(u, target, G):
         '''
         Given node (t, i, j, k), return all neighboring nodes in G.
         '''
@@ -248,7 +251,7 @@ class TrapAssemble(TrapMove):
         (nt, nx, ny, nz) = G.shape
         if t == nt-1:
             return []
-        elif u[1:] == target[1:] and not removing:
+        elif u[1:] == target[1:]:
             return [(t+1, *target[1:])]
         else:
             xneighbors = [i]
@@ -282,34 +285,34 @@ class TrapAssemble(TrapMove):
     #
     # Updating and reseting graph for next iteration
     #
-    def update(self, G, path, spacing):
+    def update(self, G, path, particleSpacing, rv):
         '''
         Update graph by chopping out nodes in path
-        along with as many grid squares close to that
-        path as in spacing
+        and within radius of path
         '''
-        Q = Queue()
+        xv, yv, zv = rv
         for node in path:
-            Q.put((1, node))
-        remove = []
-        target = path[-1]
-        while not Q.empty():
-            dist, node = Q.get()
-            remove.append(node)
-            if dist < spacing:
-                neighbors = self.neighbors(node, target, G, removing=True)
-                for neighbor in neighbors:
-                    Q.put((dist+1, neighbor))
-        for node in remove:
-            G[node] = np.nan
+            t = node[0]
+            ball = self.ball(node, G, particleSpacing, rv)
+            G[t, ball] = np.nan
 
     @staticmethod
     def reset(G):
         '''Reset all active nodes in G to infinity'''
-        g = G.flatten()
-        idxs = np.where(g != np.nan)[0]
-        g[idxs] = np.inf
-        G = g.reshape(G.shape)
+        idxs = np.where(G != np.nan)
+        G[idxs] = np.inf
+
+    @staticmethod
+    def ball(node, G, radius, rv):
+        '''
+        Return nodes of G inside ball centered on
+        node in (x, y, z) space
+        '''
+        xv, yv, zv = rv
+        xc, yc, zc = (xv[node[1:]], yv[node[1:]], zv[node[1:]])
+        r = np.sqrt((xv-xc)**2 + (yv-yc)**2 + (zv-zc)**2)
+        ball = np.where(r <= radius)
+        return ball
 
     #
     # Moving between discrete and continuous space
@@ -331,7 +334,7 @@ class TrapAssemble(TrapMove):
 
     def tune(self, trajectories):
         '''
-        Post process trajectories by setting 
+        Post process trajectories by setting
         exact initial and final values.
         '''
         vertices = self.targets
@@ -350,8 +353,8 @@ class TrapAssemble(TrapMove):
         for small trap number and uses a genetic algorithm
         for large trap number.
 
-        Returns: 
-            targets: dictionary where keys are QTraps and 
+        Returns:
+            targets: dictionary where keys are QTraps and
                       values are their vertex pairing
         '''
         targets = list(targets)
