@@ -46,7 +46,11 @@ class TrapAssemble(TrapMove):
             targets = list(targets)
             logger.info("Pairing traps to targets")
             if len(self.traps.flatten()) == len(targets):
+                self.parent().screen.source.blockSignals(True)
+                self.parent().screen.pauseSignals(True)
                 self._targets = self.pair(targets)
+                self.parent().screen.source.blockSignals(False)
+                self.parent().screen.pauseSignals(False)
             else:
                 logger.warning(
                     "Number of targets does not match number of traps")
@@ -358,9 +362,10 @@ class TrapAssemble(TrapMove):
         '''
         vertices = self.targets
         for trap in trajectories.keys():
+            traj = trajectories[trap]
             r0 = (trap.r.x(), trap.r.y(), trap.r.z())
-            trajectories[trap].data[0] = np.array(r0)
-            trajectories[trap].add(vertices[trap])
+            traj.data[0] = r0
+            traj.data[-1] = vertices[trap]
 
     #
     # Trap-target pairing
@@ -414,7 +419,6 @@ class TrapAssemble(TrapMove):
             permutation of v's rows that best minimizes
             total distance traveled
         '''
-        N = t.shape[0]
         v_perms = np.asarray(list(itertools.permutations(v)))
         d_min = np.inf
         i_min = None
@@ -438,10 +442,9 @@ class TrapAssemble(TrapMove):
             total distance traveled
         '''
         N = t.shape[0]
-        fac = N // 3
         # Init number of generations, size of generations, first generation
-        total_gens = 120*fac
-        gen_size = 40*fac
+        total_gens = int(50*np.sqrt(N))
+        gen_size = int(10*np.sqrt(N))
         gen = np.asarray(list(map(lambda x: np.random.permutation(v),
                                   np.empty((gen_size, N, 3)))))
         mutated_gen = np.empty((gen_size*2, N, 3))

@@ -19,8 +19,8 @@ class TrapMove(QObject):
         self._trajectories = None
 
         self._stepRate = 2
+        self._stepSize = .1
         self._wait = None
-        self._maxStep = 0.
 
         self._running = False
         self.t = 0
@@ -74,13 +74,13 @@ class TrapMove(QObject):
         self._stepRate = stepRate
 
     @pyqtProperty(float)
-    def maxStep(self):
-        '''Maximum step size in [um]'''
-        return self._maxStep
+    def stepSize(self):
+        '''Step size in [um]'''
+        return self._stepSize
 
-    @maxStep.setter
-    def maxStep(self, maxStep):
-        self._maxStep = maxStep
+    @stepSize.setter
+    def stepSize(self, stepSize):
+        self._stepSize = stepSize
 
     #
     # Properties and methods to be used in subclassing
@@ -150,15 +150,8 @@ class Trajectory(object):
     def r_i(self):
         return self.data[0]
 
-    def step(self, d):
-        self.data = np.concatenate((self.data,
-                                    np.array([self.r_f + d])),
-                                   axis=0)
-
-    def add(self, r):
-        self.data = np.concatenate((self.data,
-                                    np.array([r])),
-                                   axis=0)
+    def insert(self, index, value):
+        self.data = np.insert(self.data, index, value, axis=0)
 
     def stitch(self, trajectory):
         '''Adds another trajectory to the end of the trajectory
