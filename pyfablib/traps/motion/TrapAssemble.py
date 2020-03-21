@@ -8,6 +8,7 @@ from .TrapMove import TrapMove, Trajectory
 from PyQt5.QtCore import pyqtProperty
 from math import ceil
 from queue import Queue
+from numba import njit
 import numpy as np
 import itertools
 import heapq
@@ -110,7 +111,7 @@ class TrapAssemble(TrapMove):
             gridSpacing *= -1
         z = np.arange(zmin, zmax+gridSpacing, gridSpacing)
         xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
-        G = np.full((tmax, *xv.shape), np.inf, dtype=np.float16)
+        G = np.full((tmax, *xv.shape), np.inf, dtype=np.float32)
         # Find initial/final positions of traps in graph and
         # set traps nodes not in group off-limits
         group = traps.flatten()
@@ -153,7 +154,6 @@ class TrapAssemble(TrapMove):
             if trap is not group[-1]:
                 self.update(
                     G, path, particleSpacing, (xv, yv, zv))
-                #print(np.where(G == np.nan)[0].size)
                 self.reset(G)
         # Do any post-processing of trajectories
         self.tune(trajectories)
@@ -225,6 +225,7 @@ class TrapAssemble(TrapMove):
     # Functions that define Graph structure
     #
     @staticmethod
+    @njit(cache=True)
     def w(node, neighbor, target):
         '''
         Edge length from node to neighbor, given that you're
@@ -233,26 +234,29 @@ class TrapAssemble(TrapMove):
         return 0 if neighbor[1:] == target[1:] else 1
 
     @staticmethod
+    @njit(cache=True)
     def h(u, target):
         '''
         Heuristic for A* search. Choose euclidean distance
         of shortest possible time-like path to target's
         (x, y, z) position
         '''
-        dr = np.array(target[1:]) - np.array(u[1:])
-        return np.float16(np.sqrt(2*dr.dot(dr)))
+        dr = (np.array(target[1:]) - np.array(u[1:])).astype(np.float32)
+        return np.sqrt(2*dr.dot(dr))
 
     @staticmethod
+    @njit(cache=True)
     def neighbors(u, target, G):
         '''
         Given node (t, i, j, k), return all neighboring nodes in G.
         '''
         (t, i, j, k) = u
         (nt, nx, ny, nz) = G.shape
+        neighbors = []
         if t == nt-1:
-            return []
+            pass
         elif u[1:] == target[1:]:
-            return [(t+1, *target[1:])]
+            neighbors.append((t+1, *target[1:]))
         else:
             xneighbors = [i]
             if i != nx-1:
@@ -269,7 +273,6 @@ class TrapAssemble(TrapMove):
                 zneighbors.append(k+1)
             if k != 0:
                 zneighbors.append(k-1)
-            neighbors = []
             for x in xneighbors:
                 for y in yneighbors:
                     for z in zneighbors:
@@ -280,7 +283,7 @@ class TrapAssemble(TrapMove):
                             dt, dr = (ds[0], ds[1:])
                             if dt >= dr.sum():
                                 neighbors.append(node)
-            return neighbors
+        return neighbors
 
     #
     # Updating and reseting graph for next iteration
@@ -294,15 +297,16 @@ class TrapAssemble(TrapMove):
         for node in path:
             t = node[0]
             ball = self.ball(node, G, particleSpacing, rv)
-            G[t, ball] = np.nan
+            G[t][ball] = np.nan
 
     @staticmethod
     def reset(G):
         '''Reset all active nodes in G to infinity'''
-        idxs = np.where(G != np.nan)
+        idxs = np.where(~np.isnan(G))
         G[idxs] = np.inf
 
     @staticmethod
+    @njit(cache=True)
     def ball(node, G, radius, rv):
         '''
         Return nodes of G inside ball centered on
@@ -341,7 +345,7 @@ class TrapAssemble(TrapMove):
         for trap in trajectories.keys():
             r0 = (trap.r.x(), trap.r.y(), trap.r.z())
             trajectories[trap].data[0] = np.array(r0)
-            trajectories[trap].data[-1] = vertices[trap]
+            trajectories[trap].add(vertices[trap])
 
     #
     # Trap-target pairing
