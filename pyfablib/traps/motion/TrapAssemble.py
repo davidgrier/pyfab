@@ -6,8 +6,6 @@ A* graph search for moving a set of traps to a set of targets
 
 from .TrapMove import TrapMove, Trajectory
 from PyQt5.QtCore import pyqtProperty
-from math import ceil
-from queue import Queue
 from numba import njit
 import numpy as np
 import itertools
@@ -40,12 +38,18 @@ class TrapAssemble(TrapMove):
 
     @targets.setter
     def targets(self, targets):
-        if type(targets) is dict:
+        if self.traps is None:
+            logger.warning("Set traps before setting targets")
+        elif type(targets) is dict:
             self._targets = dict(targets)
         else:
             targets = list(targets)
             logger.info("Pairing traps to targets")
-            self._targets = self.pair(targets)
+            if len(self.traps.flatten()) == len(targets):
+                self._targets = self.pair(targets)
+            else:
+                logger.warning(
+                    "Number of targets does not match number of traps")
 
     #
     # Tunable parameters
@@ -65,9 +69,6 @@ class TrapAssemble(TrapMove):
 
     @gridSpacing.setter
     def gridSpacing(self, spacing):
-        if spacing > self.particleSpacing:
-            raise ValueError(
-                "Spacing between grid points must be smaller than spacing between particles.")
         self._gridSpacing = spacing
 
     @pyqtProperty(tuple)
@@ -131,6 +132,14 @@ class TrapAssemble(TrapMove):
                 i, j, k = self.locate(rf, xv, yv, zv)
                 r_0[trap] = (i0, j0, k0)
                 r_f[trap] = (i, j, k)
+        # Make sure a target isn't blocked
+        for trap in r_f.keys():
+            i, j, k = r_f[trap]
+            if np.isnan(G[tmax-1, i, j, k]):
+                msg = 'Assemble failed. '
+                msg += 'An unused trap is blocking position '
+                msg += '({:.2f}, {:.2f}, {:.2f}).'
+                return -1, msg.format(*self.targets[trap])
         # Sort traps by distance from targets
 
         def dist(trap):
@@ -146,8 +155,12 @@ class TrapAssemble(TrapMove):
         for trap in group:
             r = (trap.r.x(), trap.r.y(), trap.r.z())
             logger.info(
-                "Calculating shortest path for position ({}, {}, {})".format(*r))
+                "Calculating for ({:.2f}, {:.2f}, {:.2f})".format(*r))
             source, target = (r_0[trap], r_f[trap])
+            if np.isnan(G[tmax-1][target]):
+                msg = 'Assemble failed. '
+                msg += 'Spacing between targets is smaller than particleSpacing'
+                return -1, msg
             trajectory, path = self.shortest_path(
                 source, target, G, (xv, yv, zv))
             trajectories[trap] = trajectory
@@ -161,6 +174,8 @@ class TrapAssemble(TrapMove):
         self.trajectories = trajectories
         self.t = 0
         self.tf = self.tmax
+
+        return 0, ''
 
     def shortest_path(self, source, target, G, rv):
         '''
@@ -366,8 +381,7 @@ class TrapAssemble(TrapMove):
         if self.traps.count() == 0:
             return {}
         if len(traps) != len(targets):
-            raise ValueError(
-                "Number of traps must be same as number of targets")
+            return {}
         # Initialize matrices of targets and trap locations
         t = []
         for idx, trap in enumerate(traps):

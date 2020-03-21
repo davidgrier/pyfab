@@ -6,6 +6,10 @@ import numpy as np
 from PyQt5.QtGui import QVector3D
 from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QObject)
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class TrapMove(QObject):
 
@@ -48,11 +52,14 @@ class TrapMove(QObject):
         traps = self.traps
         self.parent().screen.source.blockSignals(True)
         self.parent().screen.pauseSignals(True)
-        self.parameterize(traps)
+        status, msg = self.parameterize(traps)
         self.parent().screen.source.blockSignals(False)
         self.parent().screen.pauseSignals(False)
         # Go!
-        self._running = True
+        if status == 0:
+            self._running = True
+        else:
+            logger.warning(msg)
 
     #
     # PyQt properties to be tuned for performance
@@ -96,10 +103,11 @@ class TrapMove(QObject):
             trajectories[trap] = Trajectory(r_i)
         self.trajectories = trajectories
 
+        return 0, ''
+
     #
     # Properties and methods for core movement functionality
     #
-
     @pyqtSlot(np.ndarray)
     def move(self, frame):
         if self._running:

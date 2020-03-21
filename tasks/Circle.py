@@ -15,8 +15,8 @@ class Circle(Assemble):
         if self.assembler.traps is not None:
             # Set tunables
             self.assembler.stepRate = 3         # [steps/s]
-            self.assembler.particleSpacing = 1  # [um]
-            self.assembler.gridSpacing = .5     # [um]
+            self.assembler.particleSpacing = 7  # [um]
+            self.assembler.gridSpacing = 1     # [um]
             self.assembler.zrange = (5, -10)    # [um]
             self.assembler.tmax = 300           # [steps]
             # Calculate vertices of circle
@@ -31,7 +31,7 @@ class Circle(Assemble):
                 z = np.random.choice(zrange)
                 vertices.append(np.array([xc + radius*np.cos(theta),
                                           yc + radius*np.sin(theta),
-                                          z]))
+                                          0]))
             # Set vertices and begin assembly
             self.assembler.targets = vertices
             self.assembler.start()
