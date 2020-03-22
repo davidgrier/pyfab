@@ -5,7 +5,7 @@
 import numpy as np
 from PyQt5.QtGui import QVector3D
 from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QObject)
-
+from scipy.interpolate import splprep, splev
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -19,9 +19,10 @@ class TrapMove(QObject):
         self._trajectories = None
 
         self._stepRate = 2
-        self._stepSize = .1
-        self._wait = None
+        self._stepSize = None
+        self._smooth = True
 
+        self._wait = None
         self._running = False
         self.t = 0
         self.tf = 0
@@ -47,6 +48,8 @@ class TrapMove(QObject):
         else:
             # Set number of frames to wait between movements
             fps = self.parent().screen.fps
+            cgh = self.parent().cgh.device
+            mpp = cgh.cameraPitch/cgh.magnification  # [microns/pixel]
             stepRate = self.stepRate
             self._wait = round(fps/stepRate)
             # Wait for a few seconds to start
@@ -57,6 +60,10 @@ class TrapMove(QObject):
             self.parent().screen.source.blockSignals(True)
             self.parent().screen.pauseSignals(True)
             status, msg = self.parameterize(traps)
+            if status == 0 and self.smooth:
+                if self.stepSize is not None:
+                    stepSize = self.stepSize / mpp
+                    self.interpolate(stepSize)
             self.parent().screen.source.blockSignals(False)
             self.parent().screen.pauseSignals(False)
             # Go!
@@ -86,8 +93,16 @@ class TrapMove(QObject):
     def stepSize(self, stepSize):
         self._stepSize = stepSize
 
+    @pyqtProperty(bool)
+    def smooth(self):
+        return self._smooth
+
+    @smooth.setter
+    def smooth(self, smooth):
+        self._smooth = smooth
+
     #
-    # Properties and methods to be used in subclassing
+    # Properties and methods for calculating trajectories
     #
     @property
     def trajectories(self):
@@ -108,6 +123,28 @@ class TrapMove(QObject):
         self.trajectories = trajectories
 
         return 0, ''
+
+    def interpolate(self, stepSize):
+        '''
+        Smooth out trajectories with scipy interpolation.
+        '''
+        trajectories = self.trajectories
+        for trap in trajectories.keys():
+            traj = trajectories[trap]
+            L = np.sum(
+                np.linalg.norm(np.diff(traj.data, axis=0), axis=1))
+            npts = int(L / stepSize)
+            tspace = np.linspace(0, 1, npts, endpoint=True)
+            x = traj.data[:, 0]
+            y = traj.data[:, 1]
+            z = traj.data[:, 2]
+            k = min(3, x.size-1)
+            tck, u = splprep([x, y, z], s=0, k=k)
+            xnew, ynew, znew = splev(tspace, tck)
+            traj.data = np.empty((tspace.size, 3))
+            traj.data[:, 0] = xnew
+            traj.data[:, 1] = ynew
+            traj.data[:, 2] = znew
 
     #
     # Properties and methods for core movement functionality

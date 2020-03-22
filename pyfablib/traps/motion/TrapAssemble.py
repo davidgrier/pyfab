@@ -7,7 +7,6 @@ A* graph search for moving a set of traps to a set of targets
 from .TrapMove import TrapMove, Trajectory
 from PyQt5.QtCore import pyqtProperty
 from numba import njit
-from scipy.interpolate import splprep, splev
 import numpy as np
 import itertools
 import heapq
@@ -59,6 +58,17 @@ class TrapAssemble(TrapMove):
     #
     # Tunable parameters
     #
+    @pyqtProperty(float)
+    def stepSize(self):
+        if self._stepSize is None:
+            return self._gridSpacing
+        else:
+            return self._stepSize
+
+    @stepSize.setter
+    def stepSize(self, stepSize):
+        self._stepSize = stepSize
+
     @pyqtProperty(float)
     def particleSpacing(self):
         '''Spacing between traps. Used for graph discretization [um]'''
@@ -172,8 +182,13 @@ class TrapAssemble(TrapMove):
                 self.update(
                     G, path, particleSpacing, (xv, yv, zv))
                 self.reset(G)
-        # Smooth out trajectories
-        self.smooth(trajectories, stepSize)
+        # Set exact initial and final values in trajectory
+        vertices = self.targets
+        for trap in trajectories.keys():
+            traj = trajectories[trap]
+            r0 = (trap.r.x(), trap.r.y(), trap.r.z())
+            traj.data[0] = r0
+            traj.data[-1] = vertices[trap]
         # Set trajectories and global indices for TrapMove.move
         self.trajectories = trajectories
         self.t = 0
@@ -354,32 +369,6 @@ class TrapAssemble(TrapMove):
         idx = np.argmin(norm.flatten())
         i, j, k = np.unravel_index(idx, norm.shape)
         return (i, j, k)
-
-    def smooth(self, trajectories, stepSize):
-        '''
-        Smooth out trajectories and set
-        exact initial and final values.
-        '''
-        vertices = self.targets
-        for trap in trajectories.keys():
-            traj = trajectories[trap]
-            r0 = (trap.r.x(), trap.r.y(), trap.r.z())
-            traj.data[0] = r0
-            traj.data[-1] = vertices[trap]
-            L = np.sum(
-                np.linalg.norm(np.diff(traj.data, axis=0), axis=1))
-            npts = int(L / stepSize)
-            tspace = np.linspace(0, 1, npts, endpoint=True)
-            x = traj.data[:, 0]
-            y = traj.data[:, 1]
-            z = traj.data[:, 2]
-            k = min(3, x.size-1)
-            tck, u = splprep([x, y, z], s=0, k=k)
-            xnew, ynew, znew = splev(tspace, tck)
-            traj.data = np.empty((tspace.size, 3))
-            traj.data[:, 0] = xnew
-            traj.data[:, 1] = ynew
-            traj.data[:, 2] = znew
 
     #
     # Trap-target pairing

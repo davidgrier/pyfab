@@ -14,6 +14,7 @@ class Circle(Assemble):
     def dotask(self):
         if self.assembler.traps is not None:
             # Set tunables
+            self.assembler.smooth = True
             self.assembler.stepRate = 15         # [steps/s]
             self.assembler.stepSize = .2         # [um]
             self.assembler.particleSpacing = 2   # [um]
