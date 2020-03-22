@@ -18,7 +18,7 @@ class Circle(Assemble):
             self.assembler.stepRate = 15         # [steps/s]
             self.assembler.stepSize = .2         # [um]
             self.assembler.particleSpacing = 2   # [um]
-            self.assembler.gridSpacing = 1       # [um]
+            self.assembler.gridSpacing = .5      # [um]
             self.assembler.zrange = (5, -10)     # [um]
             self.assembler.tmax = 300            # [steps]
             # Calculate vertices of circle

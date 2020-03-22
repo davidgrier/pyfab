@@ -138,13 +138,17 @@ class TrapMove(QObject):
             x = traj.data[:, 0]
             y = traj.data[:, 1]
             z = traj.data[:, 2]
-            k = min(3, x.size-1)
-            tck, u = splprep([x, y, z], s=0, k=k)
-            xnew, ynew, znew = splev(tspace, tck)
-            traj.data = np.empty((tspace.size, 3))
-            traj.data[:, 0] = xnew
-            traj.data[:, 1] = ynew
-            traj.data[:, 2] = znew
+            if x.size > 1:
+                if x.size < 5:
+                    k = 1
+                else:
+                    k = 3
+                tck, u = splprep([x, y, z], s=x.size, k=k)
+                xnew, ynew, znew = splev(tspace, tck)
+                traj.data = np.empty((tspace.size, 3))
+                traj.data[:, 0] = xnew
+                traj.data[:, 1] = ynew
+                traj.data[:, 2] = znew
 
     #
     # Properties and methods for core movement functionality

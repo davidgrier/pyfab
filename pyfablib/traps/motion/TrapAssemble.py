@@ -177,6 +177,11 @@ class TrapAssemble(TrapMove):
                 return -1, msg
             trajectory, path = self.shortest_path(
                 source, target, G, (xv, yv, zv))
+            if trajectory is None:
+                msg = 'Assemble failed (unknown error). '
+                msg += 'Try adjusting tunables or increasing '
+                msg += 'separation between traps.'
+                return -1, msg
             trajectories[trap] = trajectory
             if trap is not group[-1]:
                 self.update(
@@ -245,7 +250,10 @@ class TrapAssemble(TrapMove):
             path.insert(0, node)
             if node == source:
                 break
-            node = previous[node]
+            try:
+                node = previous[node]
+            except KeyError:
+                return None, None
             t -= 1
         # Extend path all the way up to tmax
         tmax = G.shape[0] - 1
