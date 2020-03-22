@@ -37,29 +37,33 @@ class TrapMove(QObject):
     @traps.setter
     def traps(self, traps):
         self._traps = traps
-        if traps is not None:
+        if traps.__class__.__name__ == 'QTrapGroup':
             traps.select(True)
 
     def start(self):
-        # Set number of frames to wait between movements
-        fps = self.parent().screen.fps
-        stepRate = self.stepRate
-        self._wait = round(fps/stepRate)
-        # Wait for a few seconds to start
-        seconds = 2
-        self._counter = round(fps/(1./seconds))
-        # Find trajectories
         traps = self.traps
-        self.parent().screen.source.blockSignals(True)
-        self.parent().screen.pauseSignals(True)
-        status, msg = self.parameterize(traps)
-        self.parent().screen.source.blockSignals(False)
-        self.parent().screen.pauseSignals(False)
-        # Go!
-        if status == 0:
-            self._running = True
+        if traps.__class__.__name__ != 'QTrapGroup':
+            logger.warning("Set QTrapGroup before starting")
         else:
-            logger.warning(msg)
+            # Set number of frames to wait between movements
+            fps = self.parent().screen.fps
+            stepRate = self.stepRate
+            self._wait = round(fps/stepRate)
+            # Wait for a few seconds to start
+            seconds = 2
+            self._counter = round(fps/(1./seconds))
+            # Find trajectories
+            logger.info("Calculating trajectories")
+            self.parent().screen.source.blockSignals(True)
+            self.parent().screen.pauseSignals(True)
+            status, msg = self.parameterize(traps)
+            self.parent().screen.source.blockSignals(False)
+            self.parent().screen.pauseSignals(False)
+            # Go!
+            if status == 0:
+                self._running = True
+            else:
+                logger.warning(msg)
 
     #
     # PyQt properties to be tuned for performance
@@ -140,7 +144,6 @@ class Trajectory(object):
         super(Trajectory, self).__init__(**kwargs)
         self.data = np.zeros(shape=(1, 3))
         self.data[0] = np.array(r_i)
-        self.last_step = None
 
     @property
     def r_f(self):

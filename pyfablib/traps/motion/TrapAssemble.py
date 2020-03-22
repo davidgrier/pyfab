@@ -38,8 +38,8 @@ class TrapAssemble(TrapMove):
 
     @targets.setter
     def targets(self, targets):
-        if self.traps is None:
-            logger.warning("Set traps before setting targets")
+        if self.traps.__class__.__name__ != 'QTrapGroup':
+            logger.warning("Set QTrapGroup before setting targets")
         elif type(targets) is dict:
             self._targets = dict(targets)
         else:
@@ -158,8 +158,6 @@ class TrapAssemble(TrapMove):
         trajectories = {}
         for trap in group:
             r = (trap.r.x(), trap.r.y(), trap.r.z())
-            logger.info(
-                "Calculating for ({:.2f}, {:.2f}, {:.2f})".format(*r))
             source, target = (r_0[trap], r_f[trap])
             if np.isnan(G[tmax-1][target]):
                 msg = 'Assemble failed. '
