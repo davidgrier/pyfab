@@ -430,42 +430,49 @@ class TrapAssemble(TrapMove):
         return v_perms[i_min]
 
     @staticmethod
-    def _pair_genetic(v, t):
+    @njit(cache=True)
+    def _pair_genetic(vertices, traps):
         '''
         Genetic algorithm that finds best trap-target pairings.
 
         Args:
-            t: matrix of trap locations
-            v: matrix of targets
+            traps: matrix of trap locations
+            vertices: matrix of targets
         Returns:
-            permutation of v's rows that best minimizes
+            permutation of vertices's rows that best minimizes
             total distance traveled
         '''
-        N = t.shape[0]
-        # Init number of generations, size of generations, first generation
-        total_gens = int(50*np.sqrt(N))
-        gen_size = int(10*np.sqrt(N))
-        gen = np.asarray(list(map(lambda x: np.random.permutation(v),
-                                  np.empty((gen_size, N, 3)))))
-        mutated_gen = np.empty((gen_size*2, N, 3))
-        # Define fitness metric
-
-        def d(v_perm): return np.sum((v_perm - t)**2)
-        for gen_idx in range(total_gens):
-            mutations = np.empty(gen.shape)
-            for idx, mutation in enumerate(mutations):
+        n = traps.shape[0]
+        nrange = np.arange(0, n)
+        no_generations = int(50*np.sqrt(n))
+        generation_size = int(10*np.sqrt(n))
+        # Buffers
+        generation = np.empty((generation_size, n, 3))
+        mutated = np.empty(generation.shape)
+        buff = np.empty((generation_size*2, n, 3))
+        score = np.empty(generation_size*2)
+        # Initialize first generation
+        for i in range(generation_size):
+            generation[i] = np.random.permutation(vertices)
+        for i in range(no_generations):
+            for j in range(generation_size):
                 # Mutate by swapping random indexes
-                mutations[idx] = gen[idx]
-                i, j = (np.random.choice(range(N)),
-                        np.random.choice(range(N)))
-                mutations[idx][[i, j]] = mutations[idx][[j, i]]
-                # Mutate by reflection
-                np.flipud(mutations[idx])
-            # Fill mutated_gen with current gen and all mutations
-            mutated_gen[:gen_size] = gen
-            mutated_gen[gen_size:] = mutations
-            # Cut out worst performing permutations
-            gen = np.asarray(sorted(mutated_gen,
-                                    key=d))
-            gen = gen[:gen_size]
-        return gen[0]
+                candidate = generation[j]
+                mutated[j] = candidate
+                k, l = (np.random.choice(nrange),
+                        np.random.choice(nrange))
+                ml = candidate[l].copy()
+                mutated[j, l] = mutated[j, k]
+                mutated[j, k] = ml
+                # Gather candidates and mutated candidates
+                buff[j] = mutated[j]
+                buff[j+generation_size] = generation[j]
+                # Assign scores of each
+                score[j] = np.sum((mutated[j] - traps)**2)
+                score[j+generation_size] = np.sum((candidate - traps)**2)
+            # Sort candidates and mutated candidates and
+            # assign new generation
+            idxs = np.argsort(score)
+            for j in range(generation_size):
+                generation[j] = buff[idxs[j]]
+        return generation[0]
