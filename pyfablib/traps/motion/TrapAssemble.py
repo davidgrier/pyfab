@@ -7,6 +7,7 @@ A* graph search for moving a set of traps to a set of targets
 from .TrapMove import TrapMove, Trajectory
 from PyQt5.QtCore import pyqtProperty
 from numba import njit
+from scipy.interpolate import splprep, splev
 import numpy as np
 import itertools
 import heapq
@@ -100,14 +101,15 @@ class TrapAssemble(TrapMove):
         # Get tunables
         pattern = self.parent().pattern.pattern
         cgh = self.parent().cgh.device
-        mpp = cgh.cameraPitch/cgh.magnification              # [microns/pixel]
+        mpp = cgh.cameraPitch/cgh.magnification         # [microns/pixel]
         w, h = (self.parent().screen.source.width,
-                self.parent().screen.source.height)          # [pixels]
+                self.parent().screen.source.height)     # [pixels]
         zmin, zmax = (self.zrange[0]/mpp,
                       self.zrange[1]/mpp)               # [pixels]
-        tmax = self.tmax                                     # [steps]
+        tmax = self.tmax                                # [steps]
         gridSpacing = self.gridSpacing / mpp            # [pixels]
         particleSpacing = self.particleSpacing / mpp    # [pixels]
+        stepSize = self.stepSize / mpp
         # spacing = ceil(particleSpacing / gridSpacing)        # [steps]
         # Initialize graph w/ obstacles at all traps we ARENT moving
         x = np.arange(0, w+gridSpacing, gridSpacing)
@@ -170,8 +172,8 @@ class TrapAssemble(TrapMove):
                 self.update(
                     G, path, particleSpacing, (xv, yv, zv))
                 self.reset(G)
-        # Do any post-processing of trajectories
-        self.tune(trajectories)
+        # Smooth out trajectories
+        self.smooth(trajectories, stepSize)
         # Set trajectories and global indices for TrapMove.move
         self.trajectories = trajectories
         self.t = 0
@@ -353,9 +355,9 @@ class TrapAssemble(TrapMove):
         i, j, k = np.unravel_index(idx, norm.shape)
         return (i, j, k)
 
-    def tune(self, trajectories):
+    def smooth(self, trajectories, stepSize):
         '''
-        Post process trajectories by setting
+        Smooth out trajectories and set
         exact initial and final values.
         '''
         vertices = self.targets
@@ -364,6 +366,20 @@ class TrapAssemble(TrapMove):
             r0 = (trap.r.x(), trap.r.y(), trap.r.z())
             traj.data[0] = r0
             traj.data[-1] = vertices[trap]
+            L = np.sum(
+                np.linalg.norm(np.diff(traj.data, axis=0), axis=1))
+            npts = int(L / stepSize)
+            tspace = np.linspace(0, 1, npts, endpoint=True)
+            x = traj.data[:, 0]
+            y = traj.data[:, 1]
+            z = traj.data[:, 2]
+            k = min(3, x.size-1)
+            tck, u = splprep([x, y, z], s=0, k=k)
+            xnew, ynew, znew = splev(tspace, tck)
+            traj.data = np.empty((tspace.size, 3))
+            traj.data[:, 0] = xnew
+            traj.data[:, 1] = ynew
+            traj.data[:, 2] = znew
 
     #
     # Trap-target pairing

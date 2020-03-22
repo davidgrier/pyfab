@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 
 class QSLM(QLabel):
 
-    def __init__(self, parent=None, fake=False):
+    def __init__(self, parent=None, fake=True):
         super(QSLM, self).__init__(None)
         screens = QGuiApplication.screens()
         if (len(screens) == 2) and not fake:

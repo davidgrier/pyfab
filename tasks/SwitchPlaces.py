@@ -14,7 +14,8 @@ class SwitchPlaces(Assemble):
     def dotask(self):
         if self.assembler.traps is not None:
             # Set tunables
-            self.assembler.stepRate = 3         # [steps/s]
+            self.assembler.stepRate = 15        # [steps/s]
+            self.assembler.stepSize = .2        # [um]
             self.assembler.particleSpacing = 4  # [um]
             self.assembler.gridSpacing = .5     # [um]
             self.assembler.zrange = (5, -10)    # [um]
