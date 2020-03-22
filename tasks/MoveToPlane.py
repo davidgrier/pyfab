@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# MENU: Motion/Move to trapping plane
 
 from .Assemble import Assemble
 import numpy as np
@@ -8,14 +9,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 
-class MoveToCoordinate(Assemble):
+class MoveToPlane(Assemble):
+    """Move traps to desired xy plane. By default moves to z = 0."""
 
-    """Moves one selected trap to one point"""
-
-    def __init__(self, x=None, y=None, z=None, **kwargs):
-        super(MoveToCoordinate, self).__init__(**kwargs)
-        self.x = x
-        self.y = y
+    def __init__(self, z=0, **kwargs):
+        super(MoveToPlane, self).__init__(**kwargs)
         self.z = z
 
     def dotask(self):
@@ -28,14 +26,12 @@ class MoveToCoordinate(Assemble):
             self.assembler.gridSpacing = .5     # [um]
             self.assembler.zrange = (5, -10)    # [um]
             self.assembler.tmax = 300           # [steps]
-            # Pair
+            # Get and set targets
             traps = self.assembler.traps.flatten()
-            x, y, z = (self.x, self.y, self.z)
-            if len(traps) != 1:
-                logger.warning("Select only one trap")
-            elif None in [x, y, z]:
-                logger.warning("Set desired (x, y, z) position for trap")
-            else:
-                targets = {traps[0]: np.array((x, y, z))}
-                self.assembler.targets = targets
-                self.assembler.start()
+            targets = {}
+            for trap in traps:
+                r = (trap.r.x(), trap.r.y(), self.z)
+                targets[trap] = np.array(r)
+            self.assembler.targets = targets
+            # Go!
+            self.assembler.start()
