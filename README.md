@@ -9,9 +9,9 @@ interactively added and deleted, grouped and translated.
 **jansen** is the video front end for **pyfab** and stands alone as a
 light-weight interface for holographic video microscopy.
 
-# Installation
+## Installation
 
-### Without hardware
+#### Without hardware
 1. Start with a fresh python 3.6 installation or virtual environment (strongly recommended).
 
 2. Install dependencies from requirements.txt: 
