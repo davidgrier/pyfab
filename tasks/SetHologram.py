@@ -12,7 +12,7 @@ class SetHologram(Task):
 
     def initialize(self, frame):
         self.parent.pattern.clearTraps()
-        self.cgh = self.parent.cgh
+        self.cgh = self.parent.cgh.device
         self.qx = np.imag(self.cgh.iqx)
         self.qy = np.imag(self.cgh.iqy)
 

@@ -13,5 +13,6 @@ class RingTrap(Task):
         super(RingTrap, self).__init__(**kwargs)
 
     def dotask(self):
-        trap = QRingTrap(r=QVector3D(970, 682, 0))
+        cgh = self.parent.cgh.device
+        trap = QRingTrap(r=QVector3D(cgh.xc, cgh.yc, 0))
         self.parent.pattern.addTrap(trap)

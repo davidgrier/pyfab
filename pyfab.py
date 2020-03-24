@@ -124,9 +124,6 @@ class PyFab(QMainWindow, Ui_PyFab):
             lambda: self.setDvrSource(self.screen.default))
         self.bfilters.clicked.connect(
             lambda: self.setDvrSource(self.screen))
-        self.actionSavePhoto.triggered.connect(self.savePhoto)
-        self.actionSavePhotoAs.triggered.connect(
-            lambda: self.savePhoto(True))
 
         # Signals associated with handling images
         self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
@@ -161,8 +158,9 @@ class PyFab(QMainWindow, Ui_PyFab):
             return
         if select:
             getname = QFileDialog.getSaveFileName
+            directory = self.configuration.datadir
             filename, _ = getname(self, 'Save Image',
-                                  directory=filename,
+                                  directory=directory,
                                   filter='Image files (*.png)')
         else:
             filename = self.configuration.filename(suffix='.png')
