@@ -20,7 +20,7 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 path = os.path.expanduser('/'.join(cnn.__file__.split('/')[:-1]))
 keras_head_path = path+'/keras_models/predict_stamp_best'
@@ -143,9 +143,11 @@ class QHVM(QVision):
                 pxls = (201, 201)
             else:
                 pxls = self.estimator.pixels
+            gpucoords = True if self.realTime else False
             result = cnn.crop_feature(img_list=inflated,
                                       xy_preds=detections,
-                                      new_shape=pxls)
+                                      new_shape=pxls,
+                                      gpucoords=gpucoords)
             logger.debug('Time to crop: {}'.format(time() - t0))
             if post:
                 logger.info("Detection complete!")
@@ -180,12 +182,14 @@ class QHVM(QVision):
                 m = 'lm' if self.realTime else 'amoeba-lm'
                 for f in frame.features:
                     f.model.double_precision = False
-                    f.optimizer.mask.settings['distribution'] = 'fast'
-                    lmsettings = f.optimizer.lm_settings
-                    lmsettings.options['max_nfev'] = 100
+                    if self.realTime:
+                        mask = f.optimizer.mask
+                        settings = f.optimizer.lm_settings
+                        mask.settings['distribution'] = 'fast'
+                        settings.options['max_nfev'] = 100
                     for f in self.jansen.screen.filters:
                         if 'samplehold' in str(f):
-                            f.data = f.data / np.mean(f.data)
+                            f.data = f.data / f.data.mean()
                     result = f.optimize(method=m, verbose=False)
                 logger.debug('Refine time: {}'.format(time() - t0))
                 if post:
