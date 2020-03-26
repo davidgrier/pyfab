@@ -20,7 +20,7 @@ logger.setLevel(logging.DEBUG)
 
 try:
     ex1 = None
-    from jansenlib.QVision import QVision
+    from jansenlib.QVision.QHVM import QHVM as QVision
 except Exception as ex:
     ex1 = ex
 

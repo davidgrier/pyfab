@@ -20,7 +20,7 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 path = os.path.expanduser('/'.join(cnn.__file__.split('/')[:-1]))
 keras_head_path = path+'/keras_models/predict_stamp_best'
