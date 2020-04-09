@@ -21,7 +21,7 @@ class Translate(Task):
         if self.traps is not None:
             if isinstance(self.traps, QTrapGroup):
                 self.traps.select(True)
-                self.traps.flatten()[0].moveBy(self.dr)
+                self.traps.moveBy(self.dr)
             elif isinstance(self.traps, QTrap):
                 self.parent.pattern.pattern.select(True)
                 self.traps.moveBy(self.dr)
