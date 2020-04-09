@@ -139,11 +139,7 @@ class TrapMove(QObject):
             y = traj.data[:, 1]
             z = traj.data[:, 2]
             if x.size > 1:
-                if x.size < 5:
-                    k = 1
-                else:
-                    k = 3
-                tck, u = splprep([x, y, z], s=x.size, k=k)
+                tck, u = splprep([x, y, z], s=x.size, k=1)
                 xnew, ynew, znew = splev(tspace, tck)
                 traj.data = np.empty((tspace.size, 3))
                 traj.data[:, 0] = xnew
