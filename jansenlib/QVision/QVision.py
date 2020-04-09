@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
 from .QVisionWidget import Ui_QVisionWidget
 from common.QSettingsWidget import QSettingsWidget
@@ -42,6 +41,7 @@ class QVision(QSettingsWidget):
     sigPlot = pyqtSignal()
     sigCleanup = pyqtSignal()
     sigPost = pyqtSignal()
+    sigNewLMFrame = pyqtSignal(Frame)
 
     def __init__(self, parent=None):
 
@@ -142,8 +142,8 @@ class QVision(QSettingsWidget):
             i = self.jansen.dvr.framenumber
             if self.realTime:
                 frames, detections = self.predict([image], [i])
-
                 frame = frames[0]
+                self.sigNewLMFrame.emit(frame)
                 self.rois = self.draw(detections[0])
                 if self.jansen.dvr.is_recording():
                     self.recording = True
