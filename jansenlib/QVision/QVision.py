@@ -41,7 +41,7 @@ class QVision(QSettingsWidget):
     sigPlot = pyqtSignal()
     sigCleanup = pyqtSignal()
     sigPost = pyqtSignal()
-    sigNewLMFrame = pyqtSignal(Frame)
+    sigNewFrame = pyqtSignal(Frame)
 
     def __init__(self, parent=None):
 
@@ -143,7 +143,7 @@ class QVision(QSettingsWidget):
             if self.realTime:
                 frames, detections = self.predict([image], [i])
                 frame = frames[0]
-                self.sigNewLMFrame.emit(frame)
+                self.sigNewFrame.emit(frame)
                 self.rois = self.draw(detections[0])
                 if self.jansen.dvr.is_recording():
                     self.recording = True

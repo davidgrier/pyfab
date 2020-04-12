@@ -2,6 +2,7 @@
 
 from collections import deque
 import importlib
+import numpy as np
 
 import logging
 logging.basicConfig()
@@ -22,6 +23,7 @@ class Taskmanager(object):
 
     def __init__(self, parent):
         self.parent = parent
+        self.vision = parent.vision
         self.source = parent.screen.source
         self.task = None
         self.queue = deque()
@@ -36,13 +38,16 @@ class Taskmanager(object):
             try:
                 self.task = self.queue.popleft()
             except IndexError:
-                self.source.sigNewFrame.disconnect(self.handleTask)
+                if isinstance(frame, np.ndarray):
+                    self.source.sigNewFrame.disconnect(self.handleTask)
+                else:
+                    self.vision.sigNewFrame.disconnect(self.handleTask)
                 return
         self.task.process(frame)
         if self.task.isDone():
             self.task = None
 
-    def registerTask(self, task, **kwargs):
+    def registerTask(self, task, vision=False, **kwargs):
         """Places the named task into the task queue."""
         if isinstance(task, str):
             try:
@@ -54,7 +59,10 @@ class Taskmanager(object):
                 return
         self.queue.append(task)
         if self.task is None:
-            self.source.sigNewFrame.connect(self.handleTask)
+            if vision:
+                self.vision.sigNewFrame.connect(self.handleTask)
+            else:
+                self.source.sigNewFrame.connect(self.handleTask)
 
     def paused(self):
         return self._paused
