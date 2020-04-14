@@ -23,17 +23,35 @@ class QWriter(QObject):
 
     def __init__(self, data, filename):
         super(QWriter, self).__init__()
-        self.data = data
+        self.serialized = data
         self.filename = filename
+        self.f = open(self.filename, 'w')
+        self.idx = 0
+        self.step = 500000
+        self._writing = False
 
     @pyqtSlot()
-    def write(self):
+    def start(self):
         logger.info('Saving...')
-        data = json.dumps(self.data)
-        with open(self.filename, 'w') as f:
-            f.write(data+'\n')
-        logger.info('{} saved!'.format(self.filename))
-        self.finished.emit()
+        self.data = json.dumps(self.serialized)
+        self._writing = True
+
+    @pyqtSlot(np.ndarray)
+    def write(self, frame):
+        if self._writing:
+            idx = self.idx
+            step = self.step
+            if idx+step > len(self.data):
+                data = self.data[idx:]
+                self.f.write(data+'\n')
+                self.f.close()
+                self._writing = False
+                self.finished.emit()
+                logger.info('{} saved!'.format(self.filename))
+            else:
+                data = self.data[idx:step]
+                self.idx += step
+                self.f.write(data)
 
 
 class QVision(QSettingsWidget):
@@ -203,9 +221,10 @@ class QVision(QSettingsWidget):
                                        omit_frame=['data'],
                                        omit_feat=omit_feat)
             self._writer = QWriter(out, filename)
+            self.jansen.screen.sigNewFrame.connect(self._writer.write)
             self._thread = QThread()
             self._writer.moveToThread(self._thread)
-            self._thread.started.connect(self._writer.write)
+            self._thread.started.connect(self._writer.start)
             self._writer.finished.connect(self.close)
             self._thread.start()
         self.video = Video(instrument=self.instrument)
