@@ -8,7 +8,7 @@ from pylorenzmie.analysis import Video, Frame
 
 import numpy as np
 import pyqtgraph as pg
-import ujson
+import ujson as json
 
 import logging
 logging.basicConfig()
@@ -27,13 +27,13 @@ class QWriter(QObject):
         self.filename = filename
         self.f = open(self.filename, 'w')
         self.idx = 0
-        self.step = 100000
+        self.step = 1000000
         self._writing = False
 
     @pyqtSlot()
     def start(self):
         logger.info('Saving...')
-        self.data = ujson.dumps(self.serialized)
+        self.data = json.dumps(self.serialized)
         self._writing = True
 
     @pyqtSlot(np.ndarray)
@@ -43,7 +43,7 @@ class QWriter(QObject):
             step = self.step
             if idx+step > len(self.data):
                 data = self.data[idx:]
-                self.f.write(data+'\n')
+                self.f.write(data)
                 self.f.close()
                 self._writing = False
                 self.finished.emit()
@@ -200,8 +200,10 @@ class QVision(QSettingsWidget):
                 self.video.add(frames)
                 self.jansen.screen.source.blockSignals(False)
                 self.jansen.screen.pauseSignals(False)
-            self.video.set_trajectories(search_range=self.linkTol,
-                                        memory=int(self.nskip+3))
+            if self.saveTrajectories:
+                self.video.set_trajectories(verbose=False,
+                                            search_range=self.linkTol,
+                                            memory=int(self.nskip+3))
         self.frames = []
         self.framenumbers = []
         self.sigPlot.emit()
