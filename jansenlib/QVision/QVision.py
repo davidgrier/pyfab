@@ -8,7 +8,7 @@ from pylorenzmie.analysis import Video, Frame
 
 import numpy as np
 import pyqtgraph as pg
-import json
+import ujson
 
 import logging
 logging.basicConfig()
@@ -27,13 +27,13 @@ class QWriter(QObject):
         self.filename = filename
         self.f = open(self.filename, 'w')
         self.idx = 0
-        self.step = 500000
+        self.step = 100000
         self._writing = False
 
     @pyqtSlot()
     def start(self):
         logger.info('Saving...')
-        self.data = json.dumps(self.serialized)
+        self.data = ujson.dumps(self.serialized)
         self._writing = True
 
     @pyqtSlot(np.ndarray)
