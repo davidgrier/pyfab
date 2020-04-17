@@ -9,6 +9,7 @@ from FabWidget import Ui_PyFab
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
 from pyfablib.traps.motion.TrapAssemble import TrapAssemble
+from pyfablib.traps.motion.TrapMove import TrapMove
 from tasks.taskmenu import buildTaskMenu
 from tasks.Taskmanager import Taskmanager
 from common.Configuration import Configuration
@@ -80,6 +81,7 @@ class PyFab(QMainWindow, Ui_PyFab):
 
         # Trap automated assembly framework
         self.assembler = TrapAssemble(parent=self)
+        self.mover = TrapMove(parent=self)
 
         # Process automation
         self.tasks = Taskmanager(self)
@@ -128,6 +130,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         # Signals associated with handling images
         self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
         self.screen.source.sigNewFrame.connect(self.assembler.move)
+        self.screen.source.sigNewFrame.connect(self.mover.move)
         if self.setupVision:
             self.screen.sigNewFrame.connect(self.vision.process)
 

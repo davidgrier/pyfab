@@ -7,10 +7,11 @@ from .Task import Task
 
 class Record(Task):
 
-    def __init__(self, fn=None, **kwargs):
+    def __init__(self, fn=None, stop=True, **kwargs):
         # Pass in nframes keyword for length of recording
         super(Record, self).__init__(**kwargs)
         self.fn = fn
+        self.stop = stop
 
     def initialize(self, frame):
         self.dvr = self.parent.dvr
@@ -19,4 +20,5 @@ class Record(Task):
         self.dvr.recordButton.animateClick()
 
     def dotask(self):
-        self.dvr.stopButton.animateClick()
+        if self.stop:
+            self.dvr.stopButton.animateClick()

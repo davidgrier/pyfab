@@ -41,6 +41,11 @@ class TrapMove(QObject):
         if traps.__class__.__name__ == 'QTrapGroup':
             traps.select(True)
 
+    @property
+    def running(self):
+        '''Indicates whether automated trap movement is running'''
+        return self._running
+
     def start(self):
         traps = self.traps
         if traps.__class__.__name__ != 'QTrapGroup':
@@ -116,13 +121,21 @@ class TrapMove(QObject):
     def parameterize(self, traps):
         self.t = 0
         self.tf = 0
+        trajectories = self.calculate_trajectories(traps)
+        self.trajectories = trajectories
+        return 0, ''
+
+    @staticmethod
+    def calculate_trajectories(traps, **kwargs):
+        '''
+        General method for calculating trajectories.
+        Can be set from a task or overwritten in subclass.
+        '''
         trajectories = {}
         for trap in traps.flatten():
             r_i = (trap.r.x(), trap.r.y(), trap.r.z())
             trajectories[trap] = Trajectory(r_i)
-        self.trajectories = trajectories
-
-        return 0, ''
+        return trajectories
 
     def interpolate(self, stepSize):
         '''
