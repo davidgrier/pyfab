@@ -126,7 +126,7 @@ class TrapMove(QObject):
         return 0, ''
 
     @staticmethod
-    def calculate_trajectories(traps, **kwargs):
+    def calculate_trajectories(traps):
         '''
         General method for calculating trajectories.
         Can be set from a task or overwritten in subclass.
