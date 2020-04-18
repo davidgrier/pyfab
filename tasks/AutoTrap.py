@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # MENU: Auto-Trap
+# VISION: True
 
 from .Task import Task
 from PyQt5.QtGui import QVector3D
@@ -10,13 +11,22 @@ class AutoTrap(Task):
 
     def __init__(self, **kwargs):
         super(AutoTrap, self).__init__(**kwargs)
-        self.traps = None
-
-    def center(self, rectangle):
-        return (rectangle[0] + rectangle[2]/2.,
-                rectangle[1] + rectangle[3]/2., 0.)
 
     def initialize(self, frame):
-        rects = self.parent.filters.detector.grab(frame)
-        coords = list(map(lambda r: QVector3D(*self.center(r)), rects))
-        self.traps = self.parent.pattern.createTraps(coords)
+        vision = self.parent.vision
+        coords = []
+        for feature in frame.features:
+            z = None
+            particle = feature.model.particle
+            if vision.estimate:
+                # TODO: Correct for discrepency btwn
+                # focal plane & trapping plane
+                correction = 0
+                z = particle.z_p + correction
+            elif vision.detect:
+                z = 0
+            if z is not None:
+                x, y = (particle.x_p, particle.y_p)
+                coord = QVector3D(x, y, z)
+                coords.append(coord)
+        self.parent.pattern.createTraps(coords)

@@ -27,11 +27,17 @@ def findTasks():
                 else:
                     task['title'] = title
                 continue
+            match = re.search('# VISION'+': (.*)', line)
+            if match:
+                match = re.search('(.*)', match.group(1))
+                task['vision'] = eval(match.group(1))
             match = re.search('"""(.*)"""', line)
             if match and 'name' in task:
                 task['tip'] = match.group(1)
                 break
         if len(task) > 0:
+            if 'vision' not in task.keys():
+                task['vision'] = False
             tasks.append(task)
     return tasks
 
@@ -63,7 +69,8 @@ def buildTaskMenu(parent):
         action = QtGui.QAction(task['title'], parent)
         if 'tip' in task:
             action.setStatusTip(task['tip'])
-        handler = eval('lambda: register("'+task['name']+'")', globals)
+        handler = eval(
+            'lambda: register("'+task['name']+'", "'+str(task['vision'])+'")', globals)
         action.triggered.connect(handler)
         if 'submenu' in task:
             title = task['submenu']
