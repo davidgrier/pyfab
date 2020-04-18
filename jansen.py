@@ -9,7 +9,7 @@ from common.Configuration import Configuration
 
 import logging
 logging.basicConfig()
-logger = logging.getLogger('nujansen^S')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 try:

@@ -59,7 +59,8 @@ class Taskmanager(object):
                 return
         self.queue.append(task)
         if self.task is None:
-            if vision is True or vision == 'True':
+            if (vision is True or vision == 'True') \
+               and hasattr(self.vision, 'sigNewFrame'):
                 self.vision.sigNewFrame.connect(self.handleTask)
             else:
                 self.source.sigNewFrame.connect(self.handleTask)

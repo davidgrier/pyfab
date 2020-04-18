@@ -16,7 +16,7 @@ from common.Configuration import Configuration
 
 import logging
 logging.basicConfig()
-logger = logging.getLogger('pyfab')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 try:
