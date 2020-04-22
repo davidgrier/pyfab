@@ -61,7 +61,7 @@ class TrapMove(QObject):
             seconds = 2
             self._counter = round(fps/(1./seconds))
             # Find trajectories
-            logger.info("Calculating trajectories")
+            logger.info("Finding trajectories")
             self.parent().screen.source.blockSignals(True)
             self.parent().screen.pauseSignals(True)
             status, msg = self.parameterize(traps)
@@ -116,26 +116,22 @@ class TrapMove(QObject):
 
     @trajectories.setter
     def trajectories(self, trajectories):
+        for trap in trajectories.keys():
+            traj = trajectories[trap]
+            if type(traj) is np.ndarray:
+                trajectories[trap] = Trajectory(data=traj)
         self._trajectories = trajectories
 
     def parameterize(self, traps):
+        '''
+        Overrwrite in subclass to set trajectories
+        '''
         self.t = 0
         self.tf = 0
-        trajectories = self.calculate_trajectories(traps)
-        self.trajectories = trajectories
-        return 0, ''
-
-    @staticmethod
-    def calculate_trajectories(traps):
-        '''
-        General method for calculating trajectories.
-        Can be set from a task or overwritten in subclass.
-        '''
-        trajectories = {}
-        for trap in traps.flatten():
-            r_i = (trap.r.x(), trap.r.y(), trap.r.z())
-            trajectories[trap] = Trajectory(r_i)
-        return trajectories
+        if self.trajectories is None:
+            return -1, 'Trajectories not set'
+        else:
+            return 0, ''
 
     def interpolate(self, stepSize):
         '''
@@ -190,10 +186,13 @@ class Trajectory(object):
     cartesian coordinates
     '''
 
-    def __init__(self, r_i=(0, 0, 0), **kwargs):
+    def __init__(self, r_i=(0, 0, 0), data=None, **kwargs):
         super(Trajectory, self).__init__(**kwargs)
-        self.data = np.zeros(shape=(1, 3))
-        self.data[0] = np.array(r_i)
+        if data is None:
+            self.data = np.zeros(shape=(1, 3))
+            self.data[0] = np.array(r_i)
+        else:
+            self.data = data
 
     @property
     def r_f(self):

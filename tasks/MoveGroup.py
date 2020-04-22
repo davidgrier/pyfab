@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .Task import Task
-from ..pyfablib.traps.motion.TrapMove import Trajectory
+import numpy as np
 
 import logging
 logger = logging.getLogger(__name__)
@@ -18,8 +18,7 @@ class MoveGroup(Task):
     def __init__(self, **kwargs):
         super(MoveGroup, self).__init__(**kwargs)
 
-    @staticmethod
-    def calculate_trajectories(traps):
+    def calculate_trajectories(self, traps):
         '''
         Subclass this method to do a cool thing. Right now it just
         initializes Trajectories and doesn't do anything.
@@ -32,10 +31,10 @@ class MoveGroup(Task):
         trajectories = {}
         for trap in traps.flatten():
             r_i = (trap.r.x(), trap.r.y(), trap.r.z())
-            trajectory = Trajectory(r_i)
+            trajectory = np.zeros(shape=(1, 3))
+            trajectory[0] = r_i
             # Do something! Perhaps
             # trajectory.data = something (N, 3) shaped
-            # or use trajectory.insert method
             trajectories[trap] = trajectory
         return trajectories
 
@@ -69,6 +68,7 @@ class MoveGroup(Task):
         self.mover.stepRate = 15   # [steps/s]
         # Set mover's general method of trajectory calculation
         # (Help! I can't think of a better name than "mover"!)
-        self.mover.calculate_trajectories = self.calculate_trajectories
+        traps = self.mover.traps
+        self.mover.trajectories = self.calculate_trajectories(traps)
         # Start moving stuff!
         self.mover.start()
