@@ -140,6 +140,7 @@ class TrapMove(QObject):
         trajectories = self.trajectories
         for trap in trajectories.keys():
             traj = trajectories[trap]
+            target = traj.data[-1]
             L = np.sum(
                 np.linalg.norm(np.diff(traj.data, axis=0), axis=1))
             npts = int(L / stepSize)
@@ -154,6 +155,7 @@ class TrapMove(QObject):
                 traj.data[:, 0] = xnew
                 traj.data[:, 1] = ynew
                 traj.data[:, 2] = znew
+                traj.data[-1] = target
 
     #
     # Properties and methods for core movement functionality
@@ -165,6 +167,7 @@ class TrapMove(QObject):
             if self._counter == 0:
                 if self.t < self.tf:
                     done = True
+                    self.traps.blockRefresh(True)
                     for trap in self.traps.flatten():
                         trajectory = self.trajectories[trap].data
                         if self.t < trajectory.shape[0]:
@@ -172,6 +175,8 @@ class TrapMove(QObject):
                             r_t = QVector3D(*r_t)
                             trap.moveTo(r_t)
                             done = False
+                    self.traps.blockRefresh(False)
+                    self.parent().pattern.refresh()
                     self.t += 1
                 self._counter = self._wait
             else:
