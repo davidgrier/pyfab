@@ -10,5 +10,5 @@ trackpy==0.4.2
 Pillow>=5.1.0
 h5py>=2.7.1
 html5lib==0.999999999        
-httplib2==0.9.2
+httplib2==0.18.0
 ujson>=2.0.3
