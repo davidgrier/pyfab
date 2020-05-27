@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Auto-Trap
+# MENU: Auto-Tighten
 # VISION: True
 
 from .Task import Task
@@ -8,11 +8,10 @@ from collections import deque
 import numpy as np
 import pandas as pd
 import trackpy as tp
-from .Video import Video
 
 
 class AutoTighten(Task):
-    """ 
+    """ Adjust each trap's power output (alpha) until trapped particle's variance approaches a target value """
     
     def __init__(self, target=1, alpha=[0, 10], nframes = 1050, nvar=200, ndelay = 10,  **kwargs): 
         super(AutoTighten, self).__init__(**kwargs)
@@ -24,30 +23,30 @@ class AutoTighten(Task):
         self.ndelay = ndelay        ## Number of frames to delay between iterations
 
     
-    def initialize(self, frame):   //initialize stuff, and work out which features are in which traps (pair traps to features)
+    def initialize(self, frame):    
         self.vision = self.parent.vision
         self.vision.realTime(True)
         self.count = 0
         self.cdelay=0
         
         
-        
-    def process(self, frame):
-        self.count += 1
+    def doprocess(self, frame):
         if(self.count % self.nvar == 0):  #### First, send trajectories from last nval frames to a dataframe 
             frames = self.vision.video.frames
             nvar = self.nvar
-            while(frames[-nvar].framenumber < frame.framenumber - self.nvar and index >= -self.nvar -1): ## Uncomment to use nvar
-                nvar += 1                                             ## CAMERA frames, rather than nvar (detecting) VISION frames 
+            while(frames[-nvar].framenumber < frame.framenumber - self.nvar): ## Uncomment to use nvar (detecting) VISION frames
+                nvar -= 1                                                     ## rather than nvar CAMERA frames.             
             
-            d = {'x': [], 'y': [], 'framenumber': []} 
-            for frame in frames[-index:]:
-                for feat in enumerate(frame.features):
-                    d['x'].append(feat.model.particle.x_p)
-                    d['y'].append(feat.model.particle.y_p)
+            d = {'x': [], 'y': [], 'framenumber': []}         
+            for frame in frames[-nvar:]:
+                for feature in enumerate(frame.features):
+                    d['x'].append(feature.model.particle.x_p)
+                    d['y'].append(feature.model.particle.y_p)
                     d['framenumber'].append(frame.framenumber)
             trajs = tp.link(pd.DataFrame(data=d), self.vision.linkTol, memory=int(self.vision.nskip+3))
-            
+     #### NOTE: Should everything thus far be done using a modified Trajectory object? Or, should we just keep emptying qvision's Video object?
+           
+        
             #### Next, use mean position to pair particle trajectories with trap positions
             d = {'x': [], 'y': [], 'framenumber': [], 'val': []}
             for particle in range(max(trajs.particle)+1):
@@ -59,8 +58,8 @@ class AutoTighten(Task):
                 d['framenumber'].append(0)                                             #### trajectories at frame 1                
             stat_df = pd.DataFrame(data=d)
             
-            traps = self.parent.pattern.pattern     #### Now, find trap positions... NOTE if traps don't move, this can be done in initialize
-            for i, trap in enumerate(traps.flatten()):
+            self.traps = self.parent.pattern.pattern     #### Now, find trap positions... NOTE if traps don't move, this can be done in initialize
+            for i, trap in enumerate(self.traps.flatten()):
                 d['x'].append(trap.r.x)
                 d['y'].append(trap.r.y)
                 d['val'].append(i)                                                     #### val = trap index 
@@ -70,21 +69,26 @@ class AutoTighten(Task):
           #### Match trajectories to traps, and adjust each trap based on variance of trapped particle
             pair_df = stat_df.append(trap_df)
             tp.link(pair_df, self.vision.linkTol)
-          
-          for particle in range(max(trajs.particle)+1):
-                
-          
-          #### Adjust each trap based on variance of its trapped particle
-            for i, trap in enumerate(traps.flatten()):
-                particle = stat_df[stat_df.trap==i].particle
-                var = stat_df[stat_df.frame==0 and stat_df.particle==particle].var
-                trap.alpha(trap.alpha*self.target/var)
             
-            self.cdelay = self.ndelay   #### Delay for ndelay frames while traps adjust
+            for i, trap in enumerate(self.traps.flatten()):
+                particle = pair_df[(pair_df.frame==1) and (pair_df.val==i)].particle   #### traps are frame 1; trap 'val' is trap index
+                var = pair_df[(pair_df.frame==0) and (pair_df.particle==particle)].val #### trajs are frame 0, and traj 'val' is variance     
                 
-        if(self.cdelay is not 0):
+                alpha_new = trap.alpha*self.target/var
+                if alpha_new > self.alpha_max:
+                    trap.alpha(self.alpha_max)
+                else if alpha_new < self.alpha_min:
+                    trap.alpha(self.alpha_min)
+                else:
+                    trap.alpha(alpha_new)
+           
+            self.count += 1
+            self.cdelay = self.ndelay    
+                
+        else if self.cdelay is 0:
+           self.count += 1
+        else:
             self.cdelay -= 1
-            self.count -= 1
 
             
             
