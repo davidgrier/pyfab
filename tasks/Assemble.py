@@ -11,8 +11,8 @@ logger.setLevel(logging.WARNING)
 class Assemble(Task):
     """
     Takes the last QTrapGroup created by user and gives it
-    to Pyfab's assembler. Subclassses will set the assembler's
-    vertices.
+    to Pyfab's assembler. Subclasses will set the assembler's
+    vertices. 
     """
 
     def __init__(self, **kwargs):
@@ -33,43 +33,14 @@ class Assemble(Task):
                 "No traps selected. Please create a QTrapGroup.")
         self.assembler.traps = group
 
-    def aim(self):
+     def config(self):
         '''
-        Method to set assembler tunables and determine
-        where targets are. Override this in subclass, or
-        it won't do anything!
+        Subclass to adjust assembler tunables (stepRate, smooth, etc),
+        and/or declare any parameters needed in 'calculate_targets' 
+        (i.e. a circle's radius, etc)
         '''
-        pass
-
-    def config(self):
-        '''
-        Method to set assembler tunables (stepRate, smooth, etc),
-        and declare any parameters needed in 'aim' (i.e. a circle's
-        radius, etc)
-        '''
-        pass
-
-    def dotask(self):
-        if self.assembler.traps is not None:
-            self.config()   # Configure assembler + declare 'aim' parameters
-            self.assembler.targets = self.aim()
-            self.assembler.start()
-
-
-def prompt(str):
-    qparam, ok = QInputDialog.getDouble(self.parent, 'Parameters', str)
-    if ok:
-        return qparam
-    else:
-        return None
-
-
-'''
-# Example of how to subclass:
-class Circle(Assemble):
-
-    def config(self):
-         # Set tunables
+        
+        # Set default tunables
         self.assembler.smooth = True
         self.assembler.stepRate = 15         # [steps/s]
         self.assembler.stepSize = .2         # [um]
@@ -77,18 +48,39 @@ class Circle(Assemble):
         self.assembler.gridSpacing = .5      # [um]
         self.assembler.zrange = (5, -10)     # [um]
         self.assembler.tmax = 300            # [steps]
+        
+    def calculate_targets(self):
+        '''
+        Subclass this method to determine where targets are. Should return 
+        a list of vertices (one 1x3 location per trap)
+        '''
+        pass
 
-        # Set 'aim' parameters
+    
+    def dotask(self):
+        if self.assembler.traps is not None:
+            self.config()   # Configure assembler + declare 'target' parameters
+            self.assembler.targets = self.calculate_targets()
+            self.assembler.start()
+
+'''
+# Example of how to subclass:
+class Circle(Assemble):
+
+    def config(self):
+        super(Circle, self).config()   ## Load defaults
+        self.assembler.tmax = 250        ## Example of how to change an assembler tunable  
+
+        # Set 'target' parameters
         self.r = 200
         # Or, prompt the user for an input:
-        self.r = prompt('radius (pixels):')
-        # Or, if you want to make sure the user gets it right, add this loop...
         emphasis = '!'
-        while self.r is None:
-            self.r = prompt("That's not a double - try again" + emphasis)
+        self.r, ok = QInputDialog.getDouble(self.parent, 'Parameters', 'radius (pixels):')
+        while not ok:
+            self.r, ok = QInputDialog.getDouble(self.parent, 'Parameters', 'That's not a double - try again' + emphasis)
             emphasis = emphasis + '!'
 
-    def aim(self):
+    def calculate_targets(self):
         vertices = []
         # Remember - we need to instantiate parameters in config! (Or, you can technically do it in aim)
         r = self.r
@@ -101,5 +93,5 @@ class Circle(Assemble):
                                       0]))
             return vertices
 
-# And that's it! init, dotask, initialize, etc are all defined in the parent, so you only need to override aim (and semi-optionally, config)
+# And that's it! init, dotask, initialize, etc are all defined in the parent, so you only need to override calculate_targets (and semi-optionally, config)
 '''
