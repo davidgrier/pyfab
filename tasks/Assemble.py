@@ -68,8 +68,8 @@ class Assemble(Task):
 class Circle(Assemble):
 
     def config(self):
-        super(Circle, self).config()   ## Load defaults
-        self.assembler.tmax = 250        ## Example of how to change an assembler tunable  
+        super(Circle, self).config()     ## Load defaults
+        self.assembler.tmax = 250        ## Example of how to set/change an assembler tunable  
 
         # Set 'target' parameters
         self.r = 200
@@ -82,7 +82,7 @@ class Circle(Assemble):
 
     def calculate_targets(self):
         vertices = []
-        # Remember - we need to instantiate parameters in config! (Or, you can technically do it in aim)
+        # Remember - we need to instantiate parameters! (Preferably in config, but you can technically do it here, too)
         r = self.r
         xc, yc = (self.cgh.xc, self.cgh.yc)
         ntraps = len(self.assembler.traps.flatten())
