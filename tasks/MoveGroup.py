@@ -12,7 +12,8 @@ class MoveGroup(Task):
     """
     Takes the last QTrapGroup created by user and gives it
     to Pyfab's trap mover (please, help me think of a better
-    name than "mover"). Subclass and overwrite calculate_trajectories
+    name than "mover"). Subclasses will set the mover's
+    trajectories
     """
 
     def __init__(self, **kwargs):
@@ -38,7 +39,7 @@ class MoveGroup(Task):
         '''
         Method to set assembler tunables (stepRate, smooth, etc),
         and declare any parameters needed in 'calculate_targets' 
-        (i.e. a circle's radius, etc)
+        (i.e. number steps to take, distance to travel, etc)
         '''
         # Set Default Tunables
         
@@ -54,7 +55,7 @@ class MoveGroup(Task):
     def calculate_trajectories(self):
         """
         Subclass this method to determine trajectories. Should return 
-        a dictionary whole keys are QTraps and vals are Trajectory objects 
+        a dictionary who's keys are QTraps and vals are Trajectory objects 
         (see TrapMove.py) or Nx3 numpy arrays (N 1x3 locations per trap)
         """
         
@@ -75,10 +76,10 @@ class MoveGroup(Task):
         '''
         # Set mover's general method of trajectory calculation
         # (Help! I can't think of a better name than "mover"!)
-        traps = self.mover.traps
-        self.mover.trajectories = self.calculate_trajectories()  ## NOTE: The setter allows us to pass a numpy array instead of trajectory object
-        # Start moving stuff!
-        self.mover.start()
+        if self.mover.traps is not None:
+            self.config()
+            self.mover.trajectories = self.calculate_trajectories()  ## NOTE: The setter allows us to pass a numpy array instead of trajectory object
+            self.mover.start()                 # Start moving stuff!
 
         
 
@@ -105,7 +106,7 @@ class SineMove(MoveGroup):
 
     def calculate_trajectories(self):
         vertices = []
-        # Remember - we need to instantiate parameters in config! (Or, you can technically do it in aim)
+        # Remember - we need to instantiate parameters! (Preferably in config, but you can technically do it here, too)
         Nsteps = self.Nsteps
         A = self.A
         d = self.d
