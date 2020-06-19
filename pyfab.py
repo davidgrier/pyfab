@@ -8,10 +8,15 @@ from FabWidget import Ui_PyFab
 
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
+
+# NOTE: Should this be done here?
 from pyfablib.traps.motion.TrapAssemble import TrapAssemble
 from pyfablib.traps.motion.TrapMove import TrapMove
+
+# NOTE: Reorganize to have QTask() and QBackgroundTask()
 from tasks.taskmenu import buildTaskMenu
 from tasks.Taskmanager import Taskmanager
+
 from common.Configuration import Configuration
 
 import logging
@@ -19,6 +24,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+# NOTE: How is QVision related to standard set of objects?
 try:
     ex1 = None
     from jansenlib.QVision.QHVM import QHVM as QVision
@@ -31,6 +37,7 @@ except Exception as ex:
     logger.warning('Could not import GPU pipeline: {}'.format(ex))
     from pyfablib.QCGH.CGH import CGH
 
+# NOTE: Camera selection should be performed in video subsystem, not here
 try:
     from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
 except Exception as ex:
