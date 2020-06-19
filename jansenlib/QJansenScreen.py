@@ -207,7 +207,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
             self.source.sigNewFrame.disconnect(self.updateImage)
         except AttributeError:
             pass
-        self._source = self.default if source is None else source
+        self._source = source or self.default
         self._source.sigNewFrame.connect(self.updateImage)
 
     @pyqtSlot(np.ndarray)
