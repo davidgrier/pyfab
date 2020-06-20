@@ -71,7 +71,7 @@ class QTask(QObject):
                 self.nframes -= 1
                 self.counter = self.skip
         else:
-            self.complete(frame)
+            self.complete()
             self.sigDone.emit()
             logger.info('TASK: {} done'.format(self.__class__.__name__))
 
