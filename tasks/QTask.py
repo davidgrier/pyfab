@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import (QObject, pyqtSlot, pyqtSignal)
+import numpy as np
+
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Task(object):
-    """Task is a base class for operations on images in pyfab/jansen
+class QTask(QObject):
+    """QTask is a base class for operations on images in pyfab/jansen
 
-    Registering a task with taskmanager().registerTask() places the
+    Registering a task with QTaskmanager().registerTask() places the
     task in a queue.  When the task reaches the head of the queue,
-    taskmanager() calls initialize() to initialize the task.
-    It then proceeds to feed video frames to the task
-    as they become available.
+    QTaskmanager() connects the handleTask() slot to a signal
+    that provides image data.
 
     The task skips a number of frames set by delay (default: 0).
     It then feeds a number of frames to doprocess() set by
@@ -22,43 +24,43 @@ class Task(object):
     When the task isDone(), taskmanager() unregisters the task
     and deletes it.
 
-    Subclasses of task() should override
-    initialize(), doprocess() and dotask()
+    Subclasses of QTask() should override
+    initialize(), process() and complete()
     """
 
-    def __init__(self,
+    sigDone = pyqtSignal()
+
+    def __init__(self, parent=None,
                  nframes=0,
-                 parent=None,
                  delay=0,
                  skip=0):
-        self.parent = parent
+        super(QTask, self).__init__(parent)
         self.skip = skip
         self.counter = skip
         self.delay = delay
         self.nframes = nframes
-        self.initialized = False
-        self.done = False
+        self._initialized = False
         self.register = parent.tasks.registerTask
 
-    def isDone(self):
-        return self.done
-
     def initialize(self, frame):
-        """Called when the taskmanager activates the task."""
-        pass
-
-    def doprocess(self, frame):
-        """Operation performed on each video frame."""
-        pass
-
-    def dotask(self):
-        """Operation performed to complete the task."""
+        """Perform initialization operations"""
         pass
 
     def process(self, frame):
-        if not self.initialized:
+        """Operation performed on each video frame."""
+        pass
+
+    def complete(self, frame):
+        """Operation performed to complete the task."""
+        pass
+
+    @pyqtSlot(np.ndarray)
+    def handleTask(self, frame):
+        if not self._initialized:
             self.initialize(frame)
-            self.initialized = True
+            self._initialized = True
+        if self._paused:
+            return
         if self.delay > 0:
             self.delay -= 1
         elif self.nframes > 0:
@@ -69,6 +71,10 @@ class Task(object):
                 self.nframes -= 1
                 self.counter = self.skip
         else:
-            self.dotask()
+            self.complete(frame)
+            self.sigDone.emit()
             logger.info('TASK: {} done'.format(self.__class__.__name__))
-            self.done = True
+
+    @pyqtSlot(bool)
+    def pause(self, state):
+        self._paused = state
