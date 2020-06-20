@@ -40,6 +40,7 @@ class QTask(QObject):
         self.delay = delay
         self.nframes = nframes
         self._initialized = False
+        self._paused = False
         self.register = parent.tasks.registerTask
 
     def initialize(self, frame):
