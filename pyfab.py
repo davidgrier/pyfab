@@ -15,7 +15,7 @@ from pyfablib.traps.motion.TrapMove import TrapMove
 
 # NOTE: Reorganize to have QTask() and QBackgroundTask()
 from tasks.taskmenu import buildTaskMenu
-from tasks.Taskmanager import Taskmanager
+from tasks.QTaskmanager import QTaskmanager
 
 from common.Configuration import Configuration
 
@@ -91,7 +91,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.mover = TrapMove(parent=self)
 
         # Process automation
-        self.tasks = Taskmanager(self)
+        self.tasks = QTaskmanager(self)
 
         self.configureUi()
         self.connectSignals()
