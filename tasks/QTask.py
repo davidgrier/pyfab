@@ -5,7 +5,7 @@ import numpy as np
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARN)
 
 
 class QTask(QObject):
@@ -31,32 +31,33 @@ class QTask(QObject):
     sigDone = pyqtSignal()
 
     def __init__(self, parent=None,
-                 nframes=0,
                  delay=0,
-                 skip=0):
+                 nframes=0,
+                 skip=1):
         super(QTask, self).__init__(parent)
         self.skip = skip
-        self.counter = skip
         self.delay = delay
         self.nframes = nframes
         self._initialized = False
         self._paused = False
+        self._frame = 0
         self.register = parent.tasks.registerTask
 
     def initialize(self, frame):
         """Perform initialization operations"""
-        pass
+        logger.debug('Initializing')
 
     def process(self, frame):
         """Operation performed on each video frame."""
-        pass
+        logger.debug('Processing')
 
-    def complete(self, frame):
+    def complete(self):
         """Operation performed to complete the task."""
-        pass
+        logger.debug('Completing')
 
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
+        logger.debug('Handling Task')
         if not self._initialized:
             self.initialize(frame)
             self._initialized = True
@@ -64,13 +65,11 @@ class QTask(QObject):
             return
         if self.delay > 0:
             self.delay -= 1
-        elif self.nframes > 0:
-            if self.counter > 0:
-                self.counter -= 1
-            else:
-                self.doprocess(frame)
-                self.nframes -= 1
-                self.counter = self.skip
+            return
+        if self._frame < self.nframes:
+            if (self._frame % self.skip == 0):
+                self.process(frame)
+            self._frames += 1
         else:
             self.complete()
             self.sigDone.emit()

@@ -56,7 +56,7 @@ class QTaskmanager(QObject):
     @pyqtSlot()
     def deactivateTask(self, task=None):
         """Removes task from queue"""
-        self.source.sigNewFrame.disconnect(self.task)
+        self.source.sigNewFrame.disconnect(self.task.handleTask)
         self.task = None
         self.activateTask()
 
