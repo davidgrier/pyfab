@@ -13,9 +13,4 @@ class RenderTextAs(RenderText):
         qtext, ok = QInputDialog.getText(self.parent(),
                                          'Render Text',
                                          'Text:')
-
         self.text = str(qtext) if ok else ''
-        # if ok:
-        #    self.text = str(qtext)
-        # else:
-        #    self.text = 'hello'
