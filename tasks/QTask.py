@@ -17,9 +17,9 @@ class QTask(QObject):
     that provides image data.
 
     The task skips a number of frames set by delay (default: 0).
-    It then feeds a number of frames to doprocess() set by
-    nframes (default: 0).
-    Finally, the task calls dotask() to perform its operation.
+    It then feeds nframes frames to process() (default: 0),
+    skipping skip frames between operations (default: 1).
+    Finally, the task calls complete() to complete its operation.
 
     When the task isDone(), taskmanager() unregisters the task
     and deletes it.
@@ -30,19 +30,16 @@ class QTask(QObject):
 
     sigDone = pyqtSignal()
 
-    def __init__(self, parent=None,
-                 delay=0,
-                 nframes=0,
-                 skip=1):
-        super(QTask, self).__init__(parent)
-        self.skip = skip
+    def __init__(self, delay=0, nframes=0, skip=1, **kwargs):
+        super(QTask, self).__init__(**kwargs)
         self.delay = delay
         self.nframes = nframes
+        self.skip = skip
         self._initialized = False
         self._paused = False
         self._busy = False
         self._frame = 0
-        self.register = parent.tasks.registerTask
+        self.register = self.parent().tasks.registerTask
 
     def initialize(self, frame):
         """Perform initialization operations"""
