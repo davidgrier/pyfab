@@ -8,12 +8,10 @@ from PyQt5.QtGui import QVector3D
 class CreateTrap(QTask):
     '''Add an optical tweezer to the trapping pattern'''
 
-    def __init__(self, x=100, y=100, z=0, **kwargs):
+    def __init__(self, **kwargs):
         super(CreateTrap, self).__init__(**kwargs)
-        self.x = x
-        self.y = y
-        self.z = z
 
     def complete(self):
-        pos = QVector3D(self.x, self.y, self.z)
+        cgh = self.parent().cgh.device
+        pos = QVector3D(cgh.xc, cgh.yc, cgh.zc)
         self.parent().pattern.createTrap(pos)
