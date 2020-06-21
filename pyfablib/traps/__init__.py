@@ -7,6 +7,8 @@ from .QVortexTrap import QVortexTrap
 from .QLineTrap import QLineTrap
 from .QTiltedRingTrap import QTiltedRingTrap
 from .QTrefoilTrap import QTrefoilTrap
+from .motion.TrapAssemble import TrapAssemble
+from .motion.TrapMove import TrapMove
 
 __all__ = ['QTrappingPattern',
            'QTrapGroup',
@@ -16,4 +18,6 @@ __all__ = ['QTrappingPattern',
            'QRingTrap',
            'QTiltedRingTrap',
            'QTrefoilTrap',
-           'QLineTrap']
+           'QLineTrap',
+           'TrapAssemble',
+           'TrapMove']

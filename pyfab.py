@@ -10,16 +10,8 @@ from FabWidget import Ui_PyFab
 from jansenlib.video import QCamera
 from pyfablib.QCGH import CGH
 from pyfablib.QSLM import QSLM
-from pyfablib.traps.QTrappingPattern import QTrappingPattern
-
-# NOTE: Should this be done here?
-from pyfablib.traps.motion.TrapAssemble import TrapAssemble
-from pyfablib.traps.motion.TrapMove import TrapMove
-
-# NOTE: Reorganize to have QTask() and QBackgroundTask()
-from tasks.taskmenu import buildTaskMenu
-from tasks.QTaskmanager import QTaskmanager
-
+from pyfablib.traps import (QTrappingPattern, TrapMove, TrapAssemble)
+from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
 
 import logging
