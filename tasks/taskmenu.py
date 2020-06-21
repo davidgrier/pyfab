@@ -3,7 +3,7 @@
 import os
 import glob
 import re
-from pyqtgraph.Qt import QtGui
+from PyQt5.QtWidgets import QAction
 
 
 def findTasks():
@@ -66,7 +66,7 @@ def buildTaskMenu(parent):
     globals = {'register': parent.tasks.registerTask}
     submenus = dict()
     for task in tasks:
-        action = QtGui.QAction(task['title'], parent)
+        action = QAction(task['title'], parent)
         if 'tip' in task:
             action.setStatusTip(task['tip'])
         handler = eval(

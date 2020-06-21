@@ -40,6 +40,7 @@ class QTask(QObject):
         self.nframes = nframes
         self._initialized = False
         self._paused = False
+        self._busy = False
         self._frame = 0
         self.register = parent.tasks.registerTask
 
@@ -61,16 +62,19 @@ class QTask(QObject):
         if not self._initialized:
             self.initialize(frame)
             self._initialized = True
-        if self._paused:
+        if (self._paused or self._busy):
             return
         if self.delay > 0:
             self.delay -= 1
             return
         if self._frame < self.nframes:
             if (self._frame % self.skip == 0):
+                self._busy = True
                 self.process(frame)
             self._frames += 1
+            self._busy = False
         else:
+            self._busy = True
             self.complete()
             self.sigDone.emit()
             logger.info('TASK: {} done'.format(self.__class__.__name__))

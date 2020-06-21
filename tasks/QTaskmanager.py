@@ -56,7 +56,10 @@ class QTaskmanager(QObject):
     @pyqtSlot()
     def deactivateTask(self, task=None):
         """Removes task from queue"""
-        self.source.sigNewFrame.disconnect(self.task.handleTask)
+        try:
+            self.source.sigNewFrame.disconnect(self.task.handleTask)
+        except AttributeError:
+            logger.warn('task destroyed before cleanup')
         self.task = None
         self.activateTask()
 
