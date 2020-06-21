@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSlot
 
 from FabWidget import Ui_PyFab
 
+from jansenlib.video import QCamera
 from pyfablib.QCGH import CGH
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
@@ -32,14 +33,6 @@ try:
     from jansenlib.QVision.QHVM import QHVM as QVision
 except Exception as ex:
     ex1 = ex
-
-
-# NOTE: Camera selection should be performed in video subsystem, not here
-try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
-except Exception as ex:
-    logger.warning('Could not import Spinnaker camera: {}'.format(ex))
-    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
 
 
 class PyFab(QMainWindow, Ui_PyFab):
