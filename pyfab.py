@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
 
 from FabWidget import Ui_PyFab
 
+from pyfablib.QCGH import CGH
 from pyfablib.QSLM import QSLM
 from pyfablib.traps.QTrappingPattern import QTrappingPattern
 
@@ -31,11 +33,6 @@ try:
 except Exception as ex:
     ex1 = ex
 
-try:
-    from pyfablib.QCGH.cupyCGH import cupyCGH as CGH
-except Exception as ex:
-    logger.warning('Could not import GPU pipeline: {}'.format(ex))
-    from pyfablib.QCGH.CGH import CGH
 
 # NOTE: Camera selection should be performed in video subsystem, not here
 try:
