@@ -34,7 +34,7 @@ class QTaskmanager(QObject):
         """Places the named task into the task queue."""
         if isinstance(task, str):
             try:
-                taskmodule = importlib.import_module('tasks.' + task)
+                taskmodule = importlib.import_module('tasks.lib.' + task)
                 taskclass = getattr(taskmodule, task)
                 task = taskclass(parent=self.parent(), **kwargs)
             except ImportError as err:

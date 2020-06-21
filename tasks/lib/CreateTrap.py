@@ -2,7 +2,7 @@
 
 # MENU: Create Trap
 
-from .QTask import QTask
+from ..QTask import QTask
 from PyQt5.QtGui import QVector3D
 
 

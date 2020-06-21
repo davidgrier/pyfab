@@ -10,7 +10,7 @@ def findTasks():
     """Parse all files in the present directory to identify
     tasks that should be included in the task menu"""
     path = os.path.dirname(os.path.realpath(__file__))
-    files = sorted(glob.glob(path+'/*.py'))
+    files = sorted(glob.glob(path+'/lib/*.py'))
     tasks = []
     for filename in files:
         task = {}

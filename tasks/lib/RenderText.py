@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # MENU: Add trap/Render text
 
+from ..QTask import QTask
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from numpy.random import normal
-from .QTask import QTask
 from PyQt5.QtGui import QVector3D
 import os
 
