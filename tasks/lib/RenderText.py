@@ -26,6 +26,8 @@ class RenderText(QTask):
         self.text = text
 
     def get_coordinates(self):
+        if len(self.text) == 0:
+            return []
         sz = self.font.getsize(self.text)
         img = Image.new('L', sz, 0)
         draw = ImageDraw.Draw(img)
