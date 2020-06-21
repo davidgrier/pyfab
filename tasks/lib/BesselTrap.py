@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Add trap/Bessel trap
+# MENU: Add trap/Bessel beam
 
 from ..QTask import QTask
 from pyfablib.traps.QBesselTrap import QBesselTrap
@@ -7,7 +7,7 @@ from PyQt5.QtGui import QVector3D
 
 
 class BesselTrap(QTask):
-    """Add a Bessel trapping pattern"""
+    """Add a Bessel beam to the trapping pattern"""
 
     def __init__(self, **kwargs):
         super(BesselTrap, self).__init__(**kwargs)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Add trap/Create Trap
+# MENU: Add trap/Optical tweezer
 
 from ..QTask import QTask
 from PyQt5.QtGui import QVector3D
