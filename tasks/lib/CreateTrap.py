@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-# MENU: Create Trap
+# MENU: Add trap/Create Trap
 
 from ..QTask import QTask
 from PyQt5.QtGui import QVector3D
