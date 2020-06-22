@@ -85,6 +85,7 @@ class CGH(QObject):
         logger.info('starting CGH pipeline')
         self.updateGeometry()
         self.updateTransformationMatrix()
+        return self
 
     @pyqtSlot()
     def stop(self):

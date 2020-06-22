@@ -59,8 +59,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.slm = QSLM(self)
 
         # Computation pipeline
-        self.cgh.device = CGH(self, shape=self.slm.shape)
-        self.cgh.device.start()
+        self.cgh.device = CGH(self, shape=self.slm.shape).start()
 
         # Trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
