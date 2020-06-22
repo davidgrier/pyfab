@@ -37,10 +37,9 @@ class PyFab(QMainWindow, Ui_PyFab):
 
         # Camera
         self.camera.close()  # remove placeholder widget from UI
-        camera = QCamera()
-        self.camera = camera
-        self.screen.camera = camera
-        self.cameraLayout.addWidget(camera)
+        self.camera = QCamera()
+        self.screen.camera = self.camera
+        self.cameraLayout.addWidget(self.camera)
 
         # Setup vision tab
         try:
