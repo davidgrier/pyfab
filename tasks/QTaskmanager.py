@@ -28,6 +28,7 @@ class QTaskmanager(QObject):
         self.source = self.parent().screen.source
         self.task = None
         self.queue = deque()
+        self.bgtasks = []
         self._paused = False
 
     def registerTask(self, task, blocking=True, **kwargs):
@@ -40,28 +41,45 @@ class QTaskmanager(QObject):
             except ImportError as err:
                 logger.error('Could not import {}: {}'.format(task, err))
                 return
-        self.queue.append(task)
-        self.activateTask()
+        if blocking:
+            self.queue.append(task)
+            self.activateTask()
+        else:
+            self.bgtasks.append(task)
+            self.connectTask(task)
 
+    def connectTask(self, task):
+        """Connect task to signals"""
+        task.sigDone.connect(self.deactivateTask)
+        self.sigPause.connect(task.pause)
+        self.source.sigNewFrame.connect(task.handleTask)
+    
+    def disconnectTask(self, task):
+        """Disconnect task from signals"""
+        try:
+            self.source.sigNewFrame.disconnect(task.handleTask)
+        except AttributeError:
+            logger.warn('task destroyed before cleanup')
+        
     def activateTask(self):
+        """Add blocking task to queue"""
         if self.task is None:
             try:
                 self.task = self.queue.popleft()
-                self.task.sigDone.connect(self.deactivateTask)
-                self.sigPause.connect(self.task.pause)
-                self.source.sigNewFrame.connect(self.task.handleTask)
+                self.connectTask(self.task)
             except IndexError:
                 logger.info('Completed all pending tasks')
-
+        
     @pyqtSlot()
     def deactivateTask(self, task=None):
-        """Removes task from queue"""
-        try:
-            self.source.sigNewFrame.disconnect(self.task.handleTask)
-        except AttributeError:
-            logger.warn('task destroyed before cleanup')
-        self.task = None
-        self.activateTask()
+        """Remove task from queue/list (for blocking/non-blocking tasks respectively"""
+        if task is None:
+            self.disconnectTask(self.task)
+            self.task = None
+            self.activateTask()
+        else:
+            self.disconnectTask(task)
+            self.bgtasks.remove(task)
 
     @pyqtProperty(bool)
     def paused(self):
