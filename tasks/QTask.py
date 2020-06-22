@@ -26,6 +26,8 @@ class QTask(QObject):
 
     Subclasses of QTask() should override
     initialize(), process() and complete()
+    A subclass that allocates resources can free them by overriding
+    shutdown().
     """
 
     sigDone = pyqtSignal()
@@ -53,6 +55,10 @@ class QTask(QObject):
         """Operation performed to complete the task."""
         logger.debug('Completing')
 
+    def shutdown(self):
+        """Clean up resources"""
+        logger.debug('Cleaning up')
+
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
         logger.debug('Handling Task')
@@ -70,12 +76,17 @@ class QTask(QObject):
                 self.process(frame)
             self._frames += 1
             self._busy = False
-        else:
-            self._busy = True
-            self.complete()
-            self.sigDone.emit()
-            logger.info('TASK: {} done'.format(self.__class__.__name__))
+            return
+        self._busy = True
+        self.complete()
+        self.stop()
 
     @pyqtSlot(bool)
     def pause(self, state):
         self._paused = state
+
+    @pyqtSlot()
+    def stop(self):
+        self.shutdown()
+        self.sigDone.emit()
+        logger.info('TASK: {} done'.format(self.__class__.__name__))

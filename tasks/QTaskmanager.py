@@ -22,6 +22,7 @@ class QTaskmanager(QObject):
     """
 
     sigPause = pyqtSignal(bool)
+    sigStop = pyqtSignal()
 
     def __init__(self, parent=None):
         super(QTaskmanager, self).__init__(parent)
@@ -30,26 +31,35 @@ class QTaskmanager(QObject):
         self.queue = deque()
         self._paused = False
 
-    def registerTask(self, task, blocking=True, **kwargs):
+    def registerTask(self, taskname, blocking=True, **kwargs):
         """Places the named task into the task queue."""
-        if isinstance(task, str):
+        if isinstance(taskname, str):
             try:
-                taskmodule = importlib.import_module('tasks.lib.' + task)
-                taskclass = getattr(taskmodule, task)
+                taskmodule = importlib.import_module('tasks.lib.' + taskname)
+                taskclass = getattr(taskmodule, taskname)
                 task = taskclass(parent=self.parent(), **kwargs)
             except ImportError as err:
                 logger.error('Could not import {}: {}'.format(task, err))
                 return
-        self.queue.append(task)
-        self.activateTask()
+        if blocking:
+            self.queue.append(task)
+            self.activateTask()
+        else:
+            self.connectSignals(task)
+        return task
+
+    def connectSignals(self, task):
+        task.sigDone.connect(self.deactivateTask)
+        self.sigPause.connect(task.pause)
+        self.sigStop.connect(task.stop)
+        self.source.sigNewFrame.connect(task.handleTask)
 
     def activateTask(self):
+        """Take next task from queue and connect signals"""
         if self.task is None:
             try:
                 self.task = self.queue.popleft()
-                self.task.sigDone.connect(self.deactivateTask)
-                self.sigPause.connect(self.task.pause)
-                self.source.sigNewFrame.connect(self.task.handleTask)
+                self.connectSignals(self.task)
             except IndexError:
                 logger.info('Completed all pending tasks')
 
