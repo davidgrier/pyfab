@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (QObject, pyqtSlot, pyqtSignal)
+from PyQt5.QtCore import (QObject, pyqtSlot, pyqtSignal, pyqtProperty)
 import numpy as np
 
 import logging
@@ -32,8 +32,9 @@ class QTask(QObject):
 
     sigDone = pyqtSignal()
 
-    def __init__(self, delay=0, nframes=0, skip=1, **kwargs):
+    def __init__(self, delay=0, nframes=0, skip=1, blocking=True, **kwargs):
         super(QTask, self).__init__(**kwargs)
+        self._blocking = blocking
         self.delay = delay
         self.nframes = nframes
         self.skip = skip
@@ -58,6 +59,10 @@ class QTask(QObject):
     def shutdown(self):
         """Clean up resources"""
         logger.debug('Cleaning up')
+
+    @pyqtProperty(bool)
+    def blocking(self):
+        return self._blocking
 
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
