@@ -45,7 +45,10 @@ class QTaskmanager(QObject):
             except ImportError as err:
                 logger.error('Could not import {}: {}'.format(task, err))
                 return
-        self.queueTask(task)
+        if blocking:
+            self.enqueueTask(task)
+        elif task is not None:
+            self.enlistTask(task)
         return task
 
     def connectSignals(self, task):
@@ -62,31 +65,30 @@ class QTaskmanager(QObject):
             self.source.sigNewFrame.disconnect(task.handleTask)
         except AttributeError:
             logger.warn('could not disconnect signals')
-
-    def queueTask(self, task=None):
-        """Add task to queue and activate next queued task if necessary"""
-        if task:
-            if task.blocking:
-                self.tasks.append(task)
-                logger.debug('Queuing blocking task')
-            else:
-                self.bgtasks.append(task)
-                self.connectSignals(task, blocking)
-                logger.debug('Starting background task')
+            
+    def enqueueTask(self, task=None):
+        """Add task to queue"""
+        self.tasks.append(task)
+        logger.debug('Queuing blocking task')
         if self.task is None:
             try:
                 self.task = self.tasks.popleft()
                 self.connectSignals(self.task)
             except IndexError:
-                logger.info('Completed all pending tasks')
-
+                logger.info('Completed all pending tasks') 
+        
     @pyqtSlot()
     def dequeueTask(self):
         """Removes task from task queue"""
         self.disconnectSignals(self.task)
         self.task = None
         self.queueTask()
-
+        
+    def enlistTask(self, task):
+        self.bgtasks.append(task)
+        self.connectSignals(task, blocking)
+        logger.debug('Starting background task')
+    
     @pyqtSlot(QTask)
     def delistTask(self, task):
         """Removes task from list of background tasks"""
