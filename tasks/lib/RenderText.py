@@ -36,12 +36,12 @@ class RenderText(QTask):
         bmp = bmp[::-1]
         sz = self.parent().screen.camera.size()
         y, x = np.nonzero(bmp)
-        x += normal(scale=self.fuzz, size=len(x)) - np.mean(x)
-        y += normal(scale=self.fuzz, size=len(y)) - np.mean(y)
+        x = x + normal(scale=self.fuzz, size=len(x)) - np.mean(x)
+        y = y + normal(scale=self.fuzz, size=len(y)) - np.mean(y)
         x *= self.spacing
         y *= self.spacing
-        x += sz.width() / 2 + self.parent().camera.device.width/2
-        y += sz.height() / 2 + self.parent().camera.device.height/2
+        x += self.parent().camera.device.width/2
+        y += self.parent().camera.device.height/2
         p = list(map(lambda x, y: QVector3D(x, y, 0), x, y))
         return p
 
