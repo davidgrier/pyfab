@@ -21,6 +21,11 @@ class QTaskmanager(QObject):
     Video frames are passed to the active task by handleTask().
     Once the active task is complete, it is cleaned up and replaced
     with the next task from the queue.
+
+    Non-blocking tasks are registered by setting blocking=False
+    in the call to registerTask(). Such background tasks
+    start running when registered and run in parallel with the
+    task queue without blocking queued tasks.
     """
 
     sigPause = pyqtSignal(bool)
@@ -44,15 +49,12 @@ class QTaskmanager(QObject):
                                  blocking=blocking, **kwargs)
             except ImportError as err:
                 logger.error('Could not import {}: {}'.format(task, err))
-                return
+                task = None
         self.queueTask(task)
         return task
 
     def connectSignals(self, task):
-        if task.blocking:
-            task.sigDone.connect(self.dequeueTask)
-        else:
-            task.sigDone.connect(lambda task: self.delistTask(task))
+        task.sigDone.connect(self.dequeueTask)
         self.sigPause.connect(task.pause)
         self.sigStop.connect(task.stop)
         self.source.sigNewFrame.connect(task.handleTask)
@@ -82,16 +84,14 @@ class QTaskmanager(QObject):
 
     @pyqtSlot()
     def dequeueTask(self):
-        """Removes task from task queue"""
-        self.disconnectSignals(self.task)
-        self.task = None
-        self.queueTask()
-
-    @pyqtSlot(QTask)
-    def delistTask(self, task):
-        """Removes task from list of background tasks"""
+        """Removes completed task from task queue or background list"""
+        task = self.sender()  # reference to completed task
         self.disconnectSignals(task)
-        self.bgtasks.remove(task)
+        if task.blocking:
+            self.task = None
+            self.queueTask()
+        else:
+            self.bgtasks.remove(task)
 
     @pyqtProperty(bool)
     def paused(self):
