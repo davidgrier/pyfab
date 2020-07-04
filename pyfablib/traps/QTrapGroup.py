@@ -2,7 +2,7 @@
 
 """QTrapGroup.py: Container for optical traps."""
 
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import (QObject, pyqtProperty)
 from PyQt5.QtGui import QVector3D
 from .QTrap import QTrap, states
 
@@ -110,7 +110,7 @@ class QTrapGroup(QObject):
             self.state = states.normal
 
     # Group's properties
-    @property
+    @pyqtProperty(states)
     def state(self):
         """Current state of the children in the group.
         """
@@ -121,7 +121,7 @@ class QTrapGroup(QObject):
         for child in self.children():
             child.state = state
 
-    @property
+    @pyqtProperty(QVector3D)
     def r(self):
         return self._r
 
