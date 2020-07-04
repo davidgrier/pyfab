@@ -2,15 +2,16 @@
 
 """QTrapGroup.py: Container for optical traps."""
 
-from pyqtgraph.Qt import QtCore, QtGui
+from PyQt5.QtCore import QObject
+from PyQt5.QtGui import QVector3D
 from .QTrap import QTrap, states
 
 
-class QTrapGroup(QtCore.QObject):
+class QTrapGroup(QObject):
 
     def __init__(self, parent=None):
         super(QTrapGroup, self).__init__(parent)
-        self._r = QtGui.QVector3D()
+        self._r = QVector3D()
         self.blockRefresh(False)
 
     # Organizing traps within the group
@@ -73,7 +74,7 @@ class QTrapGroup(QtCore.QObject):
         """Translate traps in the group"""
         self.blockRefresh(True)
         # same displacement for all traps
-        if isinstance(dr, QtGui.QVector3D):
+        if isinstance(dr, QVector3D):
             for child in self.children():
                 child.moveBy(dr)
         # specified displacement for each trap

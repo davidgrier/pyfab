@@ -53,9 +53,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
 
     def selectedPoint(self, position):
         points = self.pointsAt(position)
-        if not points:
-            return None
-        index = self.points().tolist().index(points[0])
+        index = self.points().tolist().index(points[0]) if points else None
         return index
 
     # Selecting traps and groups of traps
@@ -64,9 +62,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         coords = self.mapFromScene(pos)
         index = self.selectedPoint(coords)
-        if index is None:
-            return None
-        return self.pattern.flatten()[index]
+        return self.pattern.flatten()[index] if index else None
 
     def groupOf(self, obj):
         """Return the highest-level group containing the specified object.
