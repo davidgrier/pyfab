@@ -34,7 +34,6 @@ class RenderText(QTask):
         draw.text((0, 0), self.text, font=self.font, fill=255)
         bmp = np.array(img) > 128
         bmp = bmp[::-1]
-        sz = self.parent().screen.camera.size()
         y, x = np.nonzero(bmp)
         x = x + normal(scale=self.fuzz, size=len(x)) - np.mean(x)
         y = y + normal(scale=self.fuzz, size=len(y)) - np.mean(y)
