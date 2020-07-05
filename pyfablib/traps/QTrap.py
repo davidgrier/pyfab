@@ -15,26 +15,51 @@ class states(Enum):
     normal = 1
     selected = 2
     grouping = 3
+    special = 4
 
 
 class QTrap(QObject):
-    """A trap has physical properties, including three-dimensional
+    """Base class for optical traps
+
+    A trap has physical properties, including three-dimensional
     position, relative amplitude and relative phase.  A structuring
-    field can change its optical properties.
-    It also has an appearance as presented on the QFabScreen.
+    field can change its optical properties. A trap also has a graphical 
+    representation as presented on the QFabScreen.
+
+    Inherits QObject
+
+    Parameters
+    ----------
+    r : :obj:`QVector3D`
+        Three-dimensional position of trap relative to the image
+        origin. Default: (0, 0, 0)
+    alpha : float
+        Relative amplitude of the trap. Default: 1.
+    phi : float
+        Relative phase of the trap. Default: random.
+    cgh : :obj:`QCGH`
+        Computational pipeline used to compute the complex
+        electric field associated with this trap.
+        Default: None
+    structure : :obj:`numpy.ndarray` of :obj:`numpy.complex`
+        Field used to convert optical tweezer into a structured trap.
+        Default: None (optical tweezer).
+    state : :obj:`Enum`
+        State of the trap, which reflects current operations
+        and is reflected in the graphical representation.
     """
 
     valueChanged = pyqtSignal(QObject)
 
     def __init__(self,
-                 parent=None,
                  r=QVector3D(),
-                 alpha=1.,          # relative amplitude
-                 phi=None,          # relative phase
-                 cgh=None,          # computational pipeline
-                 structure=None,    # structuring field
-                 state=states.normal):
-        super(QTrap, self).__init__(parent)
+                 alpha=1.,            # relative amplitude
+                 phi=None,            # relative phase
+                 cgh=None,            # computational pipeline
+                 structure=None,      # structuring field
+                 state=states.normal,  # graphical representation
+                 **kwargs):
+        super(QTrap, self).__init__(**kwargs)
 
         self.blockRefresh(True)
 
@@ -44,7 +69,8 @@ class QTrap(QObject):
         # appearance
         self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 105, 180, 120),
-                      states.grouping: pg.mkBrush(255, 255, 100, 120)}
+                      states.grouping: pg.mkBrush(255, 255, 100, 120),
+                      states.special: pg.mkBrush(238, 130, 238, 120)}
         self.baseSize = 15.
         self.spot = {'pos': QPointF(),
                      'size': self.baseSize,
@@ -56,7 +82,7 @@ class QTrap(QObject):
         self.r = r
         self._alpha = alpha
         if phi is None:
-            self.phi = np.random.uniform(low=0., high=2. * np.pi)
+            self.phi = np.random.uniform(low=0., high=2.*np.pi)
         else:
             self.phi = phi
         self.registerProperties()
