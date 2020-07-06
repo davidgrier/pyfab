@@ -33,14 +33,18 @@ class QTaskmanager(QObject):
 
     def __init__(self, parent=None):
         super(QTaskmanager, self).__init__(parent)
-        self.source = self.parent().screen.source
+        self.source = parent if isinstance(parent, QTask) else self.parent().screen.source
         self.task = None
         self.tasks = deque()
         self.bgtasks = []
+        self.subtasklookup = dict()
         self._paused = False
-
-    def registerTask(self, taskname, blocking=True, **kwargs):
+        
+    def registerTask(self, taskname, supertaskname=None, blocking=True, **kwargs):
         """Places the named task into the task queue."""
+        if supertaskname in self.subtasklookup.keys():
+            self.subtasklookup[supertaskname].registerTask(taskname=taskname, blocking=blocking, **kwargs)
+            return
         if isinstance(taskname, str):
             try:
                 taskmodule = importlib.import_module('tasks.lib.' + taskname)
@@ -50,9 +54,12 @@ class QTaskmanager(QObject):
             except ImportError as err:
                 logger.error('Could not import {}: {}'.format(task, err))
                 task = None
+        if hasattr(task, sigNewFrame):
+            self.subtasklookup[taskname] = QTaskManager(parent=self, source=task)
+            task.sigDone.connect(lambda: self.clearSubtasks(taskname))
         self.queueTask(task)
         return task
-
+    
     def connectSignals(self, task):
         task.sigDone.connect(lambda: self.dequeueTask(task))
         self.sigPause.connect(task.pause)
@@ -109,3 +116,8 @@ class QTaskmanager(QObject):
         """Empty task queue"""
         self.tasks.clear()
         self.bgtasks.clear()
+        
+    def clearSubtasks(self, taskname):
+        self.subtasklookup[taskname].clearTasks()
+        del self.subtasklookup[taskname]
+        
