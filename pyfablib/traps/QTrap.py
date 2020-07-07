@@ -81,10 +81,7 @@ class QTrap(QObject):
         # physical properties
         self.r = r
         self._alpha = alpha
-        if phi is None:
-            self.phi = np.random.uniform(low=0., high=2.*np.pi)
-        else:
-            self.phi = phi
+        self.phi = phi if phi else np.random.uniform(low=0., high=2.*np.pi)
         self.registerProperties()
         self.updateAppearance()
 
