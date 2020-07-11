@@ -29,11 +29,12 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.selection = QRubberBand(QRubberBand.Rectangle, self.parent())
         self.origin = QPoint()
         # traps, selected trap and active group
-        self.pattern = QTrapGroup(self)
+        self.traps = QTrapGroup(self)
         self.trap = None
         self.group = None
         self.selected = []
 
+    @pyqtSlot()
     def refreshAppearance(self):
         """Provide a list of spots to screen for plotting.
 
@@ -42,7 +43,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         property widgets, or by direct programmatic control of traps
         or groups.
         """
-        traps = self.pattern.flatten()
+        traps = self.traps.flatten()
         spots = [trap.spot for trap in traps]
         self.setData(spots=spots)
         return traps
@@ -62,14 +63,14 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         coords = self.mapFromScene(pos)
         index = self.selectedPoint(coords)
-        return self.pattern.flatten()[index] if index else None
+        return self.traps.flatten()[index] if index else None
 
     def groupOf(self, obj):
         """Return the highest-level group containing the specified object.
         """
         if obj is None:
             return None
-        while obj.parent() is not self.pattern:
+        while obj.parent() is not self.traps:
             obj = obj.parent()
         return obj
 
@@ -86,7 +87,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         self.selected = []
         rect = self.mapFromScene(QRectF(region)).boundingRect()
-        for child in self.pattern.children():
+        for child in self.traps.children():
             if child.isWithin(rect):
                 self.selected.append(child)
                 child.state = states.grouping
@@ -99,7 +100,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         trap.setParent(self)
         trap.cgh = self.parent().cgh.device
         trap.state = states.selected
-        self.pattern.add(trap)
+        self.traps.add(trap)
         self.refresh()
         self.trapAdded.emit(trap)
 
@@ -110,23 +111,23 @@ class QTrappingPattern(pg.ScatterPlotItem):
         coords = list(coordinates)
         if not coords:
             return
-        self.pattern.blockRefresh(True)
+        self.traps.blockRefresh(True)
         group = QTrapGroup()
-        self.pattern.add(group)
+        self.traps.add(group)
         for r in coords:
             trap = QTrap(r=r, parent=group)
             group.add(trap)
             self.trapAdded.emit(trap)
-        self.pattern.blockRefresh(False)
+        self.traps.blockRefresh(False)
         self.refresh()
         return group
 
     def clearTraps(self):
         """Remove all traps from trapping pattern.
         """
-        traps = self.pattern.flatten()
+        traps = self.traps.flatten()
         for trap in traps:
-            self.pattern.remove(trap, delete=True)
+            self.traps.remove(trap, delete=True)
         self.refresh()
 
     # Creating, breaking and moving groups of traps
@@ -137,7 +138,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             if trap.parent() is not self:
                 trap.parent().remove(trap)
             group.add(trap)
-        self.pattern.add(group)
+        self.traps.add(group)
         self.selected = []
 
     def breakGroup(self):
@@ -148,7 +149,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             for child in self.group.children():
                 child.state = states.grouping
                 self.group.remove(child)
-                self.pattern.add(child)
+                self.traps.add(child)
 
     def moveGroup(self, pos):
         """Move the selected group so that the selected
@@ -185,7 +186,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             self.createTrap(self.mapFromScene(pos))
         # Ctrl-Right Click: Delete trap
         elif modifiers == Qt.ControlModifier:
-            self.pattern.remove(self.clickedGroup(pos), delete=True)
+            self.traps.remove(self.clickedGroup(pos), delete=True)
             self.refresh()
 
     # Handlers for signals emitted by QJansenScreen
@@ -221,7 +222,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         if self.selected:
             self.createGroup()
-        for child in self.pattern.children():
+        for child in self.traps.children():
             child.state = states.normal
         self.group = None
         self.selection.hide()

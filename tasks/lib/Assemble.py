@@ -22,7 +22,7 @@ class Assemble(QTask):
         self.cgh = self.parent().cgh.device
         self.assembler = self.parent().assembler
         # Set traps from last QTrapGroup created
-        pattern = self.parent().pattern.pattern
+        pattern = self.parent().pattern.traps
         group = None
         for child in reversed(pattern.children()):
             if isinstance(child, type(pattern)):
