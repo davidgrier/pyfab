@@ -124,25 +124,29 @@ class CGH(QObject):
         np.outer(amp * ey, ex, buffer)
 
     # @jit
+    def computeTrap(self, trap):
+        r = self.m * trap.r
+        # axial splay
+        fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
+        r *= QVector3D(fac, fac, 1.)
+        # windowing
+        # amp = trap.amp * self.window(r)
+        amp = trap.amp
+        if trap.psi is None:
+            trap.psi = self._psi.copy()
+        self.compute_displace(amp, r, trap.psi)
+        trap.needsCompute = False
+        
+    # @jit
     def compute(self, all=False):
+    
         """Compute phase hologram for specified traps"""
         self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0j)
         for trap in self.traps:
-            if ((all is True) or trap.needsRefresh):
-                # map coordinates into trap space
-                r = self.m * trap.r
-                # axial splay
-                fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
-                r *= QVector3D(fac, fac, 1.)
-                # windowing
-                # amp = trap.amp * self.window(r)
-                amp = trap.amp
-                if trap.psi is None:
-                    trap.psi = self._psi.copy()
-                self.compute_displace(amp, r, trap.psi)
-                trap.needsRefresh = False
+            if ((all is True) or trap.needsCompute):
+                self.computeTrap(trap)
             try:
                 self._psi += trap.structure * trap.psi
             except Exception as e:
