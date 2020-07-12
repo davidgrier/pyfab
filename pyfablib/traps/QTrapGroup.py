@@ -17,6 +17,7 @@ class QTrapGroup(QObject):
     # Organizing traps within the group
     def add(self, child):
         """Add a trap to the group"""
+        child.propertyChanged.connect(lambda trap: self.updatePosition())
         child.setParent(self)
 
     def remove(self, thischild, delete=False):
