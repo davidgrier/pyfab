@@ -105,6 +105,7 @@ class cupyCGH(CGH):
         return self.phi
 
     def compute_displace(self, amp, r, buffer):
+        r = self.map_coordinates(r)
         ex = cp.exp(self._iqx * r.x() + self._iqxz * r.z(), dtype=cp.complex64)
         ey = cp.exp(self._iqy * r.y() + self._iqyz * r.z(), dtype=cp.complex64)
         cp.outer(amp * ey, ex, buffer)
