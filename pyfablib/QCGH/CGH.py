@@ -46,7 +46,6 @@ class CGH(QObject):
 
         # SLM geometry
         self._shape = shape
-        # self.phi = np.zeros(self.shape).astype(np.uint8)
 
         # Instrument properties
         # vacuum wavelength of trapping laser [um]
@@ -100,6 +99,10 @@ class CGH(QObject):
         self.traps = traps
         self.compute()
 
+    @pyqtSlot(object)
+    def psi(self):
+        return self._psi
+
     # Methods for computing holograms
     @staticmethod
     @jit(nopython=True)
@@ -128,8 +131,6 @@ class CGH(QObject):
         a specified complex amplitude to a specified position
         """
         r = self.map_coordinates(r)
-        fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
-        r *= QVector3D(fac, fac, 1.)
         ex = np.exp(self.iqx * r.x() + self.iqxz * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
         np.outer(amp * ey, ex, buffer)
