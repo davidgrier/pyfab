@@ -97,6 +97,8 @@ class QTrap(QObject):
 
         self.needsRefresh = True
         self.blockRefresh(False)
+        
+        self.structureChanged.connect(cgh.computeTrap(self))
 
     # Customizable methods for subclassed traps
     def plotSymbol(self):
