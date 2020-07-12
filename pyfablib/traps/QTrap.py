@@ -64,7 +64,7 @@ class QTrap(QObject):
         super(QTrap, self).__init__(**kwargs)
 
         self.blocked = True
-        self.needsRefresh = True
+        self.needsCompute = True
 
         # operational state
         self._state = state
@@ -153,9 +153,12 @@ class QTrap(QObject):
             return
         self.propertyChanged.emit(self)
         self.updateAppearance()
-        self.needsRefresh = True
-        self.parent().refresh()
+        self.needsCompute = True
 
+    def compute(self):
+      self.cgh.computeTrap(self)
+      self.needsCompute = False
+      
     # Methods for moving the trap
     def moveBy(self, dr):
         """Translate trap by specified displacement vector"""
