@@ -78,6 +78,7 @@ class CGH(QObject):
 
         # Splay wavenumber
         self._splayFactor = 0.01
+        self._needsRefresh = False
 
     # Slots for threaded operation
     @pyqtSlot()
@@ -124,33 +125,35 @@ class CGH(QObject):
         np.outer(amp * ey, ex, buffer)
 
     # @jit
-    def compute(self, all=False):
+    def computeTrap(self, trap):
+        r = self.m * trap.r
+        # axial splay
+        fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
+        r *= QVector3D(fac, fac, 1.)
+        # windowing
+        # amp = trap.amp * self.window(r)
+        amp = trap.amp
+        if trap.psi is None:
+            trap.psi = self._psi.copy()
+        self.compute_displace(amp, r, trap.psi)
+        self.needsRefresh = True
+        
+    def compute(self)
         """Compute phase hologram for specified traps"""
-        self.sigComputing.emit(True)
-        start = time()
-        self._psi.fill(0j)
-        for trap in self.traps:
-            if ((all is True) or trap.needsRefresh):
-                # map coordinates into trap space
-                r = self.m * trap.r
-                # axial splay
-                fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
-                r *= QVector3D(fac, fac, 1.)
-                # windowing
-                # amp = trap.amp * self.window(r)
-                amp = trap.amp
-                if trap.psi is None:
-                    trap.psi = self._psi.copy()
-                self.compute_displace(amp, r, trap.psi)
-                trap.needsRefresh = False
-            try:
-                self._psi += trap.structure * trap.psi
-            except Exception as e:
-                self._psi += trap.psi
-        self.phi = self.quantize(self._psi)
-        self.sigHologramReady.emit(self.phi)
-        self.time = time() - start
-        self.sigComputing.emit(False)
+        if self._needsRefresh:
+            self.sigComputing.emit(True)
+            start = time()
+            self._psi.fill(0j)
+            for trap in self.traps:           
+                try:
+                    self._psi += trap.structure * trap.psi
+                except Exception as e:
+                    self._psi += trap.psi
+            self.phi = self.quantize(self._psi)
+            self.sigHologramReady.emit(self.phi)
+            self.time = time() - start
+            self.sigComputing.emit(False)
+            self._needsRefresh = False
 
     def bless(self, field):
         """Ensure that field has correct type for compute"""
