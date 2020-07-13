@@ -10,6 +10,11 @@ import pyqtgraph as pg
 from enum import Enum
 from collections import OrderedDict
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARN)
+
 
 class states(Enum):
     static = 0
@@ -58,13 +63,11 @@ class QTrap(QObject):
                  r=QVector3D(),
                  alpha=1.,             # relative amplitude
                  phi=None,             # relative phase
-                 cgh=None,             # computational pipeline
                  structure=None,       # structuring field
                  state=states.normal,  # graphical representation
                  **kwargs):
         super(QTrap, self).__init__(**kwargs)
 
-        self.blocked = True
         self.needsRefresh = True
 
         # operational state
@@ -90,22 +93,24 @@ class QTrap(QObject):
         self.registerProperties()
 
         # hologram calculation
+        self._structure = None
         self.psi = None
-        self.cgh = cgh
-        self.structure = structure
-
-        self.blocked = False
 
     def initialize(self):
-        self.psi = self.cgh.psi.copy()
+        self.psi = self.cgh.psi().copy()
         self.updateStructure()
         self.updateAppearance()
+        logger.info('Initialized')
 
     def computeHologram(self):
-        self.cgh.compute_displace(self.amp, self.r, self.psi)
-        if self.structure:
-            self.psi = self.psi * self.structure
-        self.hologramChanged.emit()
+        try:
+            self.cgh.compute_displace(self.amp, self.r, self.psi)
+            if self.structure:
+                self.psi = self.psi * self.structure
+            logger.debug('computeHologram')
+            self.hologramChanged.emit()
+        except Exception as ex:
+            logger.debug('Could not compute hologram: ', ex)
 
     # Customizable methods for subclassed traps
 
@@ -117,6 +122,7 @@ class QTrap(QObject):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
         self.spot['size'] = np.clip(self.baseSize - self.r.z()/20., 10., 35.)
+        logger.debug('updateAppearance')
         self.appearanceChanged.emit()
 
     def updateStructure(self):
@@ -124,6 +130,7 @@ class QTrap(QObject):
 
         Note: This should be overridden by subclasses.
         """
+        logger.debug('updateStructure')
         self.computeHologram()
 
     # Computational pipeline for calculating structure field
@@ -146,30 +153,11 @@ class QTrap(QObject):
 
     @structure.setter
     def structure(self, field):
-        try:
+        if self.cgh:
             self._structure = self.cgh.bless(field)
-            self.refresh()
-        except Exception as ex:
-            pass
-
-    # Implementing changes in properties
-    @pyqtProperty(bool)
-    def blocked(self):
-        """Do not send refresh requests to parent if True"""
-        return self._blocked
-
-    @blocked.setter
-    def blocked(self, state):
-        self._blocked = bool(state)
-
-    def refresh(self):
-        """Request parent to implement changes"""
-        if self.blocked:
-            return
-        self.propertyChanged.emit(self)
-        self.updateAppearance()
-        self.needsRefresh = True
-        self.parent().refresh()
+            self.computeHologram()
+        else:
+            self._structure = field
 
     # Methods for moving the trap
     def moveBy(self, dr):
@@ -221,7 +209,9 @@ class QTrap(QObject):
     @r.setter
     def r(self, r):
         self._r = QVector3D(r)
-        self.refresh()
+        self.updateAppearance()
+        self.computeHologram()
+        logger.debug('setting r')
 
     @pyqtProperty(float)
     def x(self):
@@ -262,7 +252,8 @@ class QTrap(QObject):
     def alpha(self, alpha):
         self._alpha = alpha
         self.amp = alpha * np.exp(1j * self.phi)
-        self.refresh()
+        # self.refresh()
+        self.computeHologram()
 
     @pyqtProperty(float)
     def phi(self):
@@ -273,7 +264,8 @@ class QTrap(QObject):
     def phi(self, phi):
         self._phi = phi
         self.amp = self.alpha * np.exp(1j * phi)
-        self.refresh()
+        # self.refresh()
+        self.computeHologram()
 
     @pyqtProperty(object)
     def state(self):
@@ -285,3 +277,4 @@ class QTrap(QObject):
         if self.state is not states.static:
             self._state = state
             self.spot['brush'] = self.brush[state]
+            self.appearanceChanged.emit()

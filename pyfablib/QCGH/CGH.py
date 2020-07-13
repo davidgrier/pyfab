@@ -142,18 +142,7 @@ class CGH(QObject):
         start = time()
         self._psi.fill(0j)
         for trap in self.traps:
-            if ((all is True) or trap.needsRefresh):
-                # windowing
-                # amp = trap.amp * self.window(r)
-                amp = trap.amp
-                if trap.psi is None:
-                    trap.psi = self._psi.copy()
-                self.compute_displace(amp, trap.r, trap.psi)
-                trap.needsRefresh = False
-            try:
-                self._psi += trap.structure * trap.psi
-            except Exception as e:
-                self._psi += trap.psi
+            self._psi += trap.psi
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)
         self.time = time() - start
