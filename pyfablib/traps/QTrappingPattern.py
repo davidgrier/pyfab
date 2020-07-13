@@ -77,6 +77,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         if self._hologramOutdated:
             traps = self.traps.flatten()
             self.sigCompute.emit(traps)
+            self._hologramOutdated = False
             logger.debug('refreshHologram')
 
     def selectedPoint(self, position):
