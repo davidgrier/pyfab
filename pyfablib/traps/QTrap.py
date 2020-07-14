@@ -68,8 +68,6 @@ class QTrap(QObject):
                  *args, **kwargs):
         super(QTrap, self).__init__(*args, **kwargs)
 
-        self.needsRefresh = True
-
         # operational state
         self._state = state or states.normal
 
@@ -105,7 +103,7 @@ class QTrap(QObject):
     def computeHologram(self):
         try:
             self.cgh.compute_displace(self.amp, self.r, self.psi)
-            if self.structure:
+            if self.structure is not None:
                 self.psi = self.psi * self.structure
             logger.debug('computeHologram')
             self.hologramChanged.emit()
@@ -131,7 +129,7 @@ class QTrap(QObject):
         Note: This should be overridden by subclasses.
         """
         logger.debug('updateStructure')
-        self.computeHologram()
+        self.structure = None
 
     # Computational pipeline for calculating structure field
     @pyqtProperty(object)
@@ -147,13 +145,13 @@ class QTrap(QObject):
         self._cgh.sigUpdateTransformationMatrix.connect(self.initialize)
         self.initialize()
 
-    @pyqtProperty(np.ndarray)
+    @pyqtProperty(object)
     def structure(self):
         return self._structure
 
     @structure.setter
     def structure(self, field):
-        if self.cgh:
+        if (self.cgh is not None) and (field is not None):
             self._structure = self.cgh.bless(field)
             self.computeHologram()
         else:
