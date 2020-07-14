@@ -64,14 +64,14 @@ class QTrap(QObject):
                  alpha=1.,             # relative amplitude
                  phi=None,             # relative phase
                  structure=None,       # structuring field
-                 state=states.normal,  # graphical representation
-                 **kwargs):
-        super(QTrap, self).__init__(**kwargs)
+                 state=None,           # graphical representation
+                 *args, **kwargs):
+        super(QTrap, self).__init__(*args, **kwargs)
 
         self.needsRefresh = True
 
         # operational state
-        self._state = state
+        self._state = state or states.normal
 
         # appearance
         self.brush = {states.static: pg.mkBrush(255, 255, 255, 120),
@@ -83,7 +83,7 @@ class QTrap(QObject):
         self.spot = {'pos': QPointF(),
                      'size': self.baseSize,
                      'pen': pg.mkPen('w', width=0.2),
-                     'brush': self.brush[state],
+                     'brush': self.brush[self._state],
                      'symbol': self.plotSymbol()}
 
         # physical properties
@@ -252,7 +252,6 @@ class QTrap(QObject):
     def alpha(self, alpha):
         self._alpha = alpha
         self.amp = alpha * np.exp(1j * self.phi)
-        # self.refresh()
         self.computeHologram()
 
     @pyqtProperty(float)
@@ -264,7 +263,6 @@ class QTrap(QObject):
     def phi(self, phi):
         self._phi = phi
         self.amp = self.alpha * np.exp(1j * phi)
-        # self.refresh()
         self.computeHologram()
 
     @pyqtProperty(object)
