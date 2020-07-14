@@ -9,20 +9,12 @@ class MoveTraps(QTask):
     def __init__(self, traps=None, trajectory=None, **kwargs):
         super(MoveTraps, self).__init__(**kwargs)
         self.pattern = self.parent().pattern.traps
-        self.traps = traps
-        self.trajectory = trajectory
+        self.traps = traps if isInstance(traps, list) else [traps]
+        self.trajectories = trajectory if isInstance(trajectories, list) else [trajectories]
         self.nframes = len(self.trajectory) * self.skip
-        if isinstance(self.traps, list):
-            self.process = self.processTraps
-        else:
-            self.process = self.processTrap
 
-    def processTrap(self, frame):
-        pos = self.trajectory.pop(0)
-        self.traps.moveTo(pos)
-
-    def processTraps(self, frame):
-        positions = self.trajectory.pop(0)
+    def process(self, frame):
+        positions = [traj.pop(0) for traj in self.trajectories]
         self.pattern.blockRefresh(True)
         map(lambda trap, pos: trap.moveTo(pos), self.traps, positions)
         self.pattern.blockRefresh(False)
