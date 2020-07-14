@@ -150,8 +150,8 @@ class CGH(QObject):
 
     def bless(self, field):
         """Ensure that field has correct type for compute"""
-        if type(field) is complex:
-            field = np.ones(self.shape)
+        if field is None:
+            return None
         return field.astype(np.complex_)
 
     def setPhi(self, phi):

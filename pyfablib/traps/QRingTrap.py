@@ -4,7 +4,8 @@
 
 from .QTrap import QTrap
 import numpy as np
-from pyqtgraph.Qt import QtGui
+from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtGui import (QPainterPath, QFont, QTransform)
 from scipy.special import jv
 
 
@@ -23,18 +24,18 @@ class QRingTrap(QTrap):
         self.structure = phi
 
     def plotSymbol(self):
-        sym = QtGui.QPainterPath()
-        font = QtGui.QFont('Sans Serif', 10, QtGui.QFont.Black)
+        sym = QPainterPath()
+        font = QFont('Sans Serif', 10, QtGui.QFont.Black)
         sym.addText(0, 0, font, 'o')
         # Scale symbol to unit square
         box = sym.boundingRect()
         scale = 1./max(box.width(), box.height())
-        tr = QtGui.QTransform().scale(scale, scale)
+        tr = QTransform().scale(scale, scale)
         # Center symbol on (0, 0)
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
         return tr.map(sym)
 
-    @property
+    @pyqtProperty(float)
     def R(self):
         return self._R
 
@@ -42,9 +43,8 @@ class QRingTrap(QTrap):
     def R(self, R):
         self._R = R
         self.updateStructure()
-        self.valueChanged.emit(self)
 
-    @property
+    @pyqtProperty(int)
     def m(self):
         return self._m
 
@@ -52,4 +52,3 @@ class QRingTrap(QTrap):
     def m(self, m):
         self._m = np.int(m)
         self.updateStructure()
-        self.valueChanged.emit(self)

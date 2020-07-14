@@ -137,8 +137,7 @@ class cupyCGH(CGH):
         self.sigUpdateGeometry.emit()
 
     def bless(self, field):
-        if type(field) is complex:
-            gpu_field = cp.ones(self.shape, dtype=cp.complex64)
-        else:
-            gpu_field = cp.asarray(field.astype(cp.complex64))
+        if field is None:
+            return None
+        gpu_field = cp.asarray(field.astype(cp.complex64))
         return gpu_field
