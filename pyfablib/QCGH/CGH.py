@@ -38,11 +38,9 @@ class CGH(QObject):
     sigComputing = pyqtSignal(bool)
     sigHologramReady = pyqtSignal(np.ndarray)
     sigUpdateGeometry = pyqtSignal()
-    sigUpdateTransformationMatrix = pyqtSignal()
 
     def __init__(self, parent=None, shape=(512, 512)):
         super(CGH, self).__init__(parent)
-        self.traps = []
 
         # SLM geometry
         self._shape = shape
@@ -95,11 +93,6 @@ class CGH(QObject):
         setattr(self, name, value)
 
     @pyqtSlot(object)
-    def setTraps(self, traps):
-        self.traps = traps
-        self.compute()
-
-    @pyqtSlot(object)
     def psi(self):
         return self._psi
 
@@ -136,12 +129,13 @@ class CGH(QObject):
         np.outer(amp * ey, ex, buffer)
 
     # @jit
-    def compute(self, all=False):
+    @pyqtSlot(object)
+    def compute(self, traps):
         """Compute phase hologram for specified traps"""
         self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0j)
-        for trap in self.traps:
+        for trap in traps:
             self._psi += trap.psi
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)
@@ -184,7 +178,7 @@ class CGH(QObject):
         self.m.setToIdentity()
         self.m.rotate(self.thetac, 0., 0., 1.)
         self.m.translate(-self.rc)
-        self.sigUpdateTransformationMatrix.emit()
+        self.sigUpdateGeometry.emit()
 
     # Hologram geometry
     @pyqtProperty(int)
@@ -235,7 +229,6 @@ class CGH(QObject):
     def wavelength(self, wavelength):
         self._wavelength = wavelength
         self.updateGeometry()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def refractiveIndex(self):
@@ -246,7 +239,6 @@ class CGH(QObject):
     def refractiveIndex(self, refractiveIndex):
         self._refractiveIndex = refractiveIndex
         self.updateGeometry
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def magnification(self):
@@ -257,7 +249,6 @@ class CGH(QObject):
     def magnification(self, magnification):
         self._magnification = magnification
         self.updateGeometry()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def focalLength(self):
@@ -268,7 +259,6 @@ class CGH(QObject):
     def focalLength(self, focalLength):
         self._focalLength = focalLength
         self.updateGeometry()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def cameraPitch(self):
@@ -279,7 +269,6 @@ class CGH(QObject):
     def cameraPitch(self, cameraPitch):
         self._cameraPitch = cameraPitch
         self.updateGeometry()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def slmPitch(self):
@@ -290,7 +279,6 @@ class CGH(QObject):
     def slmPitch(self, slmPitch):
         self._slmPitch = slmPitch
         self.updateGeometry()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def scaleFactor(self):
@@ -301,7 +289,6 @@ class CGH(QObject):
     def scaleFactor(self, scaleFactor):
         self._scaleFactor = scaleFactor
         self.updateGeometry()
-        self.compute(all=True)
 
     # Calibration constants
     # 2. Camera plane
@@ -351,7 +338,6 @@ class CGH(QObject):
         else:
             self._rc = QVector3D(rc[0], rc[1], rc[2])
         self.updateTransformationMatrix()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def thetac(self):
@@ -362,7 +348,6 @@ class CGH(QObject):
     def thetac(self, thetac):
         self._thetac = float(thetac)
         self.updateTransformationMatrix()
-        self.compute(all=True)
 
     # Calibration constants
     # 3. SLM plane
@@ -400,7 +385,6 @@ class CGH(QObject):
         else:
             self._rs = QPointF(rs[0], rs[1])
         self.updateGeometry()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def phis(self):
@@ -411,7 +395,6 @@ class CGH(QObject):
     def phis(self, phis):
         self._phis = phis
         self.updateGeometry()
-        self.compute(all=True)
 
     @pyqtProperty(float)
     def splayFactor(self):
@@ -420,4 +403,4 @@ class CGH(QObject):
     @splayFactor.setter
     def splayFactor(self, splayFactor):
         self._splayFactor = float(splayFactor)
-        self.compute(all=True)
+        self.updateGeometry()

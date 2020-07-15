@@ -13,7 +13,7 @@ from collections import OrderedDict
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARN)
 
 
 class states(Enum):
@@ -143,7 +143,6 @@ class QTrap(QObject):
         if cgh is None:
             return
         self._cgh.sigUpdateGeometry.connect(self.initialize)
-        self._cgh.sigUpdateTransformationMatrix.connect(self.initialize)
         self.initialize()
 
     @pyqtProperty(object)
