@@ -25,7 +25,7 @@ class QRingTrap(QTrap):
 
     def plotSymbol(self):
         sym = QPainterPath()
-        font = QFont('Sans Serif', 10, QtGui.QFont.Black)
+        font = QFont('Sans Serif', 10, QFont.Black)
         sym.addText(0, 0, font, 'o')
         # Scale symbol to unit square
         box = sym.boundingRect()
