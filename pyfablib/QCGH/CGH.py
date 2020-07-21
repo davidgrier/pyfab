@@ -114,22 +114,11 @@ class CGH(QObject):
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
-    def map_coordinates(self, r):
-        """map coordinates into trap space"""
-        r = self.m * r
-        # axial splay
-        fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
-        r *= QVector3D(fac, fac, 1.)
-        return r
-
     # @jit
     def compute_displace(self, amp, r, buffer):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
-        r = self.map_coordinates(r)
-        fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
-        r *= QVector3D(fac, fac, 1.)
         ex = np.exp(self.iqx * r.x() + self.iqxz * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
         np.outer(amp * ey, ex, buffer)
@@ -142,12 +131,17 @@ class CGH(QObject):
         self._psi.fill(0j)
         for trap in self.traps:
             if ((all is True) or trap.needsRefresh):
+                # map coordinates into trap space
+                r = self.m * trap.r
+                # axial splay
+                fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
+                r *= QVector3D(fac, fac, 1.)
                 # windowing
                 # amp = trap.amp * self.window(r)
                 amp = trap.amp
                 if trap.psi is None:
                     trap.psi = self._psi.copy()
-                self.compute_displace(amp, trap.r, trap.psi)
+                self.compute_displace(amp, r, trap.psi)
                 trap.needsRefresh = False
             try:
                 self._psi += trap.structure * trap.psi
