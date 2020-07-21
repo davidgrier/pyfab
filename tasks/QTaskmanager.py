@@ -35,6 +35,7 @@ class QTaskmanager(QObject):
         super(QTaskmanager, self).__init__(parent)
         self.source = self.parent().screen.source
         self.task = None
+        self.taskData = dict()
         self.tasks = deque()
         self.bgtasks = []
         self._paused = False
@@ -65,6 +66,15 @@ class QTaskmanager(QObject):
         except AttributeError:
             logger.warn('could not disconnect signals')
 
+    def setTaskData(self, task):
+        for attr, value in self.taskData.items():
+            if hasattr(task, attr):
+                setattr(task, attr, value)
+        self.taskData.clear()
+
+    def getTaskData(self, task):
+        self.taskData = task.data()
+
     def queueTask(self, task=None):
         """Add task to queue and activate next queued task if necessary"""
         if task:
@@ -79,6 +89,7 @@ class QTaskmanager(QObject):
             try:
                 self.task = self.tasks.popleft()
                 self.connectSignals(self.task)
+                self.setTaskData(self.task)
             except IndexError:
                 logger.info('Completed all pending tasks')
 
@@ -87,6 +98,7 @@ class QTaskmanager(QObject):
         """Removes completed task from task queue or background list"""
         self.disconnectSignals(task)
         if task.blocking:
+            self.getTaskData(self.task)
             self.task = None
             self.queueTask()
         else:

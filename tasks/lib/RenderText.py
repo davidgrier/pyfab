@@ -46,4 +46,5 @@ class RenderText(QTask):
 
     def complete(self):
         p = self.get_coordinates()
-        self.parent().pattern.createTraps(p)
+        group = self.parent().pattern.createTraps(p)
+        self.setData({'traps': group})

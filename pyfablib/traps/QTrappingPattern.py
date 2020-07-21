@@ -149,13 +149,18 @@ class QTrappingPattern(pg.ScatterPlotItem):
         for r in coords:
             trap = self.createTrap(r, state=state)
             group.add(trap)
+        return group
 
-    def clearTraps(self):
+    def clearTrap(self, trap):
+        """Remove specified trap from trapping pattern"""
+        self.traps.remove(trap, delete=True)
+
+    def clearTraps(self, traps=None):
         """Remove all traps from trapping pattern.
         """
-        traps = self.traps.flatten()
+        traps = traps or self.traps.flatten()
         for trap in traps:
-            self.traps.remove(trap, delete=True)
+            self.clearTrap(trap)
 
     # Creating, breaking and moving groups of traps
     def createGroup(self):

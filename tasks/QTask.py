@@ -42,6 +42,7 @@ class QTask(QObject):
         self._paused = False
         self._busy = False
         self._frame = 0
+        self._data = dict()
         self.register = self.parent().tasks.registerTask
 
     def initialize(self, frame):
@@ -59,6 +60,12 @@ class QTask(QObject):
     def shutdown(self):
         """Clean up resources"""
         logger.debug('Cleaning up')
+
+    def setData(self, data):
+        self._data = data or dict()
+
+    def data(self):
+        return self._data
 
     @pyqtProperty(bool)
     def blocking(self):
