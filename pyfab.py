@@ -115,12 +115,11 @@ class PyFab(QMainWindow, Ui_PyFab):
             lambda: self.setDvrSource(self.screen))
 
         # Signals associated with handling images
-        newframe = self.screen.source.sigNewFrame
-        newframe.connect(self.histogram.updateHistogram)
-        newframe.connect(self.assembler.move)
-        newframe.connect(self.mover.move)
+        self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
+        self.screen.source.sigNewFrame.connect(self.assembler.move)
+        self.screen.source.sigNewFrame.connect(self.mover.move)
         if self.setupVision:
-            newframeFrame.connect(self.vision.process)
+            self.screen.sigNewFrame.connect(self.vision.process)
 
         # Signals associated with the CGH pipeline
         # 1. Screen events trigger requests for trap updates
@@ -136,9 +135,6 @@ class PyFab(QMainWindow, Ui_PyFab):
         # 4. Project result when calculation is complete
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
         self.cgh.device.sigHologramReady.connect(self.slmView.setData)
-
-        # CGH computations are coordinated with camera
-        newframe.connect(self.pattern.refresh)
 
     @pyqtSlot()
     def setDvrSource(self, source):
