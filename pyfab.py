@@ -128,12 +128,10 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
         self.screen.sigMouseMove.connect(self.pattern.mouseMove)
         self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
-        # 2. Updates to trapping pattern require hologram calculation
+        # 2. Trap widget reflects changes to trapping pattern
         self.pattern.sigCompute.connect(self.cgh.device.compute)
         self.pattern.trapAdded.connect(self.traps.registerTrap)
-        # 3. Suppress requests while hologram is being computed
-        self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
-        # 4. Project result when calculation is complete
+        # 3. Project result when calculation is complete
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
         self.cgh.device.sigHologramReady.connect(self.slmView.setData)
 

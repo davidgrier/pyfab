@@ -34,8 +34,6 @@ class CGH(QObject):
     computed holograms.
     """
 
-    sigRun = pyqtSignal(bool)
-    sigComputing = pyqtSignal(bool)
     sigHologramReady = pyqtSignal(np.ndarray)
     sigUpdateGeometry = pyqtSignal()
 
@@ -118,7 +116,7 @@ class CGH(QObject):
         r *= QVector3D(fac, fac, 1.)
         return r
 
-    # @jit
+    # @jit(nopython=True)
     def compute_displace(self, amp, r, buffer):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
@@ -132,7 +130,6 @@ class CGH(QObject):
     @pyqtSlot(object)
     def compute(self, traps):
         """Compute phase hologram for specified traps"""
-        self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0j)
         for trap in traps:
@@ -140,7 +137,6 @@ class CGH(QObject):
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)
         self.time = time() - start
-        self.sigComputing.emit(False)
 
     def bless(self, field):
         """Ensure that field has correct type for compute"""

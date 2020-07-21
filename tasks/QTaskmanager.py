@@ -70,10 +70,13 @@ class QTaskmanager(QObject):
         for attr, value in self.taskData.items():
             if hasattr(task, attr):
                 setattr(task, attr, value)
+                self.taskData.pop(attr)
+        # FIXME: Remove so that programmatically
+        # queued tasks can provide data to a chain of tasks
         self.taskData.clear()
 
     def getTaskData(self, task):
-        self.taskData = task.data()
+        self.taskData.update(task.data())
 
     def queueTask(self, task=None):
         """Add task to queue and activate next queued task if necessary"""
@@ -91,6 +94,7 @@ class QTaskmanager(QObject):
                 self.connectSignals(self.task)
                 self.setTaskData(self.task)
             except IndexError:
+                # self.taskData.clear()
                 logger.info('Completed all pending tasks')
 
     @pyqtSlot(QTask)
