@@ -129,7 +129,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.screen.sigMouseMove.connect(self.pattern.mouseMove)
         self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
         # 2. Updates to trapping pattern require hologram calculation
-        self.pattern.sigCompute.connect(self.cgh.device.compute)
+        self.pattern.sigCompute.connect(self.cgh.device.setTraps)
         self.pattern.trapAdded.connect(self.traps.registerTrap)
         # 3. Suppress requests while hologram is being computed
         self.cgh.device.sigComputing.connect(self.screen.pauseSignals)

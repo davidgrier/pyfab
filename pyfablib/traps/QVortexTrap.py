@@ -36,6 +36,7 @@ class QVortexTrap(QTrap):
     def updateStructure(self):
         """Helical structuring field defines an optical vortex"""
         self.structure = np.exp((1j * self.ell) * self.cgh.theta)
+        print('updateStructure')
 
     def plotSymbol(self):
         """Graphical representation of an optical vortex"""
