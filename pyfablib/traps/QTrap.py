@@ -2,8 +2,7 @@
 
 """QTrap.py: Base class for an optical trap."""
 
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
-                          QObject, QPointF)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QObject, QPointF)
 from PyQt5.QtGui import QVector3D
 import numpy as np
 import pyqtgraph as pg
@@ -54,10 +53,10 @@ class QTrap(QObject):
 
     def __init__(self,
                  r=QVector3D(),
-                 alpha=1.,             # relative amplitude
-                 phi=None,             # relative phase
-                 cgh=None,             # computational pipeline
-                 structure=None,       # structuring field
+                 alpha=1.,            # relative amplitude
+                 phi=None,            # relative phase
+                 cgh=None,            # computational pipeline
+                 structure=None,      # structuring field
                  state=states.normal,  # graphical representation
                  **kwargs):
         super(QTrap, self).__init__(**kwargs)
@@ -68,8 +67,7 @@ class QTrap(QObject):
         self._state = state
 
         # appearance
-        self.brush = {states.static: pg.mkBrush(255, 255, 255, 120),
-                      states.normal: pg.mkBrush(100, 255, 100, 120),
+        self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 105, 180, 120),
                       states.grouping: pg.mkBrush(255, 255, 100, 120),
                       states.special: pg.mkBrush(238, 130, 238, 120)}
@@ -83,7 +81,10 @@ class QTrap(QObject):
         # physical properties
         self.r = r
         self._alpha = alpha
-        self.phi = phi or np.random.uniform(low=0., high=2.*np.pi)
+        if phi is None:
+            self.phi = np.random.uniform(low=0., high=2.*np.pi)
+        else:
+            self.phi = phi
         self.registerProperties()
         self.updateAppearance()
 
@@ -106,14 +107,13 @@ class QTrap(QObject):
         self.spot['size'] = np.clip(self.baseSize - self.r.z() / 20., 10., 35.)
 
     def updateStructure(self):
-        """Update structuring field.
-
-        Note: This should be overridden by subclasses.
+        """Update structuring field for changes in trap properties
+        and calibration constants
         """
         pass
 
     # Computational pipeline for calculating structure field
-    @pyqtProperty(object)
+    @property
     def cgh(self):
         return self._cgh
 
@@ -126,7 +126,7 @@ class QTrap(QObject):
         self._cgh.sigUpdateTransformationMatrix.connect(self.updateStructure)
         self.updateStructure()
 
-    @pyqtProperty(np.ndarray)
+    @property
     def structure(self):
         return self._structure
 
@@ -194,7 +194,7 @@ class QTrap(QObject):
         self.registerProperty('alpha', decimals=2)
         self.registerProperty('phi', decimals=2)
 
-    @pyqtProperty(QVector3D)
+    @property
     def r(self):
         """Three-dimensional position of trap"""
         return self._r
@@ -204,7 +204,7 @@ class QTrap(QObject):
         self._r = QVector3D(r)
         self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def x(self):
         return self._r.x()
 
@@ -213,7 +213,7 @@ class QTrap(QObject):
         self._r.setX(x)
         self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def y(self):
         return self._r.y()
 
@@ -222,7 +222,7 @@ class QTrap(QObject):
         self._r.setY(y)
         self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def z(self):
         return self._r.z()
 
@@ -231,7 +231,7 @@ class QTrap(QObject):
         self._r.setZ(z)
         self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def alpha(self):
         """Relative amplitude of trap"""
         return self._alpha
@@ -242,7 +242,7 @@ class QTrap(QObject):
         self.amp = alpha * np.exp(1j * self.phi)
         self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def phi(self):
         """Relative phase of trap"""
         return self._phi
@@ -253,7 +253,7 @@ class QTrap(QObject):
         self.amp = self.alpha * np.exp(1j * phi)
         self.refresh()
 
-    @pyqtProperty(object)
+    @property
     def state(self):
         """Current state of trap"""
         return self._state
