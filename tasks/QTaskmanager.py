@@ -54,7 +54,7 @@ class QTaskmanager(QObject):
         return task
 
     def connectSignals(self, task):
-        task.sigDone.connect(lambda: self.dequeueTask(task))
+        task.sigDone.connect(self.dequeueTask)
         self.sigPause.connect(task.pause)
         self.sigStop.connect(task.stop)
         self.source.sigNewFrame.connect(task.handleTask)
@@ -82,9 +82,10 @@ class QTaskmanager(QObject):
             except IndexError:
                 logger.info('Completed all pending tasks')
 
-    @pyqtSlot(QTask)
-    def dequeueTask(self, task):
+    @pyqtSlot()
+    def dequeueTask(self):
         """Removes completed task from task queue or background list"""
+        task = self.sender()  # reference to completed task
         self.disconnectSignals(task)
         if task.blocking:
             self.task = None
