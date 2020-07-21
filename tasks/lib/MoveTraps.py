@@ -8,10 +8,10 @@ class MoveTraps(QTask):
 
     def __init__(self, traps=None, trajectory=None, **kwargs):
         super(MoveTraps, self).__init__(**kwargs)
-        self.pattern = self.parent().pattern.traps
         self.traps = traps
         self.trajectory = trajectory
         self.nframes = len(self.trajectory) * self.skip
+        self.pattern = self.parent().pattern.pattern
         if isinstance(self.traps, list):
             self.process = self.processTraps
         else:

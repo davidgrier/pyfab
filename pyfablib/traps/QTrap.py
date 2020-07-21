@@ -51,9 +51,6 @@ class QTrap(QObject):
     """
 
     valueChanged = pyqtSignal(QObject)
-    positionChanged = pyqtSignal(QObject)
-    appearanceChanged = pyqtSignal(QObject)
-    structureChanged = pyqtSignal(QObject)
 
     def __init__(self,
                  r=QVector3D(),
@@ -106,7 +103,7 @@ class QTrap(QObject):
     def updateAppearance(self):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
-        self.spot['size'] = np.clip(self.baseSize - self.r.z()/20., 10., 35.)
+        self.spot['size'] = np.clip(self.baseSize - self.r.z() / 20., 10., 35.)
 
     def updateStructure(self):
         """Update structuring field.
@@ -136,7 +133,6 @@ class QTrap(QObject):
     @structure.setter
     def structure(self, field):
         self._structure = self.cgh.bless(field)
-        self.structureChanged.emit(self)
         self.refresh()
 
     # Implementing changes in properties
@@ -214,9 +210,8 @@ class QTrap(QObject):
 
     @x.setter
     def x(self, x):
-        r = self._r
-        r.setX(x)
-        self.r = r
+        self._r.setX(x)
+        self.refresh()
 
     @pyqtProperty(float)
     def y(self):
@@ -224,9 +219,8 @@ class QTrap(QObject):
 
     @y.setter
     def y(self, y):
-        r = self._r
-        r.setY(y)
-        self.r = r
+        self._r.setY(y)
+        self.refresh()
 
     @pyqtProperty(float)
     def z(self):
@@ -234,9 +228,8 @@ class QTrap(QObject):
 
     @z.setter
     def z(self, z):
-        r = self._r
-        r.setZ(z)
-        self.r = r
+        self._r.setZ(z)
+        self.refresh()
 
     @pyqtProperty(float)
     def alpha(self):
