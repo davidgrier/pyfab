@@ -79,7 +79,7 @@ class QTask(QObject):
             if (self._frame % self.skip == 0):
                 self._busy = True
                 self.process(frame)
-            self._frame += 1
+            self._frames += 1
             self._busy = False
             return
         self._busy = True
