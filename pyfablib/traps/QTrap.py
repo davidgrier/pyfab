@@ -52,7 +52,6 @@ class QTrap(QObject):
 
     propertyChanged = pyqtSignal(QObject)
     appearanceChanged = pyqtSignal()
-    hologramChanged = pyqtSignal()
 
     def __init__(self,
                  r=QVector3D(),
@@ -88,27 +87,16 @@ class QTrap(QObject):
         self._alpha = alpha
         self.phi = phi or np.random.uniform(low=0., high=2.*np.pi)
         self.registerProperties()
+        self.updateAppearance()
 
         # hologram calculation
+        self._structure = structure
         self.psi = None
         self.cgh = cgh
-        self.structure = structure
 
         self.blocked = False
 
-    def initialize(self):
-        self.psi = self.cgh.psi.copy()
-        self.updateStructure()
-        self.updateAppearance()
-
-    def computeHologram(self):
-        self.cgh.compute_displace(self.amp, self.r, self.psi)
-        if self.structure:
-            self.psi = self.psi * self.structure
-        self.hologramChanged.emit()
-
     # Customizable methods for subclassed traps
-
     def plotSymbol(self):
         """Graphical representation of trap"""
         return 'o'
@@ -124,7 +112,7 @@ class QTrap(QObject):
 
         Note: This should be overridden by subclasses.
         """
-        self.computeHologram()
+        pass
 
     # Computational pipeline for calculating structure field
     @pyqtProperty(object)
@@ -136,9 +124,9 @@ class QTrap(QObject):
         self._cgh = cgh
         if cgh is None:
             return
-        self._cgh.sigUpdateGeometry.connect(self.initialize)
-        self._cgh.sigUpdateTransformationMatrix.connect(self.initialize)
-        self.initialize()
+        self._cgh.sigUpdateGeometry.connect(self.updateStructure)
+        self._cgh.sigUpdateTransformationMatrix.connect(self.updateStructure)
+        self.updateStructure()
 
     @pyqtProperty(np.ndarray)
     def structure(self):
@@ -146,11 +134,8 @@ class QTrap(QObject):
 
     @structure.setter
     def structure(self, field):
-        try:
-            self._structure = self.cgh.bless(field)
-            self.refresh()
-        except Exception as ex:
-            pass
+        self._structure = self.cgh.bless(field)
+        self.refresh()
 
     # Implementing changes in properties
     @pyqtProperty(bool)
