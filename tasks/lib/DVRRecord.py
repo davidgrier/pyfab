@@ -6,10 +6,10 @@
 from ..QTask import QTask
 
 
-class DVRRecord(QTask):
+class Record(QTask):
 
     def __init__(self, fn=None, nframes=30, **kwargs):
-        super(DVRRecord, self).__init__(nframes=nframes, **kwargs)
+        super(Record, self).__init__(nframes=nframes, **kwargs)
         self.fn = fn
 
     def initialize(self, frame):
