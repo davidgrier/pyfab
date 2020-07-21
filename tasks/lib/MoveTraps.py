@@ -23,7 +23,10 @@ class MoveTraps(QTask):
     interpolate : 
         Smooth trajectories with scipy interpolation.
         scale_length (default False) : if True, resize all trajectories to have self.nframes points
-        k : see scipy.
+        k : see scipy.splev
+        
+    process 
+        From QTask. On frame j, move traps[i] to position at trajectories[i][j]
 
     '''
 
