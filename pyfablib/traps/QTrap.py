@@ -13,7 +13,7 @@ from collections import OrderedDict
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARN)
 
 
 class states(Enum):
@@ -107,7 +107,6 @@ class QTrap(QObject):
                 self.psi = self.psi * self.structure
             logger.debug('computeHologram')
             self.hologramChanged.emit()
-            self.propertyChanged.emit(self)
         except Exception as ex:
             logger.debug('Could not compute hologram: ', ex)
 
@@ -152,7 +151,7 @@ class QTrap(QObject):
 
     @structure.setter
     def structure(self, field):
-        if self.cgh:
+        if (self.cgh is not None) and (field is not None):
             self._structure = self.cgh.bless(field)
             self.computeHologram()
         else:
