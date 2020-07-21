@@ -33,7 +33,7 @@ class MoveTraps(QTask):
     def __init__(self, traps=None, trajectories=[], smooth=False, **kwargs):
         super(MoveTraps, self).__init__(**kwargs)
         traps = traps or self.parent().pattern.traps   ##.flatten()  ??????
-        if  not (nisinstance(traps, list) and isinstance(trajectories, list) ):
+        if  not (isinstance(traps, list) and isinstance(trajectories, list) ):
             print('Error: traps and trajectories must both be lists')
         for i in range(len(trajectories), len(traps)):
             trajectories.append( [] )
@@ -54,7 +54,7 @@ class MoveTraps(QTask):
         for traj in self.trajectories:
             npts = self.nframes if scale_length else len(traj)
             target = traj[-1]
-            data = np.asasarray(traj)
+            data = np.asarray(traj)
 #             L = np.sum(np.linalg.norm(np.diff(traj.data, axis=0), axis=1))
 #             npts = int(L / stepSize)
             tspace = np.linspace(0, 1, npts)
