@@ -108,6 +108,7 @@ class CGH(QObject):
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
+    # @jit(nopython=True)
     def map_coordinates(self, r):
         """map coordinates into trap space"""
         r = self.m * r
@@ -126,7 +127,7 @@ class CGH(QObject):
         ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
         np.outer(amp * ey, ex, buffer)
 
-    # @jit
+    # @jit(nopython=True)
     @pyqtSlot(object)
     def compute(self, traps):
         """Compute phase hologram for specified traps"""
