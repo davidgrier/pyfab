@@ -194,7 +194,7 @@ class PyFab(QMainWindow, Ui_PyFab):
     @pyqtSlot()
     def pauseTasks(self):
         self.tasks.pauseTasks()
-        msg = 'Tasks paused' if self.tasks.paused else 'Tasks running'
+        msg = 'Tasks paused' if self.tasks.paused() else 'Tasks running'
         self.statusBar().showMessage(msg)
 
     @pyqtSlot()

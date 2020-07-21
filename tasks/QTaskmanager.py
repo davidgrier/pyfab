@@ -96,7 +96,7 @@ class QTaskmanager(QObject):
     def paused(self):
         return self._paused
 
-    @paused.setter
+    @paused.setter(bool)
     def paused(self, paused):
         self._paused = bool(paused)
         self.sigPause.emit(self._paused)
