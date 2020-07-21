@@ -5,11 +5,11 @@ from ..QTask import QTask
 from PyQt5.QtGui import QVector3D
 
 
-class OpticalTweezer(QTask):
+class CreateTrap(QTask):
     '''Add an optical tweezer to the trapping pattern'''
 
     def __init__(self, **kwargs):
-        super(OpticalTweezer, self).__init__(**kwargs)
+        super(CreateTrap, self).__init__(**kwargs)
 
     def complete(self):
         cgh = self.parent().cgh.device
