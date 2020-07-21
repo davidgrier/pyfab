@@ -91,8 +91,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         coords = self.mapFromScene(pos)
         index = self.selectedPoint(coords)
-        found = index is not None
-        return self.traps.flatten()[index] if found else None
+        return self.traps.flatten()[index] if index else None
 
     def groupOf(self, obj):
         """Return the highest-level group containing the specified object.
@@ -131,24 +130,25 @@ class QTrappingPattern(pg.ScatterPlotItem):
         trap.appearanceChanged.connect(self.toggleAppearance)
         trap.hologramChanged.connect(self.toggleHologram)
         trap.destroyed.connect(self.toggleAppearance)
-        trap.destroyed.connect(self.toggleHologram)
         trap.cgh = self.parent().cgh.device
+        trap.state = states.selected
         self.trapAdded.emit(trap)
 
-    def createTrap(self, r, state=None):
-        trap = QTrap(r=r, state=state)
+    def createTrap(self, r):
+        trap = QTrap(r=r)
         self.addTrap(trap)
         return trap
 
-    def createTraps(self, coordinates, state=None):
+    def createTraps(self, coordinates):
         coords = list(coordinates)
         if not coords:
             return
         group = QTrapGroup()
         self.traps.add(group)
         for r in coords:
-            trap = self.createTrap(r, state=state)
+            trap = self.createTrap(r)
             group.add(trap)
+        group.state = states.normal
 
     def clearTraps(self):
         """Remove all traps from trapping pattern.
@@ -210,8 +210,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         # Shift-Right Click: Add trap
         if modifiers == Qt.ShiftModifier:
-            r = self.mapFromScene(pos)
-            self.createTrap(r, state=states.selected)
+            self.createTrap(self.mapFromScene(pos))
         # Ctrl-Right Click: Delete trap
         elif modifiers == Qt.ControlModifier:
             self.traps.remove(self.clickedGroup(pos), delete=True)
