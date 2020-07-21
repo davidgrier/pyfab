@@ -110,7 +110,7 @@ class QTrapPropertyWidget(QWidget):
             if trap.properties[name]['tooltip']:
                 self.wid[name].setToolTip(name)
             layout.addWidget(self.wid[name])
-        trap.propertyChanged.connect(self.updateValues)
+        trap.valueChanged.connect(self.updateValues)
         self.setLayout(layout)
 
     def propertyWidget(self, trap, name):

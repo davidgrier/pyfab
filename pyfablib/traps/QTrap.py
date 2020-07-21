@@ -50,8 +50,10 @@ class QTrap(QObject):
         and is reflected in the graphical representation.
     """
 
-    propertyChanged = pyqtSignal(QObject)
-    appearanceChanged = pyqtSignal()
+    valueChanged = pyqtSignal(QObject)
+    positionChanged = pyqtSignal(QObject)
+    appearanceChanged = pyqtSignal(QObject)
+    structureChanged = pyqtSignal(QObject)
 
     def __init__(self,
                  r=QVector3D(),
@@ -63,8 +65,7 @@ class QTrap(QObject):
                  **kwargs):
         super(QTrap, self).__init__(**kwargs)
 
-        self.blocked = True
-        self.needsRefresh = True
+        self.blockRefresh(True)
 
         # operational state
         self._state = state
@@ -94,7 +95,8 @@ class QTrap(QObject):
         self.psi = None
         self.cgh = cgh
 
-        self.blocked = False
+        self.needsRefresh = True
+        self.blockRefresh(False)
 
     # Customizable methods for subclassed traps
     def plotSymbol(self):
@@ -105,7 +107,6 @@ class QTrap(QObject):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
         self.spot['size'] = np.clip(self.baseSize - self.r.z()/20., 10., 35.)
-        self.appearanceChanged.emit()
 
     def updateStructure(self):
         """Update structuring field.
@@ -135,23 +136,22 @@ class QTrap(QObject):
     @structure.setter
     def structure(self, field):
         self._structure = self.cgh.bless(field)
+        self.structureChanged.emit(self)
         self.refresh()
 
     # Implementing changes in properties
-    @pyqtProperty(bool)
-    def blocked(self):
-        """Do not send refresh requests to parent if True"""
-        return self._blocked
+    def blockRefresh(self, state):
+        """Do not send refresh requests to parent if state is True"""
+        self._blockRefresh = bool(state)
 
-    @blocked.setter
-    def blocked(self, state):
-        self._blocked = bool(state)
+    def refreshBlocked(self):
+        return self._blockRefresh
 
     def refresh(self):
         """Request parent to implement changes"""
-        if self.blocked:
+        if self.refreshBlocked():
             return
-        self.propertyChanged.emit(self)
+        self.valueChanged.emit(self)
         self.updateAppearance()
         self.needsRefresh = True
         self.parent().refresh()
