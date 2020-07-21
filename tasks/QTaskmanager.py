@@ -8,7 +8,7 @@ import importlib
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARN)
+logger.setLevel(logging.DEBUG)
 
 
 class QTaskmanager(QObject):
