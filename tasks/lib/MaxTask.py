@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MENU: Acquire/Maximum Brightness
+# MENU: Max task
 
 from ..QTask import QTask
 import numpy as np
