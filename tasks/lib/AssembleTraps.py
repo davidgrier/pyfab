@@ -4,7 +4,7 @@
 A* graph search for moving a set of traps to a set of targets
 """
 
-from .TrapMove import TrapMove, Trajectory
+from .MoveTraps import MoveTraps
 from PyQt5.QtCore import pyqtProperty
 from numba import njit
 import numpy as np
@@ -16,17 +16,17 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class TrapAssemble(TrapMove):
+class AssembleTraps(MoveTraps):
 
-    def __init__(self, **kwargs):
-        super(TrapAssemble, self).__init__(**kwargs)
+    def __init__(self, targets=None, **kwargs):
+        super(AssembleTraps, self).__init__(**kwargs)
 
-        self._targets = None
+        self._targets = targets
 
         self._particleSpacing = 1  # [um]
         self._gridSpacing = .5     # [um]
-        self._tmax = 300           # [steps]
-        self._zrange = (-5, 10)    # [um]
+#         self._tmax = 300           # [steps]    #### This is nframes
+        self._zrange = (-5, 10)    # [um]         
 
     #
     # Setters for user interaction
@@ -94,29 +94,21 @@ class TrapAssemble(TrapMove):
     @zrange.setter
     def zrange(self, zrange):
         self._zrange = zrange
-
-    @pyqtProperty(int)
-    def tmax(self):
-        '''Maximum number of steps to get to destination'''
-        return self._tmax
-
-    @tmax.setter
-    def tmax(self, t):
-        self._tmax = t
-
+        
     #
     # Finding trajectories
     #
     def parameterize(self, traps):
         # Get tunables
-        pattern = self.parent().pattern.pattern
-        cgh = self.parent().cgh.device
+#         pattern = self.parent().pattern.pattern
+#         cgh = self.parent().cgh.device
         mpp = cgh.cameraPitch/cgh.magnification         # [microns/pixel]
-        w, h = (self.parent().screen.source.width,
-                self.parent().screen.source.height)     # [pixels]
+#         w, h = (self.parent().screen.source.width,
+#                 self.parent().screen.source.height)     # [pixels]
         zmin, zmax = (self.zrange[0]/mpp,
                       self.zrange[1]/mpp)               # [pixels]
-        tmax = self.tmax                                # [steps]
+#         tmax = self.tmax                                # [steps]
+        tmax = self.nframes
         gridSpacing = self.gridSpacing / mpp            # [pixels]
         particleSpacing = self.particleSpacing / mpp    # [pixels]
         stepSize = self.stepSize / mpp
@@ -134,7 +126,7 @@ class TrapAssemble(TrapMove):
         group = traps.flatten()
         r_0 = {}
         r_f = {}
-        for trap in pattern.flatten():
+        for trap in self.parent().pattern.traps.flatten():
             r0 = np.array([trap.r.x(), trap.r.y(), trap.r.z()])
             i0, j0, k0 = self.locate(r0, xv, yv, zv)
             if trap not in group:
