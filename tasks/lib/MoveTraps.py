@@ -23,7 +23,7 @@ class MoveTraps(QTask):
         See bottom of the file for an example of how to subclass this method. 
      
     interpolate : 
-        Smooth trajectories with scipy interpolation.
+        Smooth trajectories with scipy interpolation. Pass scale_length and k as kwargs in __init__, if desired. 
         scale_length (default False) : if True, resize all trajectories to have self.nframes points
         k : see scipy.splev
         
@@ -36,11 +36,12 @@ class MoveTraps(QTask):
 
     def __init__(self, traps=None, trajectories=[], smooth=False, **kwargs):
         super(MoveTraps, self).__init__(**kwargs)
+        self.initialize_parameters(**kwargs)
         self.__dict__.update(kwargs)
         self.smooth = smooth
         self.traps = traps or self.parent().pattern.traps 
         if isinstance(trajectories, dict):
-            self.trajectories = [trajectories[trap] if trap in trajectories.keys() else None for trap in self.traps]
+            self.trajectories = [trajectories[trap] if trap in trajectories.keys() else [] for trap in self.traps]
         for i in range(len(trajectories), len(self.traps)):
             trajectories.append( [] )
         self.trajectories = trajectories
@@ -55,8 +56,11 @@ class MoveTraps(QTask):
         if traps.__class__.__name__ == 'QTrapGroup':
 #             traps.select(True)
             self._traps = traps.flatten()
-        elif list(traps)[0].__class__.name__ is 'QTrap':
-            self._traps = list(traps)
+            return
+        elif not isinstance(traps, list):
+            traps = [traps]
+        if traps[0].__class__.name__ is 'QTrap':
+            self.traps = _traps
         else:
             print("error: traps must be a list of QTraps")
             self._traps = []
@@ -65,19 +69,18 @@ class MoveTraps(QTask):
         self.parameterize()
         self.nframes = self.nframes or max( [len(traj) for traj in self.trajectories] ) * self.skip  #### Note: with new qtask signals, we dont need to know/declare
         if self.smooth:                                                                              #### self.nframes until we run self.process; so we declare it just after we find trajectories.
-            self.interpolate(**kwargs)
+            self.interpolate()
     
     def parameterize(self):    #### Subclass this method to declare trajectories
         pass
     
-    def interpolate(self, scale_length=False, k=1, **kwargs):
+    def interpolate(self):
         '''
         Smooth out trajectories with scipy interpolation.
         '''
-        if hasattr(self, 'scale_length'):
-            scale_length = self.scale_length
-        if hasattr(self, 'k'):
-            k = self.k 
+       
+        scale_length = self.scale_length if hasattr(self, 'scale_length') else False                #### Set interpolation parameters 
+        k = self.k if hasattr(self, 'k') else 1
         for traj in self.trajectories:
             npts = self.nframes if scale_length else len(traj)
             target = traj[-1]
@@ -95,7 +98,7 @@ class MoveTraps(QTask):
                 traj[-1] = target
     
     def initialize(self, frame):
-        self._parameterize
+        self._parameterize()
         
     def process(self, frame):
         positions = [traj.pop(0) if len(traj)>0 else None for traj in self.trajectories]
