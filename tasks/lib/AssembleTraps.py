@@ -25,7 +25,6 @@ class AssembleTraps(MoveTraps):
 
         self._particleSpacing = 1  # [um]
         self._gridSpacing = .5     # [um]
-#         self._tmax = 300           # [steps]    #### This is nframes
         self._zrange = (-5, 10)    # [um]         
 
     #
@@ -60,14 +59,7 @@ class AssembleTraps(MoveTraps):
     #
     @pyqtProperty(float)
     def stepSize(self):
-        if self._stepSize is None:
-            return self._gridSpacing
-        else:
-            return self._stepSize
-
-    @stepSize.setter
-    def stepSize(self, stepSize):
-        self._stepSize = stepSize
+        return self._stepSize or self._gridSpacing
 
     @pyqtProperty(float)
     def particleSpacing(self):
@@ -101,17 +93,15 @@ class AssembleTraps(MoveTraps):
     def parameterize(self, traps):
         # Get tunables
 #         pattern = self.parent().pattern.pattern
-#         cgh = self.parent().cgh.device
+        cgh = self.parent().cgh.device
         mpp = cgh.cameraPitch/cgh.magnification         # [microns/pixel]
-#         w, h = (self.parent().screen.source.width,
-#                 self.parent().screen.source.height)     # [pixels]
+        w, h = (self.parent().screen.source.width,
+                self.parent().screen.source.height)     # [pixels]
         zmin, zmax = (self.zrange[0]/mpp,
                       self.zrange[1]/mpp)               # [pixels]
-#         tmax = self.tmax                                # [steps]
-        tmax = self.nframes
+        tmax = self.nframes                             # [steps]
         gridSpacing = self.gridSpacing / mpp            # [pixels]
         particleSpacing = self.particleSpacing / mpp    # [pixels]
-        stepSize = self.stepSize / mpp
         # spacing = ceil(particleSpacing / gridSpacing)        # [steps]
         # Initialize graph w/ obstacles at all traps we ARENT moving
         x = np.arange(0, w+gridSpacing, gridSpacing)
@@ -184,13 +174,10 @@ class AssembleTraps(MoveTraps):
         for trap in trajectories.keys():
             traj = trajectories[trap]
             r0 = (trap.r.x(), trap.r.y(), trap.r.z())
-            traj.data[0] = r0
-            traj.data[-1] = vertices[trap]
+            traj[0] = r0
+            traj[-1] = vertices[trap]
         # Set trajectories and global indices for TrapMove.move
         self.trajectories = trajectories
-        self.t = 0
-        self.tf = self.tmax
-
         return 0, ''
 
     def shortest_path(self, source, target, G, rv):
@@ -231,14 +218,13 @@ class AssembleTraps(MoveTraps):
                             heap, (g_tentative+h, neighbor))
         # Reconstruct path in (t, i, j, k) space and (x, y, z)
         xv, yv, zv = rv
-        trajectory = Trajectory()
-        trajectory.data = np.zeros((target[0]+1, 3))
+        trajectory = np.zeros((target[0]+1, 3))
         node = target
         t = target[0]
         path = []
         while True:
             r = np.array([xv[node[1:]], yv[node[1:]], zv[node[1:]]])
-            trajectory.data[t] = r
+            trajectory[t] = r
             path.insert(0, node)
             if node == source:
                 break
