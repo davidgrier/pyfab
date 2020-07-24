@@ -4,7 +4,7 @@ from ..QTask import QTask
 from scipy.interpolate import splprep, splev
 
 class MoveTraps(QTask):
-    '''Move specified traps along specified trajectory
+    '''Move specified traps along specified trajectory. 
     Attributes
     ----------
     traps: list of QTraps       (or QTrapGroup)
@@ -13,9 +13,9 @@ class MoveTraps(QTask):
         On frame n, process() moves trap to trajectories[trap][n]
     smooth : bool 
         If True, perform scipy interpolation to smooth trajectories (see 'interpolate' below). Default false.
-    nframes : int
-        from QTask. Number of frames to move traps. If nframes=0 (default), use length of trajectory (i.e. move at 30 FPS)
-    
+    stepSize : float
+        Size of steps to take each frame (in microns) after interpolation.
+        
     Methods
     ------- 
     parameterize : **kwargs (optional)
@@ -24,18 +24,19 @@ class MoveTraps(QTask):
         See bottom of the file for an example of how to subclass this method. 
      
     interpolate : 
-        Smooth trajectories with scipy interpolation. Pass scale_length and k as kwargs in __init__, if desired. 
-        scale_length (default False) : if True, resize all trajectories to have self.nframes points
-        k : see scipy.splev
-        
+        Smooth trajectories with scipy interpolation.
+        - If stepSize is None (default) and nframes=0 (default), the # of points in each trajectory will not change
+        - If stepsize is None and nframes is given, all trajectories will contain nframes points after interpolation
+        - If stepSize is given, then the # of points in each trajectory will scale with length as npts ~ L / stepSize
 
     '''
 
-    def __init__(self, traps=None, trajectories={}, smooth=False, **kwargs):
+    def __init__(self, traps=None, trajectories={}, smooth=False, stepSize=None, **kwargs):
         super(MoveTraps, self).__init__(**kwargs)
         self.initialize_parameters(**kwargs)
         self.__dict__.update(kwargs)
         self.smooth = smooth
+        self.stepSize = stepSize
         self.traps = traps or self.parent().pattern.traps        
         self._trajectories = {}
         self.trajectories = trajectories
@@ -53,10 +54,10 @@ class MoveTraps(QTask):
             return
         elif not isinstance(traps, list):
             traps = [traps]
-        if traps[0].__class__.name__ is 'QTrap':
-            self.traps = _traps
+        if all([trap.__class__.name__ is 'QTrap' for trap in traps]): 
+            self._traps = traps
         else:
-            print("error: traps must be a list of QTraps")
+            print("error: elements of trap list must be of type QTrap")
             self._traps = []
     @property
     def trajectories(self):
@@ -68,33 +69,44 @@ class MoveTraps(QTask):
             print('Warning: trajectories passed as list; pairing by index...')
             trajectories = dict(zip(self.traps, trajectories))
         if isinstance(trajectories, dict):
-            self._trajectories.update(trajectories)
+            self._trajectories = trajectories
         else:
             print('Warning: trajectories must be dict or list')
-   
+
+    @property
+    def stepSize(self):
+        return self._stepSize
+
+    @stepSize.setter
+    def stepSize(self, stepSize):
+        self._stepSize = stepSize
+
     def _parameterize(self):
-        self.trajectories = self.parameterize()
+        self.trajectories = self.parameterize(self.traps)
         self.nframes = self.nframes or max( [len(traj) for traj in self.trajectories] ) * self.skip  #### Note: with new qtask signals, we dont need to know/declare
         if self.smooth:                                                                              #### self.nframes until we run self.process; so we declare it just after we find trajectories.
             self.interpolate()
     
-    def parameterize(self):    #### Subclass this method to declare trajectories. Must return a dict or list.
+    def parameterize(self, traps):    #### Subclass this method to declare trajectories. Must return a dict or list.
         return self.trajectories
     
     def interpolate(self):
         '''
         Smooth out trajectories with scipy interpolation.
         '''
-       
-        scale_length = self.scale_length if hasattr(self, 'scale_length') else False                #### Set interpolation parameters 
+        cgh = self.parent().cgh.device
+        mpp = cgh.cameraPitch/cgh.magnification  # [microns/pixel]
+        stepSize = self.stepSize/mpp if self.stepSize is not None else 
         k = self.k if hasattr(self, 'k') else 1
         for trap in self.traps:
             traj = self.trajectories[trap]
-            npts = self.nframes if scale_length else len(traj)
             target = traj[-1]
             data = np.asarray(traj)
-#             L = np.sum(np.linalg.norm(np.diff(traj.data, axis=0), axis=1))
-#             npts = int(L / stepSize)
+            if self.stepSize is None:
+                npts = self.nframes or len(traj)
+            else:
+                L = np.sum(np.linalg.norm(np.diff(traj, axis=0), axis=1))
+                npts = int(L / stepSize)
             tspace = np.linspace(0, 1, npts)
             x = data[:, 0]
             y = data[:, 1]
@@ -113,8 +125,7 @@ class MoveTraps(QTask):
         for trap in self.traps:
             if len(self.trajectories[trap]) > 0:
                 trap.moveTo(self.trajectories[trap].pop(0))
-            else:
-                self.trajectories.pop(trap)
+
      
 #         positions = [traj.pop(0) if len(traj)>0 else None for traj in self.trajectories]
 # #         self.pattern.blockRefresh(True)
@@ -130,14 +141,14 @@ class MoveTraps(QTask):
 #         super(MoveTraps, self).__init__(nframes=nframes, **kwargs)
 #         
 # 
-#     def parameterize(self, radius=30., theta=np.pi/8, **kwargs):      #### Compute trajectories on initialize.         
+#     def parameterize(self, traps, radius=30., theta=np.pi/8, **kwargs):      #### Compute trajectories on initialize.         
 #         trajs = []                                                   
 #         theta_range = np.linspace(0, theta, npts)
 #         (xrot, yrot) =  (radius*np.cos(theta_range), radius*np.sin(theta_range))
-#         for trap in self.traps:
+#         for trap in traps:
 #             (x0, y0, z0) = trap.r_p
 #             trajs.append([(x0 + xrot[i], y0 + yrot[i], z0) for i in range(npts)])
-#         return dict(zip(self.traps, trajs))
+#         return dict(zip(traps, trajs))
             
 
 

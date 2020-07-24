@@ -2,6 +2,10 @@
 
 """
 A* graph search for moving a set of traps to a set of targets
+
+
+To subclass this method, just override aim() with a method which returns targets (analagous to overriding 'parameterize' in MoveTraps).
+Any parameters can be passed as kwargs on __init__ and output must be a dict with keys QTrap and values tuple (x, y, z)
 """
 
 from .MoveTraps import MoveTraps
@@ -27,6 +31,14 @@ class AssembleTraps(MoveTraps):
         self._gridSpacing = .5     # [um]
         self._zrange = (-5, 10)    # [um]         
 
+    def aim(self, traps):
+        return self.targets
+
+    def initialize(self, frame):
+        self.targets = aim(self.traps)
+        super(AssembleTraps, self).__init__(**kwargs)   
+
+
     #
     # Setters for user interaction
     #
@@ -37,14 +49,14 @@ class AssembleTraps(MoveTraps):
 
     @targets.setter
     def targets(self, targets):
-        if self.traps.__class__.__name__ != 'QTrapGroup':
-            logger.warning("Set QTrapGroup before setting targets")
+        if len(self.traps) is 0:
+            logger.warning("Set QTraps before setting targets")
         elif type(targets) is dict:
             self._targets = dict(targets)
         else:
             targets = list(targets)
             logger.info("Pairing traps to targets")
-            if len(self.traps.flatten()) == len(targets):
+            if len(self.traps) == len(targets):
                 self.parent().screen.source.blockSignals(True)
                 self.parent().screen.pauseSignals(True)
                 self._targets = self.pair(targets)
@@ -113,9 +125,9 @@ class AssembleTraps(MoveTraps):
         G = np.full((tmax, *xv.shape), np.inf, dtype=np.float32)
         # Find initial/final positions of traps in graph and
         # set traps nodes not in group off-limits
-        group = traps.flatten()
         r_0 = {}
         r_f = {}
+        group = traps
         for trap in self.parent().pattern.traps.flatten():
             r0 = np.array([trap.r.x(), trap.r.y(), trap.r.z()])
             i0, j0, k0 = self.locate(r0, xv, yv, zv)
@@ -371,7 +383,7 @@ class AssembleTraps(MoveTraps):
                       values are their vertex pairing
         '''
         targets = list(targets)
-        traps = self.traps.flatten()
+        traps = self.traps
         if self.traps.count() == 0:
             return {}
         if len(traps) != len(targets):
