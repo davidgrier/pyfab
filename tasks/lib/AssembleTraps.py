@@ -26,17 +26,20 @@ class AssembleTraps(MoveTraps):
         super(AssembleTraps, self).__init__(**kwargs)
 
         self._targets = targets
-
+               
+        self.nframes = self.nframes or 300   #### Note: nframes=0 is not allowed, so let default be 10       
         self._particleSpacing = 1  # [um]
         self._gridSpacing = .5     # [um]
         self._zrange = (-5, 10)    # [um]         
 
-    def aim(self, traps):
-        return self.targets
+    def aim(self, traps):    #### Subclass to set targets
+        pass
 
-    def initialize(self, frame):
-        self.targets = aim(self.traps)
-        super(AssembleTraps, self).__init__(**kwargs)   
+    def _parameterize(self):
+        print('finding targets for {} traps...'.format(len(self.traps)))
+        self.aim(self.traps)
+        super(AssembleTraps, self)._parameterize()
+        
 
 
     #
@@ -69,11 +72,15 @@ class AssembleTraps(MoveTraps):
     #
     # Tunable parameters
     #
-    @pyqtProperty(float)
+    @property
     def stepSize(self):
         return self._stepSize or self._gridSpacing
 
-    @pyqtProperty(float)
+    @stepSize.setter
+    def stepSize(self, stepSize):
+        self._stepSize = stepSize
+
+    @property
     def particleSpacing(self):
         '''Spacing between traps. Used for graph discretization [um]'''
         return self._particleSpacing
@@ -82,7 +89,7 @@ class AssembleTraps(MoveTraps):
     def particleSpacing(self, spacing):
         self._particleSpacing = spacing
 
-    @pyqtProperty(float)
+    @property
     def gridSpacing(self):
         return self._gridSpacing
 
@@ -90,7 +97,7 @@ class AssembleTraps(MoveTraps):
     def gridSpacing(self, spacing):
         self._gridSpacing = spacing
 
-    @pyqtProperty(tuple)
+    @property
     def zrange(self):
         '''z-range in chamber that traps can travel [um]'''
         return self._zrange
@@ -103,8 +110,11 @@ class AssembleTraps(MoveTraps):
     # Finding trajectories
     #
     def parameterize(self, traps):
+
         # Get tunables
 #         pattern = self.parent().pattern.pattern
+        print('targets: {}'.format(self.targets))
+
         cgh = self.parent().cgh.device
         mpp = cgh.cameraPitch/cgh.magnification         # [microns/pixel]
         w, h = (self.parent().screen.source.width,
@@ -116,6 +126,7 @@ class AssembleTraps(MoveTraps):
         particleSpacing = self.particleSpacing / mpp    # [pixels]
         # spacing = ceil(particleSpacing / gridSpacing)        # [steps]
         # Initialize graph w/ obstacles at all traps we ARENT moving
+        print('tmax is {}'.format(tmax))                  
         x = np.arange(0, w+gridSpacing, gridSpacing)
         y = np.arange(0, h+gridSpacing, gridSpacing)
         if zmax < zmin:
@@ -128,11 +139,15 @@ class AssembleTraps(MoveTraps):
         r_0 = {}
         r_f = {}
         group = traps
+#         print('our traps: {}'.format(self.traps))
+#         print('total traps: {}'.format(self.parent().pattern.traps.flatten()))
+#         print()
         for trap in self.parent().pattern.traps.flatten():
             r0 = np.array([trap.r.x(), trap.r.y(), trap.r.z()])
             i0, j0, k0 = self.locate(r0, xv, yv, zv)
             if trap not in group:
                 path = []
+                print('{} not in group'.format(trap))
                 for t in range(tmax):
                     path.append((t, i0, j0, k0))
                 self.update(
@@ -158,16 +173,21 @@ class AssembleTraps(MoveTraps):
                            zv[r_f[trap]] - zv[r_0[trap]]])
             return dr.dot(dr)
         group = sorted(group, key=dist)
+#         print('our traps: {}'.format(self.traps))
+#         print('total traps: {}'.format(self.parent().pattern.traps.flatten()))
+#         print()
         # LOOP over all traps we are moving, finding the shortest
         # path for each with A* and then updating the graph with
         # new path as obstacle.
         trajectories = {}
-        for trap in group:
+        for i, trap in enumerate(group):
+            print('computing traj for {}'.format(i))
             r = (trap.r.x(), trap.r.y(), trap.r.z())
             source, target = (r_0[trap], r_f[trap])
             if np.isnan(G[tmax-1][target]):
                 msg = 'Assemble failed. '
                 msg += 'Spacing between targets is smaller than particleSpacing'
+                print(msg)
                 return -1, msg
             trajectory, path = self.shortest_path(
                 source, target, G, (xv, yv, zv))
@@ -175,8 +195,11 @@ class AssembleTraps(MoveTraps):
                 msg = 'Assemble failed (unknown error). '
                 msg += 'Try adjusting tunables or increasing '
                 msg += 'separation between traps.'
+                print(msg)
                 return -1, msg
             trajectories[trap] = trajectory
+            print('added traj: trajectory {} is length {}'.format(i, len(trajectories)))
+            print()
             if trap is not group[-1]:
                 self.update(
                     G, path, particleSpacing, (xv, yv, zv))
@@ -189,6 +212,7 @@ class AssembleTraps(MoveTraps):
             traj[0] = r0
             traj[-1] = vertices[trap]
         # Set trajectories and global indices for TrapMove.move
+#         print('Done: Trajectories calculated with length {}'.format([len(trajectories[trap]) for trap in self.traps]))
         self.trajectories = trajectories
         return 0, ''
 
@@ -384,7 +408,7 @@ class AssembleTraps(MoveTraps):
         '''
         targets = list(targets)
         traps = self.traps
-        if self.traps.count() == 0:
+        if len(traps) == 0:
             return {}
         if len(traps) != len(targets):
             return {}
@@ -405,6 +429,7 @@ class AssembleTraps(MoveTraps):
         targets = {}
         for idx, trap in enumerate(traps):
             targets[trap] = pairing[idx]
+        print('paired: {}'.format(targets))
         return targets
 
     @staticmethod
