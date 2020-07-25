@@ -24,10 +24,12 @@ class AssembleTraps(MoveTraps):
 
     def __init__(self, targets=None, **kwargs):
         super(AssembleTraps, self).__init__(**kwargs)
+        self.delay = 4 if self.delay < 4 else self.delay
+        self.skip = 10
 
         self._targets = targets
                
-        self.nframes = self.nframes or 300   #### Note: nframes=0 is not allowed, so let default be 10       
+        self.nframes = self.nframes or 300   #### Note: nframes=0 is not allowed, so let default be 300     
         self._particleSpacing = 1  # [um]
         self._gridSpacing = .5     # [um]
         self._zrange = (-5, 10)    # [um]         
@@ -36,11 +38,21 @@ class AssembleTraps(MoveTraps):
         pass
 
     def _parameterize(self):
-        print('finding targets for {} traps...'.format(len(self.traps)))
+        logger.info('finding targets for {} traps...'.format(len(self.traps)))
         self.aim(self.traps)
         super(AssembleTraps, self)._parameterize()
         
+    def complete(self):
+        for trap in self.targets.keys():
+            print('trap is now at {}; target was {}'.format((trap.x, trap.y, trap.z), self.targets[trap]))
+            if trap in self.trajectories.keys():
+                print('un-traversed trajectory was size {}'.format(len(self.trajectories[trap])))
+            else:
+                print('trajectory was successfully popped')
+        super(AssembleTraps, self).complete()
 
+        
+	
 
     #
     # Setters for user interaction
@@ -60,11 +72,11 @@ class AssembleTraps(MoveTraps):
             targets = list(targets)
             logger.info("Pairing traps to targets")
             if len(self.traps) == len(targets):
-                self.parent().screen.source.blockSignals(True)
-                self.parent().screen.pauseSignals(True)
+#                 self.parent().screen.source.blockSignals(True)
+#                 self.parent().screen.pauseSignals(True)
                 self._targets = self.pair(targets)
-                self.parent().screen.source.blockSignals(False)
-                self.parent().screen.pauseSignals(False)
+#                 self.parent().screen.source.blockSignals(False)
+#                 self.parent().screen.pauseSignals(False)
             else:
                 logger.warning(
                     "Number of targets does not match number of traps")
@@ -113,7 +125,7 @@ class AssembleTraps(MoveTraps):
 
         # Get tunables
 #         pattern = self.parent().pattern.pattern
-        print('targets: {}'.format(self.targets))
+#         logger.info('targets: {}'.format(self.targets))
 
         cgh = self.parent().cgh.device
         mpp = cgh.cameraPitch/cgh.magnification         # [microns/pixel]
@@ -126,7 +138,7 @@ class AssembleTraps(MoveTraps):
         particleSpacing = self.particleSpacing / mpp    # [pixels]
         # spacing = ceil(particleSpacing / gridSpacing)        # [steps]
         # Initialize graph w/ obstacles at all traps we ARENT moving
-        print('tmax is {}'.format(tmax))                  
+        logger.info('tmax is {}'.format(tmax))                  
         x = np.arange(0, w+gridSpacing, gridSpacing)
         y = np.arange(0, h+gridSpacing, gridSpacing)
         if zmax < zmin:
@@ -147,7 +159,7 @@ class AssembleTraps(MoveTraps):
             i0, j0, k0 = self.locate(r0, xv, yv, zv)
             if trap not in group:
                 path = []
-                print('{} not in group'.format(trap))
+                logger.info('{} not in group'.format(trap))
                 for t in range(tmax):
                     path.append((t, i0, j0, k0))
                 self.update(
@@ -181,13 +193,13 @@ class AssembleTraps(MoveTraps):
         # new path as obstacle.
         trajectories = {}
         for i, trap in enumerate(group):
-            print('computing traj for {}'.format(i))
+            logger.info('computing trajectory for trap {}'.format(i))
             r = (trap.r.x(), trap.r.y(), trap.r.z())
             source, target = (r_0[trap], r_f[trap])
             if np.isnan(G[tmax-1][target]):
                 msg = 'Assemble failed. '
                 msg += 'Spacing between targets is smaller than particleSpacing'
-                print(msg)
+                logger.warning(msg)
                 return -1, msg
             trajectory, path = self.shortest_path(
                 source, target, G, (xv, yv, zv))
@@ -195,11 +207,10 @@ class AssembleTraps(MoveTraps):
                 msg = 'Assemble failed (unknown error). '
                 msg += 'Try adjusting tunables or increasing '
                 msg += 'separation between traps.'
-                print(msg)
+                logger.warning(msg)
                 return -1, msg
             trajectories[trap] = trajectory
-            print('added traj: trajectory {} is length {}'.format(i, len(trajectories)))
-            print()
+            logger.info('added traj: trajectory {} is length {}'.format(i, len(trajectory)))
             if trap is not group[-1]:
                 self.update(
                     G, path, particleSpacing, (xv, yv, zv))

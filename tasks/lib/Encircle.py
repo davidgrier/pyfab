@@ -9,7 +9,7 @@ class Encircle(MoveTraps):
     """Make particles move in a circle around some point"""
     
     def __init__(self, **kwargs):
-        super(Encircle, self).__init__(smooth=True, **kwargs)
+        super(Encircle, self).__init__(smooth=True, stepSize=4, **kwargs)
         self.nframes = self.nframes or 60
         self.center = (self.parent().cgh.device.xc, self.parent().cgh.device.yc)
         print('center is at {}'.format(self.center))
