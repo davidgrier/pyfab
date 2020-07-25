@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from ..QTask import QTask
+from PyQt5.QtGui import QVector3D
+import numpy as np
 from scipy.interpolate import splprep, splev
 
 class MoveTraps(QTask):
@@ -33,13 +35,12 @@ class MoveTraps(QTask):
 
     def __init__(self, traps=None, trajectories={}, smooth=False, stepSize=None, **kwargs):
         super(MoveTraps, self).__init__(**kwargs)
-        self.initialize_parameters(**kwargs)
-        self.__dict__.update(kwargs)
+#         self.__dict__.update(kwargs)
         self.smooth = smooth
-        self.stepSize = stepSize
-        self.traps = traps or self.parent().pattern.traps        
-        self._trajectories = {}
-        self.trajectories = trajectories
+        self.stepSize = stepSize      
+        self.traps = traps or self.parent().pattern.traps     
+        self.trajectories = trajectories  
+        self.counter = 0
 #         self._parameterize()                            #### Uncomment to compute trajectories on __init__ instead of initialize 
         
     @property
@@ -51,14 +52,17 @@ class MoveTraps(QTask):
         if traps.__class__.__name__ == 'QTrapGroup':
 #             traps.select(True)
             self._traps = traps.flatten()
+            print('trap setter: set {} traps'.format(len(traps.flatten())))
             return
         elif not isinstance(traps, list):
             traps = [traps]
-        if all([trap.__class__.name__ is 'QTrap' for trap in traps]): 
+        if all([trap.__class__.__name__ is 'QTrap' for trap in traps]): 
             self._traps = traps
         else:
             print("error: elements of trap list must be of type QTrap")
+            print("Instead, elements are of type {}")
             self._traps = []
+
     @property
     def trajectories(self):
         return self._trajectories
@@ -69,9 +73,11 @@ class MoveTraps(QTask):
             print('Warning: trajectories passed as list; pairing by index...')
             trajectories = dict(zip(self.traps, trajectories))
         if isinstance(trajectories, dict):
+#             print('trajectories set: {}'.format(trajectories))
             self._trajectories = trajectories
         else:
-            print('Warning: trajectories must be dict or list')
+            print('Warning: trajectories must be dict or list; setting to empty')
+            self.trajectories = [[] for trap in self.traps]
 
     @property
     def stepSize(self):
@@ -82,13 +88,17 @@ class MoveTraps(QTask):
         self._stepSize = stepSize
 
     def _parameterize(self):
-        self.trajectories = self.parameterize(self.traps)
-        self.nframes = self.nframes or max( [len(traj) for traj in self.trajectories] ) * self.skip  #### Note: with new qtask signals, we dont need to know/declare
-        if self.smooth:                                                                              #### self.nframes until we run self.process; so we declare it just after we find trajectories.
+        print('parameterizing {} traps...'.format(len(self.traps)))
+        self.parameterize(self.traps)                                                                     #### Note: with new qtask signals, we dont need to know/declare self.nframes
+        self.nframes = self.nframes or max( [len(self.trajectories[trap]) for trap in self.traps] ) * self.skip       #### until we run self.process; so we declare it just after we run parametrize()
+        print('nframes: {}'.format(self.nframes))
+        if self.smooth:                                                                              
+            print('smoothing...')                                                                              
             self.interpolate()
+        print('Parameterized in {} frames'.format(self.counter))                                 
     
-    def parameterize(self, traps):    #### Subclass this method to declare trajectories. Must return a dict or list.
-        return self.trajectories
+    def parameterize(self, traps):    #### Subclass this method to set trajectories. Must return a dict or list.
+        pass
     
     def interpolate(self):
         '''
@@ -96,7 +106,6 @@ class MoveTraps(QTask):
         '''
         cgh = self.parent().cgh.device
         mpp = cgh.cameraPitch/cgh.magnification  # [microns/pixel]
-        stepSize = self.stepSize/mpp if self.stepSize is not None else 
         k = self.k if hasattr(self, 'k') else 1
         for trap in self.traps:
             traj = self.trajectories[trap]
@@ -106,7 +115,7 @@ class MoveTraps(QTask):
                 npts = self.nframes or len(traj)
             else:
                 L = np.sum(np.linalg.norm(np.diff(traj, axis=0), axis=1))
-                npts = int(L / stepSize)
+                npts = int(L * mpp / stepSize)
             tspace = np.linspace(0, 1, npts)
             x = data[:, 0]
             y = data[:, 1]
@@ -119,12 +128,23 @@ class MoveTraps(QTask):
                 self.trajectories[trap] = traj
     
     def initialize(self, frame):
-        self._parameterize()
-        
+        if self.counter == 0:
+            self.counter += 1
+            self._parameterize()
+            self.counter = 0
+        self.counter += 1
+
     def process(self, frame):
+        print('moving frame {} of {}'.format(self._frame, self.nframes))
         for trap in self.traps:
-            if len(self.trajectories[trap]) > 0:
-                trap.moveTo(self.trajectories[trap].pop(0))
+#             print('incrementing traj of len {}'.format(len(self.trajectories[trap])))
+            if len(self.trajectories[trap]) is 0:
+                return
+            pos = self.trajectories[trap].pop(0)
+            if not isinstance(pos, QVector3D) and len(pos) == 3:
+                pos = QVector3D(*pos)
+#             print('moving to {}'.format(pos))
+            trap.moveTo(pos)
 
      
 #         positions = [traj.pop(0) if len(traj)>0 else None for traj in self.trajectories]
@@ -150,7 +170,6 @@ class MoveTraps(QTask):
 #             trajs.append([(x0 + xrot[i], y0 + yrot[i], z0) for i in range(npts)])
 #         return dict(zip(traps, trajs))
             
-
 
 
 
