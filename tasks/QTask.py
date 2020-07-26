@@ -76,12 +76,14 @@ class QTask(QObject):
         logger.debug('Handling Task')
         try:
             self._handleTask(frame)
-        except Exception ex:
+        except Exception as ex:
             self.busy = True
             logger.warning('Killing task : {}'.format(ex))
-            self.data['error'] = ex
+            data = self.data()
+            data['error'] = ex
+            self.setData(data)
             self.stop()
-            
+
     def _handleTask(self, frame):
         if not self._initialized:
             self.initialize(frame)

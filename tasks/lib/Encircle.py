@@ -9,15 +9,14 @@ class Encircle(MoveTraps):
     """Make particles move in a circle around some point"""
     
     def __init__(self, **kwargs):
-        super(Encircle, self).__init__(smooth=True, stepSize=4, **kwargs)
+        super(Encircle, self).__init__(smooth=False, stepSize=4, **kwargs)
         self.nframes = self.nframes or 60
-        self.center = (self.parent().cgh.device.xc, self.parent().cgh.device.yc)
+        self.center = (500, 500)
         print('center is at {}'.format(self.center))
     
     def parameterize(self, traps):
-        print('FRAME {}: parametertizing {} traps'.format(self._frame, len(traps)))
         trajs = {}
-        theta = np.linspace(0, 2*np.pi, self.nframes)
+        theta = np.linspace(0, 2.2*np.pi, self.nframes)
         xc, yc = self.center
         for trap in traps:
             (xi, yi, z) = (trap.x, trap.y, trap.z)

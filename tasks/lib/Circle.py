@@ -24,4 +24,6 @@ class Circle(AssembleTraps):
         y = yc + self.radius*np.sin(theta)
         z = 0
         self.targets = [(x[i], y[i], z) for i in range(N)]
+        print(self.targets)
+
    
