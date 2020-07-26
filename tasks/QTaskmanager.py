@@ -104,7 +104,12 @@ class QTaskmanager(QObject):
         if task.blocking:
             self.getTaskData(self.task)
             self.task = None
-            self.queueTask()
+            if 'error' in self.taskData.keys():
+                logger.warning('Flushing task queue...')
+                self.tasks.clear()
+                self.taskData.pop('error')               
+            else:
+                self.queueTask()
         else:
             self.bgtasks.remove(task)
 

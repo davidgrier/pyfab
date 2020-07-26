@@ -74,6 +74,15 @@ class QTask(QObject):
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
         logger.debug('Handling Task')
+        try:
+            self._handleTask(frame)
+        except Exception ex:
+            self.busy = True
+            logger.warning('Killing task : {}'.format(ex))
+            self.data['error'] = ex
+            self.stop()
+            
+    def _handleTask(self, frame):
         if not self._initialized:
             self.initialize(frame)
             self._initialized = True
