@@ -7,11 +7,11 @@ from ..QTask import QTask
 
 class Record(QTask):
 
-    def __init__(self, fn=None, stopVideo=True, **kwargs):
+    def __init__(self, fn=None, stop=True, **kwargs):
         # Pass in nframes keyword for length of recording
         super(Record, self).__init__(**kwargs)
         self.fn = fn
-        self.stop = stop
+        self.stopVideo = stop
 
     def initialize(self, frame):
         self.dvr = self.parent.dvr
@@ -22,4 +22,4 @@ class Record(QTask):
     def complete(self):
         if self.stopVideo:
             self.dvr.stopButton.animateClick()
-
+            
