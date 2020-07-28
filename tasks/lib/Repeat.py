@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-# MENU: Experiments/Read2
+# MENU: Experiments/Repeat
 
 from ..QTask import QTask
 import numpy as np
 import json
 
 
-class Read2(QTask):
-    """Make particles move in a circle around some point"""
+class Repeat(QTask):
+    """Repeat the trajectory from the previous task"""
     
     def initialize(self, frame):
-        with open('tasks/lib/trajectories.json', 'r') as f:
+        with open('home/python/pyfab/tasks/data/trajectories.json', 'r') as f:
             data = json.load(f)
         trajectories = list(data.values())
         targets = [traj[0] for traj in trajectories]
         self.register('AssembleTraps', targets=targets)
         self.register('MoveTraps', trajectories=trajectories)
-            
-        
