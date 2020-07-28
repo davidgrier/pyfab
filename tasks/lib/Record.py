@@ -14,7 +14,7 @@ class Record(QTask):
         self.stopVideo = stop
 
     def initialize(self, frame):
-        self.dvr = self.parent.dvr
+        self.dvr = self.parent().dvr
         if self.fn is not None:
             self.dvr.filename = self.fn
         self.dvr.recordButton.animateClick()
