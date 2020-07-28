@@ -40,9 +40,10 @@ class MoveTraps(QTask):
     '''
 
     
-    def __init__(self, traps=None, trajectories=None, smooth=False, stepSize=None, **kwargs):
+    def __init__(self, traps=None, trajectories=None, smooth=False, stepSize=None, filename=None, **kwargs):
         super(MoveTraps, self).__init__(**kwargs)
 #         self.__dict__.update(kwargs)
+        self.filename = filename
         self.smooth = smooth
         self.stepSize = stepSize      
         self.traps = traps or self.parent().pattern.traps     
@@ -74,16 +75,20 @@ class MoveTraps(QTask):
     
     @trajectories.setter
     def trajectories(self, trajectories):
-        if isinstance(trajectories, list) and len(trajectories) == len(self.traps):
-            logger.info('adding {} trajectories to traps by index'.format(len(trajectories)))
-            self._trajectories = trajectories
-        elif isinstance(trajectories, dict):
+        if isinstance(trajectories, dict):
             logger.info('resetting traps using trajectory keys')
-            self._trajectories = list(trajectories.values())
-        else:
+            self.traps = list(trajectories.keys())
+            trajectories = list(trajectories.values())
+        if not isinstance(trajectories, list):
             logger.warning('trajectories must be dict or list; setting to empty')
             self._trajectories = [[] for trap in self.traps]
-
+        elif len(trajectories) != len(self.traps): 
+            logger.warning('number of trajectories {} does not match number of traps {}'.format(len(trajectories), len(self.traps)))
+            self._trajectories = [traj.copy() for traj in trajectories]
+        else:
+            logger.info('adding {} trajectories'.format(len(trajectories)))
+            self._trajectories = trajectories
+                
     @property
     def stepSize(self):
         return self._stepSize
@@ -147,10 +152,13 @@ class MoveTraps(QTask):
         save = {}
         for i, traj in enumerate(self.trajectories):
             save[str(i)] = [[point.x(), point.y(), point.z()] for point in traj]
-        with open('tasks/lib/trajectories.json', 'w') as f:
+
+        self.paths = [[] for traj in self.trajectories]
+        if self.filename is None:
+            return
+        with open('/home/group/python/pyfab/tasks/data/trajectories' + self.filename +'.json', 'w') as f:
             json.dump(save, f)
 #             self.data()['trajectories'] = save
-        self.paths = [[] for traj in self.trajectories]
 #         self.Time = time()
     
     
@@ -176,28 +184,8 @@ class MoveTraps(QTask):
                 logger.info('un-traversed trajectory was size {} ({})'.format(len(self.trajectories[i]), self.npts[i]))
             else:
                 logger.info('trajectory was successfully popped')
-        with open('tasks/lib/paths.json', 'w') as f:
+        if self.filename is None:
+            return
+        with open('/home/group/python/pyfab/tasks/data/paths' + self.filename + '.json', 'w') as f:
             json.dump(save, f)
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-           
-
-
