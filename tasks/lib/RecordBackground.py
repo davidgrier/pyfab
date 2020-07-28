@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-# MENU: Experiments/Record Background
+# MENU: DVR/Record Background
 
 from ..QTask import QTask
 import numpy as np
-import json
 
 
 class RecordBackground(QTask):
@@ -22,8 +21,12 @@ class RecordBackground(QTask):
         ext = max( [max(trap.x, trap.y) for trap in traps ] ) + 5*stepSize   # Leave room at the edge so particle is actually off screen
         dri = list(np.arange(0, ext, stepSize))    
         trajectories = [ [(trap.x-dr, trap.y-dr, trap.z) for dr in dri] for trap in traps]
-                
-        self.register('MoveTraps', smooth=False, trajectories=trajectories)
-        self.register('Record', nframes=10, fn='background.avi')
-        for traj in trajectories: traj.reverse()
-        self.register('MoveTraps', smooth=False, trajectories=trajectories, delay=10)
+        goback = [traj.copy() for traj in trajectories]
+        for traj in goback: traj.reverse()
+               
+        #self.register('Empty', nframes=self.nframes)
+        self.register('MoveTraps', smooth=False, trajectories=trajectories, filename='1')
+        fn = self.parent().dvr.filename
+        self.register('Record', nframes=10, fn='/'.join(fn.split('/')[:-1]) + '/background.avi')
+        self.parent().dvr.filename = fn
+        self.register('MoveTraps', smooth=False, trajectories=goback,  filename='2')
