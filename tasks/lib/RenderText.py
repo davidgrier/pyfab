@@ -2,11 +2,9 @@
 # MENU: Add trap/Render text
 
 from ..QTask import QTask
-from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from numpy.random import normal
-from PyQt5.QtGui import QVector3D
-import os
+from PyQt5.QtGui import (QPixmap, QPainter, QPen, QColor, QFont, QVector3D)
 
 
 class RenderText(QTask):
@@ -18,23 +16,40 @@ class RenderText(QTask):
                  fuzz=0.05,
                  **kwargs):
         super(RenderText, self).__init__(**kwargs)
-        dir, _ = os.path.split(__file__)
-        font = os.path.join(dir, 'Ubuntu-R.ttf')
-        self.font = ImageFont.truetype(font)
         self.spacing = spacing
         self.fuzz = fuzz
         self.text = text
 
     def get_coordinates(self):
+        '''Returns coordinates of lit pixels in text'''
         if len(self.text) == 0:
             return []
-        sz = self.font.getsize(self.text)
-        img = Image.new('L', sz, 0)
-        draw = ImageDraw.Draw(img)
-        draw.text((0, 0), self.text, font=self.font, fill=255)
-        bmp = np.array(img) > 128
-        bmp = bmp[::-1]
+        w, h = 100, 20
+        pixmap = QPixmap(w, h)
+        pixmap.fill(QColor('black'))
+        painter = QPainter(pixmap)
+
+        pen = QPen()
+        pen.setWidth(1)
+        pen.setColor(QColor('white'))
+        painter.setPen(pen)
+
+        font = QFont()
+        font.setFamily('Arial')
+        font.setPointSize(9)
+        font.setStyleStrategy(QFont.NoAntialias)
+        painter.setFont(font)
+
+        painter.drawText(0, h, self.text)
+        painter.end()
+
+        image = pixmap.toImage()
+        data = image.bits()
+        data.setsize(h*w*4)
+        bmp = np.frombuffer(data, np.uint8).reshape((h, w, 4))
+        bmp = bmp[:,:,0]
         y, x = np.nonzero(bmp)
+        y *= -1
         x = x + normal(scale=self.fuzz, size=len(x)) - np.mean(x)
         y = y + normal(scale=self.fuzz, size=len(y)) - np.mean(y)
         x *= self.spacing
