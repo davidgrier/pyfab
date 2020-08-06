@@ -46,7 +46,7 @@ class MoveTraps(QTask):
         self.filename = filename
         self.smooth = smooth
         self.stepSize = stepSize      
-        self.traps = traps or self.parent().pattern.traps     
+        self.traps = traps or self.parent().pattern.prev
         self.trajectories = trajectories  
         self.counter = 0
 

@@ -37,6 +37,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.traps = QTrapGroup(self)
         self.trap = None
         self.group = None
+        self.prevgroup = None
         self.selected = []
         self._appearanceOutdated = False
         self._hologramOutdated = False
@@ -171,6 +172,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
                 trap.parent().remove(trap)
             group.add(trap)
         self.traps.add(group)
+        self.prev = group
         self.selected = []
 
     def breakGroup(self):
@@ -256,6 +258,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             self.createGroup()
         for child in self.traps.children():
             child.state = states.normal
+        self.prev = self.group
         self.group = None
         self.selection.hide()
         self.refreshAppearance()
