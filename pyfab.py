@@ -11,7 +11,6 @@ from jansenlib.video import QCamera
 from pyfablib.QCGH import CGH
 from pyfablib.QSLM import QSLM
 from pyfablib.traps import QTrappingPattern
-# from pyfablib.traps import (QTrappingPattern, TrapMove, TrapAssemble)
 from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
 
@@ -67,10 +66,6 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.pattern = QTrappingPattern(parent=self)
         self.screen.addOverlay(self.pattern)
 
-        # Trap automated assembly framework
-#         self.assembler = TrapAssemble(parent=self)
-#         self.mover = TrapMove(parent=self)
-
         # Process automation
         self.tasks = QTaskmanager(self)
 
@@ -118,8 +113,6 @@ class PyFab(QMainWindow, Ui_PyFab):
         # Signals associated with handling images
         newframe = self.screen.source.sigNewFrame
         newframe.connect(self.histogram.updateHistogram)
-#         newframe.connect(self.assembler.move)
-#         newframe.connect(self.mover.move)
         if self.setupVision:
             newframeFrame.connect(self.vision.process)
 
