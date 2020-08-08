@@ -25,8 +25,8 @@ class RecordBackground(QTask):
         for traj in goback: traj.reverse()
                
         #self.register('Empty', nframes=self.nframes)
-        self.register('MoveTraps', smooth=False, trajectories=trajectories, filename='1')
+        self.register('Move', smooth=False, trajectories=trajectories, filename='1')
         fn = self.parent().dvr.filename
         self.register('Record', nframes=10, fn='/'.join(fn.split('/')[:-1]) + '/background.avi')
         self.parent().dvr.filename = fn
-        self.register('MoveTraps', smooth=False, trajectories=goback,  filename='2')
+        self.register('Move', smooth=False, trajectories=goback,  filename='2')

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # MENU: Experiments/Read
 
-from .MoveTraps import MoveTraps
+from .MoveTraps import Move
 import numpy as np
 import json
 
 
-class Read(MoveTraps):
+class Read(Move):
     """Make particles move in a circle around some point"""
     
     def __init__(self, **kwargs):

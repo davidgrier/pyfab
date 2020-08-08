@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Assemble circle
 
-from .AssembleTraps import AssembleTraps
+from .Assemble import Assemble
 import numpy as np
 
 
-class Circle(AssembleTraps):
+class Circle(Assemble):
     """Demonstration of traps assembling a circle."""
 
     def __init__(self, **kwargs):

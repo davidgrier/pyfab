@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class MoveTraps(QTask):
+class Move(QTask):
     '''Move specified traps along specified trajectory. 
     Attributes
     ----------
@@ -41,7 +41,7 @@ class MoveTraps(QTask):
 
     
     def __init__(self, traps=None, trajectories=None, smooth=False, stepSize=None, filename=None, **kwargs):
-        super(MoveTraps, self).__init__(**kwargs)
+        super(Move, self).__init__(**kwargs)
 #         self.__dict__.update(kwargs)
         self.filename = filename
         self.smooth = smooth

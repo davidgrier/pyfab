@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # MENU: Motion/Encircle
 
-from .MoveTraps import MoveTraps
+from .Move import Move
 import numpy as np
 
 
-class Encircle(MoveTraps):
+class Encircle(Move):
     """Make particles move in a circle around some point"""
     
     def __init__(self, **kwargs):

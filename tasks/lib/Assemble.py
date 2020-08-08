@@ -8,7 +8,7 @@ To subclass this method, just override aim() with a method which returns targets
 Any parameters can be passed as kwargs on __init__ and output must be a dict with keys QTrap and values tuple (x, y, z)
 """
 
-from .MoveTraps import MoveTraps
+from .Move import Move
 from PyQt5.QtCore import pyqtProperty
 from numba import njit
 import numpy as np
@@ -20,10 +20,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class AssembleTraps(MoveTraps):
+class Assemble(Move):
 
     def __init__(self, targets=None, **kwargs):
-        super(AssembleTraps, self).__init__(**kwargs)
+        super(Assemble, self).__init__(**kwargs)
         self.delay = 4 if self.delay < 4 else self.delay
 
         self.targets = targets

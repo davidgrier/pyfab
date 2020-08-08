@@ -14,5 +14,5 @@ class Repeat(QTask):
             data = json.load(f)
         trajectories = list(data.values())
         targets = [traj[0] for traj in trajectories]
-        self.register('AssembleTraps', targets=targets)
-        self.register('MoveTraps', trajectories=trajectories)
+        self.register('Assemble', targets=targets)
+        self.register('Move', trajectories=trajectories)
