@@ -39,13 +39,13 @@ class Assemble(Move):
     def initialize(self, frame):
         logger.info('finding targets for {} traps...'.format(len(self.traps)))
         self.aim(self.traps)
-        super(AssembleTraps, self).initialize(frame)
+        super(Assemble, self).initialize(frame)
         
     def complete(self):
         logger.info('completed')
         for i, trap in enumerate(self.traps):
             logger.info('trap {} is now at {}; target was {}'.format(trap.index, (trap.x, trap.y, trap.z), self.targets[trap]))
-        super(AssembleTraps, self).complete()
+        super(Assemble, self).complete()
 
 
     #
