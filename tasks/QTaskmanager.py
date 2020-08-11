@@ -86,7 +86,7 @@ class QTaskmanager(QObject):
                 logger.debug('Queuing blocking task')
             else:
                 self.bgtasks.append(task)
-                self.connectSignals(task, blocking)
+                self.connectSignals(task)
                 logger.debug('Starting background task')
         if self.task is None:
             try:
