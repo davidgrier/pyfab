@@ -10,14 +10,15 @@ class Encircle(Move):
     
     def __init__(self, **kwargs):
         super(Encircle, self).__init__(smooth=False, stepSize=4, **kwargs)
+        (self.xc, self.yc) = (500, 500)    #### These parameters can be overwritten by taskData
         self.nframes = self.nframes or 60
-        self.center = (500, 500)
-        print('center is at {}'.format(self.center))
     
     def parameterize(self, traps):
+        print('center is at {}'.format((self.xc, self.yc)))
+
         trajs = {}
         theta = np.linspace(0, 2.2*np.pi, self.nframes)
-        xc, yc = self.center
+        xc, yc = (self.xc, self.yc)
         for trap in traps:
             (xi, yi, z) = (trap.x, trap.y, trap.z)
             print('trap is at {}'.format((xi, yi)))
