@@ -67,17 +67,22 @@ class QTaskmanager(QObject):
             logger.warn('could not disconnect signals')
 
     def setTaskData(self, task):
-        for attr, value in self.taskData.items():
+        attrs = []
+        for attr in list(self.taskData.keys()).copy():   ## can't pop attr's while also looping over attr's.  Instead, copy the keys (a list of strings) and loop over that
             if hasattr(task, attr):
-                setattr(task, attr, value)
-                self.taskData.pop(attr)
+                attrs.append(attr)
+                setattr(task, attr, self.taskData.pop(attr))
+        logger.debug('Set attributes {} from task data'.format(attrs))
         # FIXME: Remove so that programmatically
         # queued tasks can provide data to a chain of tasks
-        self.taskData.clear()
+        if task.blocking:
+            self.taskData.clear()
 
     def getTaskData(self, task):
         self.taskData.update(task.data())
-
+        logger.debug('task returned data {}'.format(task.data()))
+        logger.debug('task data is now {}'.format(self.taskData)))
+        
     def queueTask(self, task=None):
         """Add task to queue and activate next queued task if necessary"""
         if task:
@@ -87,6 +92,7 @@ class QTaskmanager(QObject):
             else:
                 self.bgtasks.append(task)
                 self.connectSignals(task)
+                self.setTaskData(task)
                 logger.debug('Starting background task')
         if self.task is None:
             try:
@@ -113,6 +119,7 @@ class QTaskmanager(QObject):
                 print('queueing')
                 self.queueTask()
         else:
+            self.getTaskData(task)
             self.bgtasks.remove(task)
 
     @pyqtProperty(bool)
