@@ -70,7 +70,8 @@ def buildTaskMenu(parent):
         if 'tip' in task:
             action.setStatusTip(task['tip'])
         handler = eval(
-            'lambda: register("'+task['name']+'", "'+str(task['vision'])+'")', globals)
+#             'lambda: register("'+task['name']+'", "'+str(task['vision'])+'")', globals)
+            'lambda: register("'+task['name']+'")', globals)
         action.triggered.connect(handler)
         if 'submenu' in task:
             title = task['submenu']

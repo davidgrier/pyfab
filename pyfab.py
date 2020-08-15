@@ -68,6 +68,8 @@ class PyFab(QMainWindow, Ui_PyFab):
 
         # Process automation
         self.tasks = QTaskmanager(self)
+        self.TaskManagerView.setModel(self.tasks)
+
 
         self.configureUi()
         self.connectSignals()
@@ -92,7 +94,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
         if self.setupVision:
             self.vision.jansen = self
-        index = 3
+        index = 4
         self.hardware.index = index
         self.tabWidget.currentChanged.connect(self.hardware.expose)
         self.tabWidget.setTabEnabled(index, self.hardware.has_content())
@@ -105,10 +107,15 @@ class PyFab(QMainWindow, Ui_PyFab):
 
     def connectSignals(self):
         # Signals associated with GUI controls
+#         self.tasks.dataChanged.connect(lambda x: print('Data Changed!'))
         self.bcamera.clicked.connect(
             lambda: self.setDvrSource(self.screen.default))
         self.bfilters.clicked.connect(
             lambda: self.setDvrSource(self.screen))
+        self.bpausequeue.clicked.connect(self.pauseTasks)
+        self.bclearqueue.clicked.connect(self.stopTasks)
+        
+        self.TaskManagerView.clicked.connect(self.tasks.setPropertiesWidget)
 
         # Signals associated with handling images
         newframe = self.screen.source.sigNewFrame

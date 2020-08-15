@@ -32,14 +32,14 @@ class QTask(QObject):
 
     sigDone = pyqtSignal()
 
-    def __init__(self, delay=0, nframes=0, skip=1, blocking=True, **kwargs):
+    def __init__(self, delay=0, nframes=0, skip=1, paused=False, blocking=True, **kwargs):
         super(QTask, self).__init__(**kwargs)
         self._blocking = blocking
         self.delay = delay
         self.nframes = nframes
         self.skip = skip
         self._initialized = False
-        self._paused = False
+        self._paused = paused
         self._busy = False
         self._frame = 0
         self._data = dict()
