@@ -77,7 +77,7 @@ class QTask(QObject):
         try:
             self._handleTask(frame)
         except Exception as ex:
-            self.busy = True
+            self._busy = True
             logger.warning('Killing task : {}'.format(ex))
             data = self.data()
             data['error'] = ex

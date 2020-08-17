@@ -130,10 +130,10 @@ class QTaskmanager(QAbstractListModel):
             if 'error' in self.taskData.keys():
                 logger.warning('Flushing task queue...')
                 self.tasks.clear()
-                print('cleared')
+                logger.info('cleared')
                 self.taskData.pop('error')               
             else:
-                print('queueing')
+                logger.info('queueing')
                 self.queueTask()
         else:
             self.getTaskData(task)
@@ -160,8 +160,7 @@ class QTaskmanager(QAbstractListModel):
         self.tasks.clear()
         self.bgtasks.clear()
         self.layoutChanged.emit()
-        
-    
+           
     
     def taskAt(self, index):
         tasksLen = len(self.tasks)
@@ -194,13 +193,22 @@ class QTaskmanager(QAbstractListModel):
         return len(self.tasks)+len(self.bgtasks)+1
     
     
+    #### Double-clicking toggles pause
+    @pyqtSlot()
+    def toggleSelected(self):
+        task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
+        if task is None: return
+        task._paused = not task._paused
+        self.layoutChanged.emit()
+    
+    
     
 ######  Code which sets up the property display widget. (This might be able to go to another file later)  ####    
-    
-    
+
     @pyqtSlot()    
-    def setPropertiesWidget(self):
+    def displayProperties(self):
         task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
+        if task is None: return
         print(task.__dict__)
         layout = self.parent().TaskPropertiesLayout
         for i in range(layout.rowCount()):
@@ -209,7 +217,7 @@ class QTaskmanager(QAbstractListModel):
         keys = list(task.__dict__.keys())
         keys.remove('nframes'); keys.append('nframes');  ## Move common properties to the top of the form
         keys.remove('skip'); keys.append('skip');
-        keys.remove('delay'); keys.append('delay');
+        keys.remove('delay'); keys.append('delay'); 
         for key in ['register', 'name', '_blocking', '_initialized', '_frame', '_data', '_busy']:
             keys.remove(key)
 
@@ -225,7 +233,7 @@ class QTaskmanager(QAbstractListModel):
 #         while layout.rowCount() > len(keys):
 #             layout.removeRow(0)
 # #         print(layout.rowCount())
-                           
+        keys.reverse()    
         for key in keys:
             label = QLabel()
             label.setText(key)
@@ -234,7 +242,6 @@ class QTaskmanager(QAbstractListModel):
             layout.addRow(label, linePropEdit)
             
 class QLinePropEdit(QLineEdit):
-    
     def __init__(self, task, prop, **kwargs):
         super(QLinePropEdit, self).__init__(**kwargs)
         self.prop = prop
@@ -243,8 +250,6 @@ class QLinePropEdit(QLineEdit):
 
     @pyqtSlot()
     def updateReady(self):
-        print(self.prop)
-        print(self.text())
         self.update()
    
     def setTask(self, task):

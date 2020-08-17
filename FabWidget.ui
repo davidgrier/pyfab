@@ -385,8 +385,8 @@
         <widget class="QPushButton" name="bpausequeue">
          <property name="geometry">
           <rect>
-           <x>20</x>
-           <y>390</y>
+           <x>30</x>
+           <y>410</y>
            <width>89</width>
            <height>25</height>
           </rect>
@@ -398,8 +398,8 @@
         <widget class="QPushButton" name="bclearqueue">
          <property name="geometry">
           <rect>
-           <x>130</x>
-           <y>390</y>
+           <x>30</x>
+           <y>450</y>
            <width>89</width>
            <height>25</height>
           </rect>
@@ -408,39 +408,54 @@
           <string>clear</string>
          </property>
         </widget>
-        <widget class="QListView" name="TaskManagerView">
+        <widget class="QWidget" name="horizontalLayoutWidget">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>231</width>
-           <height>341</height>
+           <x>20</x>
+           <y>20</y>
+           <width>551</width>
+           <height>371</height>
           </rect>
          </property>
-        </widget>
-        <widget class="QScrollArea" name="scrollArea_2">
-         <property name="geometry">
-          <rect>
-           <x>280</x>
-           <y>10</y>
-           <width>211</width>
-           <height>341</height>
-          </rect>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="TaskPropertiesView">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>209</width>
-            <height>339</height>
-           </rect>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
           </property>
-          <layout class="QFormLayout" name="TaskPropertiesLayout"/>
-         </widget>
+          <item>
+           <widget class="QListView" name="TaskManagerView">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QScrollArea" name="scrollArea_2">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="TaskPropertiesView">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>269</width>
+               <height>367</height>
+              </rect>
+             </property>
+             <layout class="QFormLayout" name="TaskPropertiesLayout"/>
+            </widget>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
        <widget class="QWidget" name="tabHardware">
