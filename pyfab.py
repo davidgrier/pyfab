@@ -19,12 +19,12 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# NOTE: How is QVision related to standard set of objects?
-try:
-    ex1 = None
-    from jansenlib.QVision.QHVM import QHVM as QVision
-except Exception as ex:
-    ex1 = ex
+# # NOTE: How is QVision related to standard set of objects?
+# try:
+#     ex1 = None
+#     from jansenlib.QVision.QHVM import QHVM as QVision
+# except Exception as ex:
+#     ex1 = ex
 
 
 class PyFab(QMainWindow, Ui_PyFab):
@@ -40,20 +40,21 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.camera = QCamera()
         self.screen.camera = self.camera
         self.cameraLayout.addWidget(self.camera)
-
-        # Setup vision tab
-        try:
-            self.vision.close()
-            self.vision.setObjectName("vision")
-            self.vision = QVision(self.tabVision)
-            self.visionLayout.addWidget(self.vision)
-            self.setupVision = True
-        except Exception as ex2:
-            err = ex2 if ex1 is None else ex1
-            msg = 'Could not import Machine Vision pipeline: {}'
-            logger.warning(msg.format(err))
-            self.tabWidget.setTabEnabled(2, False)
-            self.setupVision = False
+        
+        self.tabWidget.setTabEnabled(2, False)
+#         # Setup vision tab
+#         try:
+#             self.vision.close()
+#             self.vision.setObjectName("vision")
+#             self.vision = QVision(self.tabVision)
+#             self.visionLayout.addWidget(self.vision)
+#             self.setupVision = True
+#         except Exception as ex2:
+#             err = ex2 if ex1 is None else ex1
+#             msg = 'Could not import Machine Vision pipeline: {}'
+#             logger.warning(msg.format(err))
+#             self.tabWidget.setTabEnabled(2, False)
+#             self.setupVision = False
 
         # Spatial light modulator
         self.slm = QSLM(self)
@@ -92,8 +93,8 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
-        if self.setupVision:
-            self.vision.jansen = self
+#         if self.setupVision:
+#             self.vision.jansen = self
         index = 4
         self.hardware.index = index
         self.tabWidget.currentChanged.connect(self.hardware.expose)
@@ -115,13 +116,14 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.bpausequeue.clicked.connect(self.pauseTasks)
         self.bclearqueue.clicked.connect(self.stopTasks)
         
-        self.TaskManagerView.clicked.connect(self.tasks.setPropertiesWidget)
+        self.TaskManagerView.clicked.connect(self.tasks.displayProperties)
+        self.TaskManagerView.doubleClicked.connect(self.tasks.toggleSelected)
 
         # Signals associated with handling images
         newframe = self.screen.source.sigNewFrame
         newframe.connect(self.histogram.updateHistogram)
-        if self.setupVision:
-            newframeFrame.connect(self.vision.process)
+#         if self.setupVision:
+#             newframeFrame.connect(self.vision.process)
 
         # Signals associated with the CGH pipeline
         # 1. Screen events trigger requests for trap updates
@@ -183,16 +185,16 @@ class PyFab(QMainWindow, Ui_PyFab):
         if self.doconfig:
             self.configuration.save(self.camera)
             self.configuration.save(self.cgh)
-            if self.setupVision:
-                self.configuration.save(self.vision)
+#             if self.setupVision:
+#                 self.configuration.save(self.vision)
 
     @pyqtSlot()
     def restoreSettings(self):
         if self.doconfig:
             self.configuration.restore(self.camera)
             self.configuration.restore(self.cgh)
-            if self.setupVision:
-                self.configuration.restore(self.vision)
+#             if self.setupVision:
+#                 self.configuration.restore(self.vision)
 
     @pyqtSlot()
     def pauseTasks(self):
