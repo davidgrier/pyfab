@@ -2,16 +2,16 @@
 
 """QTrapGroup.py: Container for optical traps."""
 
-from pyqtgraph.Qt import QtCore, QtGui
+from PyQt5.QtCore import (QObject, pyqtProperty)
+from PyQt5.QtGui import QVector3D
 from .QTrap import QTrap, states
 
 
-class QTrapGroup(QtCore.QObject):
+class QTrapGroup(QObject):
 
     def __init__(self, parent=None):
         super(QTrapGroup, self).__init__(parent)
-        self._r = QtGui.QVector3D()
-        self.blockRefresh(False)
+        self._r = QVector3D()
 
     # Organizing traps within the group
     def add(self, child):
@@ -46,20 +46,6 @@ class QTrapGroup(QtCore.QObject):
         """Return a list of the traps in the group"""
         return self.findChildren(QTrap)
 
-    # Implementing changes in trap properties
-    def blockRefresh(self, state):
-        """Do not send refresh requests to parent if state is True"""
-        self._blockRefresh = bool(state)
-
-    def refreshBlocked(self):
-        return self._blockRefresh
-
-    def refresh(self):
-        """Request parent to implement changes"""
-        self.updatePosition()
-        if not self.refreshBlocked():
-            self.parent().refresh()
-
     # Methods for changing group properties
     def updatePosition(self):
         """The group is located at the center of mass of its children"""
@@ -71,17 +57,12 @@ class QTrapGroup(QtCore.QObject):
 
     def moveBy(self, dr):
         """Translate traps in the group"""
-        self.blockRefresh(True)
-        # same displacement for all traps
-        if isinstance(dr, QtGui.QVector3D):
+        if isinstance(dr, QVector3D):  # same for all
             for child in self.children():
                 child.moveBy(dr)
-        # specified displacement for each trap
-        else:
-            for n, child in enumerate(self.children()):
-                child.moveBy(dr[n])
-        self.blockRefresh(False)
-        self.refresh()
+        else:                          # specified for each
+            for step, child in zip(dr, self.children()):
+                child.moveBy(step)
 
     def moveTo(self, r):
         """Translate traps so that the group is centered at r"""
@@ -103,16 +84,12 @@ class QTrapGroup(QtCore.QObject):
 
     def select(self, state=True):
         """Utility for setting state of group"""
-        if state:
-            self.state = states.selected
-        else:
-            self.state = states.normal
+        self.state = states.selected if state else states.normal
 
     # Group's properties
-    @property
+    @pyqtProperty(states)
     def state(self):
-        """Current state of the children in the group.
-        """
+        """Current state of the children in the group."""
         return self.children()[0].state
 
     @state.setter
@@ -120,7 +97,7 @@ class QTrapGroup(QtCore.QObject):
         for child in self.children():
             child.state = state
 
-    @property
+    @pyqtProperty(QVector3D)
     def r(self):
         return self._r
 

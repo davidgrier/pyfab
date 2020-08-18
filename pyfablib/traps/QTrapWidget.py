@@ -29,8 +29,8 @@ class QTrapPropertyEdit(QLineEdit):
 
     valueChanged = pyqtSignal(str, float)
 
-    def __init__(self, name, value, decimals=2):
-        super(QTrapPropertyEdit, self).__init__()
+    def __init__(self, name, value, decimals=2, *args, **kwargs):
+        super(QTrapPropertyEdit, self).__init__(*args, **kwargs)
         self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(getWidth())
         self.setMaxLength(8)
@@ -63,8 +63,8 @@ class QTrapListPropertyEdit(QLineEdit):
 
     valueChanged = pyqtSignal(object, object)
 
-    def __init__(self, name, value):
-        super(QTrapListPropertyEdit, self).__init__()
+    def __init__(self, name, value, *args, **kwargs):
+        super(QTrapListPropertyEdit, self).__init__(*args, **kwargs)
         self.setAlignment(Qt.AlignRight)
         self.setFixedWidth(getWidth())
         numberrx = '([+-]?\d*\.?\d+)'
@@ -96,8 +96,8 @@ class QTrapPropertyWidget(QWidget):
 
     """Control for properties of one trap."""
 
-    def __init__(self, trap):
-        super(QTrapPropertyWidget, self).__init__()
+    def __init__(self, trap, *args, **kwargs):
+        super(QTrapPropertyWidget, self).__init__(*args, **kwargs)
         layout = QHBoxLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -110,7 +110,7 @@ class QTrapPropertyWidget(QWidget):
             if trap.properties[name]['tooltip']:
                 self.wid[name].setToolTip(name)
             layout.addWidget(self.wid[name])
-        trap.valueChanged.connect(self.updateValues)
+        trap.propertyChanged.connect(self.updateValues)
         self.setLayout(layout)
 
     def propertyWidget(self, trap, name):
@@ -134,8 +134,8 @@ class QTrapWidget(QFrame):
 
     """Controls for all traps."""
 
-    def __init__(self, parent=None):
-        super(QTrapWidget, self).__init__(parent)
+    def __init__(self, *args, **kwargs):
+        super(QTrapWidget, self).__init__(*args, **kwargs)
         self.properties = dict()
         self.init_ui()
 
