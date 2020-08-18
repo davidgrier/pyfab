@@ -11,6 +11,11 @@ import pyqtgraph as pg
 from .QTrap import QTrap, states
 from .QTrapGroup import QTrapGroup
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class QTrappingPattern(pg.ScatterPlotItem):
 
@@ -21,19 +26,38 @@ class QTrappingPattern(pg.ScatterPlotItem):
     trapAdded = pyqtSignal(QTrap)
     sigCompute = pyqtSignal(object)
 
-    def __init__(self, parent=None):
-        super(QTrappingPattern, self).__init__()
+    def __init__(self, parent=None, *args, **kwargs):
+        super(QTrappingPattern, self).__init__(*args, **kwargs)
         self.setParent(parent)  # this is not set by ScatterPlotItem
         self.setPxMode(False)   # scale plot symbols with window
         # Rubberband selection
         self.selection = QRubberBand(QRubberBand.Rectangle, self.parent())
         self.origin = QPoint()
         # traps, selected trap and active group
-        self.pattern = QTrapGroup(self)
+        self.traps = QTrapGroup(self)
         self.trap = None
         self.group = None
+        self.prev = None
         self.selected = []
+        self._appearanceOutdated = False
+        self._hologramOutdated = False
 
+    @pyqtSlot()
+    def toggleAppearance(self):
+        logger.debug('toggleAppearance')
+        self._appearanceOutdated = True
+
+    @pyqtSlot()
+    def toggleHologram(self):
+        logger.debug('toggleHologram')
+        self._hologramOutdated = True
+
+    @pyqtSlot(object)
+    def refresh(self, frame):
+        self.refreshAppearance()
+        self.refreshHologram()
+
+    @pyqtSlot()
     def refreshAppearance(self):
         """Provide a list of spots to screen for plotting.
 
@@ -42,20 +66,24 @@ class QTrappingPattern(pg.ScatterPlotItem):
         property widgets, or by direct programmatic control of traps
         or groups.
         """
-        traps = self.pattern.flatten()
-        spots = [trap.spot for trap in traps]
-        self.setData(spots=spots)
-        return traps
+        if self._appearanceOutdated:
+            traps = self.traps.flatten()
+            spots = [trap.spot for trap in traps]
+            self.setData(spots=spots)
+            self._appearanceOutdated = False
+            logger.debug('refreshAppearance')
 
-    def refresh(self):
-        traps = self.refreshAppearance()
-        self.sigCompute.emit(traps)
+    @pyqtSlot()
+    def refreshHologram(self):
+        if self._hologramOutdated:
+            traps = self.traps.flatten()
+            self.sigCompute.emit(traps)
+            self._hologramOutdated = False
+            logger.debug('refreshHologram')
 
     def selectedPoint(self, position):
         points = self.pointsAt(position)
-        if not points:
-            return None
-        index = self.points().tolist().index(points[0])
+        index = self.points().tolist().index(points[0]) if points else None
         return index
 
     # Selecting traps and groups of traps
@@ -64,16 +92,15 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         coords = self.mapFromScene(pos)
         index = self.selectedPoint(coords)
-        if index is None:
-            return None
-        return self.pattern.flatten()[index]
+        found = index is not None
+        return self.traps.flatten()[index] if found else None
 
     def groupOf(self, obj):
         """Return the highest-level group containing the specified object.
         """
         if obj is None:
             return None
-        while obj.parent() is not self.pattern:
+        while obj.parent() is not self.traps:
             obj = obj.parent()
         return obj
 
@@ -90,7 +117,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         self.selected = []
         rect = self.mapFromScene(QRectF(region)).boundingRect()
-        for child in self.pattern.children():
+        for child in self.traps.children():
             if child.isWithin(rect):
                 self.selected.append(child)
                 child.state = states.grouping
@@ -101,37 +128,40 @@ class QTrappingPattern(pg.ScatterPlotItem):
     # Creating and deleting traps
     def addTrap(self, trap):
         trap.setParent(self)
+        self.traps.add(trap)
+        trap.appearanceChanged.connect(self.toggleAppearance)
+        trap.hologramChanged.connect(self.toggleHologram)
+        trap.destroyed.connect(self.toggleAppearance)
+        trap.destroyed.connect(self.toggleHologram)
         trap.cgh = self.parent().cgh.device
-        trap.state = states.selected
-        self.pattern.add(trap)
-        self.refresh()
         self.trapAdded.emit(trap)
 
-    def createTrap(self, r):
-        self.addTrap(QTrap(r=r))
+    def createTrap(self, r, state=None):
+        trap = QTrap(r=r, state=state)
+        self.addTrap(trap)
+        return trap
 
-    def createTraps(self, coordinates):
+    def createTraps(self, coordinates, state=None):
         coords = list(coordinates)
         if not coords:
             return
-        self.pattern.blockRefresh(True)
         group = QTrapGroup()
-        self.pattern.add(group)
+        self.traps.add(group)
         for r in coords:
-            trap = QTrap(r=r, parent=group)
+            trap = self.createTrap(r, state=state)
             group.add(trap)
-            self.trapAdded.emit(trap)
-        self.pattern.blockRefresh(False)
-        self.refresh()
         return group
 
-    def clearTraps(self):
+    def clearTrap(self, trap):
+        """Remove specified trap from trapping pattern"""
+        self.traps.remove(trap, delete=True)
+
+    def clearTraps(self, traps=None):
         """Remove all traps from trapping pattern.
         """
-        traps = self.pattern.flatten()
+        traps = traps or self.traps.flatten()
         for trap in traps:
-            self.pattern.remove(trap, delete=True)
-        self.refresh()
+            self.clearTrap(trap)
 
     # Creating, breaking and moving groups of traps
     def createGroup(self):
@@ -141,7 +171,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             if trap.parent() is not self:
                 trap.parent().remove(trap)
             group.add(trap)
-        self.pattern.add(group)
+        self.traps.add(group)
         self.selected = []
 
     def breakGroup(self):
@@ -152,7 +182,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             for child in self.group.children():
                 child.state = states.grouping
                 self.group.remove(child)
-                self.pattern.add(child)
+                self.traps.add(child)
 
     def moveGroup(self, pos):
         """Move the selected group so that the selected
@@ -186,11 +216,11 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         # Shift-Right Click: Add trap
         if modifiers == Qt.ShiftModifier:
-            self.createTrap(self.mapFromScene(pos))
+            r = self.mapFromScene(pos)
+            self.createTrap(r, state=states.selected)
         # Ctrl-Right Click: Delete trap
         elif modifiers == Qt.ControlModifier:
-            self.pattern.remove(self.clickedGroup(pos), delete=True)
-            self.refresh()
+            self.traps.remove(self.clickedGroup(pos), delete=True)
 
     # Handlers for signals emitted by QJansenScreen
     @pyqtSlot(QMouseEvent)
@@ -225,8 +255,9 @@ class QTrappingPattern(pg.ScatterPlotItem):
         """
         if self.selected:
             self.createGroup()
-        for child in self.pattern.children():
+        for child in self.traps.children():
             child.state = states.normal
+        self.prev = self.group
         self.group = None
         self.selection.hide()
         self.refreshAppearance()
