@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# MENU: Set background/Optical vortex
+"""# #MENU: Set background/Optical vortex"""
 
 from .SetHologram import SetHologram
 import numpy as np
 
-
+## is setHologram outdated?
 class Vortex(SetHologram):
     """Set vortex hologram"""
 

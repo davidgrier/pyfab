@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 # MENU: Experiments/Measure z
 
-from .Task import Task
+from ..QTask import QTask
 from PyQt5.QtGui import QVector3D
 import numpy as np
 import os
 
 
-class MoveRecordZ(Task):
+class MoveRecordZ(QTask):
     """Delay, record, and translate traps in the z direction."""
 
     def __init__(self, measure_bg=False, **kwargs):

@@ -1,10 +1,10 @@
 # coding: utf-8
-# MENU: Set background/Bessel beam
+"""# #MENU: Set background/Bessel beam"""
 
 from .SetHologram import SetHologram
 import numpy as np
 
-
+#### I'm pretty sure that 'SetHologram' is outdated
 class Bessel(SetHologram):
     """Set hologram for Bessel trap."""
 

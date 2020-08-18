@@ -3,7 +3,7 @@
 from .Task import Task
 import numpy as np
 
-
+## is setHologram outdated?
 class SetHologram(Task):
     def __init__(self, **kwargs):
         super(SetHologram, self).__init__(delay=20, **kwargs)

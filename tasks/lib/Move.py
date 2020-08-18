@@ -49,7 +49,7 @@ class Move(QTask):
         self.traps = traps or self.parent().pattern.prev
         self.trajectories = trajectories  
         self.counter = 0
-
+        
     @property
     def traps(self):
         return self._traps
@@ -154,12 +154,14 @@ class Move(QTask):
             save[str(i)] = [[point.x(), point.y(), point.z()] for point in traj]
 
         self.paths = [[] for traj in self.trajectories]
-        if self.filename is None:
-            return
-        with open('/home/group/python/pyfab/tasks/data/trajectories' + self.filename +'.json', 'w') as f:
-            json.dump(save, f)
-#             self.data()['trajectories'] = save
-#         self.Time = time()
+        
+
+#         if self.filename is None:
+#             return
+#         with open('/home/group/python/pyfab/tasks/data/trajectories' + self.filename +'.json', 'w') as f:
+#             json.dump(save, f)
+# #             self.data()['trajectories'] = save
+# #         self.Time = time()
     
     
     def process(self, frame):

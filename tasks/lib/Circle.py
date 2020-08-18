@@ -12,12 +12,12 @@ class Circle(Assemble):
         super(Circle, self).__init__(**kwargs)
         self.smooth = True
         self.nframes = 300
-        self.center = (500, 500)
+        self.center2 = (500, 500)
         self.radius = 200.
 
 
     def aim(self, traps):
-        (xc, yc) = self.center
+        (xc, yc) = self.center2
         N = len(traps)
         theta = 2*np.pi*np.arange(N)/N
         x = xc + self.radius*np.cos(theta)

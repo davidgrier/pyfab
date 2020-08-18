@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
-
+#### This is basic enough that it might be worth removing, but is definitely a good example task
 class MoveToPlane(Assemble):
     """Move traps to desired xy plane. By default moves to z = 0."""
 
@@ -16,22 +16,8 @@ class MoveToPlane(Assemble):
         super(MoveToPlane, self).__init__(**kwargs)
         self.z = z
 
-    def dotask(self):
-        if self.assembler.traps is not None:
-            # Set tunables
-            self.assembler.smooth = True
-            self.assembler.stepRate = 15        # [steps/s]
-            self.assembler.stepSize = .2
-            self.assembler.particleSpacing = 2  # [um]
-            self.assembler.gridSpacing = .5     # [um]
-            self.assembler.zrange = (5, -10)    # [um]
-            self.assembler.tmax = 300           # [steps]
-            # Get and set targets
-            traps = self.assembler.traps.flatten()
-            targets = {}
-            for trap in traps:
-                r = (trap.r.x(), trap.r.y(), self.z)
-                targets[trap] = np.array(r)
-            self.assembler.targets = targets
-            # Go!
-            self.assembler.start()
+    def aim(self, traps):
+        vertices = []
+        for trap in traps:
+            vertices.append( (trap.r.x(), trap.r.y(), self.z) )
+        self.targets = vertices

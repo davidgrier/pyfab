@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-# MENU: Task Data/Set Task Data
+"""# #MENU: Task Data/Set Task Data"""
 
 from ..QTask import QTask
 from PyQt5.QtWidgets import QInputDialog
 
     
-
+#### The new GUI might make this task obsolete
 class setTaskData(QTask):
     """Prompt user to set Task Data (or pass as kwarg) to pass to the next Task. (Only supports doubles)"""
     def prompt(self, str):

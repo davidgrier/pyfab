@@ -28,7 +28,8 @@ class Assemble(Move):
 
         self.targets = targets
                
-        self.nframes = self.nframes or 300   #### Note: nframes=0 is not allowed, so let default be 300     
+        self.nframes = self.nframes or 300   #### Note: nframes=0 is not allowed, so let default be 300 
+        self.smooth = True
         self._particleSpacing = 1  # [um]
         self._gridSpacing = .5     # [um]
         self._zrange = (-5, 10)    # [um]         

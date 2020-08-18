@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
+# MENU: Translate
 
 '''Translates traps in some fixed step and direction.'''
 
-from .Task import Task
+from ..QTask import QTask
 from PyQt5.QtGui import QVector3D
 from pyfablib.traps import QTrap, QTrapGroup
 
 
-class Translate(Task):
+class Translate(QTask):
 
-    def __init__(self,
-                 traps=None,
-                 dr=QVector3D(0, 0, 0),
-                 **kwargs):
+    def __init__(self, traps=None, dr=(0, 0, 0), **kwargs):
         super(Translate, self).__init__(**kwargs)
-        self.traps = traps
+        self.traps = traps or self.parent().pattern.prev
         self.dr = dr
-
-    def initialize(self, frame):
+                
+    def complete(self):
         if self.traps is not None:
             if isinstance(self.traps, QTrapGroup):
+                print('group')
                 self.traps.select(True)
-                self.traps.moveBy(self.dr)
+                self.traps.moveBy(QVector3D(*self.dr))
             elif isinstance(self.traps, QTrap):
-                self.parent.pattern.pattern.select(True)
-                self.traps.moveBy(self.dr)
+                print('loner')
+                self.parent().pattern.traps.select(True)
+                self.traps.moveBy(QVector3D(*self.dr))

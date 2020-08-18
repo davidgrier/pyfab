@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 # MENU: Experiments/Overlap
 
-from .Task import Task
+from .QTask import QTask
 import numpy as np
 
 
-class Overlap(Task):
+
+#### No idea what this task does
+class Overlap(QTask):
     """Delay, record, and translate traps in the z direction."""
 
-    def __init__(self, measure_bg=False, **kwargs):
+    def __init__(self, traps=None, measure_bg=False, **kwargs):
         super(Overlap, self).__init__(**kwargs)
         self.moving_trap = None
         self.still_trap = None
+        self.traps = None
 
     def initialize(self, frame):
-        traps = self.parent.pattern.pattern.flatten()
+        traps = self.traps or self.parent().pattern.prev
         if len(traps) == 2:
             xc = self.parent.cgh.xc
             d = {np.absolute(xc - traps[0].x): traps[0],
@@ -29,7 +32,7 @@ class Overlap(Task):
             self.r_f = np.array((2*self.r[0] - self.r_i[0] + 50*sgn,
                                  self.r_i[1]))
 
-    def dotask(self):
+    def process(self):
         if self.still_trap is not None:
             b = self.r_i[1] - self.r[1]
             d = b / 5
