@@ -4,8 +4,7 @@
 
 from .QTrap import QTrap
 import numpy as np
-from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import (QPainterPath, QFont, QTransform)
+from pyqtgraph.Qt import QtGui
 
 
 class QVortexTrap(QTrap):
@@ -39,18 +38,18 @@ class QVortexTrap(QTrap):
 
     def plotSymbol(self):
         """Graphical representation of an optical vortex"""
-        sym = QPainterPath()
-        font = QFont('Sans Serif', 10, QFont.Black)
+        sym = QtGui.QPainterPath()
+        font = QtGui.QFont('Sans Serif', 10, QtGui.QFont.Black)
         sym.addText(0, 0, font, 'V')
         # scale symbol to unit square
         box = sym.boundingRect()
         scale = -1./max(box.width(), box.height())
-        tr = QTransform().scale(scale, scale)
+        tr = QtGui.QTransform().scale(scale, scale)
         # center symbol on (0, 0)
         tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
         return tr.map(sym)
 
-    @pyqtProperty(int)
+    @property
     def ell(self):
         return self._ell
 
@@ -58,3 +57,4 @@ class QVortexTrap(QTrap):
     def ell(self, ell):
         self._ell = np.int(ell)
         self.updateStructure()
+        self.valueChanged.emit(self)

@@ -9,7 +9,7 @@ from .OpenCVCamera import OpenCVCamera
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARN)
+logger.setLevel(logging.DEBUG)
 
 
 class QOpenCV(QSettingsWidget):

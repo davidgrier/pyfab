@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
 
 from FabWidget import Ui_PyFab
 
-from jansenlib.video import QCamera
-from pyfablib.QCGH import CGH
 from pyfablib.QSLM import QSLM
-from pyfablib.traps import QTrappingPattern
-from tasks import (buildTaskMenu, QTaskmanager)
+from pyfablib.traps.QTrappingPattern import QTrappingPattern
+from pyfablib.traps.motion.TrapAssemble import TrapAssemble
+from pyfablib.traps.motion.TrapMove import TrapMove
+from tasks.taskmenu import buildTaskMenu
+from tasks.Taskmanager import Taskmanager
 from common.Configuration import Configuration
 
 import logging
@@ -19,12 +19,23 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# # NOTE: How is QVision related to standard set of objects?
-# try:
-#     ex1 = None
-#     from jansenlib.QVision.QHVM import QHVM as QVision
-# except Exception as ex:
-#     ex1 = ex
+try:
+    ex1 = None
+    from jansenlib.QVision.QHVM import QHVM as QVision
+except Exception as ex:
+    ex1 = ex
+
+try:
+    from pyfablib.QCGH.cupyCGH import cupyCGH as CGH
+except Exception as ex:
+    logger.warning('Could not import GPU pipeline: {}'.format(ex))
+    from pyfablib.QCGH.CGH import CGH
+
+try:
+    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
+except Exception as ex:
+    logger.warning('Could not import Spinnaker camera: {}'.format(ex))
+    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
 
 
 class PyFab(QMainWindow, Ui_PyFab):
@@ -37,40 +48,43 @@ class PyFab(QMainWindow, Ui_PyFab):
 
         # Camera
         self.camera.close()  # remove placeholder widget from UI
-        self.camera = QCamera()
-        self.screen.camera = self.camera
-        self.cameraLayout.addWidget(self.camera)
-        
-        self.tabWidget.setTabEnabled(2, False)
-#         # Setup vision tab
-#         try:
-#             self.vision.close()
-#             self.vision.setObjectName("vision")
-#             self.vision = QVision(self.tabVision)
-#             self.visionLayout.addWidget(self.vision)
-#             self.setupVision = True
-#         except Exception as ex2:
-#             err = ex2 if ex1 is None else ex1
-#             msg = 'Could not import Machine Vision pipeline: {}'
-#             logger.warning(msg.format(err))
-#             self.tabWidget.setTabEnabled(2, False)
-#             self.setupVision = False
+        camera = QCamera()
+        self.camera = camera
+        self.screen.camera = camera
+        self.cameraLayout.addWidget(camera)
+
+        # Setup vision tab
+        try:
+            self.vision.close()
+            self.vision.setObjectName("vision")
+            self.vision = QVision(self.tabVision)
+            self.visionLayout.addWidget(self.vision)
+            self.setupVision = True
+        except Exception as ex2:
+            err = ex2 if ex1 is None else ex1
+            msg = 'Could not import Machine Vision pipeline: {}'
+            logger.warning(msg.format(err))
+            self.tabWidget.setTabEnabled(2, False)
+            self.setupVision = False
 
         # Spatial light modulator
         self.slm = QSLM(self)
 
         # Computation pipeline
-        self.cgh.device = CGH(self, shape=self.slm.shape).start()
+        self.cgh.device = CGH(self, shape=self.slm.shape)
+        self.cgh.device.start()
 
         # Trapping pattern is an interactive overlay
         # that translates user actions into hologram computations
         self.pattern = QTrappingPattern(parent=self)
         self.screen.addOverlay(self.pattern)
 
-        # Process automation
-        self.tasks = QTaskmanager(self)
-        self.TaskManagerView.setModel(self.tasks)
+        # Trap automated assembly framework
+        self.assembler = TrapAssemble(parent=self)
+        self.mover = TrapMove(parent=self)
 
+        # Process automation
+        self.tasks = Taskmanager(self)
 
         self.configureUi()
         self.connectSignals()
@@ -93,9 +107,9 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
-#         if self.setupVision:
-#             self.vision.jansen = self
-        index = 4
+        if self.setupVision:
+            self.vision.jansen = self
+        index = 3
         self.hardware.index = index
         self.tabWidget.currentChanged.connect(self.hardware.expose)
         self.tabWidget.setTabEnabled(index, self.hardware.has_content())
@@ -108,22 +122,17 @@ class PyFab(QMainWindow, Ui_PyFab):
 
     def connectSignals(self):
         # Signals associated with GUI controls
-#         self.tasks.dataChanged.connect(lambda x: print('Data Changed!'))
         self.bcamera.clicked.connect(
             lambda: self.setDvrSource(self.screen.default))
         self.bfilters.clicked.connect(
             lambda: self.setDvrSource(self.screen))
-        self.bpausequeue.clicked.connect(self.pauseTasks)
-        self.bclearqueue.clicked.connect(self.stopTasks)
-        
-        self.TaskManagerView.clicked.connect(self.tasks.displayProperties)
-        self.TaskManagerView.doubleClicked.connect(self.tasks.toggleSelected)
 
         # Signals associated with handling images
-        newframe = self.screen.source.sigNewFrame
-        newframe.connect(self.histogram.updateHistogram)
-#         if self.setupVision:
-#             newframeFrame.connect(self.vision.process)
+        self.screen.source.sigNewFrame.connect(self.histogram.updateHistogram)
+        self.screen.source.sigNewFrame.connect(self.assembler.move)
+        self.screen.source.sigNewFrame.connect(self.mover.move)
+        if self.setupVision:
+            self.screen.sigNewFrame.connect(self.vision.process)
 
         # Signals associated with the CGH pipeline
         # 1. Screen events trigger requests for trap updates
@@ -131,15 +140,14 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.screen.sigMouseRelease.connect(self.pattern.mouseRelease)
         self.screen.sigMouseMove.connect(self.pattern.mouseMove)
         self.screen.sigMouseWheel.connect(self.pattern.mouseWheel)
-        # 2. Trap widget reflects changes to trapping pattern
-        self.pattern.sigCompute.connect(self.cgh.device.compute)
+        # 2. Updates to trapping pattern require hologram calculation
+        self.pattern.sigCompute.connect(self.cgh.device.setTraps)
         self.pattern.trapAdded.connect(self.traps.registerTrap)
-        # 3. Project result when calculation is complete
+        # 3. Suppress requests while hologram is being computed
+        self.cgh.device.sigComputing.connect(self.screen.pauseSignals)
+        # 4. Project result when calculation is complete
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
         self.cgh.device.sigHologramReady.connect(self.slmView.setData)
-
-        # CGH computations are coordinated with camera
-        newframe.connect(self.pattern.refresh)
 
     @pyqtSlot()
     def setDvrSource(self, source):
@@ -185,21 +193,21 @@ class PyFab(QMainWindow, Ui_PyFab):
         if self.doconfig:
             self.configuration.save(self.camera)
             self.configuration.save(self.cgh)
-#             if self.setupVision:
-#                 self.configuration.save(self.vision)
+            if self.setupVision:
+                self.configuration.save(self.vision)
 
     @pyqtSlot()
     def restoreSettings(self):
         if self.doconfig:
             self.configuration.restore(self.camera)
             self.configuration.restore(self.cgh)
-#             if self.setupVision:
-#                 self.configuration.restore(self.vision)
+            if self.setupVision:
+                self.configuration.restore(self.vision)
 
     @pyqtSlot()
     def pauseTasks(self):
         self.tasks.pauseTasks()
-        msg = 'Tasks paused' if self.tasks.paused else 'Tasks running'
+        msg = 'Tasks paused' if self.tasks.paused() else 'Tasks running'
         self.statusBar().showMessage(msg)
 
     @pyqtSlot()

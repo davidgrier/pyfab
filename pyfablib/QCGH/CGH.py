@@ -34,14 +34,19 @@ class CGH(QObject):
     computed holograms.
     """
 
+    sigRun = pyqtSignal(bool)
+    sigComputing = pyqtSignal(bool)
     sigHologramReady = pyqtSignal(np.ndarray)
     sigUpdateGeometry = pyqtSignal()
+    sigUpdateTransformationMatrix = pyqtSignal()
 
     def __init__(self, parent=None, shape=(512, 512)):
         super(CGH, self).__init__(parent)
+        self.traps = []
 
         # SLM geometry
         self._shape = shape
+        # self.phi = np.zeros(self.shape).astype(np.uint8)
 
         # Instrument properties
         # vacuum wavelength of trapping laser [um]
@@ -80,7 +85,6 @@ class CGH(QObject):
         logger.info('starting CGH pipeline')
         self.updateGeometry()
         self.updateTransformationMatrix()
-        return self
 
     @pyqtSlot()
     def stop(self):
@@ -91,8 +95,9 @@ class CGH(QObject):
         setattr(self, name, value)
 
     @pyqtSlot(object)
-    def psi(self):
-        return self._psi
+    def setTraps(self, traps):
+        self.traps = traps
+        self.compute()
 
     # Methods for computing holograms
     @staticmethod
@@ -108,41 +113,48 @@ class CGH(QObject):
         fac = 1. / np.prod(np.sinc(x))
         return np.min((np.abs(fac), 100.))
 
-    # @jit(nopython=True)
-    def map_coordinates(self, r):
-        """map coordinates into trap space"""
-        r = self.m * r
-        # axial splay
-        fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
-        r *= QVector3D(fac, fac, 1.)
-        return r
-
-    # @jit(nopython=True)
+    # @jit
     def compute_displace(self, amp, r, buffer):
         """Compute phase hologram to displace a trap with
         a specified complex amplitude to a specified position
         """
-        r = self.map_coordinates(r)
         ex = np.exp(self.iqx * r.x() + self.iqxz * r.z())
         ey = np.exp(self.iqy * r.y() + self.iqyz * r.z())
         np.outer(amp * ey, ex, buffer)
 
-    # @jit(nopython=True)
-    @pyqtSlot(object)
-    def compute(self, traps):
+    # @jit
+    def compute(self, all=False):
         """Compute phase hologram for specified traps"""
+        self.sigComputing.emit(True)
         start = time()
         self._psi.fill(0j)
-        for trap in traps:
-            self._psi += trap.psi
+        for trap in self.traps:
+            if ((all is True) or trap.needsRefresh):
+                # map coordinates into trap space
+                r = self.m * trap.r
+                # axial splay
+                fac = 1. / (1. + self.splayFactor * (r.z() - self.rc.z()))
+                r *= QVector3D(fac, fac, 1.)
+                # windowing
+                # amp = trap.amp * self.window(r)
+                amp = trap.amp
+                if trap.psi is None:
+                    trap.psi = self._psi.copy()
+                self.compute_displace(amp, r, trap.psi)
+                trap.needsRefresh = False
+            try:
+                self._psi += trap.structure * trap.psi
+            except Exception as e:
+                self._psi += trap.psi
         self.phi = self.quantize(self._psi)
         self.sigHologramReady.emit(self.phi)
         self.time = time() - start
+        self.sigComputing.emit(False)
 
     def bless(self, field):
         """Ensure that field has correct type for compute"""
-        if field is None:
-            return None
+        if type(field) is complex:
+            field = np.ones(self.shape)
         return field.astype(np.complex_)
 
     def setPhi(self, phi):
@@ -175,7 +187,7 @@ class CGH(QObject):
         self.m.setToIdentity()
         self.m.rotate(self.thetac, 0., 0., 1.)
         self.m.translate(-self.rc)
-        self.sigUpdateGeometry.emit()
+        self.sigUpdateTransformationMatrix.emit()
 
     # Hologram geometry
     @pyqtProperty(int)
@@ -226,6 +238,7 @@ class CGH(QObject):
     def wavelength(self, wavelength):
         self._wavelength = wavelength
         self.updateGeometry()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def refractiveIndex(self):
@@ -236,6 +249,7 @@ class CGH(QObject):
     def refractiveIndex(self, refractiveIndex):
         self._refractiveIndex = refractiveIndex
         self.updateGeometry
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def magnification(self):
@@ -246,6 +260,7 @@ class CGH(QObject):
     def magnification(self, magnification):
         self._magnification = magnification
         self.updateGeometry()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def focalLength(self):
@@ -256,6 +271,7 @@ class CGH(QObject):
     def focalLength(self, focalLength):
         self._focalLength = focalLength
         self.updateGeometry()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def cameraPitch(self):
@@ -266,6 +282,7 @@ class CGH(QObject):
     def cameraPitch(self, cameraPitch):
         self._cameraPitch = cameraPitch
         self.updateGeometry()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def slmPitch(self):
@@ -276,6 +293,7 @@ class CGH(QObject):
     def slmPitch(self, slmPitch):
         self._slmPitch = slmPitch
         self.updateGeometry()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def scaleFactor(self):
@@ -286,6 +304,7 @@ class CGH(QObject):
     def scaleFactor(self, scaleFactor):
         self._scaleFactor = scaleFactor
         self.updateGeometry()
+        self.compute(all=True)
 
     # Calibration constants
     # 2. Camera plane
@@ -335,6 +354,7 @@ class CGH(QObject):
         else:
             self._rc = QVector3D(rc[0], rc[1], rc[2])
         self.updateTransformationMatrix()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def thetac(self):
@@ -345,6 +365,7 @@ class CGH(QObject):
     def thetac(self, thetac):
         self._thetac = float(thetac)
         self.updateTransformationMatrix()
+        self.compute(all=True)
 
     # Calibration constants
     # 3. SLM plane
@@ -382,6 +403,7 @@ class CGH(QObject):
         else:
             self._rs = QPointF(rs[0], rs[1])
         self.updateGeometry()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def phis(self):
@@ -392,6 +414,7 @@ class CGH(QObject):
     def phis(self, phis):
         self._phis = phis
         self.updateGeometry()
+        self.compute(all=True)
 
     @pyqtProperty(float)
     def splayFactor(self):
@@ -400,4 +423,4 @@ class CGH(QObject):
     @splayFactor.setter
     def splayFactor(self, splayFactor):
         self._splayFactor = float(splayFactor)
-        self.updateGeometry()
+        self.compute(all=True)

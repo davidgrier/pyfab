@@ -98,16 +98,15 @@ class cupyCGH(CGH):
                     (a, out, cp.int32(a.shape[0]), cp.int32(a.shape[1])))
 
     def quantize(self, psi):
+        #phi = ((128. / cp.pi) * cp.angle(psi) + 127.).astype(cp.uint8)
+        # phi.get(out=self.phi)
         self.phase(psi, self._phi)
         self._phi.get(out=self.phi)
         return self.phi
 
     def compute_displace(self, amp, r, buffer):
-        r = self.map_coordinates(r)
-        ex = cp.exp(self._iqx * r.x() + self._iqxz * r.z(),
-                    dtype=cp.complex64)
-        ey = cp.exp(self._iqy * r.y() + self._iqyz * r.z(),
-                    dtype=cp.complex64)
+        ex = cp.exp(self._iqx * r.x() + self._iqxz * r.z(), dtype=cp.complex64)
+        ey = cp.exp(self._iqy * r.y() + self._iqyz * r.z(), dtype=cp.complex64)
         cp.outer(amp * ey, ex, buffer)
 
     def updateGeometry(self):
@@ -137,7 +136,8 @@ class cupyCGH(CGH):
         self.sigUpdateGeometry.emit()
 
     def bless(self, field):
-        if field is None:
-            return None
-        gpu_field = cp.asarray(field.astype(cp.complex64))
+        if type(field) is complex:
+            gpu_field = cp.ones(self.shape, dtype=cp.complex64)
+        else:
+            gpu_field = cp.asarray(field.astype(cp.complex64))
         return gpu_field
