@@ -3,14 +3,14 @@
 import os
 import glob
 import re
-from pyqtgraph.Qt import QtGui
+from PyQt5.QtWidgets import QAction
 
 
 def findTasks():
     """Parse all files in the present directory to identify
     tasks that should be included in the task menu"""
     path = os.path.dirname(os.path.realpath(__file__))
-    files = sorted(glob.glob(path+'/*.py'))
+    files = sorted(glob.glob(path+'/lib/*.py'))
     tasks = []
     for filename in files:
         task = {}
@@ -66,11 +66,12 @@ def buildTaskMenu(parent):
     globals = {'register': parent.tasks.registerTask}
     submenus = dict()
     for task in tasks:
-        action = QtGui.QAction(task['title'], parent)
+        action = QAction(task['title'], parent)
         if 'tip' in task:
             action.setStatusTip(task['tip'])
         handler = eval(
-            'lambda: register("'+task['name']+'", "'+str(task['vision'])+'")', globals)
+#             'lambda: register("'+task['name']+'", "'+str(task['vision'])+'")', globals)
+            'lambda: register("'+task['name']+'")', globals)
         action.triggered.connect(handler)
         if 'submenu' in task:
             title = task['submenu']
