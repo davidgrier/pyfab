@@ -2,18 +2,12 @@
 
 """QTrap.py: Base class for an optical trap."""
 
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
-                          QObject, QPointF)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QObject, QPointF)
 from PyQt5.QtGui import QVector3D
 import numpy as np
 import pyqtgraph as pg
 from enum import Enum
 from collections import OrderedDict
-
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARN)
 
 
 class states(Enum):
@@ -21,98 +15,62 @@ class states(Enum):
     normal = 1
     selected = 2
     grouping = 3
-    special = 4
 
 
 class QTrap(QObject):
-    """Base class for optical traps
-
-    A trap has physical properties, including three-dimensional
+    """A trap has physical properties, including three-dimensional
     position, relative amplitude and relative phase.  A structuring
-    field can change its optical properties. A trap also has a graphical 
-    representation as presented on the QFabScreen.
-
-    Inherits QObject
-
-    Parameters
-    ----------
-    r : :obj:`QVector3D`
-        Three-dimensional position of trap relative to the image
-        origin. Default: (0, 0, 0)
-    alpha : float
-        Relative amplitude of the trap. Default: 1.
-    phi : float
-        Relative phase of the trap. Default: random.
-    cgh : :obj:`QCGH`
-        Computational pipeline used to compute the complex
-        electric field associated with this trap.
-        Default: None
-    structure : :obj:`numpy.ndarray` of :obj:`numpy.complex`
-        Field used to convert optical tweezer into a structured trap.
-        Default: None (optical tweezer).
-    state : :obj:`Enum`
-        State of the trap, which reflects current operations
-        and is reflected in the graphical representation.
+    field can change its optical properties.
+    It also has an appearance as presented on the QFabScreen.
     """
 
-    propertyChanged = pyqtSignal(QObject)
-    appearanceChanged = pyqtSignal()
-    hologramChanged = pyqtSignal()
+    valueChanged = pyqtSignal(QObject)
 
     def __init__(self,
+                 parent=None,
                  r=QVector3D(),
-                 alpha=1.,             # relative amplitude
-                 phi=None,             # relative phase
-                 structure=None,       # structuring field
-                 state=None,           # graphical representation
-                 *args, **kwargs):
-        super(QTrap, self).__init__(*args, **kwargs)
+                 alpha=1.,          # relative amplitude
+                 phi=None,          # relative phase
+                 cgh=None,          # computational pipeline
+                 structure=None,    # structuring field
+                 state=states.normal):
+        super(QTrap, self).__init__(parent)
+
+        self.blockRefresh(True)
 
         # operational state
-        self._state = state or states.normal
+        self._state = state
 
         # appearance
-        self.brush = {states.static: pg.mkBrush(255, 255, 255, 120),
-                      states.normal: pg.mkBrush(100, 255, 100, 120),
+        self.brush = {states.normal: pg.mkBrush(100, 255, 100, 120),
                       states.selected: pg.mkBrush(255, 105, 180, 120),
-                      states.grouping: pg.mkBrush(255, 255, 100, 120),
-                      states.special: pg.mkBrush(238, 130, 238, 120)}
+                      states.grouping: pg.mkBrush(255, 255, 100, 120)}
         self.baseSize = 15.
         self.spot = {'pos': QPointF(),
                      'size': self.baseSize,
                      'pen': pg.mkPen('w', width=0.2),
-                     'brush': self.brush[self._state],
+                     'brush': self.brush[state],
                      'symbol': self.plotSymbol()}
 
         # physical properties
         self.r = r
         self._alpha = alpha
-        self.phi = phi or np.random.uniform(low=0., high=2.*np.pi)
+        if phi is None:
+            self.phi = np.random.uniform(low=0., high=2. * np.pi)
+        else:
+            self.phi = phi
         self.registerProperties()
+        self.updateAppearance()
 
         # hologram calculation
-        self._structure = None
+        self._structure = structure
         self.psi = None
+        self.cgh = cgh
 
-    def initialize(self):
-        self.psi = self.cgh.psi().copy()
-        self.updateStructure()
-        self.updateAppearance()
-        logger.info('Initialized')
-
-    def computeHologram(self):
-        try:
-            self.cgh.compute_displace(self.amp, self.r, self.psi)
-            if self.structure is not None:
-                self.psi = self.psi * self.structure
-            logger.debug('computeHologram')
-            self.hologramChanged.emit()
-            self.propertyChanged.emit(self)
-        except Exception as ex:
-            logger.debug('Could not compute hologram: ', ex)
+        self.needsRefresh = True
+        self.blockRefresh(False)
 
     # Customizable methods for subclassed traps
-
     def plotSymbol(self):
         """Graphical representation of trap"""
         return 'o'
@@ -120,20 +78,16 @@ class QTrap(QObject):
     def updateAppearance(self):
         """Adapt trap appearance to trap motion and property changes"""
         self.spot['pos'] = self.coords()
-        self.spot['size'] = np.clip(self.baseSize - self.r.z()/20., 10., 35.)
-        logger.debug('updateAppearance')
-        self.appearanceChanged.emit()
+        self.spot['size'] = np.clip(self.baseSize - self.r.z() / 20., 10., 35.)
 
     def updateStructure(self):
-        """Update structuring field.
-
-        Note: This should be overridden by subclasses.
+        """Update structuring field for changes in trap properties
+        and calibration constants
         """
-        logger.debug('updateStructure')
-        self.structure = None
+        pass
 
     # Computational pipeline for calculating structure field
-    @pyqtProperty(object)
+    @property
     def cgh(self):
         return self._cgh
 
@@ -142,20 +96,35 @@ class QTrap(QObject):
         self._cgh = cgh
         if cgh is None:
             return
-        self._cgh.sigUpdateGeometry.connect(self.initialize)
-        self.initialize()
+        self._cgh.sigUpdateGeometry.connect(self.updateStructure)
+        self._cgh.sigUpdateTransformationMatrix.connect(self.updateStructure)
+        self.updateStructure()
 
-    @pyqtProperty(object)
+    @property
     def structure(self):
         return self._structure
 
     @structure.setter
     def structure(self, field):
-        if self.cgh:
-            self._structure = self.cgh.bless(field)
-            self.computeHologram()
-        else:
-            self._structure = field
+        self._structure = self.cgh.bless(field)
+        self.refresh()
+
+    # Implementing changes in properties
+    def blockRefresh(self, state):
+        """Do not send refresh requests to parent if state is True"""
+        self._blockRefresh = bool(state)
+
+    def refreshBlocked(self):
+        return self._blockRefresh
+
+    def refresh(self):
+        """Request parent to implement changes"""
+        if self.refreshBlocked():
+            return
+        self.valueChanged.emit(self)
+        self.updateAppearance()
+        self.needsRefresh = True
+        self.parent().refresh()
 
     # Methods for moving the trap
     def moveBy(self, dr):
@@ -199,7 +168,7 @@ class QTrap(QObject):
         self.registerProperty('alpha', decimals=2)
         self.registerProperty('phi', decimals=2)
 
-    @pyqtProperty(QVector3D)
+    @property
     def r(self):
         """Three-dimensional position of trap"""
         return self._r
@@ -207,41 +176,36 @@ class QTrap(QObject):
     @r.setter
     def r(self, r):
         self._r = QVector3D(r)
-        self.updateAppearance()
-        self.computeHologram()
-        logger.debug('setting r')
+        self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def x(self):
         return self._r.x()
 
     @x.setter
     def x(self, x):
-        r = self._r
-        r.setX(x)
-        self.r = r
+        self._r.setX(x)
+        self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def y(self):
         return self._r.y()
 
     @y.setter
     def y(self, y):
-        r = self._r
-        r.setY(y)
-        self.r = r
+        self._r.setY(y)
+        self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def z(self):
         return self._r.z()
 
     @z.setter
     def z(self, z):
-        r = self._r
-        r.setZ(z)
-        self.r = r
+        self._r.setZ(z)
+        self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def alpha(self):
         """Relative amplitude of trap"""
         return self._alpha
@@ -250,9 +214,9 @@ class QTrap(QObject):
     def alpha(self, alpha):
         self._alpha = alpha
         self.amp = alpha * np.exp(1j * self.phi)
-        self.computeHologram()
+        self.refresh()
 
-    @pyqtProperty(float)
+    @property
     def phi(self):
         """Relative phase of trap"""
         return self._phi
@@ -261,9 +225,9 @@ class QTrap(QObject):
     def phi(self, phi):
         self._phi = phi
         self.amp = self.alpha * np.exp(1j * phi)
-        self.computeHologram()
+        self.refresh()
 
-    @pyqtProperty(object)
+    @property
     def state(self):
         """Current state of trap"""
         return self._state
@@ -273,4 +237,3 @@ class QTrap(QObject):
         if self.state is not states.static:
             self._state = state
             self.spot['brush'] = self.brush[state]
-            self.appearanceChanged.emit()

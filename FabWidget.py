@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'FabWidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_PyFab(object):
     def setupUi(self, PyFab):
         PyFab.setObjectName("PyFab")
-        PyFab.resize(1239, 732)
+        PyFab.resize(1072, 732)
         self.centralwidget = QtWidgets.QWidget(PyFab)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -30,7 +30,6 @@ class Ui_PyFab(object):
         self.screen.setMinimumSize(QtCore.QSize(640, 480))
         self.screen.setObjectName("screen")
         self.tabWidget = QtWidgets.QTabWidget(self.splitter)
-        self.tabWidget.setEnabled(True)
         self.tabWidget.setMinimumSize(QtCore.QSize(400, 0))
         self.tabWidget.setAccessibleName("")
         self.tabWidget.setObjectName("tabWidget")
@@ -150,37 +149,6 @@ class Ui_PyFab(object):
         self.vision.setObjectName("vision")
         self.visionLayout.addWidget(self.vision)
         self.tabWidget.addTab(self.tabVision, "")
-        self.tabTasks = QtWidgets.QWidget()
-        self.tabTasks.setObjectName("tabTasks")
-        self.bpausequeue = QtWidgets.QPushButton(self.tabTasks)
-        self.bpausequeue.setGeometry(QtCore.QRect(30, 410, 89, 25))
-        self.bpausequeue.setObjectName("bpausequeue")
-        self.bclearqueue = QtWidgets.QPushButton(self.tabTasks)
-        self.bclearqueue.setGeometry(QtCore.QRect(30, 450, 89, 25))
-        self.bclearqueue.setObjectName("bclearqueue")
-        self.horizontalLayoutWidget = QtWidgets.QWidget(self.tabTasks)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 551, 371))
-        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
-        self.horizontalLayout_2.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.TaskManagerView = QtWidgets.QListView(self.horizontalLayoutWidget)
-        self.TaskManagerView.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.TaskManagerView.setObjectName("TaskManagerView")
-        self.horizontalLayout_2.addWidget(self.TaskManagerView)
-        self.scrollArea_2 = QtWidgets.QScrollArea(self.horizontalLayoutWidget)
-        self.scrollArea_2.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.scrollArea_2.setWidgetResizable(True)
-        self.scrollArea_2.setObjectName("scrollArea_2")
-        self.TaskPropertiesView = QtWidgets.QWidget()
-        self.TaskPropertiesView.setGeometry(QtCore.QRect(0, 0, 269, 367))
-        self.TaskPropertiesView.setObjectName("TaskPropertiesView")
-        self.TaskPropertiesLayout = QtWidgets.QFormLayout(self.TaskPropertiesView)
-        self.TaskPropertiesLayout.setObjectName("TaskPropertiesLayout")
-        self.scrollArea_2.setWidget(self.TaskPropertiesView)
-        self.horizontalLayout_2.addWidget(self.scrollArea_2)
-        self.tabWidget.addTab(self.tabTasks, "")
         self.tabHardware = QtWidgets.QWidget()
         self.tabHardware.setObjectName("tabHardware")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.tabHardware)
@@ -257,7 +225,7 @@ class Ui_PyFab(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         PyFab.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(PyFab)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1239, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1072, 31))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -297,7 +265,7 @@ class Ui_PyFab(object):
         self.menubar.addAction(self.menuTasks.menuAction())
 
         self.retranslateUi(PyFab)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(7)
         self.actionQuit.triggered.connect(PyFab.close)
         self.dvr.recording['bool'].connect(self.camera.setDisabled)
         self.dvr.recording['bool'].connect(self.filters.setDisabled)
@@ -308,9 +276,9 @@ class Ui_PyFab(object):
         self.actionSavePhotoAs.triggered.connect(PyFab.savePhotoAs)
         self.actionSaveHologram.triggered.connect(PyFab.saveHologram)
         self.actionSaveHologramAs.triggered.connect(PyFab.saveHologramAs)
+        self.tabWidget.currentChanged['int'].connect(self.hardware.expose)
         self.screen.sigFPS['double'].connect(self.fps.setValue)
         self.bback.clicked.connect(self.browser.back)
-        self.tabWidget.currentChanged['int'].connect(self.hardware.expose)
         QtCore.QMetaObject.connectSlotsByName(PyFab)
 
     def retranslateUi(self, PyFab):
@@ -330,9 +298,6 @@ class Ui_PyFab(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVideo), _translate("PyFab", "Video"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHistogram), _translate("PyFab", "Histogram"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVision), _translate("PyFab", "Vision"))
-        self.bpausequeue.setText(_translate("PyFab", "pause"))
-        self.bclearqueue.setText(_translate("PyFab", "clear"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTasks), _translate("PyFab", "Tasks"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHardware), _translate("PyFab", "Hardware"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTraps), _translate("PyFab", "Traps"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabCGH), _translate("PyFab", "CGH"))
