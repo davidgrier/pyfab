@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
+from PyQt5.QtWidgets import (QMainWindow, QFileDialog, QStackedLayout)
 from PyQt5.QtCore import pyqtSlot
 
 from FabWidget import Ui_PyFab
@@ -13,6 +13,8 @@ from pyfablib.QSLM import QSLM
 from pyfablib.traps import QTrappingPattern
 from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
+
+from tasks.QVision3 import QVision
 
 import logging
 logging.basicConfig()
@@ -39,22 +41,8 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.camera.close()  # remove placeholder widget from UI
         self.camera = QCamera()
         self.screen.camera = self.camera
-        self.cameraLayout.addWidget(self.camera)
-        
-        self.tabWidget.setTabEnabled(2, False)
-#         # Setup vision tab
-#         try:
-#             self.vision.close()
-#             self.vision.setObjectName("vision")
-#             self.vision = QVision(self.tabVision)
-#             self.visionLayout.addWidget(self.vision)
-#             self.setupVision = True
-#         except Exception as ex2:
-#             err = ex2 if ex1 is None else ex1
-#             msg = 'Could not import Machine Vision pipeline: {}'
-#             logger.warning(msg.format(err))
-#             self.tabWidget.setTabEnabled(2, False)
-#             self.setupVision = False
+        self.cameraLayout.addWidget(self.camera)        
+       
 
         # Spatial light modulator
         self.slm = QSLM(self)
@@ -71,7 +59,22 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.tasks = QTaskmanager(self)
         self.TaskManagerView.setModel(self.tasks)
 
+#         Setup vision tab
+#        try:
+#            self.vision.close()
+#            self.vision.setObjectName("vision")
+#            self.vision = QVision(parent=self.tabVision, pyfab=self)
+#            self.visionLayout.addWidget(self.vision)
+#            self.tabWidget.setTabEnabled(2, True)
+#            self.setupVision = True
+#        except Exception as ex2:
+#            err = ex2 if ex1 is None else ex1
+#            msg = 'Could not import Machine Vision pipeline: {}'
+#            logger.warning(msg.format(err))
+#            self.tabWidget.setTabEnabled(2, False)
+#            self.setupVision = False
 
+        self.tabWidget.setTabEnabled(2, False)#            
         self.configureUi()
         self.connectSignals()
 
@@ -95,6 +98,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
 #         if self.setupVision:
 #             self.vision.jansen = self
+        self.TaskPropertiesLayout = QStackedLayout(self.TaskPropertiesView)
         index = 4
         self.hardware.index = index
         self.tabWidget.currentChanged.connect(self.hardware.expose)

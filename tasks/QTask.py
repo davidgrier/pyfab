@@ -43,8 +43,12 @@ class QTask(QObject):
         self._busy = False
         self._frame = 0
         self._data = dict()
-        self.register = self.parent().tasks.registerTask
-
+        self.widget = None
+        
+        self.register = self.parent().tasks.registerTask if self.parent() is not None else None
+    
+    def taskProperties(self): return list(self.__dict__.keys())
+    
     def initialize(self, frame):
         """Perform initialization operations"""
         logger.debug('Initializing')
@@ -74,6 +78,7 @@ class QTask(QObject):
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
         logger.debug('Handling Task')
+        logger.info('{}: {}'.format(self.name, type(frame)))
         try:
             self._handleTask(frame)
         except Exception as ex:
@@ -113,3 +118,5 @@ class QTask(QObject):
         self.shutdown()
         self.sigDone.emit()
         logger.info('TASK: {} done'.format(self.__class__.__name__))
+
+    

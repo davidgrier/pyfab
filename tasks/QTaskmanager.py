@@ -4,6 +4,7 @@ from PyQt5.QtCore import (QAbstractListModel, QModelIndex, pyqtSlot, pyqtSignal,
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QFormLayout
 from PyQt5.QtGui import QFont
+from common.QSettingsWidget import QSettingsWidget 
 
 from .QTask import QTask
 from collections import deque
@@ -73,6 +74,8 @@ class QTaskmanager(QAbstractListModel):
             self.source.sigNewFrame.disconnect(task.handleTask)
         except AttributeError:
             logger.warn('could not disconnect signals')
+#        except TypeError:
+#            logger.warn('signal already disconnected')
 
     def setTaskData(self, task):
         attrs = []
@@ -94,6 +97,9 @@ class QTaskmanager(QAbstractListModel):
     def queueTask(self, task=None):
         """Add task to queue and activate next queued task if necessary"""
         if task:
+            if task.widget is None: 
+                task.widget = QSettingsWidget(parent=None, device=task, ui=defaultTaskUi(task), include=task.taskProperties())
+            self.parent().TaskPropertiesLayout.addWidget(task.widget)
 #             index = len(self.bgtasks) + len(self.tasks) if task.blocking else len(self.bgtasks)
             if task.blocking:
 #                 self.beginInsertRows(QModelIndex(), index, index))
@@ -116,6 +122,7 @@ class QTaskmanager(QAbstractListModel):
             except IndexError:
                 # self.taskData.clear()
                 logger.info('Completed all pending tasks')
+        
         self.layoutChanged.emit()  
 
 
@@ -137,7 +144,8 @@ class QTaskmanager(QAbstractListModel):
                 self.queueTask()
         else:
             self.getTaskData(task)
-            self.bgtasks.remove(task)         
+            self.bgtasks.remove(task)    
+        self.parent().TaskPropertiesLayout.removeWidget(task.widget)
         self.layoutChanged.emit()  
         
     @pyqtProperty(bool)
@@ -201,20 +209,24 @@ class QTaskmanager(QAbstractListModel):
         task._paused = not task._paused
         self.layoutChanged.emit()
     
-    
-    
-######  Code which sets up the property display widget. (This might be able to go to another file later)  ####    
-
+######  Code which sets up the property display widget. (This might be able to go to another file later)  ####
     @pyqtSlot()    
     def displayProperties(self):
         task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
         if task is None: return
         print(task.__dict__)
-        layout = self.parent().TaskPropertiesLayout
-        for i in range(layout.rowCount()):
-            layout.removeRow(0)
-        if task is None: return    
-        keys = list(task.__dict__.keys())
+#        print(task.widget.__dict__)
+#        print(task.widget.ui.__dict__)        
+        self.parent().TaskPropertiesLayout.setCurrentWidget(task.widget)
+            
+
+class defaultTaskUi(object):
+    def __init__(self, task):
+        self.task = task
+        
+    def setupUi(self, wid):
+        self.layout = QFormLayout(wid)       
+        keys = self.task.taskProperties()
         keys.remove('nframes'); keys.append('nframes');  ## Move common properties to the top of the form
         keys.remove('skip'); keys.append('skip');
         keys.remove('delay'); keys.append('delay'); 
@@ -224,36 +236,30 @@ class QTaskmanager(QAbstractListModel):
 #         if 'traps' in keys:
 #             keys.remove('traps')
 #             self.promptTraps()
-
-#         print(layout.rowCount())
-
-#         while layout.rowCount() < len(keys):
-#             layout.addRow(QLabel(), QLinePropEdit(task, ))
-        
-#         while layout.rowCount() > len(keys):
-#             layout.removeRow(0)
-# #         print(layout.rowCount())
+            
         keys.reverse()    
         for key in keys:
             label = QLabel()
             label.setText(key)
-            linePropEdit = QLinePropEdit(task, key)
-            linePropEdit.setText(str(getattr(task, key)))
-            layout.addRow(label, linePropEdit)
+            lineEdit = QLineEdit()
+            lineEdit.setText(str(getattr(self.task, key)))
+            lineEdit.setObjectName(key)
+            setattr(self, key, lineEdit)
+            self.layout.addRow(label, lineEdit)
             
-class QLinePropEdit(QLineEdit):
-    def __init__(self, task, prop, **kwargs):
-        super(QLinePropEdit, self).__init__(**kwargs)
-        self.prop = prop
-        self.setTask(task)
-        self.returnPressed.connect(self.updateReady)
-
-    @pyqtSlot()
-    def updateReady(self):
-        self.update()
-   
-    def setTask(self, task):
-        self.update = lambda: setattr(task, self.prop, eval(self.text()))
+#class QLinePropEdit(QLineEdit):
+#    def __init__(self, task, prop, **kwargs):
+#        super(QLinePropEdit, self).__init__(**kwargs)
+#        self.prop = prop
+#        self.setTask(task)
+#        self.returnPressed.connect(self.updateReady)
+#
+#    @pyqtSlot()
+#    def updateReady(self):
+#        self.update()
+#   
+#    def setTask(self, task):
+#        self.update = lambda: setattr(task, self.prop, eval(self.text()))
     
 #### We need to read the string into the correct type. One option is to type-cast using the current value, but this can throw 
 #### errors if variables are initialized to "None" or for more complicated types, like tuples
@@ -265,4 +271,4 @@ class QLinePropEdit(QLineEdit):
 #### if the user input has wrong syntax. (Also, this type of statement seems really sketchy security-wise; probably not best
 #### practice if you're building a popular app that you don't want to get hacked)            
 #         self.update = lambda: setattr(task, self.prop, eval(self.text()))
-    
+        

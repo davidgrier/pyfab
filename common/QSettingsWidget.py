@@ -3,7 +3,7 @@
 from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QTimer)
 from PyQt5.QtWidgets import (QFrame, QComboBox, QSpinBox,
                              QDoubleSpinBox, QCheckBox, QRadioButton,
-                             QPushButton)
+                             QPushButton, QLineEdit)
 import inspect
 
 import logging
@@ -50,7 +50,7 @@ class QSettingsWidget(QFrame):
         Get the named property
     '''
 
-    def __init__(self, parent=None, device=None, ui=None):
+    def __init__(self, parent=None, device=None, ui=None, include=[]):
         '''
         Parameters
         ----------
@@ -65,6 +65,7 @@ class QSettingsWidget(QFrame):
         self.ui = ui
         self.ui.setupUi(self)
         self.ui.closeEvent = self.closeEvent
+        self.include = include
         self._properties = []
         self.device = device
 
@@ -91,9 +92,9 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value of property
         '''
-        if name in self._properties:
+        if name in self.properties:
             self._setDeviceProperty(name, value)
-            actual = getattr(self.device, name)
+            actual =  self._getDeviceProperty(name)
             self._setUiProperty(name, actual)
         else:
             logger.warning('unknown property: {}'.format(name))
@@ -111,8 +112,8 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value of property
         '''
-        if name in self._properties:
-            return getattr(self.device, name)
+        if name in self.properties:
+            return self._getDeviceProperty(name)
         else:
             logger.warning('unknown property: {}'.format(name))
 
@@ -131,7 +132,10 @@ class QSettingsWidget(QFrame):
             setattr(self.device, name, value)
             self.waitForDevice()
             logger.info('Setting {}: {}'.format(name, value))
-
+    
+    def _getDeviceProperty(self, name): 
+        return getattr(self.device, name)
+    
     def waitForDevice(self):
         '''Should be overridden by subclass'''
         pass
@@ -163,6 +167,8 @@ class QSettingsWidget(QFrame):
             wid.setChecked(value)
         elif isinstance(wid, QPushButton):
             pass
+        elif isinstance(wid, QLineEdit):
+            wid.setText(str(value))
         else:
             logger.warn('Unknown property: {}: {}'.format(name, type(wid)))
 
@@ -175,8 +181,8 @@ class QSettingsWidget(QFrame):
     def settings(self):
         '''Dictionary of properties and their values'''
         values = dict()
-        for prop in self._properties:
-            value = getattr(self.device, prop)
+        for prop in self.properties:
+            value = self._getDeviceProperty(prop)
             if not inspect.ismethod(value):
                 values[prop] = value
         return values
@@ -189,13 +195,14 @@ class QSettingsWidget(QFrame):
     @pyqtSlot()
     def updateUi(self):
         '''Update widgets with current values from device'''
-        for prop in self._properties:
-            val = getattr(self.device, prop)
+        for prop in self.properties:
+            val = self._getDeviceProperty(prop)
             self._setUiProperty(prop, val)
 
     @pyqtSlot(bool)
     @pyqtSlot(int)
     @pyqtSlot(float)
+    @pyqtSlot(str)
     def updateDevice(self, value):
         '''Update device property when UI property is updated
 
@@ -205,13 +212,16 @@ class QSettingsWidget(QFrame):
         '''
         name = str(self.sender().objectName())
         logger.debug('Updating: {}: {}'.format(name, value))
+        if isinstance(value, str):
+            logger.debug('Warning: interpreting input using eval')
+            value = eval(value)
         self._setDeviceProperty(name, value)
 
     @pyqtSlot(bool)
     def autoUpdateDevice(self, flag):
         logger.debug('autoUpdateDevice')
         autosetproperty = self.sender().objectName()
-        autosetmethod = getattr(self.device, autosetproperty)
+        autosetmethod = self._getDeviceProperty(name)
         autosetmethod()
         QTimer.singleShot(1000, self.updateUi)
         # self.waitForDevice()
@@ -238,8 +248,9 @@ class QSettingsWidget(QFrame):
         self.setEnabled(True)
         logger.info('device connected')
 
-    def connectSignals(self):
-        for prop in self._properties:
+    def connectSignals(self, props=None):
+        props = self.properties if props is None else props
+        for prop in props:
             logger.debug('Connecting {}'.format(prop))
             wid = getattr(self.ui, prop)
             if isinstance(wid, QDoubleSpinBox):
@@ -254,11 +265,15 @@ class QSettingsWidget(QFrame):
                 wid.toggled.connect(self.updateDevice)                
             elif isinstance(wid, QPushButton):
                 wid.clicked.connect(self.autoUpdateDevice)
+            elif isinstance(wid, QLineEdit):
+#                wid.returnPressed.connect(lambda _, widget=wid: widget.setText(widget.text()))
+                wid.textEdited.connect(self.updateDevice)
             else:
                 logger.warn('Unknown property: {}: {}'.format(prop, type(wid)))
 
-    def disconnectSignals(self):
-        for prop in self._properties:
+    def disconnectSignals(self, props=None):
+        props = self.properties if props is None else props
+        for prop in props:
             wid = getattr(self.ui, prop)
             if isinstance(wid, QDoubleSpinBox):
                 wid.valueChanged.disconnect(self.updateDevice)
@@ -272,6 +287,9 @@ class QSettingsWidget(QFrame):
                 wid.stateChanged.connect(self.updateDevice)    
             elif isinstance(wid, QPushButton):
                 wid.clicked.disconnect(self.autoUpdateDevice)
+            elif isinstance(wid, QLineEdit):
+#                wid.returnPressed.disconnect()
+                wid.textEdited.disconnect(self.updateDevice)
             else:
                 logger.warn('Unknown property: {}: {}'.format(prop, type(wid)))
 
@@ -287,5 +305,6 @@ class QSettingsWidget(QFrame):
         uprops = [name for name, _ in inspect.getmembers(self.ui)]
         logger.debug('UI Properties: {}'.format(uprops))
         props = [name for name in dprops if name in uprops]
-        self._properties = [name for name in props if '_' not in name]
+        self._properties = [name for name in props if ('_' not in name or name in self.include)]
         logger.debug('Common Properties: {}'.format(self._properties))
+
