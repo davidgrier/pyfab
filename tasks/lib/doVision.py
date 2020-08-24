@@ -127,7 +127,7 @@ class doVision(QTask):
             self._estimator = estimator
         else:
 #            keras_head_path = '/home/jackie/Desktop/CNNLorenzMie/keras_models/predict_stamp_best'
-             keras_head_path = '/home/group/python/CNNLorenzTest/keras_models/predict_stamp_best'
+            keras_head_path = '/home/group/python/CNNLorenzTest/keras_models/predict_stamp_best'
             with open(keras_head_path+'.json', 'r') as f:
                 kconfig = json.load(f)
             self.estimator = Estimator(model_path=keras_head_path+'.h5', config_file=kconfig)
