@@ -3,7 +3,7 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
 #from .QVisionWidget4 import Ui_QVisionWidget
 from common.QMultiSettingsWidget import QMultiSettingsWidget
-from tasks.lib.doVisionWidget_v2 import Ui_doVisionWidget
+from tasks.lib.doVisionWidget import Ui_doVisionWidget
 from tasks.lib.doVision import doVision as Vision
 
 import sys

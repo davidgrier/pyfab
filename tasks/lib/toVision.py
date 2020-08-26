@@ -2,7 +2,7 @@
 # MENU: Start Vision Pipeline
 
 from ..QTask import QTask
-from ..QVision3 import QVision 
+from ..QVision import QVision 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 
 import json

@@ -14,7 +14,7 @@ from pyfablib.traps import QTrappingPattern
 from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
 
-from tasks.QVision3 import QVision
+from tasks.QVision import QVision
 
 import logging
 logging.basicConfig()
