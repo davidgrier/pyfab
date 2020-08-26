@@ -3,7 +3,7 @@
 from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QTimer)
 from PyQt5.QtWidgets import (QFrame, QComboBox, QSpinBox,
                              QDoubleSpinBox, QCheckBox, QRadioButton,
-                             QPushButton, QLineEdit)
+                             QPushButton, QLineEdit, QGroupBox)
 import inspect
 
 import logging
@@ -163,6 +163,8 @@ class QSettingsWidget(QFrame):
                 wid.setCheckState(value)
             else:
                 wid.setChecked(value)
+        elif isinstance(wid, QGroupBox):
+            wid.setChecked(value)
         elif isinstance(wid, QRadioButton):
             wid.setChecked(value)
         elif isinstance(wid, QPushButton):
@@ -261,6 +263,8 @@ class QSettingsWidget(QFrame):
                 wid.currentIndexChanged.connect(self.updateDevice)
             elif isinstance(wid, QCheckBox):
                 wid.stateChanged.connect(self.updateDevice)
+            elif isinstance(wid, QGroupBox):
+                wid.toggled.connect(self.updateDevice)
             elif isinstance(wid, QRadioButton):
                 wid.toggled.connect(self.updateDevice)                
             elif isinstance(wid, QPushButton):
@@ -283,6 +287,8 @@ class QSettingsWidget(QFrame):
                 wid.currentIndexChanged.disconnect(self.updateDevice)
             elif isinstance(wid, QCheckBox):
                 wid.stateChanged.disconnect(self.updateDevice)
+            elif isinstance(wid, QGroupBox):
+                wid.toggled.disconnect(self.updateDevice)
             elif isinstance(wid, QRadioButton):
                 wid.stateChanged.connect(self.updateDevice)    
             elif isinstance(wid, QPushButton):
@@ -307,4 +313,3 @@ class QSettingsWidget(QFrame):
         props = [name for name in dprops if name in uprops]
         self._properties = [name for name in props if ('_' not in name or name in self.include)]
         logger.debug('Common Properties: {}'.format(self._properties))
-

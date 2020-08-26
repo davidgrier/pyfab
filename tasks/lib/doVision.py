@@ -6,8 +6,8 @@ from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 import ujson as json
 import numpy as np
 import sys
-#sys.path.append('/home/jackie/Desktop')
-sys.path.append('/home/group/python')
+sys.path.append('/home/jackie/Desktop')
+#sys.path.append('/home/group/python')
 
 from pylorenzmie.analysis import Frame
 
@@ -18,90 +18,81 @@ from CNNLorenzMie.crop_feature import crop_frame, est_crop_frame
 
 
 #### Converts the input frames to pylorenzmie Frames, sends them out in a signal, and keeps them in a Video
-
-class Filter(object):
-    def __init__(self, doNoDoubles=True, doNoEdges=True, doublestol=600, edgetol=200):
-        self.doNoDoubles = doNoDoubles
-        self.doNoEdges = doNoEdges
-        self.doublestol = doublestol
-        self.edgetol = edgetol        
-    def predict(self, frame):
-        if self.doNoDoubles: nodoubles(frame, tol=self.doublestol)
-        if self.doNoEdges: no_edges(frame, tol=self.edgetol)
     
 class doVision(QTask):
+    
+    keras_head_path = '/home/jackie/Desktop/CNNLorenzMie/keras_models/predict_stamp_best'
+    # keras_head_path = '/home/group/python/CNNLorenzTest/keras_models/predict_stamp_best'
+            
     sigLocalizerChanged = pyqtSignal(object)    
     sigFiltererChanged = pyqtSignal(object)        
     sigEstimatorChanged = pyqtSignal(object)    
-    sigRTDone = pyqtSignal(Frame)
+    sigBBoxes = pyqtSignal(list)
     def __init__(self, **kwargs):
         super(doVision, self).__init__(**kwargs)
         self._blocking = False
-        self.delay = 10
+        # self.delay = 10
         
-        
-        self.setupPredictSettings()
-        self.startsetting = 0
-        self.rtsetting = self.setting()
-        self.ppsetting = 2
+        self.initializeSettings()        
         self.rtframes = []
         self.ppframes = []
             
               
     def initialize(self, frame):
-        self.localizer = None
-        self.filterer = None
+        self.localizer = None    #### Call localizer and estimator setters
         self.estimator = None
-        if isinstance(frame, np.ndarray): 
-#             frame = None
-            print('recieved image frame')
 #         self.parent().tasks.source.sigNewFrame.disconnect(self.handleTask)
 
     
     @pyqtSlot(Frame)
-    def handleTask(self, frame):
-        if isinstance(frame, np.ndarray): return
-        print('{}: {}'.format(self.name, type(frame)))
-        
+    def handleTask(self, frame):        
         if self._frame % self.skip != 0:      #### Put all 'skipped' frames from process into a list for post-processing
-            print('{}: {}'.format(self.name, type(frame)))        
-            self.ppframes.append(frame)     #### This works since _frame=0 before initialization and 0%skip==0
+            self.ppframes.append(frame)         #### This works since _frame=0 before initialization and 0%skip==0
+#            self.ppframes.append(self._frame)    
         super(doVision, self).handleTask(frame)
     
     def process(self, frame):
-        print('running')
-        print(type(frame))
-        print(self.startsetting)
-        print(self.rtsetting)
-        self.predict(frame, self.startsetting, self.rtsetting)
+#        frame.instrument = self.estimator.instrument
+        rt, pp = self.pipelineSettings()
+        print("rt={}, pp={}".format(rt, pp))
+        # print(list(range(0, rt)))
+        # print(list(range(rt, pp)))
+        # print(list(range(0, pp)))
+        self.predict(frame, 0, rt)
         self.rtframes.append(frame)
-        print('running')
-        self.sigRTDone.emit(frame)
-        
+#        self.rtframes.append(self._frame)
+#        print(frame.__dict__)
+
    
     def complete(self):
-        self.ppsetting = self.setting(post=True)
+        rt, pp = self.pipelineSettings()
         for frame in self.rtframes:
-            self.predict(frame, self.rtsetting+1, self.ppsetting)
+            self.predict(frame, rt, pp)   
         for frame in self.ppframes:
-            self.predict(frame, self.startsetting, self.ppsetting)
+            self.predict(frame, 0, pp)
       
     
-    def predict(self, frame, start, end):        
-        for i in range(start, end+1):
-            if i==1: 
-                self.localizer.predict(frame);
+    def predict(self, frame, start, end):
+        for i in range(start, end):
+            if i==0: 
+                self.localizer.predict(frame)
+                self.sigBBoxes.emit([bbox for bbox in frame.bboxes if bbox is not None])
+                continue
+            if i==1:
+                self.filter(frame); continue;
             if i==2:
-                self.filterer.predict(frame)
+                crop_frame(frame); continue;
             if i==3:
-                crop_frame(frame)
-            if i==4:
                 imgs, scales, feats = est_crop_frame(frame)
                 self.estimator.predict(imgs, scales, feats)
-            if i==5:
-                frame.optimize()
-            print(frame.to_df())
+                continue
+            if i==4:
+                frame.optimize(); continue;
+        print(frame.to_df())    
             
+    def filter(self, frame):
+        if self.doNoDoubles: nodoubles(frame, tol=self.doublestol)
+        if self.doNoEdges: no_edges(frame, tol=self.edgetol)
     @property
     def localizer(self):
         return self._localizer
@@ -111,14 +102,6 @@ class doVision(QTask):
         self.sigLocalizerChanged.emit(self.localizer)
    
     @property
-    def filterer(self):
-        return self._filterer
-    @filterer.setter
-    def filterer(self, filterer):
-        self._filterer = filterer or Filter()
-        self.sigFiltererChanged.emit(self.filterer)
-   
-    @property
     def estimator(self):
         return self._estimator
     @estimator.setter
@@ -126,45 +109,53 @@ class doVision(QTask):
         if estimator is not None:
             self._estimator = estimator
         else:
-#            keras_head_path = '/home/jackie/Desktop/CNNLorenzMie/keras_models/predict_stamp_best'
-            keras_head_path = '/home/group/python/CNNLorenzTest/keras_models/predict_stamp_best'
-            with open(keras_head_path+'.json', 'r') as f:
+            with open(self.keras_head_path+'.json', 'r') as f:
                 kconfig = json.load(f)
-            self.estimator = Estimator(model_path=keras_head_path+'.h5', config_file=kconfig)
+            self.estimator = Estimator(model_path=self.keras_head_path+'.h5', config_file=kconfig)
         self.sigEstimatorChanged.emit(self.estimator)
     
     
-    def setupPredictSettings(self):
-        self.rtstate=2
-        
+    def initializeSettings(self):        
+        #### Prediction pipeline settings
+        self.rtenabled = True
         self.rtdetect = True
         self.rtfilt = False
         self.rtcrop = False
         self.rtestimate = False
         self.rtrefine = False
         
+        self.ppenabled = False
         self.ppdetect = True
         self.ppfilt = True
         self.ppcrop = True
         self.ppestimate = False
         self.pprefine = False
+        
+        #### Filter settings 
+        self.doNoDoubles = True
+        self.doNoEdges = True
+        self.doublestol = 600
+        self.edgetol = 200        
+        
     
-    def setting(self, post=False):
-        if not post:
-            if self.rtstate==0: return 9;
-            elif self.rtdetect: return 1;
-            elif self.rtfilt: return 2;
-            elif self.rtcrop: return 3;
-            elif self.rtestimate: return 4;
-            elif self.rtrefine: return 5;
-        else:
-            if self.rtstate==1: i=9;
-            elif self.ppdetect: i=1;
-            elif self.ppfilt: i=2;
-            elif self.ppcrop: i=3;
-            elif self.ppestimate: i=6;
-            elif self.pprefine: i=5;
-            return min(self.setting(False), i)
+    def pipelineSettings(self):
+        if not self.rtenabled: rt=0;
+        elif self.rtdetect: rt=1;
+        elif self.rtfilt: rt=2;
+        elif self.rtcrop: rt=3;
+        elif self.rtestimate: rt=4;
+        elif self.rtrefine: rt=5;
+        else: rt=0;                #### If nothing is selected, don't do anything 
+        
+        if not self.ppenabled: pp=0;
+        elif self.ppdetect: pp=1;
+        elif self.ppfilt: pp=2;
+        elif self.ppcrop: pp=3;
+        elif self.ppestimate: pp=4;
+        elif self.pprefine: pp=5;
+        else: pp=0;
+
+        return rt, max(rt, pp)    #### If rt>pp, use realtime setting instead. (note: condsider removing this)
         
 
         

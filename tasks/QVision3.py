@@ -3,14 +3,15 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
 #from .QVisionWidget4 import Ui_QVisionWidget
 from common.QMultiSettingsWidget import QMultiSettingsWidget
-from tasks.lib.doQVisionWidget import Ui_doVisionWidget
+from tasks.lib.doVisionWidget_v2 import Ui_doVisionWidget
 from tasks.lib.doVision import doVision as Vision
 
 import sys
-#sys.path.append('/home/jackie/Desktop')
-sys.path.append('/home/group/python/')
+sys.path.append('/home/jackie/Desktop')
+#sys.path.append('/home/group/python/')
 
 from pylorenzmie.analysis import Video, Frame
+#from pylorenzmie.analysis.Frame2 import Frame
 
 import numpy as np
 import pyqtgraph as pg
@@ -46,11 +47,7 @@ class QVision(QMultiSettingsWidget):
         
         self.device = Vision(nframes=100)
         self.device.name = 'doVision'
-        self.device.sigLocalizerChanged.connect(lambda x: self.setDevice('LOC', x))
-        self.device.sigFiltererChanged.connect(lambda x: self.setDevice('FILT', x))
-        self.device.sigEstimatorChanged.connect(lambda x: self.setDevice('EST', x))
         
-
         self.connectUiSignals()
         self.updateUi()
         
@@ -65,42 +62,49 @@ class QVision(QMultiSettingsWidget):
         else:
             self.device._frame = 0
         self.source.sigNewFrame.connect(self.device.handleTask)
-        self.device.sigDone.connect(self.stop)
-        self.device.sigRTDone.connect(lambda: self.draw)
-        print('started')
-        print(self.device.__dict__)
+        # print(self.device.__dict__)
         self.ui.bstart.setEnabled(False)
         self.ui.bstop.setEnabled(True)       
      
     @pyqtSlot()
     def stop(self):
-#        sleep()
         self.source.sigNewFrame.disconnect(self.device.handleTask)
-        self.device.stop()
         self.ui.bstart.setEnabled(True)
         self.ui.bstop.setEnabled(False)
-
-    @pyqtSlot()
-    def toggleRealTime(self):
-        check = self.ui.rtstate
-        if check.checkState() == 0:
-            check.setText('Disabled')
-        elif check.checkState() == 1:
-            check.setText('Continuous')
-            self.device.nframes = self.source.nframes
-            self.ui.nframes.setEnabled(False)
-        elif check.checkState() == 2:
-            check.setText('Enabled')
+    
+    @pyqtSlot(int)
+    def toggleContinuous(self, state):
+        if state==0:
+            self.device.nframes = self._store_nframes_setting
             self.ui.nframes.setEnabled(True)
-
+        else:
+            self._store_nframes_setting = self.device.nframes
+            self.device.nframes = 1e6
+            self.ui.nframes.setEnabled(False)
+        self.updateUi()
+   
+        
+            
     def connectUiSignals(self):
-        self.ui.rtstate.clicked.connect(self.toggleRealTime)
+        self.device.sigLocalizerChanged.connect(lambda x: self.setDevice('LOC', x))
+        self.device.sigEstimatorChanged.connect(lambda x: self.setDevice('EST', x))
+        self.device.sigEstimatorChanged.connect(self.source.setInstrument)
+        self.device.sigDone.connect(self.stop)
+        # self.device.sigBBoxes.connect(self.draw)
+        # self.source.sigNewFrame.connect(self.remove)
+        self.device.sigBBoxes.connect(self.redraw)
+                
         self.ui.bstart.clicked.connect(self.start)
         self.ui.bstop.clicked.connect(self.stop)
+        self.ui.bsave.clicked.connect(self.source.write)
+        
+        self.toggleContinuous(2)
+        self.ui.continuous.stateChanged.connect(self.toggleContinuous)
+        self.ui.continuous.stateChanged.emit(self.ui.continuous.checkState())
         
         
-        RTwidgets = [self.ui.rtdetect, self.ui.rtfilter, self.ui.rtcrop, self.ui.rtestimate, self.ui.rtrefine]
-        PPwidgets = [self.ui.ppdetect, self.ui.ppfilter, self.ui.ppcrop, self.ui.ppestimate, self.ui.pprefine]
+        RTwidgets = [self.ui.rtdetect, self.ui.rtfilt, self.ui.rtcrop, self.ui.rtestimate, self.ui.rtrefine]
+        PPwidgets = [self.ui.ppdetect, self.ui.ppfilt, self.ui.ppcrop, self.ui.ppestimate, self.ui.pprefine]
         for i in range(5):
             for j in range(i):
                 RTwidgets[i].clicked.connect(lambda _, pp=PPwidgets[j]: pp.setEnabled(False))
@@ -110,21 +114,30 @@ class QVision(QMultiSettingsWidget):
 #         self.configurePlots()
 #         self.configureChildUi()
     
-    def draw(self, plmframe):
+    @pyqtSlot(list)
+    def draw(self, bboxes):
         rois = []
-        for bbox in plmframe.bboxes:
-            if bbox is not None:
-                x, y, w, h = bbox
-                roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
-                self.source.screen.addOverlay(roi)
-                rois.append(roi)
-        print(rois)
+        for bbox in bboxes:
+            x, y, w, h = bbox
+            roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
+            self.source.screen.addOverlay(roi)
+            rois.append(roi)
+        self.rois = rois
         return rois
+    
+    @pyqtSlot()
+    def remove(self):
+        rois = self.rois
+        if rois is not None:
+            for rect in rois:
+                self.source.screen.removeOverlay(rect)
+    
 
 
-
-
-
+    @pyqtSlot(list)
+    def redraw(self, bboxes):
+        self.remove()
+        self.draw(bboxes)
 
 
 

@@ -43,7 +43,7 @@ class QTask(QObject):
         self._busy = False
         self._frame = 0
         self._data = dict()
-        self.widget = None
+        self._widget = None
         
         self.register = self.parent().tasks.registerTask if self.parent() is not None else None
     

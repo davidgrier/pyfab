@@ -97,9 +97,9 @@ class QTaskmanager(QAbstractListModel):
     def queueTask(self, task=None):
         """Add task to queue and activate next queued task if necessary"""
         if task:
-            if task.widget is None: 
-                task.widget = QSettingsWidget(parent=None, device=task, ui=defaultTaskUi(task), include=task.taskProperties())
-            self.parent().TaskPropertiesLayout.addWidget(task.widget)
+            if task._widget is None: 
+                task._widget = QSettingsWidget(parent=None, device=task, ui=defaultTaskUi(task), include=task.taskProperties())
+            self.parent().TaskPropertiesLayout.addWidget(task._widget)
 #             index = len(self.bgtasks) + len(self.tasks) if task.blocking else len(self.bgtasks)
             if task.blocking:
 #                 self.beginInsertRows(QModelIndex(), index, index))
@@ -145,7 +145,7 @@ class QTaskmanager(QAbstractListModel):
         else:
             self.getTaskData(task)
             self.bgtasks.remove(task)    
-        self.parent().TaskPropertiesLayout.removeWidget(task.widget)
+        self.parent().TaskPropertiesLayout.removeWidget(task._widget)
         self.layoutChanged.emit()  
         
     @pyqtProperty(bool)
@@ -215,9 +215,9 @@ class QTaskmanager(QAbstractListModel):
         task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
         if task is None: return
         print(task.__dict__)
-#        print(task.widget.__dict__)
-#        print(task.widget.ui.__dict__)        
-        self.parent().TaskPropertiesLayout.setCurrentWidget(task.widget)
+#        print(task._widget.__dict__)
+#        print(task._widget.ui.__dict__)        
+        self.parent().TaskPropertiesLayout.setCurrentWidget(task._widget)
             
 
 class defaultTaskUi(object):
