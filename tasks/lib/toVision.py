@@ -25,7 +25,7 @@ class toVision(QTask):
         path = path or self.parent().dvr.filename
         print(path)
         self.video = Video(path=path)
-        self._widget = QVision(parent=None, source=self)
+        self.widget = QVision(parent=None, source=self)
    
     def initialize(self, frame):
         frame = None   ## The first frame is from the camera, so ignore it

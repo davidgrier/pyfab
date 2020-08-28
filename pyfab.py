@@ -117,8 +117,11 @@ class PyFab(QMainWindow, Ui_PyFab):
             lambda: self.setDvrSource(self.screen.default))
         self.bfilters.clicked.connect(
             lambda: self.setDvrSource(self.screen))
+        
         self.bpausequeue.clicked.connect(self.pauseTasks)
         self.bclearqueue.clicked.connect(self.stopTasks)
+        self.bserialize.clicked.connect(lambda: self.tasks.serialize(self.experimentPath.text()))
+        self.bdeserialize.clicked.connect(lambda: self.tasks.registerTask('QExperiment', info = self.experimentPath.text(), loop=self.loop.value()))
         
         self.TaskManagerView.clicked.connect(self.tasks.displayProperties)
         self.TaskManagerView.doubleClicked.connect(self.tasks.toggleSelected)

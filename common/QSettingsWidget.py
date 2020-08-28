@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (pyqtSlot, pyqtProperty, QTimer)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, QTimer)
 from PyQt5.QtWidgets import (QFrame, QComboBox, QSpinBox,
                              QDoubleSpinBox, QCheckBox, QRadioButton,
                              QPushButton, QLineEdit, QGroupBox)
@@ -201,11 +201,11 @@ class QSettingsWidget(QFrame):
             val = self._getDeviceProperty(prop)
             self._setUiProperty(prop, val)
 
+    @pyqtSlot()
     @pyqtSlot(bool)
     @pyqtSlot(int)
     @pyqtSlot(float)
-    @pyqtSlot(str)
-    def updateDevice(self, value):
+    def updateDevice(self, value=None):
         '''Update device property when UI property is updated
 
         Connecting this slot to the appropriate UI signal ensures
@@ -214,16 +214,16 @@ class QSettingsWidget(QFrame):
         '''
         name = str(self.sender().objectName())
         logger.debug('Updating: {}: {}'.format(name, value))
-        if isinstance(value, str):
-            logger.debug('Warning: interpreting input using eval')
-            value = eval(value)
+        if value is None:
+            logger.warning('interpreting String input from QLineEdit using eval()')
+            value = eval(self.sender().text())
         self._setDeviceProperty(name, value)
 
     @pyqtSlot(bool)
     def autoUpdateDevice(self, flag):
         logger.debug('autoUpdateDevice')
         autosetproperty = self.sender().objectName()
-        autosetmethod = self._getDeviceProperty(name)
+        autosetmethod = self._getDeviceProperty(autosetproperty)
         autosetmethod()
         QTimer.singleShot(1000, self.updateUi)
         # self.waitForDevice()
@@ -270,8 +270,9 @@ class QSettingsWidget(QFrame):
             elif isinstance(wid, QPushButton):
                 wid.clicked.connect(self.autoUpdateDevice)
             elif isinstance(wid, QLineEdit):
-#                wid.returnPressed.connect(lambda _, widget=wid: widget.setText(widget.text()))
-                wid.textEdited.connect(self.updateDevice)
+                wid.editingFinished.connect(self.updateDevice)
+                # wid.textEdited.connect(self.updateDevice)
+
             else:
                 logger.warn('Unknown property: {}: {}'.format(prop, type(wid)))
 

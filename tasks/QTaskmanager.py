@@ -2,13 +2,12 @@
 
 from PyQt5.QtCore import (QAbstractListModel, QModelIndex, pyqtSlot, pyqtSignal, pyqtProperty) 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QFormLayout
 from PyQt5.QtGui import QFont
-from common.QSettingsWidget import QSettingsWidget 
 
 from .QTask import QTask
 from collections import deque
 import importlib
+import json
 
 import logging
 logging.basicConfig()
@@ -60,11 +59,23 @@ class QTaskmanager(QAbstractListModel):
                 logger.error('Could not import {}: {}'.format(task, err))
                 task = None
         task.name = taskname
+        if task.widget is None:
+            task.setDefaultWidget()
         self.queueTask(task)   
         return task
-
+    
+    def serialize(self, filename=None):
+        info = [task.serialize() for task in self.tasks]
+        info.extend([task.serialize() for task in self.bgtasks])
+        if filename is not None:
+            with open('tasks/experiments/'+filename, 'w') as f:
+                json.dump(info, f)
+        return info    
+    
     def connectSignals(self, task):
         task.sigDone.connect(lambda: self.dequeueTask(task))
+        task.sigUnblocked.connect(lambda: self.moveToBackground(task))
+
         self.sigPause.connect(task.pause)
         self.sigStop.connect(task.stop)
         self.source.sigNewFrame.connect(task.handleTask)
@@ -96,10 +107,8 @@ class QTaskmanager(QAbstractListModel):
         
     def queueTask(self, task=None):
         """Add task to queue and activate next queued task if necessary"""
-        if task:
-            if task._widget is None: 
-                task._widget = QSettingsWidget(parent=None, device=task, ui=defaultTaskUi(task), include=task.taskProperties())
-            self.parent().TaskPropertiesLayout.addWidget(task._widget)
+        if task:    
+            self.parent().TaskPropertiesLayout.addWidget(task.widget)
 #             index = len(self.bgtasks) + len(self.tasks) if task.blocking else len(self.bgtasks)
             if task.blocking:
 #                 self.beginInsertRows(QModelIndex(), index, index))
@@ -113,19 +122,21 @@ class QTaskmanager(QAbstractListModel):
                 self.connectSignals(task)
                 self.setTaskData(task)
                 logger.debug('Starting background task')
-        if self.task is None:
+        if self.task is None:       
             try:               
-                self.task = self.tasks.popleft()
+                if self._paused:                         #### If paused while the queue is empty, queue a placeholder task so that first queued task
+                    self.task = QTask(paused=True)       #### remains in queue until unpaused
+                    self.task.name = 'Queue Paused'
+                else:                                  
+                    self.task = self.tasks.popleft()     #### Otherwise, dequeue next task
                 self.connectSignals(self.task)
                 self.setTaskData(self.task)
                 self.task.name += '*'
             except IndexError:
                 # self.taskData.clear()
                 logger.info('Completed all pending tasks')
-        
+    
         self.layoutChanged.emit()  
-
-
 
     @pyqtSlot(QTask)
     def dequeueTask(self, task):
@@ -145,9 +156,22 @@ class QTaskmanager(QAbstractListModel):
         else:
             self.getTaskData(task)
             self.bgtasks.remove(task)    
-        self.parent().TaskPropertiesLayout.removeWidget(task._widget)
+        self.parent().TaskPropertiesLayout.removeWidget(task.widget)
         self.layoutChanged.emit()  
-        
+    
+    @pyqtSlot(QTask)
+    def moveToBackground(self, task):
+        if task is self.task:
+            self.task = None
+        else:
+            try:
+                self.tasks.remove(task)
+            except IndexError:
+                logger.warn('Failed to move task from queue to background')
+                return
+        self.bgtasks.append(task)
+        self.queueTask()
+            
     @pyqtProperty(bool)
     def paused(self):
         return self._paused
@@ -158,7 +182,6 @@ class QTaskmanager(QAbstractListModel):
         self.sigPause.emit(self._paused)
         self.layoutChanged.emit()
 
-
     def pauseTasks(self):
         """Toggle the pause state of the task manager"""
         self.paused = not self.paused
@@ -168,15 +191,15 @@ class QTaskmanager(QAbstractListModel):
         self.tasks.clear()
         self.bgtasks.clear()
         self.layoutChanged.emit()
-           
-    
+        
+        
     def taskAt(self, index):
         tasksLen = len(self.tasks)
         bgLen = len(self.bgtasks)
         if index < bgLen:
             return self.bgtasks[index]
         elif index < bgLen + tasksLen:
-            return self.tasks[index - bgLen]
+            return self.tasks[tasksLen + bgLen - index - 1]
         elif index == bgLen + tasksLen:
             return self.task
         else:
@@ -217,35 +240,9 @@ class QTaskmanager(QAbstractListModel):
         print(task.__dict__)
 #        print(task._widget.__dict__)
 #        print(task._widget.ui.__dict__)        
-        self.parent().TaskPropertiesLayout.setCurrentWidget(task._widget)
+        self.parent().TaskPropertiesLayout.setCurrentWidget(task.widget)
             
-
-class defaultTaskUi(object):
-    def __init__(self, task):
-        self.task = task
-        
-    def setupUi(self, wid):
-        self.layout = QFormLayout(wid)       
-        keys = self.task.taskProperties()
-        keys.remove('nframes'); keys.append('nframes');  ## Move common properties to the top of the form
-        keys.remove('skip'); keys.append('skip');
-        keys.remove('delay'); keys.append('delay'); 
-        for key in ['register', 'name', '_blocking', '_initialized', '_frame', '_data', '_busy']:
-            keys.remove(key)
-
-#         if 'traps' in keys:
-#             keys.remove('traps')
-#             self.promptTraps()
-            
-        keys.reverse()    
-        for key in keys:
-            label = QLabel()
-            label.setText(key)
-            lineEdit = QLineEdit()
-            lineEdit.setText(str(getattr(self.task, key)))
-            lineEdit.setObjectName(key)
-            setattr(self, key, lineEdit)
-            self.layout.addRow(label, lineEdit)
+    
             
 #class QLinePropEdit(QLineEdit):
 #    def __init__(self, task, prop, **kwargs):
