@@ -17,7 +17,7 @@ class Move(QTask):
     ----------
     traps: list of QTraps       (or QTrapGroup)
         traps to move. If None (default), then use the traps from pyfab's QTrappingPattern
-    trajectories: list of list of tuples (x y, x). 
+    trajectories: list of list of tuples (x y, z). 
         On frame n, process() moves trap to trajectories[trap][n]
     smooth : bool 
         If True, perform scipy interpolation to smooth trajectories (see 'interpolate' below). Default false.
@@ -79,12 +79,17 @@ class Move(QTask):
             logger.info('resetting traps using trajectory keys')
             self.traps = list(trajectories.keys())
             trajectories = list(trajectories.values())
-        if not isinstance(trajectories, list):
-            logger.warning('trajectories must be dict or list; setting to empty')
+        # if not isinstance(trajectories, list):
+        #     logger.warning('trajectories must be dict or list; setting to empty')
+        #     self._trajectories = [[] for trap in self.traps]
+        if trajectories is None:
+            logger.warning('trajectories is None; setting to empty')
             self._trajectories = [[] for trap in self.traps]
         elif len(trajectories) != len(self.traps): 
             logger.warning('number of trajectories {} does not match number of traps {}'.format(len(trajectories), len(self.traps)))
             self._trajectories = [traj.copy() for traj in trajectories]
+        elif not all( [len(np.shape(traj))==2 and np.shape(traj)[1]==3 for traj in trajectories] ):
+            logger.warning('trajectories have wrong dimensions')
         else:
             logger.info('adding {} trajectories'.format(len(trajectories)))
             self._trajectories = trajectories
@@ -155,15 +160,6 @@ class Move(QTask):
 
         self.paths = [[] for traj in self.trajectories]
         
-
-#         if self.filename is None:
-#             return
-#         with open('/home/group/python/pyfab/tasks/data/trajectories' + self.filename +'.json', 'w') as f:
-#             json.dump(save, f)
-# #             self.data()['trajectories'] = save
-# #         self.Time = time()
-    
-    
     def process(self, frame):
         logger.info('moving frame {} of {}'.format(self._frame, self.nframes))      
 #         start = time()

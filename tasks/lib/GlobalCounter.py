@@ -23,11 +23,12 @@ logger.setLevel(logging.INFO)
 
 class GlobalCounter(QTask):
 
-    def __init__(self, nframes=30, **kwargs):
+    def __init__(self, nframes=30, unblock=-1, **kwargs):
         super(GlobalCounter, self).__init__(nframes=nframes, **kwargs)
 #         self._blocking = False
         self.lag = 0.
         self.globalframe=0;
+        self.unblock = unblock
     
     def initialize(self, frame):
         sleep(self.lag)
@@ -37,6 +38,9 @@ class GlobalCounter(QTask):
 #         self.myframes.append(Frame(image=frame, framenumber=self._frame))
         print('frame number {}'.format(self.globalframe))
         self.globalframe += 1
+        if self.unblock==self._frame:
+            print('unblocking at frame {}'.format(self._frame))
+            self.blocking=False
 #          sleep(0.5)
               
     def complete(self):

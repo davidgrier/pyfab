@@ -1,0 +1,1 @@
+[{"_paused": false, "_stepSize": 2.0, "counter": 0, "delay": 5, "dr": [0.0, 0.0, -10.0], "filename": null, "nframes": 0, "skip": 1, "smooth": false, "name": "SmoothTranslate"}, {"_paused": false, "delay": 15, "fn": "moverecordz_{}.avi", "nframes": 20, "skip": 1, "stopVideo": true, "unblock": false, "name": "Record"}]
