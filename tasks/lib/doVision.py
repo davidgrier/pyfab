@@ -2,6 +2,7 @@
 
 from ..QTask import QTask
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
+from PyQt5.QtWidgets import QWidget
 
 import ujson as json
 import numpy as np
@@ -18,7 +19,7 @@ from CNNLorenzMie.crop_feature import crop_frame, est_crop_frame
 
 
 #### Converts the input frames to pylorenzmie Frames, sends them out in a signal, and keeps them in a Video
-    
+
 class doVision(QTask):
     
     keras_head_path = '/home/jackie/Desktop/CNNLorenzMie/keras_models/predict_stamp_best'
@@ -27,28 +28,29 @@ class doVision(QTask):
     sigLocalizerChanged = pyqtSignal(object)    
     sigFiltererChanged = pyqtSignal(object)        
     sigEstimatorChanged = pyqtSignal(object)    
-    sigBBoxes = pyqtSignal(list)
+    # sigRealTime = pyqtSignal(int)
+    # sigPost = pyqtSignal(list)
+    sigRealTime = pyqtSignal(Frame)
+    sigPost = pyqtSignal(list)
     def __init__(self, **kwargs):
         super(doVision, self).__init__(**kwargs)
         self._blocking = False
-        # self.delay = 10
+        self.source = 'vision'
         
         self.initializeSettings()        
         self.rtframes = []
         self.ppframes = []
+        self.widget = QWidget()
             
               
     def initialize(self, frame):
         self.localizer = None    #### Call localizer and estimator setters
         self.estimator = None
-#         self.parent().tasks.source.sigNewFrame.disconnect(self.handleTask)
-
     
     @pyqtSlot(Frame)
     def handleTask(self, frame):        
         if self._frame % self.skip != 0:      #### Put all 'skipped' frames from process into a list for post-processing
             self.ppframes.append(frame)         #### This works since _frame=0 before initialization and 0%skip==0
-#            self.ppframes.append(self._frame)    
         super(doVision, self).handleTask(frame)
     
     def process(self, frame):
@@ -60,23 +62,30 @@ class doVision(QTask):
         # print(list(range(0, pp)))
         self.predict(frame, 0, rt)
         self.rtframes.append(frame)
+        # self.sigRealTime(frame.framenumber)
+        self.sigRealTime.emit(frame)
 #        self.rtframes.append(self._frame)
 #        print(frame.__dict__)
 
    
     def complete(self):
         rt, pp = self.pipelineSettings()
-        for frame in self.rtframes:
-            self.predict(frame, rt, pp)   
+        # framenumbers = []
         for frame in self.ppframes:
             self.predict(frame, 0, pp)
-      
-    
+            # framenumbers.append(frame.framenumber)
+        for frame in self.rtframes:
+            self.predict(frame, rt, pp)   
+            # framenumbers.append(frame.framenumber)
+        # self.sigPost(framenumbers)
+        self.ppframes.extend(self.rtframes)
+        self.sigPost.emit(self.ppframes)
+        
     def predict(self, frame, start, end):
         for i in range(start, end):
             if i==0: 
                 self.localizer.predict(frame)
-                self.sigBBoxes.emit([bbox for bbox in frame.bboxes if bbox is not None])
+                # self.sigBBoxes.emit([bbox for bbox in frame.bboxes if bbox is not None])
                 continue
             if i==1:
                 self.filter(frame); continue;
@@ -100,7 +109,6 @@ class doVision(QTask):
     def localizer(self, localizer):
         self._localizer = localizer or Localizer('tinyholo', weights='_500k')
         self.sigLocalizerChanged.emit(self.localizer)
-   
     @property
     def estimator(self):
         return self._estimator

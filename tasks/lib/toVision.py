@@ -20,25 +20,20 @@ class toVision(QTask):
     sigNewFrame = pyqtSignal(Frame)
     def __init__(self, nframes=1e6, path=None, **kwargs):
         super(toVision, self).__init__(nframes=nframes, **kwargs)
+        self.source = 'screen'
         self._blocking = False
         self._paused = True
+        
         path = path or self.parent().dvr.filename
         print(path)
         self.video = Video(path=path)
-        self.widget = QVision(parent=None, source=self)
-   
-    def initialize(self, frame):
-        frame = None   ## The first frame is from the camera, so ignore it
-        self.screen = self.parent().screen
-        self.screen.source.sigNewFrame.disconnect(self.handleTask)          ## disconnect from camera and connect to screen (to allow normalization using sample and hold)
-        self.screen.sigNewFrame.connect(self.handleTask)                    ## note: pyfab.tasks.source = pyfab.screen.source
+        self.widget = QVision(parent=None, vision=self)
         
     def process(self, frame):
         if frame is None: 
             return
         plmframe = Frame(framenumber=self._frame, path=self.video.path, image=frame)
         plmframe = self.video.set_frame(frame=plmframe, framenumber=self._frame)
-#        print(plmframe.__dict__)
         self.sigNewFrame.emit(plmframe)
    
     def complete(self):

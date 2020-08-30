@@ -40,6 +40,7 @@ class QTask(QObject):
 
     def __init__(self, delay=0, nframes=0, skip=1, paused=False, blocking=True, **kwargs):
         super(QTask, self).__init__(**kwargs)
+        self.source = 'camera'
         self._blocking = blocking
         self.delay = delay
         self.nframes = nframes
@@ -71,8 +72,9 @@ class QTask(QObject):
 
     def shutdown(self):
         """Clean up resources"""
-        logger.debug('Cleaning up')
-
+        # logger.debug('Cleaning up')
+        pass
+    
     def setData(self, data):
         self._data = data or dict()
 
@@ -89,6 +91,7 @@ class QTask(QObject):
             self._blocking = False
             self.sigUnblocked.emit()
 
+    @pyqtSlot(list)
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
         logger.debug('Handling Task')
@@ -122,7 +125,8 @@ class QTask(QObject):
         self._busy = True
         self.complete()
         self.stop()
-
+        
+        
     @pyqtSlot(bool)
     def pause(self, state):
         self._paused = state

@@ -4,14 +4,13 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
 #from .QVisionWidget4 import Ui_QVisionWidget
 from common.QMultiSettingsWidget import QMultiSettingsWidget
 from tasks.lib.doVisionWidget import Ui_doVisionWidget
-from tasks.lib.doVision import doVision as Vision
+from tasks.lib.doVision import doVision as DO
 
 import sys
 sys.path.append('/home/jackie/Desktop')
 #sys.path.append('/home/group/python/')
 
 from pylorenzmie.analysis import Video, Frame
-#from pylorenzmie.analysis.Frame2 import Frame
 
 import numpy as np
 import pyqtgraph as pg
@@ -34,41 +33,42 @@ logger.setLevel(logging.INFO)
    
 """
     
-class QVision(QMultiSettingsWidget):
+class QVision(QMultiSettingsWidget):    
 
-    def __init__(self, parent=None, source=None, **kwargs):
+    def __init__(self, parent=None, vision=None, **kwargs):
         self.ui=Ui_doVisionWidget()
         super(QVision, self).__init__(parent=parent, ui=self.ui, include=['_paused', 'SRC_paused'], **kwargs)        
-            
-        self.source = source        
-        self.setDevice('SRC', self.source)
-#        self.tasks = source.parent().tasks
-        self.screen = source.parent().screen
+                
+        self.setDevice('SRC', vision)
+        self.screen = vision.parent().screen
+        self.tasks = vision.parent().tasks
+        self.tasks.sources['vision'] = vision.sigNewFrame
         
-        self.device = Vision(nframes=100)
+        self.device = DO(nframes=100)
         self.device.name = 'doVision'
+        self.tasks.sources['realtime'] = self.device.sigRealTime
+        self.tasks.sources['post'] = self.device.sigPost
         
         self.connectUiSignals()
         self.updateUi()
         
         self.rois = None
         self.pen = pg.mkPen(color='b', width=5)
-    
             
     @pyqtSlot()
     def start(self):
-        if self.source is None:
-            return
-        else:
-            self.device._frame = 0
-        self.source.sigNewFrame.connect(self.device.handleTask)
+        self.device._frame = 0
+        print('frame=0')
+        # self.devices['SRC'].sigNewFrame.connect(self.device.handleTask)
+        self.tasks.queueTask(self.device)
         # print(self.device.__dict__)
         self.ui.bstart.setEnabled(False)
         self.ui.bstop.setEnabled(True)       
      
     @pyqtSlot()
     def stop(self):
-        self.source.sigNewFrame.disconnect(self.device.handleTask)
+        self.device.stop()
+        # self.devices['SRC'].sigNewFrame.disconnect(self.device.handleTask)
         self.ui.bstart.setEnabled(True)
         self.ui.bstop.setEnabled(False)
     
@@ -88,15 +88,15 @@ class QVision(QMultiSettingsWidget):
     def connectUiSignals(self):
         self.device.sigLocalizerChanged.connect(lambda x: self.setDevice('LOC', x))
         self.device.sigEstimatorChanged.connect(lambda x: self.setDevice('EST', x))
-        self.device.sigEstimatorChanged.connect(self.source.setInstrument)
-        self.device.sigDone.connect(self.stop)
+        self.device.sigEstimatorChanged.connect(self.devices['SRC'].setInstrument)
+        # self.device.sigDone.connect(self.stop)
         # self.device.sigBBoxes.connect(self.draw)
-        # self.source.sigNewFrame.connect(self.remove)
-        self.device.sigBBoxes.connect(self.redraw)
+        # self.devices['SRC'].sigNewFrame.connect(self.remove)
+        self.device.sigRealTime.connect(self.redraw)
                 
         self.ui.bstart.clicked.connect(self.start)
         self.ui.bstop.clicked.connect(self.stop)
-        self.ui.bsave.clicked.connect(self.source.write)
+        self.ui.bsave.clicked.connect(self.devices['SRC'].write)
         
         self.toggleContinuous(2)
         self.ui.continuous.stateChanged.connect(self.toggleContinuous)
@@ -114,14 +114,15 @@ class QVision(QMultiSettingsWidget):
 #         self.configurePlots()
 #         self.configureChildUi()
     
-    @pyqtSlot(list)
-    def draw(self, bboxes):
+    @pyqtSlot(Frame)
+    def draw(self, frame):
         rois = []
-        for bbox in bboxes:
-            x, y, w, h = bbox
-            roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
-            self.source.screen.addOverlay(roi)
-            rois.append(roi)
+        for bbox in frame.bboxes:
+            if bbox is not None:
+                x, y, w, h = bbox
+                roi = pg.RectROI([x-w//2, y-h//2], [w, h], pen=self.pen)
+                self.screen.addOverlay(roi)
+                rois.append(roi)
         self.rois = rois
         return rois
     
@@ -130,14 +131,14 @@ class QVision(QMultiSettingsWidget):
         rois = self.rois
         if rois is not None:
             for rect in rois:
-                self.source.screen.removeOverlay(rect)
+                self.screen.removeOverlay(rect)
     
 
 
-    @pyqtSlot(list)
-    def redraw(self, bboxes):
+    @pyqtSlot(Frame)
+    def redraw(self, frame):
         self.remove()
-        self.draw(bboxes)
+        self.draw(frame)
 
 
 

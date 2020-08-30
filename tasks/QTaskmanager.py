@@ -39,13 +39,13 @@ class QTaskmanager(QAbstractListModel):
 
     def __init__(self, parent=None):
         super(QTaskmanager, self).__init__(parent)
-        self.source = self.parent().screen.source
+        self.sources = {'camera': self.parent().screen.source.sigNewFrame, 'screen': self.parent().screen.sigNewFrame}
         self.task = None
         self.taskData = dict()
         self.tasks = deque()
         self.bgtasks = []
         self._paused = False
-
+    
     def registerTask(self, taskname, blocking=True, **kwargs):
         """Places the named task into the task queue."""
         if isinstance(taskname, str):
@@ -78,15 +78,20 @@ class QTaskmanager(QAbstractListModel):
 
         self.sigPause.connect(task.pause)
         self.sigStop.connect(task.stop)
-        self.source.sigNewFrame.connect(task.handleTask)
-
-    def disconnectSignals(self, task):
         try:
-            self.source.sigNewFrame.disconnect(task.handleTask)
-        except AttributeError:
-            logger.warn('could not disconnect signals')
-#        except TypeError:
-#            logger.warn('signal already disconnected')
+            self.sources[task.source].connect(task.handleTask)
+        except KeyError:
+            logger.warn('Connect failed: PyFab has no source named {}'.format(task.source))
+                
+    def disconnectSignals(self, task):
+            try:
+                self.sources[task.source].disconnect(task.handleTask)
+            except KeyError:
+                logger.warn('Connect failed: PyFab has no source named {}'.format(task.source))
+            except AttributeError:
+                logger.warn('could not disconnect signals')
+            # except TypeError:
+            #     logger.warn('signal already disconnected')
 
     def setTaskData(self, task):
         attrs = []
