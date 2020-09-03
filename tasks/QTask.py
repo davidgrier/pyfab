@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QFormLayout
 
 from common.QSettingsWidget import QSettingsWidget 
 
+from .DefaultTaskWidget import Ui_DefaultTaskWidget
+
 import numpy as np
 import json
 
@@ -86,6 +88,8 @@ class QTask(QObject):
         if self.blocking and not blocking:
             self._blocking = False
             self.sigUnblocked.emit()
+            self.widget._blocking.setEnabled(False)
+            self.widget.updateUi()
 
     @pyqtSlot(list)
     @pyqtSlot(np.ndarray)
@@ -126,7 +130,11 @@ class QTask(QObject):
     @pyqtSlot(bool)
     def pause(self, state):
         self._paused = state
-
+        try:
+            self.widget.updateUi()
+        except AttributeError:
+            pass
+        
     @pyqtSlot()
     def stop(self):
         self.shutdown()
@@ -144,19 +152,19 @@ class QTask(QObject):
     
     def setDefaultWidget(self):
         #### If self.widget is replaced by subclass, do we need to worry about properly deleting it? (i.e. deleteLater()) 
-        self.widget = QSettingsWidget(parent=None, device=self, ui=defaultTaskUi(self), include=list(self.__dict__.keys()))   
+        self.widget = QSettingsWidget(parent=None, device=self, ui=TaskUi(self), include=list(self.__dict__.keys()))  
         
-class defaultTaskUi(object):
+class TaskUi(Ui_DefaultTaskWidget):        
     def __init__(self, task):
+        super(TaskUi, self).__init__()
         self.task = task
         
     def setupUi(self, wid):
-        self.layout = QFormLayout(wid)       
+        super(TaskUi, self).setupUi(wid)
+        self.layout = QFormLayout(self.settingsView)       
         keys = list(self.task.__dict__.keys())
-        keys.remove('nframes'); keys.append('nframes');  ## Move common properties to the top of the form
-        keys.remove('skip'); keys.append('skip');
-        keys.remove('delay'); keys.append('delay'); 
-        for key in ['register', 'name', 'widget', '_blocking', '_initialized', '_frame', '_data', '_busy']:
+
+        for key in ['nframes', 'skip', 'delay', 'register', 'name', 'widget', '_blocking', '_initialized', '_frame', '_data', '_paused', '_busy']:
             keys.remove(key)
         for key in ['_traps', '_trajectories']:
             if key in keys:

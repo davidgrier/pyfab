@@ -114,16 +114,11 @@ class QTaskmanager(QAbstractListModel):
         """Add task to queue and activate next queued task if necessary"""
         if task:    
             self.parent().TaskPropertiesLayout.addWidget(task.widget)
-#             index = len(self.bgtasks) + len(self.tasks) if task.blocking else len(self.bgtasks)
             if task.blocking:
-#                 self.beginInsertRows(QModelIndex(), index, index))
                 self.tasks.append(task)             
-#                 self.endInsertRows()
                 logger.debug('Queuing blocking task')
             else:
-#                 self.beginInsertRows(QModelIndex(), index, index)
                 self.bgtasks.append(task)
-#                 self.endInsertRows()
                 self.connectSignals(task)
                 self.setTaskData(task)
                 logger.debug('Starting background task')
@@ -228,7 +223,7 @@ class QTaskmanager(QAbstractListModel):
     def rowCount(self, index):
         return len(self.tasks)+len(self.bgtasks)+1
     
-    @pyqtSlot()
+    @pyqtSlot()   #### Toggle pause for all selected tasks
     def toggleSelected(self):
         tasks = [self.taskAt(index.row()) for index in self.parent().TaskManagerView.selectedIndexes()]
         state = all([task._paused for task in tasks])
@@ -236,55 +231,25 @@ class QTaskmanager(QAbstractListModel):
             task._paused = not state
         self.layoutChanged.emit()
         
-  
-        
-    #### Double-clicking toggles pause
-    @pyqtSlot()
+    @pyqtSlot()   #### Toggle pause for current task
     def toggleCurrent(self):
         task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
         if task is None: return
         task._paused = not task._paused
         self.layoutChanged.emit()
   
-    @pyqtSlot()
+    @pyqtSlot()   #### Dequeue all selected tasks
     def removeSelected(self):
         for index in self.parent().TaskManagerView.selectedIndexes():
             self.dequeueTask(self.taskAt(index.row()))
         self.layoutChanged.emit()
-######  Code which sets up the property display widget. (This might be able to go to another file later)  ####
-    @pyqtSlot()    
+
+    @pyqtSlot()    #### Switch the task properties widget to that of the selected task
     def displayProperties(self):
         task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
         if task is None: return
         print(task.__dict__)
-#        print(task._widget.__dict__)
-#        print(task._widget.ui.__dict__)        
+
         self.parent().TaskPropertiesLayout.setCurrentWidget(task.widget)
             
-    
-            
-#class QLinePropEdit(QLineEdit):
-#    def __init__(self, task, prop, **kwargs):
-#        super(QLinePropEdit, self).__init__(**kwargs)
-#        self.prop = prop
-#        self.setTask(task)
-#        self.returnPressed.connect(self.updateReady)
-#
-#    @pyqtSlot()
-#    def updateReady(self):
-#        self.update()
-#   
-#    def setTask(self, task):
-#        self.update = lambda: setattr(task, self.prop, eval(self.text()))
-    
-#### We need to read the string into the correct type. One option is to type-cast using the current value, but this can throw 
-#### errors if variables are initialized to "None" or for more complicated types, like tuples
-#         attr = task.getattr(self.prop)
-#         if attr is not None:
-#             self.update = lambda: setattr(task, self.prop, type(attr)(self.text())
-
-#### Use of eval is convenient to allow more complex type casting (i.e. tuples, lists, arrays, etc) but will throw a nasty error
-#### if the user input has wrong syntax. (Also, this type of statement seems really sketchy security-wise; probably not best
-#### practice if you're building a popular app that you don't want to get hacked)            
-#         self.update = lambda: setattr(task, self.prop, eval(self.text()))
-        
+ 

@@ -60,9 +60,7 @@ class Assemble(Move):
         elif type(targets) is dict:
             self._targets = dict(targets)
         else:
-            print(targets)
             targets = list(targets)
-            print(targets)
             logger.info("Pairing traps to targets")
             if len(self.traps) == len(targets):
 #                 self.parent().screen.source.blockSignals(True)

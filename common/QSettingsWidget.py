@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, QTimer)
-from PyQt5.QtWidgets import (QFrame, QComboBox, QSpinBox,
+from PyQt5.QtWidgets import (QFrame, QLabel, QComboBox, QSpinBox,
                              QDoubleSpinBox, QCheckBox, QRadioButton,
                              QPushButton, QLineEdit, QGroupBox)
 import inspect
@@ -169,6 +169,8 @@ class QSettingsWidget(QFrame):
             wid.setChecked(value)
         elif isinstance(wid, QPushButton):
             pass
+        elif isinstance(wid, QLabel):   ## Label will display property but is non-interactive
+            wid.setText(str(value))
         elif isinstance(wid, QLineEdit):
             wid.setText(str(value))
         else:
@@ -216,7 +218,12 @@ class QSettingsWidget(QFrame):
         logger.debug('Updating: {}: {}'.format(name, value))
         if value is None:
             logger.warning('interpreting String input from QLineEdit using eval()')
-            value = eval(self.sender().text())
+            try:
+                value = eval(self.sender().text())
+            except NameError:
+                value = self.sender().text()
+            except SyntaxError:
+                value = self.sender().text()
         self._setDeviceProperty(name, value)
 
     @pyqtSlot(bool)
