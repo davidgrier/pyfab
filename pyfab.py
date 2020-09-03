@@ -58,6 +58,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         # Process automation
         self.tasks = QTaskmanager(self)
         self.TaskManagerView.setModel(self.tasks)
+        self.TaskManagerView.setSelectionMode(3)
 
 #         Setup vision tab
 #        try:
@@ -119,12 +120,14 @@ class PyFab(QMainWindow, Ui_PyFab):
             lambda: self.setDvrSource(self.screen))
         
         self.bpausequeue.clicked.connect(self.pauseTasks)
+        self.bpausesel.clicked.connect(self.tasks.toggleSelected)
         self.bclearqueue.clicked.connect(self.stopTasks)
+        self.bclearsel.clicked.connect(self.tasks.removeSelected)
         self.bserialize.clicked.connect(lambda: self.tasks.serialize(self.experimentPath.text()))
         self.bdeserialize.clicked.connect(lambda: self.tasks.registerTask('QExperiment', info = self.experimentPath.text(), loop=self.loop.value()))
         
         self.TaskManagerView.clicked.connect(self.tasks.displayProperties)
-        self.TaskManagerView.doubleClicked.connect(self.tasks.toggleSelected)
+        self.TaskManagerView.doubleClicked.connect(self.tasks.toggleCurrent)
 
         # Signals associated with handling images
         newframe = self.screen.source.sigNewFrame

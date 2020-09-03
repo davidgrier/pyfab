@@ -25,7 +25,7 @@ class toVision(QTask):
         self._paused = True
         
         path = path or self.parent().dvr.filename
-        print(path)
+
         self.video = Video(path=path)
         self.widget = QVision(parent=None, vision=self)
         
@@ -34,11 +34,11 @@ class toVision(QTask):
             return
         plmframe = Frame(framenumber=self._frame, path=self.video.path, image=frame)
         plmframe = self.video.set_frame(frame=plmframe, framenumber=self._frame)
+        self.widget.ui.FramesView.model().layoutChanged.emit()
         self.sigNewFrame.emit(plmframe)
    
     def complete(self):
         self.sigNewFrame.disconnect()
-
 
     @pyqtSlot(object)
     def setInstrument(self, instrument):
@@ -47,11 +47,10 @@ class toVision(QTask):
     @pyqtSlot()
     def write(self):
         self._busy = True
-        self.video.serialize(save=True, omit_feat=['data'])
+        self.video.serialize(save=True, omit_feat=['data'], framenumbers=self.widget.ui.SelectedFramesView.model().framenumbers)
         self._busy = False         
         
-    
-    
+        
 #    @pyqtSlot(list)
 #    def writeFrames(self, indices=None):
 #        self._busy = True

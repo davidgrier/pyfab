@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
-#from .QVisionWidget4 import Ui_QVisionWidget
+# from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QAbstractTableModel, QAbstractListModel, Qt)
 from common.QMultiSettingsWidget import QMultiSettingsWidget
 from tasks.lib.doVisionWidget import Ui_doVisionWidget
-from tasks.lib.doVision import doVision as DO
+from tasks.lib.doVision import doVision 
 
 import sys
 sys.path.append('/home/jackie/Desktop')
 #sys.path.append('/home/group/python/')
 
-from pylorenzmie.analysis import Video, Frame
+from pylorenzmie.analysis import Frame
 
 import numpy as np
 import pyqtgraph as pg
@@ -20,6 +20,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 # logger.setLevel(logging.DEBUG)
+
 
 
 """  QVision manages the GUI for real-time particle tracking. Vision has a source, an estimator+localizer
@@ -44,34 +45,37 @@ class QVision(QMultiSettingsWidget):
         self.tasks = vision.parent().tasks
         self.tasks.sources['vision'] = vision.sigNewFrame
         
-        self.device = DO(nframes=100)
+        self.ui.FramesView.setModel( Model1(video=vision.video) )
+        self.ui.FramesView.setSelectionMode(3)
+        self.ui.SelectedFramesView.setModel( Model2(video=vision.video) )
+        
+        self.device = doVision(nframes=100)
         self.device.name = 'doVision'
         self.tasks.sources['realtime'] = self.device.sigRealTime
         self.tasks.sources['post'] = self.device.sigPost
-        
+
         self.connectUiSignals()
         self.updateUi()
         
         self.rois = None
         self.pen = pg.mkPen(color='b', width=5)
-            
+           
+    @pyqtSlot()    
+    @pyqtSlot(bool)
+    def toggleStart(self, running=False):
+        self.ui.bstart.setEnabled(not running)
+        self.ui.bstop.setEnabled(running)   
+        
     @pyqtSlot()
     def start(self):
         self.device._frame = 0
+        self.device._busy = False
         print('frame=0')
         # self.devices['SRC'].sigNewFrame.connect(self.device.handleTask)
         self.tasks.queueTask(self.device)
+        self.toggleStart(True)
         # print(self.device.__dict__)
-        self.ui.bstart.setEnabled(False)
-        self.ui.bstop.setEnabled(True)       
-     
-    @pyqtSlot()
-    def stop(self):
-        self.device.stop()
-        # self.devices['SRC'].sigNewFrame.disconnect(self.device.handleTask)
-        self.ui.bstart.setEnabled(True)
-        self.ui.bstop.setEnabled(False)
-    
+           
     @pyqtSlot(int)
     def toggleContinuous(self, state):
         if state==0:
@@ -83,19 +87,21 @@ class QVision(QMultiSettingsWidget):
             self.ui.nframes.setEnabled(False)
         self.updateUi()
    
-        
-            
-    def connectUiSignals(self):
+    def connectUiSignals(self):       
         self.device.sigLocalizerChanged.connect(lambda x: self.setDevice('LOC', x))
         self.device.sigEstimatorChanged.connect(lambda x: self.setDevice('EST', x))
         self.device.sigEstimatorChanged.connect(self.devices['SRC'].setInstrument)
-        # self.device.sigDone.connect(self.stop)
+        self.device.sigDone.connect(self.toggleStart)
         # self.device.sigBBoxes.connect(self.draw)
-        # self.devices['SRC'].sigNewFrame.connect(self.remove)
         self.device.sigRealTime.connect(self.redraw)
                 
         self.ui.bstart.clicked.connect(self.start)
-        self.ui.bstop.clicked.connect(self.stop)
+        self.ui.bstop.clicked.connect(self.device.stop)
+ 
+        view = self.ui.FramesView
+        model = self.ui.SelectedFramesView.model()
+        view.clicked.connect(lambda: model.setFramenumbers( [model.video.framenumbers[index.row()] for index in view.selectedIndexes()]))
+ 
         self.ui.bsave.clicked.connect(self.devices['SRC'].write)
         
         self.toggleContinuous(2)
@@ -142,7 +148,74 @@ class QVision(QMultiSettingsWidget):
 
 
 
+class Model1(QAbstractListModel):
+    def __init__(self, video=None, **kwargs):
+        super(Model1, self).__init__(**kwargs)
+        self.video = video
+        
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            frame = self.video.frames[index.row()]
+            return 'Frame {}   |   {} Features'.format(frame.framenumber, len(frame.bboxes))
+            
+    def rowCount(self, index):
+        return len(self.video.frames)    
 
+
+ 
+class Model2(QAbstractTableModel):
+    def __init__(self, video=None, framenumbers=[], **kwargs):
+        super(Model2, self).__init__(**kwargs)
+        self.video = video
+        self.setFramenumbers(framenumbers)
+        self.columns = ['frame', 'bbox', 'r_p', 'a_p', 'n_p']
+    
+    @property 
+    def framenumbers(self):
+        return self._framenumbers
+    
+    @pyqtSlot(list)
+    def setFramenumbers(self, fnums):
+        self._framenumbers = fnums
+        self.indices = []
+        for i, frame in enumerate(self.video.get_frames(fnums)):
+            for j in range(len(frame.features)):
+                self.indices.append((i, j))
+        self.layoutChanged.emit()
+    
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            i, j = self.indices[index.row()]
+            frame = self.video.get_frame(self.framenumbers[i])
+            col = index.column()
+            if col==0: 
+                return frame.framenumber
+            elif col==1: 
+                return str(frame.bboxes[j])
+            else:
+                feature = frame.features[j]
+            if feature.model is None: 
+                return 'N/A'
+            elif col==2: 
+                return '({}, {}, {})'.format(feature.model.particle.x_p, feature.model.particle.y_p, feature.model.particle.z_p)
+            elif col==3:
+                return feature.model.particle.a_p
+            elif col==4:
+                return feature.model.particle.n_p
+            
+    def headerData(self, section, orientation, role):
+    # section is the index of the column/row.
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.columns[section]
+        
+            # if orientation == Qt.Vertical:
+            #     return str(self._data.index[section])
+    def rowCount(self, index):
+        return len(self.indices)
+    
+    def columnCount(self, index):
+        return 5
 
 
 

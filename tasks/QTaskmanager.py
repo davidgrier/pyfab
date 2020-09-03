@@ -228,15 +228,29 @@ class QTaskmanager(QAbstractListModel):
     def rowCount(self, index):
         return len(self.tasks)+len(self.bgtasks)+1
     
-    
-    #### Double-clicking toggles pause
     @pyqtSlot()
     def toggleSelected(self):
+        tasks = [self.taskAt(index.row()) for index in self.parent().TaskManagerView.selectedIndexes()]
+        state = all([task._paused for task in tasks])
+        for task in tasks:
+            task._paused = not state
+        self.layoutChanged.emit()
+        
+  
+        
+    #### Double-clicking toggles pause
+    @pyqtSlot()
+    def toggleCurrent(self):
         task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
         if task is None: return
         task._paused = not task._paused
         self.layoutChanged.emit()
-    
+  
+    @pyqtSlot()
+    def removeSelected(self):
+        for index in self.parent().TaskManagerView.selectedIndexes():
+            self.dequeueTask(self.taskAt(index.row()))
+        self.layoutChanged.emit()
 ######  Code which sets up the property display widget. (This might be able to go to another file later)  ####
     @pyqtSlot()    
     def displayProperties(self):
