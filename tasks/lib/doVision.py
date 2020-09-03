@@ -28,8 +28,7 @@ class doVision(QTask):
     sigLocalizerChanged = pyqtSignal(object)    
     sigFiltererChanged = pyqtSignal(object)        
     sigEstimatorChanged = pyqtSignal(object)    
-    # sigRealTime = pyqtSignal(int)
-    # sigPost = pyqtSignal(list)
+
     sigRealTime = pyqtSignal(Frame)
     sigPost = pyqtSignal(list)
     def __init__(self, **kwargs):
@@ -57,15 +56,10 @@ class doVision(QTask):
 #        frame.instrument = self.estimator.instrument
         rt, pp = self.pipelineSettings()
         print("rt={}, pp={}".format(rt, pp))
-        # print(list(range(0, rt)))
-        # print(list(range(rt, pp)))
-        # print(list(range(0, pp)))
+
         self.predict(frame, 0, rt)
         self.rtframes.append(frame)
-        # self.sigRealTime(frame.framenumber)
         self.sigRealTime.emit(frame)
-#        self.rtframes.append(self._frame)
-#        print(frame.__dict__)
 
    
     def complete(self):
@@ -165,7 +159,3 @@ class doVision(QTask):
 
         return rt, max(rt, pp)    #### If rt>pp, use realtime setting instead. (note: condsider removing this)
         
-
-        
-        
-                

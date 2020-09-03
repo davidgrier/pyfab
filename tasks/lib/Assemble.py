@@ -42,12 +42,6 @@ class Assemble(Move):
         self.aim(self.traps)
         super(Assemble, self).initialize(frame)
         
-    def complete(self):
-        logger.info('completed')
-        for i, trap in enumerate(self.traps):
-            logger.info('trap {} is now at {}; target was {}'.format(trap.index, (trap.x, trap.y, trap.z), self.targets[trap]))
-        super(Assemble, self).complete()
-
 
     #
     # Setters for user interaction

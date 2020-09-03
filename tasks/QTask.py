@@ -53,10 +53,6 @@ class QTask(QObject):
         
         self.register = None if self.parent() is None else self.parent().tasks.registerTask 
         self.widget = None
-        
-    def setDefaultWidget(self):
-        #### If self.widget is replaced by subclass, do we need to worry about properly deleting it? (i.e. deleteLater()) 
-        self.widget = QSettingsWidget(parent=None, device=self, ui=defaultTaskUi(self), include=list(self.__dict__.keys())) 
     
     def initialize(self, frame):
         """Perform initialization operations"""
@@ -144,6 +140,11 @@ class QTask(QObject):
             with open('tasks/experiments/'+filename, 'w') as f:
                 json.dump(info, f)
         return info    
+   
+    
+    def setDefaultWidget(self):
+        #### If self.widget is replaced by subclass, do we need to worry about properly deleting it? (i.e. deleteLater()) 
+        self.widget = QSettingsWidget(parent=None, device=self, ui=defaultTaskUi(self), include=list(self.__dict__.keys()))   
         
 class defaultTaskUi(object):
     def __init__(self, task):

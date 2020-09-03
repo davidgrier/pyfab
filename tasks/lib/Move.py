@@ -27,8 +27,7 @@ class Move(QTask):
     Methods
     ------- 
     parameterize : **kwargs (optional)
-        Subclass this method to set trajectory as a function of parameters, such as trap position; nframes; etc. Pass additional parameters into 
-        To parameterize on __init__ instead, set initialize to pass and uncomment parameterize() in __init__
+        Subclass this method to set trajectory as a function of parameters, such as trap position; nframes; etc. 
         See bottom of the file for an example of how to subclass this method. 
      
     interpolate : 
@@ -40,15 +39,12 @@ class Move(QTask):
     '''
 
     
-    def __init__(self, traps=None, trajectories=None, smooth=False, stepSize=None, filename=None, **kwargs):
+    def __init__(self, traps=None, trajectories=None, smooth=False, stepSize=None, **kwargs):
         super(Move, self).__init__(**kwargs)
-#         self.__dict__.update(kwargs)
-        self.filename = filename
         self.smooth = smooth
         self.stepSize = stepSize      
         self.traps = traps or self.parent().pattern.prev
         self.trajectories = trajectories  
-        self.counter = 0
         
     @property
     def traps(self):
@@ -63,7 +59,7 @@ class Move(QTask):
             return
         elif not isinstance(traps, list):
             traps = [traps]
-        if all([trap.__class__.__name__ is 'QTrap' for trap in traps]): 
+        if all([trap.__class__.__name__ =='QTrap' for trap in traps]): 
             self._traps = traps
         else:
             logger.warning("elements of trap list must be of type QTrap. Setting to empty")
@@ -111,13 +107,12 @@ class Move(QTask):
         '''
         if self.stepSize is None:
             npts = [len(traj) for traj in trajectories]     
-            ## to-do: reduce self.skip if large enough. 
         else:
             cgh = self.parent().cgh.device
             mpp = cgh.cameraPitch/cgh.magnification  # [microns/pixel]
             L = [np.sum(np.linalg.norm(np.diff(traj, axis=0), axis=1)) for traj in trajectories]
             npts = (np.array(L) * mpp / self.stepSize).astype(int)
-        smoothed = []
+        self.trajectories = []
         for i, traj in enumerate(trajectories):
             target = traj[-1]
             data = np.asarray(traj)
@@ -129,61 +124,38 @@ class Move(QTask):
             if npts[i] > 1:
                 tck, u = splprep([x, y, z], s=npts[i], k=1)
                 xnew, ynew, znew = splev(tspace, tck)
-                traj = [QVector3D(xnew[j], ynew[j], znew[j]) for j in range(npts[i])]
-                traj[-1] = QVector3D(*target)
-                smoothed.append(traj)
-        self.trajectories = smoothed
+                traj = [(xnew[j], ynew[j], znew[j]) for j in range(npts[i])]
+                traj[-1] = target
+                self.trajectories.append(traj)
         self.npts = npts
     
     def initialize(self, frame):   #### Perform parameterization, interpolate, and preprocess for motion
-        for i, trap in enumerate(self.traps):
-            trap.index = i
         logger.info('parameterizing {} traps...'.format(len(self.traps)))
         self.parameterize(self.traps) 
         if self.smooth:                                                                              
             logger.info('smoothing...')                                                                              
             self.interpolate(self.trajectories)
-        else:
-            self.npts = []
-            for i, traj in enumerate(self.trajectories):
-                traj = [QVector3D(*point) for point in traj]
-                self.trajectories[i] = traj
-                self.npts.append(len(traj))
-#         self.nframes = min(self.nframes, max(self.npts)*self.skip) or max(self.npts)*self.skip
+        self.npts = []
+        for i, traj in enumerate(self.trajectories):
+            traj = [QVector3D(*point) for point in traj]
+            self.trajectories[i] = traj
+            self.npts.append(len(traj))
         self.nframes = max(self.npts)*self.skip
         logger.info('Parameterized {} trajectories of lengths {}'.format(len(self.npts), self.npts))                            
         logger.info('nframes is {}'.format(self.nframes))
         
-        save = {}
-        for i, traj in enumerate(self.trajectories):
-            save[str(i)] = [[point.x(), point.y(), point.z()] for point in traj]
-
-        self.paths = [[] for traj in self.trajectories]
         
     def process(self, frame):
         logger.info('moving frame {} of {}'.format(self._frame, self.nframes))      
 #         start = time()
         for i, trap in enumerate(self.traps):
-            r = trap.r
-            self.paths[i].append([trap.x, trap.y, trap.z])
+            # r = trap.r
+            # self.paths[i].append([trap.x, trap.y, trap.z])
             if self.npts[i]>0:
                 trap.moveTo(self.trajectories[i].pop(0))
 #                 logger.debug('Moved by {}'.format(trap.r.distanceToPoint(r)))
                 self.npts[i] -= 1
 #         logger.debug('moved in {:03f}'.format(time() - start))
         
-    def complete(self):
-#         logger.debug('Total time to complete was {:03f}'.format(time() - self.Time))
-        save = {}
-        for i, path in enumerate(self.paths):
-            path = [path[j] for j in range(np.shape(path)[0])]
-            save[str(i)] = [list(point) for point in path]
-            if len(self.trajectories[i]) > 0:
-                logger.info('un-traversed trajectory was size {} ({})'.format(len(self.trajectories[i]), self.npts[i]))
-            else:
-                logger.info('trajectory was successfully popped')
-        if self.filename is None:
-            return
-        with open('/home/group/python/pyfab/tasks/data/paths' + self.filename + '.json', 'w') as f:
-            json.dump(save, f)
+
             

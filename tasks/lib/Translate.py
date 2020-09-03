@@ -1,27 +1,48 @@
 # -*- coding: utf-8 -*-
-# MENU: Translate
+# MENU: Motion/Translate
 
-'''Translates traps in some fixed step and direction.'''
+from .Assemble import Assemble
 
-from ..QTask import QTask
+import numpy as np
+import json
+
 from PyQt5.QtGui import QVector3D
-from pyfablib.traps import QTrap, QTrapGroup
+
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARN)
 
 
-class Translate(QTask):
-
-    def __init__(self, traps=None, dr=(0, 0, 0), **kwargs):
-        super(Translate, self).__init__(**kwargs)
-        self.traps = traps or self.parent().pattern.prev
-        self.dr = dr
+class Translate(Assemble):
+    
+    def __init__(self, smooth=True, stepSize=1.0, dr=(0., 0., 0.), **kwargs):
+        super(Translate, self).__init__(smooth=smooth, stepSize=stepSize, **kwargs)
+        self.dx, self.dy, self.dz = dr
+    
+    def initialize(self, frame):
+        if self.smooth:
+            super(Translate, self).initialize(frame)
+        else:
+            self.nframes = 0
+            try:
+                if isinstance(self.traps, list):
+                    for trap in self.traps:
+                        trap.moveBy(QVector3D(self.dx, self.dy, self.dz))
+                else:
+                    self.traps.moveBy(QVector3D(self.dx, self.dy, self.dz))    
+            except AttributeError:
+                logger.warn('error: self.traps must be QTrapGroup, QTrap, or list of QTraps')
                 
-    def complete(self):
-        if self.traps is not None:
-            if isinstance(self.traps, QTrapGroup):
-                print('group')
-                self.traps.select(True)
-                self.traps.moveBy(QVector3D(*self.dr))
-            elif isinstance(self.traps, QTrap):
-                print('loner')
-                self.parent().pattern.traps.select(True)
-                self.traps.moveBy(QVector3D(*self.dr))
+
+    def parameterize(self, traps):
+        trajs = []
+        dr = [self.dx, self.dy, self.dz]
+        for trap in traps:
+            r0 = [trap.r.x(), trap.r.y(), trap.r.z()]
+            rf = [r0[0] + self.dx, r0[1] + self.dy, r0[2] + self.dz]
+            trajs.append(np.vstack([r0, rf]))
+            print(trajs)
+        self.trajectories = trajs
+                    
+
+            
