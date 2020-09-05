@@ -41,11 +41,13 @@ class Move(QTask):
     
     def __init__(self, traps=None, trajectories=None, smooth=False, stepSize=None, **kwargs):
         super(Move, self).__init__(**kwargs)
+        cgh = self.parent().cgh.device
+        self.mpp = cgh.cameraPitch/cgh.magnification  # [microns/pixel]
         self.smooth = smooth
         self.stepSize = stepSize      
         self.traps = traps or self.parent().pattern.prev
         self.trajectories = trajectories  
-        
+ 
     @property
     def traps(self):
         return self._traps
@@ -108,10 +110,8 @@ class Move(QTask):
         if self.stepSize is None:
             npts = [len(traj) for traj in trajectories]     
         else:
-            cgh = self.parent().cgh.device
-            mpp = cgh.cameraPitch/cgh.magnification  # [microns/pixel]
             L = [np.sum(np.linalg.norm(np.diff(traj, axis=0), axis=1)) for traj in trajectories]
-            npts = (np.array(L) * mpp / self.stepSize).astype(int)
+            npts = (np.array(L) * self.mpp / self.stepSize).astype(int)
         self.trajectories = []
         for i, traj in enumerate(trajectories):
             target = traj[-1]
