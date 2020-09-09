@@ -88,7 +88,7 @@ class QTask(QObject):
         if self.blocking and not blocking:
             self._blocking = False
             self.sigUnblocked.emit()
-            self.widget._blocking.setEnabled(False)
+            self.widget.ui._blocking.setEnabled(False)
             self.widget.updateUi()
 
     @pyqtSlot(list)

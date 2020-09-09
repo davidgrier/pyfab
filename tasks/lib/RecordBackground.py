@@ -1,32 +1,61 @@
 # -*- coding: utf-8 -*-
-# MENU: DVR/Record Background
+# MENU: Experiments/Record Background
 
+# from .QExperiment import QExperiment
+# import numpy as np
+
+
+# class RecordBackground(QExperiment):
+            
+#     def initialize(self, frame):
+#         self.info = 'RecordBackground'
+#         super(RecordBackground, self).initialize(frame)
+#         self.tasks[0].traps = self.parent().pattern.traps
+#         Record = self.tasks[1]
+#         fn0 = Record.dvr.filename
+#         Record.fn = fn0.replace(fn0.split('/')[-1], 'background.avi')
+#         Record.sigDone.connect(lambda: setattr(Record.dvr, 'filename', fn0))
+        
 from ..QTask import QTask
-import numpy as np
-
 
 class RecordBackground(QTask):
-    """Make particles move in a circle around some point"""
+    """"Move particles offscreen, record for nframes, and move particles back"""
     
-    def __init__(self, stepSize=1., **kwargs):
-        self.stepSize = stepSize
+    def __init__(self, x=None, y=-10., stepSize=0.4, nframes=50, **kwargs):
         super(RecordBackground, self).__init__(**kwargs)
+        self.x = x
+        self.y = y
+        self.stepSize = stepSize
+        self.nframes = nframes
+    
+    @property
+    def x(self): return self._x
+    
+    @property
+    def y(self): return self._y
+    
+    @x.setter
+    def x(self, x):
+        if x is not None: self._y = None
+        self._x = x
+    
+    @y.setter
+    def y(self, y):
+        if y is not None: self._x = None
+        self._y = y
         
     def initialize(self, frame):
-        cgh = self.parent().cgh.device
-        mpp = cgh.cameraPitch/cgh.magnification  # [microns/pixel]
-        stepSize = self.stepSize / mpp
+        super(RecordBackground, self).initialize(frame)                               
+        move1 = self.register('MoveToCoordinate', y=self.y, stepSize=self.stepSize, traps=self.parent().pattern.traps)
+        rec = self.register('Record', unblock=False, nframes=self.nframes)
+        move2 = self.register('Move', reverse=True)      
         
-        traps = self.parent().pattern.traps.flatten()
-        ext = max( [max(trap.x, trap.y) for trap in traps ] ) + 5*stepSize   # Leave room at the edge so particle is actually off screen
-        dri = list(np.arange(0, ext, stepSize))    
-        trajectories = [ [(trap.x-dr, trap.y-dr, trap.z) for dr in dri] for trap in traps]
-        goback = [traj.copy() for traj in trajectories]
-        for traj in goback: traj.reverse()
-               
-        #self.register('Empty', nframes=self.nframes)
-        self.register('Move', smooth=False, trajectories=trajectories, filename='1')
-        fn = self.parent().dvr.filename
-        self.register('Record', nframes=10, fn='/'.join(fn.split('/')[:-1]) + '/background.avi')
-        self.parent().dvr.filename = fn
-        self.register('Move', smooth=False, trajectories=goback,  filename='2')
+        self.nframes=0
+        f0 = rec.dvr.filename
+        rec.fn = f0.replace(f0.split('/')[-1], 'background.avi')
+        
+        #### Not needed since traps and trajectories are passed through task data (for now...)
+        # move1.sigDone.connect(lambda: setattr(move2, 'trajectories', move1.data['trajectories']))
+        # move1.sigDone.connect(lambda: setattr(move2, 'traps', move1.data['traps']))
+
+    

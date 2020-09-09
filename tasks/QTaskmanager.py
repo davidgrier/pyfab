@@ -67,8 +67,8 @@ class QTaskmanager(QAbstractListModel):
     def serialize(self, filename=None):
         info = [task.serialize() for task in self.tasks]
         info.extend([task.serialize() for task in self.bgtasks])
-        if filename is not None:
-            with open('tasks/experiments/'+filename, 'w') as f:
+        if filename is not None:            
+            with open('tasks/experiments/{}'.format(taskname), 'w') as f:   #### change later so .json is included automatically                
                 json.dump(info, f)
         return info    
     
@@ -94,16 +94,13 @@ class QTaskmanager(QAbstractListModel):
             #     logger.warn('signal already disconnected')
 
     def setTaskData(self, task):
-        attrs = []
         for attr in list(self.taskData.keys()).copy():   ## can't pop attr's while also looping over attr's.  Instead, copy the keys (a list of strings) and loop over that
             if hasattr(task, attr):
-                attrs.append(attr)
                 setattr(task, attr, self.taskData.pop(attr))
-        logger.debug('Set attributes {} from task data'.format(attrs))
         # FIXME: Remove so that programmatically
         # queued tasks can provide data to a chain of tasks
-        if task.blocking:
-            self.taskData.clear()
+        # if task.blocking:
+        #     self.taskData.clear()
 
     def getTaskData(self, task):
         self.taskData.update(task.data())
@@ -131,7 +128,6 @@ class QTaskmanager(QAbstractListModel):
                     self.task = self.tasks.popleft()     #### Otherwise, dequeue next task
                 self.connectSignals(self.task)
                 self.setTaskData(self.task)
-                self.task.name += '*'
             except IndexError:
                 # self.taskData.clear()
                 logger.info('Completed all pending tasks')
@@ -210,7 +206,8 @@ class QTaskmanager(QAbstractListModel):
 #         print("where's my data?")
         if role == Qt.DisplayRole:
             task = self.taskAt(index.row())
-            return None if task is None else '{}) {}'.format(str(index.row()), task.name)
+            suffix = '*' if task is self.task else ''
+            return None if task is None else '{}) {}{}'.format(str(index.row()), task.name, suffix)
         elif role == Qt.FontRole:
             task = self.taskAt(index.row())
             if task is None:

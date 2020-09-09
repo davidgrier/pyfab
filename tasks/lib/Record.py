@@ -32,14 +32,14 @@ class Record(QTask):
         self.fn = fn
         self.stopVideo = stop
         self.unblock = unblock
+        
+        self.dvr = self.parent().dvr
 
 
     def initialize(self, frame):
         if self.unblock:
             self.blocking = False
 
-        self.dvr = self.parent().dvr
-        
         if self.fn is not None:
             if isinstance(self.fn, str):
                 self.fn = [self.fn]
