@@ -49,7 +49,22 @@ class Move(QTask):
         self.stepSize = stepSize      
         self.traps = traps or self.parent().pattern.prev
         self.trajectories = trajectories  
- 
+        
+    @property
+    def group(self):
+        if self.traps is not None and len(self.traps) > 0:
+            group = self.traps[0].parent()
+            while group is not self.parent().pattern:
+                if set(group.flatten()) == set(self.traps):
+                    return group
+                else:
+                    group = group.parent()
+            print('could not find; making new group...')
+            self.parent().pattern.selected = self.traps
+            return self.parent().pattern.createGroup()
+        else:
+            return None
+        
     @property
     def traps(self):
         return self._traps
@@ -60,12 +75,12 @@ class Move(QTask):
             self._traps = traps.flatten()
             logger.info('set {} traps'.format(len(traps.flatten())))
             return
-        elif not isinstance(traps, list):
+        if not isinstance(traps, list):
             traps = [traps]
-        if all([trap.__class__.__name__ =='QTrap' for trap in traps]): 
-            self._traps = traps
+        if len(traps) > 0 and all([trap.__class__.__name__ =='QTrap' for trap in traps]): 
+            self._traps = traps            
         else:
-            logger.warning("elements of trap list must be of type QTrap. Setting to empty")
+            logger.warning("Setting traps to empty")
             self._traps = []
 
     @property

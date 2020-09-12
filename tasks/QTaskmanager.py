@@ -68,7 +68,7 @@ class QTaskmanager(QAbstractListModel):
         info = [task.serialize() for task in self.tasks]
         info.extend([task.serialize() for task in self.bgtasks])
         if filename is not None:            
-            with open('tasks/experiments/{}'.format(taskname), 'w') as f:   #### change later so .json is included automatically                
+            with open('tasks/experiments/{}'.format(filename), 'w') as f:   #### change later so .json is included automatically                
                 json.dump(info, f)
         return info    
     

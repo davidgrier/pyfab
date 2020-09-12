@@ -104,3 +104,11 @@ class QTrapGroup(QObject):
     @r.setter
     def r(self, r):
         self.moveTo(r)
+
+    def tree(self, i=0):
+        print('   '*i + ': Group @ {}'.format(id(self)))
+        for child in self.children():
+            if isinstance(child, QTrap):
+                print('   '*(i+1) +': trap @ ({}, {}, {})'.format(child.x, child.y, child.z))
+            else:
+                child.tree(i+1)

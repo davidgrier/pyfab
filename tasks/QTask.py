@@ -94,17 +94,17 @@ class QTask(QObject):
     @pyqtSlot(list)
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
-        logger.debug('Handling Task')
-        logger.info('{}: {}'.format(self.name, type(frame)))
-        try:
+        # logger.debug('Handling Task')
+        # logger.info('{}: {}'.format(self.name, type(frame)))
+        # try:
             self._handleTask(frame)
-        except Exception as ex:
-            self._busy = True
-            logger.warning('Killing task : {}'.format(ex))
-            data = self.data()
-            data['error'] = ex
-            self.setData(data)
-            self.stop()
+        # except Exception as ex:
+        #     self._busy = True
+        #     logger.warning('Killing task : {}'.format(ex))
+        #     data = self.data()
+        #     data['error'] = ex
+        #     self.setData(data)
+        #     self.stop()
 
     def _handleTask(self, frame):
         if not self._initialized:
@@ -148,12 +148,25 @@ class QTask(QObject):
             with open('tasks/experiments/'+filename, 'w') as f:
                 json.dump(info, f)
         return info    
-   
     
+#### Slots for setting traps/trap groups.  
+    
+    @pyqtSlot()
+    def setTraps(self):
+        self.traps = self.parent().pattern.prev.flatten()
+        
+    @pyqtSlot()
+    def selectCurrentTraps(self):
+        self.parent().pattern.prev = self.group
+        self.group.tree()
+ 
+    
+    #### UI setup
     def setDefaultWidget(self):
         #### If self.widget is replaced by subclass, do we need to worry about properly deleting it? (i.e. deleteLater()) 
         self.widget = QSettingsWidget(parent=None, device=self, ui=TaskUi(self), include=list(self.__dict__.keys()))  
-        
+   
+    
 class TaskUi(Ui_DefaultTaskWidget):        
     def __init__(self, task):
         super(TaskUi, self).__init__()
@@ -166,10 +179,16 @@ class TaskUi(Ui_DefaultTaskWidget):
 
         for key in ['nframes', 'skip', 'delay', 'register', 'name', 'widget', '_blocking', '_initialized', '_frame', '_data', '_paused', '_busy']:
             keys.remove(key)
-        for key in ['_traps', '_trajectories']:
-            if key in keys:
-                keys.remove(key)
 
+        if '_trajectories' in keys:
+            keys.remove('_trajectories')
+        
+        if '_traps' in keys:
+            keys.remove('_traps')
+            self.setTraps.setEnabled(True)
+            self.setTraps.clicked.connect(self.task.setTraps)
+            self.showSelection.setEnabled(True)
+            self.showSelection.clicked.connect(self.task.selectCurrentTraps)
 #         if 'traps' in keys:
 #             keys.remove('traps')
 #             self.promptTraps()

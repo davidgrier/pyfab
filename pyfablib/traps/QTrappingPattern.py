@@ -37,11 +37,21 @@ class QTrappingPattern(pg.ScatterPlotItem):
         self.traps = QTrapGroup(self)
         self.trap = None
         self.group = None
-        self.prev = None
+        self._prev = None
         self.selected = []
         self._appearanceOutdated = False
         self._hologramOutdated = False
-
+    
+    @property
+    def prev(self):
+        return self._prev
+    
+    @prev.setter
+    def prev(self, prev):
+        if self._prev is not None:  self._prev.state = states.normal
+        self._prev = prev
+        if self.prev is not None:  prev.state = states.special
+            
     @pyqtSlot()
     def toggleAppearance(self):
         logger.debug('toggleAppearance')
@@ -173,6 +183,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
             group.add(trap)
         self.traps.add(group)
         self.selected = []
+        return group
 
     def breakGroup(self):
         """Break group into children and
@@ -183,6 +194,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
                 child.state = states.grouping
                 self.group.remove(child)
                 self.traps.add(child)
+            self.group = None
 
     def moveGroup(self, pos):
         """Move the selected group so that the selected
@@ -230,6 +242,7 @@ class QTrappingPattern(pg.ScatterPlotItem):
         button = event.button()
         pos = event.pos()
         modifiers = event.modifiers()
+        self.prev = None
         if button == Qt.LeftButton:
             self.leftPress(pos, modifiers)
         elif button == Qt.RightButton:
