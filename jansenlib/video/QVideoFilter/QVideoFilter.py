@@ -76,12 +76,14 @@ class QVideoFilter(QFrame):
             self.unregister(self.normalize)
 
     def samplehold(self, frame):
-        if not frame.shape == self.median.shape:
+        darkcount = 13.
+        if frame.shape != self.median.shape:
             self.median.add(frame)
         if not self.median.initialized:
             self.median.add(frame)
-            self.background = np.clip(self.median.get(), 1, 255)
-        nrm = (frame.astype(float) - 13) / (self.background - 13)
+            self._background = self.median.get().astype(float) - darkcount
+            self._background = np.clip(self._background, 1, 255)
+        nrm = (frame - darkcount).astype(float)/self._background
         n = np.clip(100 * nrm, 0, 255).astype(np.uint8)
         return n
 
