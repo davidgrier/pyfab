@@ -14,19 +14,12 @@ from pyfablib.traps import QTrappingPattern
 from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
 
-from tasks.QVision import QVision
+# from tasks.QVision import QVision
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-# # NOTE: How is QVision related to standard set of objects?
-# try:
-#     ex1 = None
-#     from jansenlib.QVision.QHVM import QHVM as QVision
-# except Exception as ex:
-#     ex1 = ex
 
 
 class PyFab(QMainWindow, Ui_PyFab):
@@ -42,7 +35,6 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.camera = QCamera()
         self.screen.camera = self.camera
         self.cameraLayout.addWidget(self.camera)        
-       
 
         # Spatial light modulator
         self.slm = QSLM(self)
@@ -60,22 +52,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.TaskManagerView.setModel(self.tasks)
         self.TaskManagerView.setSelectionMode(3)
 
-#         Setup vision tab
-#        try:
-#            self.vision.close()
-#            self.vision.setObjectName("vision")
-#            self.vision = QVision(parent=self.tabVision, pyfab=self)
-#            self.visionLayout.addWidget(self.vision)
-#            self.tabWidget.setTabEnabled(2, True)
-#            self.setupVision = True
-#        except Exception as ex2:
-#            err = ex2 if ex1 is None else ex1
-#            msg = 'Could not import Machine Vision pipeline: {}'
-#            logger.warning(msg.format(err))
-#            self.tabWidget.setTabEnabled(2, False)
-#            self.setupVision = False
-
-        self.tabWidget.setTabEnabled(2, False)#            
+        self.tabWidget.setTabEnabled(2, False)      
         self.configureUi()
         self.connectSignals()
 
@@ -97,8 +74,7 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.dvr.screen = self.screen
         self.dvr.source = self.screen.default
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
-#         if self.setupVision:
-#             self.vision.jansen = self
+
         self.TaskPropertiesLayout = QStackedLayout(self.TaskPropertiesView)
         index = 4
         self.hardware.index = index
@@ -111,29 +87,13 @@ class PyFab(QMainWindow, Ui_PyFab):
         buildTaskMenu(self)
         self.adjustSize()
 
-    def connectSignals(self):
-        # Signals associated with GUI controls
-#         self.tasks.dataChanged.connect(lambda x: print('Data Changed!'))
-        self.bcamera.clicked.connect(
-            lambda: self.setDvrSource(self.screen.default))
-        self.bfilters.clicked.connect(
-            lambda: self.setDvrSource(self.screen))
-        
-        self.bpausequeue.clicked.connect(self.pauseTasks)
-        self.bpausesel.clicked.connect(self.tasks.toggleSelected)
-        self.bclearqueue.clicked.connect(self.stopTasks)
-        self.bclearsel.clicked.connect(self.tasks.removeSelected)
-        self.bserialize.clicked.connect(lambda: self.tasks.serialize(self.experimentPath.text()))
-        self.bdeserialize.clicked.connect(lambda: self.tasks.registerTask('QExperiment', info = self.experimentPath.text(), loop=self.loop.value()))
-        
-        self.TaskManagerView.clicked.connect(self.tasks.displayProperties)
-        self.TaskManagerView.doubleClicked.connect(self.tasks.toggleCurrent)
-
-        # Signals associated with handling images
+    def connectSignals(self):      
+        # Signals associated with arrival of images from camera
         newframe = self.screen.source.sigNewFrame
+        # 1. Update histograms from image data
         newframe.connect(self.histogram.updateHistogram)
-#         if self.setupVision:
-#             newframeFrame.connect(self.vision.process)
+        # 2. CGH computations are coordinated with camera
+        newframe.connect(self.pattern.refresh)
 
         # Signals associated with the CGH pipeline
         # 1. Screen events trigger requests for trap updates
@@ -148,8 +108,29 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.cgh.device.sigHologramReady.connect(self.slm.setData)
         self.cgh.device.sigHologramReady.connect(self.slmView.setData)
 
-        # CGH computations are coordinated with camera
-        newframe.connect(self.pattern.refresh)
+        # Signals associated with GUI controls
+        # 1. DVR Source
+        self.bcamera.clicked.connect(
+            lambda: self.setDvrSource(self.screen.default))
+        self.bfilters.clicked.connect(
+            lambda: self.setDvrSource(self.screen))
+
+        # 2. Task pipeline
+        self.bpausequeue.clicked.connect(self.pauseTasks)
+        self.bclearqueue.clicked.connect(self.stopTasks)
+        
+        self.bpausesel.clicked.connect(self.tasks.toggleSelected)
+        self.bclearsel.clicked.connect(self.tasks.removeSelected)
+        self.bserialize.clicked.connect(
+            lambda: self.tasks.serialize(self.experimentPath.text()))
+        self.bdeserialize.clicked.connect(
+            lambda: self.tasks.registerTask('QExperiment',
+                                            info=self.experimentPath.text(),
+                                            loop=self.loop.value()))
+        
+        self.TaskManagerView.clicked.connect(self.tasks.displayProperties)
+        self.TaskManagerView.doubleClicked.connect(self.tasks.toggleCurrent)
+
 
     @pyqtSlot()
     def setDvrSource(self, source):
@@ -195,16 +176,12 @@ class PyFab(QMainWindow, Ui_PyFab):
         if self.doconfig:
             self.configuration.save(self.camera)
             self.configuration.save(self.cgh)
-#             if self.setupVision:
-#                 self.configuration.save(self.vision)
 
     @pyqtSlot()
     def restoreSettings(self):
         if self.doconfig:
             self.configuration.restore(self.camera)
             self.configuration.restore(self.cgh)
-#             if self.setupVision:
-#                 self.configuration.restore(self.vision)
 
     @pyqtSlot()
     def pauseTasks(self):
