@@ -14,7 +14,7 @@ from pyfablib.traps import QTrappingPattern
 from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
 
-# from tasks.QVision import QVision
+from tasks.vision.QVisionTab import QVisionTab
 
 import logging
 logging.basicConfig()
@@ -51,8 +51,22 @@ class PyFab(QMainWindow, Ui_PyFab):
         self.tasks = QTaskmanager(self)
         self.TaskManagerView.setModel(self.tasks)
         self.TaskManagerView.setSelectionMode(3)
-
-        self.tabWidget.setTabEnabled(2, False)      
+        
+        try:
+            # self.vision.close()
+            # self.vision.setObjectName("vision")
+            # self.vision = QVision(parent=self.tabVision, pyfab=self)
+            self.vision = QVisionTab(self)
+            self.tabWidget.setTabEnabled(2, True)
+            self.setupVision = True
+        except Exception as ex2:
+            err = ex2 if ex1 is None else ex1
+            msg = 'Could not import Machine Vision pipeline: {}'
+            logger.warning(msg.format(err))
+            self.tabWidget.setTabEnabled(2, False)
+            self.setupVision = False
+        # self.tabWidget.setTabEnabled(2, False)      
+       
         self.configureUi()
         self.connectSignals()
 

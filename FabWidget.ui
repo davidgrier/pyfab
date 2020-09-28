@@ -365,15 +365,39 @@
         <attribute name="title">
          <string>Vision</string>
         </attribute>
-        <layout class="QVBoxLayout" name="visionLayout">
+        <layout class="QVBoxLayout" name="tabVisionLayout">
          <item>
-          <widget class="QWidget" name="vision" native="true">
-           <property name="enabled">
+          <widget class="QScrollArea" name="visionScrollArea">
+           <property name="widgetResizable">
             <bool>true</bool>
            </property>
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
+           <widget class="QWidget" name="vision">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>619</width>
+              <height>602</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="visionLayout">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+            </layout>
+           </widget>
           </widget>
          </item>
         </layout>
@@ -421,8 +445,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>383</width>
-                <height>513</height>
+                <width>407</width>
+                <height>537</height>
                </rect>
               </property>
              </widget>
@@ -683,8 +707,8 @@
           </widget>
          </item>
          <item>
-          <widget class="QWebEngineView" name="browser">
-           <property name="url">
+          <widget class="QWebEngineView" name="browser" native="true">
+           <property name="url" stdset="0">
             <url>
              <string>qrc:/help/help/pyfab.html</string>
             </url>

@@ -6,115 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>341</width>
-    <height>782</height>
+    <width>471</width>
+    <height>538</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="9" column="0">
-    <widget class="QGroupBox" name="rtenabled">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="title">
-      <string>Real Time</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_7">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>9</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QRadioButton" name="rtdetect">
-        <property name="statusTip">
-         <string>Deep neural network (x, y) feature detection</string>
-        </property>
-        <property name="text">
-         <string>Detect</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rtfilt">
-        <property name="statusTip">
-         <string>Deep neural network (x, y) feature detection</string>
-        </property>
-        <property name="text">
-         <string>Filter</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rtcrop">
-        <property name="text">
-         <string>Crop Features</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rtestimate">
-        <property name="statusTip">
-         <string>Deep neural network (x, y, z) feature detection and holographic characterization</string>
-        </property>
-        <property name="text">
-         <string>Estimate</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rtrefine">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="statusTip">
-         <string>Deep neural network pipeline with precision holographic characterization</string>
-        </property>
-        <property name="text">
-         <string>Refine</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="10" column="0" colspan="2">
+   <item row="7" column="0" colspan="2">
     <widget class="QGroupBox" name="groupDetect">
      <property name="maximumSize">
       <size>
@@ -267,111 +167,42 @@
     </widget>
    </item>
    <item row="0" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupRecording">
+    <widget class="QGroupBox" name="groupBox">
      <property name="maximumSize">
       <size>
-       <width>350</width>
-       <height>16777215</height>
+       <width>16777215</width>
+       <height>150</height>
       </size>
      </property>
      <property name="title">
-      <string>Recording Settings</string>
+      <string>Tracking</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_6">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout_2">
       <property name="topMargin">
        <number>0</number>
       </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
       <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing">
-       <number>2</number>
+       <number>9</number>
       </property>
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="nframes">
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="specialValueText">
-         <string>1 frame</string>
-        </property>
-        <property name="suffix">
-         <string> frames</string>
-        </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>100000</number>
-        </property>
-        <property name="value">
-         <number>100</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
+      <item row="1" column="1">
        <widget class="QSpinBox" name="skip">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>16777215</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="specialValueText">
-         <string>1 frame</string>
+         <string>every frame</string>
         </property>
         <property name="suffix">
-         <string> frames</string>
+         <string> Frames</string>
         </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>1</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>Recording skip</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="SRCskip">
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="specialValueText">
-         <string>1 frame</string>
-        </property>
-        <property name="suffix">
-         <string> frames</string>
+        <property name="prefix">
+         <string>every </string>
         </property>
         <property name="minimum">
          <number>1</number>
@@ -381,34 +212,83 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_13">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Real-Time skip</string>
+         <string>Do real-time analysis</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QCheckBox" name="continuous">
         <property name="text">
-         <string>continuous</string>
+         <string>Continuous Capture</string>
         </property>
         <property name="checked">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>nframes</string>
+         <string>Do analysis for </string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="nframes">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="specialValueText">
+         <string>every frame</string>
+        </property>
+        <property name="suffix">
+         <string> Frames</string>
+        </property>
+        <property name="prefix">
+         <string> </string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="_paused">
+        <property name="text">
+         <string>Tracking Paused</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QPushButton" name="bstart">
+        <property name="text">
+         <string>Start Tracking</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="bstop">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Stop Tracking</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="11" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QGroupBox" name="groupFilter">
      <property name="maximumSize">
       <size>
@@ -539,176 +419,219 @@
      </layout>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="SRC_paused">
-     <property name="text">
-      <string>Recording Paused</string>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="bsave">
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QGroupBox" name="ppenabled">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
+   <item row="2" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Post-Process</string>
+      <string>Configure Tracking</string>
      </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_8">
-      <property name="spacing">
-       <number>0</number>
-      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>9</number>
+       <number>3</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>3</number>
       </property>
       <item>
-       <widget class="QRadioButton" name="ppdetect">
-        <property name="statusTip">
-         <string>Deep neural network (x, y) feature detection</string>
+       <widget class="QGroupBox" name="rtenabled">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="text">
-         <string>Detect</string>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="title">
+         <string>Real Time</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>9</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="rtdetect">
+           <property name="statusTip">
+            <string>Deep neural network (x, y) feature detection</string>
+           </property>
+           <property name="text">
+            <string>Detect</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rtfilt">
+           <property name="statusTip">
+            <string>Deep neural network (x, y) feature detection</string>
+           </property>
+           <property name="text">
+            <string>Filter</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rtcrop">
+           <property name="text">
+            <string>Crop Features</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rtestimate">
+           <property name="statusTip">
+            <string>Deep neural network (x, y, z) feature detection and holographic characterization</string>
+           </property>
+           <property name="text">
+            <string>Estimate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rtrefine">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="statusTip">
+            <string>Deep neural network pipeline with precision holographic characterization</string>
+           </property>
+           <property name="text">
+            <string>Refine</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="ppenabled">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="title">
+         <string>Post-Process</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
         <property name="checked">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="ppfilt">
-        <property name="text">
-         <string>Filter</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="ppcrop">
-        <property name="text">
-         <string>Crop Features</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="ppestimate">
-        <property name="statusTip">
-         <string>Deep neural network (x, y, z) feature detection and holographic characterization</string>
-        </property>
-        <property name="text">
-         <string>Estimate</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="pprefine">
-        <property name="statusTip">
-         <string>Deep neural network pipeline with precision holographic characterization</string>
-        </property>
-        <property name="text">
-         <string>Refine</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>9</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="ppdetect">
+           <property name="statusTip">
+            <string>Deep neural network (x, y) feature detection</string>
+           </property>
+           <property name="text">
+            <string>Detect</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="ppfilt">
+           <property name="text">
+            <string>Filter</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="ppcrop">
+           <property name="text">
+            <string>Crop Features</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="ppestimate">
+           <property name="statusTip">
+            <string>Deep neural network (x, y, z) feature detection and holographic characterization</string>
+           </property>
+           <property name="text">
+            <string>Estimate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="pprefine">
+           <property name="statusTip">
+            <string>Deep neural network pipeline with precision holographic characterization</string>
+           </property>
+           <property name="text">
+            <string>Refine</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QPushButton" name="bstop">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Stop Tracking</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QPushButton" name="bstart">
-     <property name="text">
-      <string>Start Tracking</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QCheckBox" name="_paused">
-     <property name="text">
-      <string>Real-Time Paused</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QScrollArea" name="frameViewArea">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>150</height>
-      </size>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>321</width>
-        <height>197</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QListView" name="FramesView"/>
-       </item>
-       <item>
-        <widget class="QTableView" name="SelectedFramesView"/>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
   </layout>

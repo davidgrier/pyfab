@@ -3,6 +3,8 @@
 from ..QTask import QTask
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 from PyQt5.QtWidgets import QWidget
+from .doVisionWidget import Ui_doVisionWidget
+from common.QSettingsWidget import QSettingsWidget
 
 import ujson as json
 import numpy as np
@@ -39,12 +41,14 @@ class doVision(QTask):
         self.initializeSettings()        
         self.rtframes = []
         self.ppframes = []
-        self.widget = QWidget()
-            
-              
+        # self.widget = QWidget()
+        self.widget = QWidget()         
+        self.name = 'doVision'
+        self.actual_widget = doVisionWidget(parent=self.parent(), device=self)
     def initialize(self, frame):
         self.localizer = None    #### Call localizer and estimator setters
         self.estimator = None
+
     
     @pyqtSlot(Frame)
     def handleTask(self, frame):        
@@ -159,3 +163,70 @@ class doVision(QTask):
 
         return rt, max(rt, pp)    #### If rt>pp, use realtime setting instead. (note: condsider removing this)
         
+    
+class doVisionWidget(QSettingsWidget):
+    def __init__(self, parent=None, device=None, **kwargs):
+        super(doVisionWidget, self).__init__(parent=parent, device=device, ui=Ui_doVisionWidget(), include=['_paused', 'SRC_paused'], **kwargs)        
+        self.tasks = self.parent().tasks      
+        self.tasks.sources['realtime'] = self.device.sigRealTime
+        self.tasks.sources['post'] = self.device.sigPost
+        self.connectUiSignals()
+        self.updateUi()
+
+        
+    @pyqtSlot()    
+    @pyqtSlot(bool)
+    def toggleStart(self, running=False):
+        self.ui.bstart.setEnabled(not running)
+        self.ui.bstop.setEnabled(running)   
+        
+    @pyqtSlot()
+    def start(self):
+        self.device._frame = 0
+        self.device._busy = False
+        print('frame=0')
+        # self.devices['SRC'].sigNewFrame.connect(self.device.handleTask)
+        self.tasks.queueTask(self.device)
+        self.toggleStart(True)
+        # print(self.device.__dict__)
+           
+    @pyqtSlot(int)
+    def toggleContinuous(self, state):
+        if state==0:
+            self.device.nframes = self._store_nframes_setting
+            self.ui.nframes.setEnabled(True)
+        else:
+            self._store_nframes_setting = self.device.nframes
+            self.device.nframes = 1e6
+            self.ui.nframes.setEnabled(False)
+        self.updateUi()
+   
+    def connectUiSignals(self):       
+        #### These three signals should connect to other widgets
+        # self.device.sigLocalizerChanged.connect(lambda x: self.setDevice('LOC', x))
+        # self.device.sigEstimatorChanged.connect(lambda x: self.setDevice('EST', x))
+        # self.device.sigEstimatorChanged.connect(self.devices['SRC'].setInstrument)
+        
+        self.device.sigDone.connect(self.toggleStart)
+        # # self.device.sigBBoxes.connect(self.draw)
+        # self.device.sigRealTime.connect(self.redraw)
+                
+        self.ui.bstart.clicked.connect(self.start)
+        self.ui.bstop.clicked.connect(self.device.stop)
+ 
+        
+        self.toggleContinuous(2)
+        self.ui.continuous.stateChanged.connect(self.toggleContinuous)
+        self.ui.continuous.stateChanged.emit(self.ui.continuous.checkState())
+        
+        
+        RTwidgets = [self.ui.rtdetect, self.ui.rtfilt, self.ui.rtcrop, self.ui.rtestimate, self.ui.rtrefine]
+        PPwidgets = [self.ui.ppdetect, self.ui.ppfilt, self.ui.ppcrop, self.ui.ppestimate, self.ui.pprefine]
+        for i in range(5):
+            for j in range(i):
+                RTwidgets[i].clicked.connect(lambda _, pp=PPwidgets[j]: pp.setEnabled(False))
+            for j in range(4, i-1, -1):
+                RTwidgets[i].clicked.connect(lambda _, pp=PPwidgets[j]: pp.setEnabled(True))
+                    
+#         self.configurePlots()
+#         self.configureChildUi()
