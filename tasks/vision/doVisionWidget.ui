@@ -196,7 +196,7 @@
          </size>
         </property>
         <property name="specialValueText">
-         <string>every frame</string>
+         <string>every Frame</string>
         </property>
         <property name="suffix">
          <string> Frames</string>
@@ -245,16 +245,19 @@
          </size>
         </property>
         <property name="specialValueText">
-         <string>every frame</string>
+         <string>1 Frame</string>
         </property>
         <property name="suffix">
          <string> Frames</string>
         </property>
         <property name="prefix">
-         <string> </string>
+         <string/>
         </property>
         <property name="minimum">
          <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100000</number>
         </property>
         <property name="value">
          <number>5</number>

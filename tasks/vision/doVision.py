@@ -20,10 +20,19 @@ from CNNLorenzMie.filters import no_edges, nodoubles
 from CNNLorenzMie.crop_feature import crop_frame, est_crop_frame
 
 
-#### Converts the input frames to pylorenzmie Frames, sends them out in a signal, and keeps them in a Video
+"""  Receives pylorenzmie Frames from toVision, runs analysis on them, and outputs a signal when processing is complete.
+
+doVision is connected directly to toVision, and runs continuously outside of the task manager. It has the properties of a task (skip, nframes, process(), etc),
+but is designed to be contolled independently using the Vision tab, and to be 're-used' on completion for multiple detections rather than 'dequeued'.
+
+doVision is _busy by default. On clicking 'start', _busy -> False and the task runs as normal. Finally, on shutdown(), _frame is reset to 0 and _busy is reset to True 
+
+doVision also has a modified handleTask(). Every skip frames, doVision does real-time analysis via process(). Additionally, all other frames (i.e. _frame % skip != 0)
+are also saved for later in a separate list. Then, on complete(), doVision does additional post-process-level analysis on the real-time Frames, and also performs 
+real-time + post-process level analysis on the post-process Frames.
+"""
 
 class doVision(QTask):
-    
     keras_head_path = '/home/jackie/Desktop/CNNLorenzMie/keras_models/predict_stamp_best'
     # keras_head_path = '/home/group/python/CNNLorenzTest/keras_models/predict_stamp_best'
             
@@ -36,15 +45,17 @@ class doVision(QTask):
     def __init__(self, **kwargs):
         super(doVision, self).__init__(**kwargs)
         self._blocking = False
-        self.source = 'vision'
+        # self.source = 'vision'
+        self._busy = True
         
         self.initializeSettings()        
         self.rtframes = []
         self.ppframes = []
-        # self.widget = QWidget()
-        self.widget = QWidget()         
-        self.name = 'doVision'
-        self.actual_widget = doVisionWidget(parent=self.parent(), device=self)
+        # self.widget = QWidget()        ## Dummy widget for taskmanager   
+        # self.name = 'doVision'
+        # self.actual_widget = doVisionWidget(parent=self.parent(), device=self)
+        self.widget = doVisionWidget(parent=self.parent(), device=self)
+        
     def initialize(self, frame):
         self.localizer = None    #### Call localizer and estimator setters
         self.estimator = None
@@ -52,8 +63,8 @@ class doVision(QTask):
     
     @pyqtSlot(Frame)
     def handleTask(self, frame):        
-        if self._frame % self.skip != 0:      #### Put all 'skipped' frames from process into a list for post-processing
-            self.ppframes.append(frame)         #### This works since _frame=0 before initialization and 0%skip==0
+        if self._frame % self.skip != 0:        #### Put all 'skipped' frames from process into a list for post-processing
+            self.ppframes.append(frame)         
         super(doVision, self).handleTask(frame)
     
     def process(self, frame):
@@ -78,6 +89,10 @@ class doVision(QTask):
         # self.sigPost(framenumbers)
         self.ppframes.extend(self.rtframes)
         self.sigPost.emit(self.ppframes)
+    
+    def shutdown(self): 
+        self._frame = 0
+        self._busy = True
         
     def predict(self, frame, start, end):
         for i in range(start, end):
@@ -100,6 +115,7 @@ class doVision(QTask):
     def filter(self, frame):
         if self.doNoDoubles: nodoubles(frame, tol=self.doublestol)
         if self.doNoEdges: no_edges(frame, tol=self.edgetol)
+        
     @property
     def localizer(self):
         return self._localizer
@@ -108,6 +124,7 @@ class doVision(QTask):
         self._localizer = localizer or Localizer('tinyholo', weights='_500k')
         self.sigLocalizerChanged.emit(self.localizer)
     @property
+    
     def estimator(self):
         return self._estimator
     @estimator.setter
@@ -164,12 +181,14 @@ class doVision(QTask):
         return rt, max(rt, pp)    #### If rt>pp, use realtime setting instead. (note: condsider removing this)
         
     
+    
+
 class doVisionWidget(QSettingsWidget):
     def __init__(self, parent=None, device=None, **kwargs):
         super(doVisionWidget, self).__init__(parent=parent, device=device, ui=Ui_doVisionWidget(), include=['_paused', 'SRC_paused'], **kwargs)        
-        self.tasks = self.parent().tasks      
-        self.tasks.sources['realtime'] = self.device.sigRealTime
-        self.tasks.sources['post'] = self.device.sigPost
+        # self.tasks = self.parent().tasks      
+        # self.tasks.sources['realtime'] = self.device.sigRealTime
+        # self.tasks.sources['post'] = self.device.sigPost
         self.connectUiSignals()
         self.updateUi()
 
@@ -182,11 +201,11 @@ class doVisionWidget(QSettingsWidget):
         
     @pyqtSlot()
     def start(self):
-        self.device._frame = 0
+        # self.device._frame = 0
         self.device._busy = False
         print('frame=0')
         # self.devices['SRC'].sigNewFrame.connect(self.device.handleTask)
-        self.tasks.queueTask(self.device)
+        # self.tasks.queueTask(self.device)
         self.toggleStart(True)
         # print(self.device.__dict__)
            

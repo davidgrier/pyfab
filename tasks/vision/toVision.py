@@ -19,11 +19,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 # logger.setLevel(logging.DEBUG)
 
-#### Converts the input frames to pylorenzmie Frames, sends them out in a signal, and keeps them in a Video
+""" Converts the input frames to pylorenzmie Frames, sends them out in a signal, and keeps them in a Video
+
+toVision is a QTask, but runs continuously outside the taskmanager, since it is designed to be controlled independently from other Tasks, via the Vision tab.
+
+"""
 class toVision(QTask):
     
     sigNewFrame = pyqtSignal(Frame)
-    def __init__(self, nframes=1e6, path=None, **kwargs):
+    def __init__(self, nframes=1e7, path=None, **kwargs):
         super(toVision, self).__init__(nframes=nframes, **kwargs)
         self.source = 'screen'
         self._blocking = False
@@ -115,7 +119,7 @@ class toVisionWidget(QSettingsWidget):
             # self.ui.nframes.setEnabled(True)
         else:
             self._store_nframes_setting = self.device.nframes
-            self.device.nframes = 1e6
+            self.device.nframes = 1e7
             self.ui.stopFrameRecordSettings.setCurrentIndex(1)
             # self.ui.nframes.setEnabled(False)
         self.updateUi()   

@@ -1,21 +1,10 @@
 # -*- coding: utf-8 -*-
 
 # from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QAbstractTableModel, QAbstractListModel, Qt, QObject)
-# from common.QMultiSettingsWidget import QMultiSettingsWidget
-from tasks.vision.doVisionWidget import Ui_doVisionWidget
+from PyQt5.QtCore import QObject
 from tasks.vision.toVision import toVision 
 from tasks.vision.doVision import doVision 
-# from .FramesViewWidget import Ui_FramesViewWidget
 
-from PyQt5.QtWidgets import QWidget
-import sys
-sys.path.append('/home/jackie/Desktop')
-#sys.path.append('/home/group/python/')
-
-from pylorenzmie.analysis import Frame
-
-import numpy as np
 import pyqtgraph as pg
 
 import logging
@@ -41,22 +30,28 @@ class QVisionTab(QObject):
 
     def __init__(self, parent=None, **kwargs):
         super(QVisionTab, self).__init__(parent=parent, **kwargs)        
+        
+        ## setup toVision and doVision
         self.vision = toVision(parent=self.parent())
-        self.tracking = doVision(parent=self.parent())
-
-
-        # self.parent().groupToVision.addWidget(self.vision.widget)
-        # self.parent().groupDoVision.addWidget(self.tracking.widget)
         self.parent().visionLayout.addWidget(self.vision.widget)
-        self.parent().visionLayout.addWidget(self.tracking.actual_widget)
+        self.tracking = doVision(parent=self.parent())
+        self.vision.sigNewFrame.connect(self.tracking.handleTask)
+        self.parent().visionLayout.addWidget(self.tracking.widget)
 
-        try:
-            self.parent().tasks.connectSignals(self.vision)
-            print('check')
-            self.parent().tasks.sources['vision'] = self.vision.sigNewFrame
-            print('check'*2)
+        # self.parent().groupDoVision.addWidget(self.tracking.widget)
+        # self.parent().groupToVision.addWidget(self.vision.widget)
+        try:   #### Connect depending on whether parent has a taskmanager (pyfab) or not (jansen) 
+            tasks = self.parent().tasks
+            tasks.connectSignals(self.vision)
+            tasks.sources['vision'] = self.vision.sigNewFrame
+            tasks.sources['realtime'] = self.device.sigRealTime
+            tasks.sources['post'] = self.device.sigPost
         except:
-            pass
+            self.parent().screen.sigNewFrame.connect(self.vision.handleTask)
+            
+        
+        
+
 #     @pyqtSlot()    
 #     @pyqtSlot(bool)
 #     def toggleStart(self, running=False):
