@@ -48,7 +48,11 @@ class QTrappingPattern(pg.ScatterPlotItem):
     
     @prev.setter
     def prev(self, prev):
-        if self._prev is not None:  self._prev.state = states.normal
+        if self._prev is not None:  
+            try:
+                self._prev.state = states.normal
+            except:
+                logger.debug('warning: cannot set _prev.state (trapgroup may have been deleted)')
         self._prev = prev
         if self.prev is not None:  prev.state = states.special
             
