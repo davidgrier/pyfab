@@ -16,7 +16,6 @@ class QBesselTrap(QTrap):
     def updateStructure(self):
         phi = np.remainder(np.angle(1) - self.shift*self.cgh.qr, 2*(np.pi))
         self.structure = np.exp(1j * phi)
-        self.refresh()
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()

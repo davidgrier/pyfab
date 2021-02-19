@@ -68,7 +68,6 @@ class QBesselIPHTrap(QTrap):
             E_2d += np.exp(ci*m*theta) * (RealE + ci*ImagE)
         phi = E_2d * np.exp(ci*-1.*(2e5*np.pi*qr**2/(self.lamda*(self.iz*1))))
         self.structure = phi
-        self.refresh()
 
     def plotSymbol(self):
         sym = QtGui.QPainterPath()
