@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty, QThread, QObject
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QAbstractTableModel, QAbstractListModel, Qt)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QAbstractTableModel,
+                          QAbstractListModel, Qt)
 from common.QMultiSettingsWidget import QMultiSettingsWidget
 from tasks.lib.doVisionWidget import Ui_doVisionWidget
 from tasks.lib.doVision import doVision 
 
 import sys
 sys.path.append('/home/jackie/Desktop')
-#sys.path.append('/home/group/python/')
 
 from pylorenzmie.analysis import Frame
 
@@ -19,12 +18,14 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-# logger.setLevel(logging.DEBUG)
 
 
 
-"""  QVision manages the GUI for real-time particle tracking. Vision has a source, an estimator+localizer
-      -The source is a special task 'toVision' that takes output directly from the screen and converts it to pylorenzmie Frames.
+"""QVision manages the GUI for real-time particle tracking.
+
+   Vision has a source of images and a feature localizer
+   -The source is a special task 'toVision' that takes output
+directly from the screen and converts it to pylorenzmie Frames.
          The source also emits its own sigNewFrame whenever it has a new Frame(), and handles storing+saving Frames/data.
       -QVision also has a main 'device', which is another task 'doVision' which QVision connects to its source to do CNN predictions
       -When the 'device' finishes running, it is disconnected and has _frame set to 0 so it can be reconnected again. Note that doVision 
@@ -37,17 +38,22 @@ logger.setLevel(logging.INFO)
 class QVision(QMultiSettingsWidget):    
 
     def __init__(self, parent=None, vision=None, **kwargs):
-        self.ui=Ui_doVisionWidget()
-        super(QVision, self).__init__(parent=parent, ui=self.ui, include=['_paused', 'SRC_paused'], **kwargs)        
+        self.ui = Ui_doVisionWidget()
+        labels = ['_paused', 'SRC_paused']
+        
+        super(QVision, self).__init__(parent=parent,
+                                      ui=self.ui,
+                                      include=labels,
+                                      **kwargs)        
                 
         self.setDevice('SRC', vision)
         self.screen = vision.parent().screen
         self.tasks = vision.parent().tasks
         self.tasks.sources['vision'] = vision.sigNewFrame
         
-        self.ui.FramesView.setModel( Model1(video=vision.video) )
+        self.ui.FramesView.setModel(Model1(video=vision.video))
         self.ui.FramesView.setSelectionMode(3)
-        self.ui.SelectedFramesView.setModel( Model2(video=vision.video) )
+        self.ui.SelectedFramesView.setModel(Model2(video=vision.video))
         
         self.device = doVision(nframes=100)
         self.device.name = 'doVision'
@@ -71,10 +77,8 @@ class QVision(QMultiSettingsWidget):
         self.device._frame = 0
         self.device._busy = False
         print('frame=0')
-        # self.devices['SRC'].sigNewFrame.connect(self.device.handleTask)
         self.tasks.queueTask(self.device)
         self.toggleStart(True)
-        # print(self.device.__dict__)
            
     @pyqtSlot(int)
     def toggleContinuous(self, state):
@@ -88,11 +92,13 @@ class QVision(QMultiSettingsWidget):
         self.updateUi()
    
     def connectUiSignals(self):       
-        self.device.sigLocalizerChanged.connect(lambda x: self.setDevice('LOC', x))
-        self.device.sigEstimatorChanged.connect(lambda x: self.setDevice('EST', x))
-        self.device.sigEstimatorChanged.connect(self.devices['SRC'].setInstrument)
+        self.device.sigLocalizerChanged.connect(
+            lambda x: self.setDevice('LOC', x))
+        self.device.sigEstimatorChanged.connect(
+            lambda x: self.setDevice('EST', x))
+        self.device.sigEstimatorChanged.connect(
+            self.devices['SRC'].setInstrument)
         self.device.sigDone.connect(self.toggleStart)
-        # self.device.sigBBoxes.connect(self.draw)
         self.device.sigRealTime.connect(self.redraw)
                 
         self.ui.bstart.clicked.connect(self.start)
@@ -100,7 +106,9 @@ class QVision(QMultiSettingsWidget):
  
         view = self.ui.FramesView
         model = self.ui.SelectedFramesView.model()
-        view.clicked.connect(lambda: model.setFramenumbers( [model.video.framenumbers[index.row()] for index in view.selectedIndexes()]))
+        numbers = [model.video.framenumbers[index.row()] for
+                   index in view.selectedIndexes()]
+        view.clicked.connect(lambda: model.setFramenumbers(numbers))
  
         self.ui.bsave.clicked.connect(self.devices['SRC'].write)
         
@@ -109,16 +117,22 @@ class QVision(QMultiSettingsWidget):
         self.ui.continuous.stateChanged.emit(self.ui.continuous.checkState())
         
         
-        RTwidgets = [self.ui.rtdetect, self.ui.rtfilt, self.ui.rtcrop, self.ui.rtestimate, self.ui.rtrefine]
-        PPwidgets = [self.ui.ppdetect, self.ui.ppfilt, self.ui.ppcrop, self.ui.ppestimate, self.ui.pprefine]
+        RTwidgets = [self.ui.rtdetect,
+                     self.ui.rtfilt,
+                     self.ui.rtcrop,
+                     self.ui.rtestimate,
+                     self.ui.rtrefine]
+        PPwidgets = [self.ui.ppdetect,
+                     self.ui.ppfilt,
+                     self.ui.ppcrop,
+                     self.ui.ppestimate,
+                     self.ui.pprefine]
         for i in range(5):
             for j in range(i):
                 RTwidgets[i].clicked.connect(lambda _, pp=PPwidgets[j]: pp.setEnabled(False))
             for j in range(4, i-1, -1):
                 RTwidgets[i].clicked.connect(lambda _, pp=PPwidgets[j]: pp.setEnabled(True))
                     
-#         self.configurePlots()
-#         self.configureChildUi()
     
     @pyqtSlot(Frame)
     def draw(self, frame):
@@ -139,8 +153,6 @@ class QVision(QMultiSettingsWidget):
             for rect in rois:
                 self.screen.removeOverlay(rect)
     
-
-
     @pyqtSlot(Frame)
     def redraw(self, frame):
         self.remove()
@@ -217,74 +229,3 @@ class Model2(QAbstractTableModel):
     def columnCount(self, index):
         return 5
 
-
-
-
-#     #
-#     # Configuration for QHVM-specific functionality
-#     #
-#     def configurePlots(self):
-#         self.ui.plot1.setBackground('w')
-#         self.ui.plot1.getAxis('bottom').setPen(0.1)
-#         self.ui.plot1.getAxis('left').setPen(0.1)
-#         self.ui.plot1.showGrid(x=True, y=True)
-#         self.ui.plot1.setLabel('bottom', 'a_p [um]')
-#         self.ui.plot1.setLabel('left', 'n_p')
-#         self.ui.plot1.addItem(pg.InfiniteLine(self.instrument.n_m, angle=0,
-#                                               pen=pg.mkPen('k', width=3, style=Qt.DashLine)))
-#         self.ui.plot2.setBackground('w')
-#         self.ui.plot2.getAxis('bottom').setPen(0.1)
-#         self.ui.plot2.getAxis('left').setPen(0.1)
-#         self.ui.plot2.showGrid(x=True, y=True)
-#         self.ui.plot2.setLabel('bottom', 't (s)')
-#         self.ui.plot2.setLabel('left', 'z(t)')
-
-#     def configureChildUi(self):
-#         self.ui.bDetect.setEnabled(True)
-#         self.ui.bEstimate.setEnabled(True)
-#         self.ui.bRefine.setEnabled(True)
-
-#     #
-#     # Overwrite QVision methods for HVM
-#     #
-#     @pyqtSlot()
-#     def plot(self):
-#         if self.estimate:
-#             a_p = []
-#             n_p = []
-#             framenumbers = []
-#             trajectories = []
-#             for frame in self.video.frames:
-#                 for feature in frame.features:
-#                     a_p.append(feature.model.particle.a_p)
-#                     n_p.append(feature.model.particle.n_p)
-#             for trajectory in self.video.trajectories:
-#                 z_p = []
-#                 for feature in trajectory.features:
-#                     z_p.append(feature.model.particle.z_p)
-#                 trajectories.append(z_p)
-#                 framenumbers.append(trajectory.framenumbers)
-#             # Characterization plot
-#             data = np.vstack([a_p, n_p])
-#             if len(a_p) > 0:
-#                 pdf = gaussian_kde(data)(data)
-#                 norm = pdf/pdf.max()
-#                 rgbs = []
-#                 for val in norm:
-#                     rgbs.append(self.getRgb(cm.cool, val))
-#                 pos = [{'pos': data[:, i],
-#                         'pen': pg.mkPen(rgbs[i], width=2)} for i in range(len(a_p))]
-#                 scatter = pg.ScatterPlotItem()
-#                 self.ui.plot1.addItem(scatter)
-#                 scatter.setData(pos)
-#                 # z(t) plot
-#                 grayscale = np.linspace(0, 1, len(trajectories), endpoint=True)
-#                 for j in range(len(trajectories)):
-#                     z_p = trajectories[j]
-#                     f = np.array(framenumbers[j])
-#                     curve = pg.PlotCurveItem()
-#                     self.ui.plot2.addItem(curve)
-#                     curve.setPen(pg.mkPen(self.getRgb(cm.gist_rainbow,
-#                                                       grayscale[j]), width=2))
-#                     curve.setData(x=f/self.video.fps, y=z_p)
-#         self.sigCleanup.emit()
