@@ -8,8 +8,8 @@ part of X Screen 0
 """
 
 from PyQt5.QtCore import (Qt, pyqtSlot)
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtGui import (QMainWindow, QImage, QPixmap, QGuiApplication)
+from PyQt5.QtWidgets import (QMainWindow, QLabel)
+from PyQt5.QtGui import (QImage, QPixmap, QGuiApplication)
 import numpy as np
 
 import logging
