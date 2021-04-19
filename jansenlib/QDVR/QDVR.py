@@ -3,6 +3,7 @@
 from PyQt5.QtCore import (QObject, QThread, QEvent,
                           pyqtSignal, pyqtSlot, pyqtProperty)
 from PyQt5.QtWidgets import (QFrame, QFileDialog)
+from pyfab.common.clickable import clickable
 from .QDVRWidget import Ui_QDVRWidget
 from .QVideoWriter import QVideoWriter
 from .QHDF5Writer import QHDF5Writer
@@ -14,27 +15,6 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-def clickable(widget):
-    """Adds a clicked signal to a widget such as QLineEdit that
-    ordinarily does not provide notifications of clicks."""
-
-    class Filter(QObject):
-
-        clicked = pyqtSignal()
-
-        def eventFilter(self, obj, event):
-            if obj == widget:
-                if event.type() == QEvent.MouseButtonRelease:
-                    if obj.rect().contains(event.pos()):
-                        self.clicked.emit()
-                        return True
-            return False
-
-    filter = Filter(widget)
-    widget.installEventFilter(filter)
-    return filter.clicked
 
 
 class QDVR(QFrame, Ui_QDVRWidget):
