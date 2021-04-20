@@ -70,7 +70,7 @@ class FpsMeter(object):
         self.start = self.now
         return self._value
 
-    @property
+    @pyqtProperty(float)
     def value(self):
         return self._value
 
@@ -160,15 +160,15 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
                               yRange=(0, device.height),
                               padding=0, update=True)
 
-    @property
+    @pyqtProperty(object)
     def filters(self):
         return self._filters
 
-    @property
+    @pyqtProperty(int)
     def width(self):
         return self._shape[1]
 
-    @property
+    @pyqtProperty(int)
     def height(self):
         return self._shape[0]
 
