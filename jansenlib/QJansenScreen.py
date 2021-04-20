@@ -40,11 +40,15 @@ class QCameraThread(QThread):
     def stop(self):
         self._running = False
 
-    @property
+    @pyqtProperty(object)
+    def shape(self):
+        return self._shape
+    
+    @pyqtProperty(int)
     def width(self):
         return self._shape[1]
 
-    @property
+    @pyqtProperty(int)
     def height(self):
         return self._shape[0]
 
