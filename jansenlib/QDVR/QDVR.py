@@ -3,7 +3,7 @@
 from PyQt5.QtCore import (QObject, QThread, QEvent,
                           pyqtSignal, pyqtSlot, pyqtProperty)
 from PyQt5.QtWidgets import (QFrame, QFileDialog)
-from pyfab.common.clickable import clickable
+from common.clickable import clickable
 from .QDVRWidget import Ui_QDVRWidget
 from .QVideoWriter import QVideoWriter
 from .QHDF5Writer import QHDF5Writer
@@ -90,8 +90,8 @@ class QDVR(QFrame, Ui_QDVRWidget):
             self.stop()
         logger.debug('Starting Recording')
         if os.path.splitext(self.filename)[1] == '.avi':
-            shape = (self.source.height, self.source.width)
-            self._writer = QVideoWriter(self.filename, shape,
+            self._writer = QVideoWriter(self.filename,
+                                        self.source.shape,
                                         fps=self.screen.fps,
                                         nframes=nframes)
         else:

@@ -27,10 +27,11 @@ class QVideoWriter(QObject):
         h, w = self.shape[0:2]
 
         if codec is None:
-            if platform.system() == 'Linux':
-                codec = 'HFYU'
-            else:
-                codec = 'X264'
+            codec = 'FFV1'
+            #if platform.system() == 'Linux':
+            #    codec = 'HFYU'
+            #else:
+            #    codec = 'X264'
 
         if cv2.__version__.startswith('2.'):
             fourcc = cv2.cv.CV_FOURCC(*codec)
