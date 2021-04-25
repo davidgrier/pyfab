@@ -1,589 +1,248 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
- <class>Jansen</class>
- <widget class="QMainWindow" name="Jansen">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>1050</width>
-    <height>727</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Jansen</string>
-  </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <property name="leftMargin">
-     <number>2</number>
-    </property>
-    <property name="topMargin">
-     <number>2</number>
-    </property>
-    <property name="rightMargin">
-     <number>2</number>
-    </property>
-    <property name="bottomMargin">
-     <number>2</number>
-    </property>
-    <property name="spacing">
-     <number>2</number>
-    </property>
-    <item row="0" column="0">
-     <widget class="QSplitter" name="splitter">
-      <property name="lineWidth">
-       <number>1</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="handleWidth">
-       <number>6</number>
-      </property>
-      <widget class="QJansenScreen" name="screen" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>640</width>
-         <height>480</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QTabWidget" name="tabWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>400</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="statusTip">
-        <string>Record from video camera directly</string>
-       </property>
-       <property name="accessibleName">
-        <string/>
-       </property>
-       <property name="currentIndex">
-        <number>3</number>
-       </property>
-       <widget class="QWidget" name="tabVideo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="accessibleName">
-         <string/>
-        </property>
-        <property name="accessibleDescription">
-         <string/>
-        </property>
-        <attribute name="title">
-         <string>Video</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <property name="spacing">
-          <number>2</number>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="groupSource">
-           <property name="title">
-            <string>Recording Source</string>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QRadioButton" name="bcamera">
-              <property name="statusTip">
-               <string>Record raw video from camera</string>
-              </property>
-              <property name="text">
-               <string>Camera</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="bfilters">
-              <property name="statusTip">
-               <string>Record filtered video stream</string>
-              </property>
-              <property name="text">
-               <string>Filters</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>283</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QDoubleSpinBox" name="fps">
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
-              <property name="suffix">
-               <string> fps</string>
-              </property>
-              <property name="decimals">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupDvr">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Video Recorder</string>
-           </property>
-           <layout class="QVBoxLayout" name="dvrLayout_2">
-            <property name="spacing">
-             <number>1</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <widget class="QDVR" name="dvr">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupCamera">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Video Camera</string>
-           </property>
-           <layout class="QVBoxLayout" name="cameraLayout">
-            <property name="spacing">
-             <number>1</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <widget class="QFrame" name="camera">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupFilters">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Video Filters</string>
-           </property>
-           <layout class="QVBoxLayout" name="filterLayout_2">
-            <property name="spacing">
-             <number>1</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <widget class="QVideoFilter" name="filters">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>338</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tabHistogram">
-        <attribute name="title">
-         <string>Histogram</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QHistogram" name="histogram" native="true"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tabVision">
-        <attribute name="title">
-         <string>Vision</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="visionLayout">
-         <item>
-          <widget class="QWidget" name="vision" native="true"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tabHelp">
-        <attribute name="title">
-         <string>Help</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <property name="spacing">
-          <number>4</number>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <widget class="QPushButton" name="bback">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Back</string>
-           </property>
-           <property name="icon">
-            <iconset resource="help.qrc">
-             <normaloff>:/icons/icons/go-previous.svg</normaloff>:/icons/icons/go-previous.svg</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QWebEngineView" name="browser" native="true">
-           <property name="url" stdset="0">
-            <url>
-             <string>qrc:/help/help/jansen.html</string>
-            </url>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1050</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionSavePhoto"/>
-    <addaction name="actionSavePhotoAs"/>
-    <addaction name="separator"/>
-    <addaction name="actionQuit"/>
-   </widget>
-   <addaction name="menuFile"/>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionSavePhoto">
-   <property name="text">
-    <string>Save Photo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionSavePhotoAs">
-   <property name="text">
-    <string>Save Photo As ...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+A</string>
-   </property>
-  </action>
-  <action name="actionQuit">
-   <property name="text">
-    <string>Quit</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Q</string>
-   </property>
-  </action>
- </widget>
- <customwidgets>
-  <customwidget>
-   <class>QDVR</class>
-   <extends>QFrame</extends>
-   <header>jansenlib.QDVR.QDVR</header>
-   <container>1</container>
-   <slots>
-    <signal>recording(bool)</signal>
-   </slots>
-  </customwidget>
-  <customwidget>
-   <class>QVideoFilter</class>
-   <extends>QFrame</extends>
-   <header>jansenlib.video.QVideoFilter.QVideoFilter</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QJansenScreen</class>
-   <extends>QWidget</extends>
-   <header>jansenlib.QJansenScreen</header>
-   <container>1</container>
-   <slots>
-    <signal>sigFPS(double)</signal>
-   </slots>
-  </customwidget>
-  <customwidget>
-   <class>QHistogram</class>
-   <extends>QWidget</extends>
-   <header>jansenlib.QHistogram.QHistogram</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
-   <container>1</container>
-   <slots>
-    <slot>back()</slot>
-   </slots>
-  </customwidget>
- </customwidgets>
- <resources>
-  <include location="help.qrc"/>
- </resources>
- <connections>
-  <connection>
-   <sender>actionQuit</sender>
-   <signal>triggered()</signal>
-   <receiver>Jansen</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>537</x>
-     <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>screen</sender>
-   <signal>sigFPS(double)</signal>
-   <receiver>fps</receiver>
-   <slot>setValue(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>321</x>
-     <y>363</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>966</x>
-     <y>141</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dvr</sender>
-   <signal>recording(bool)</signal>
-   <receiver>camera</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>847</x>
-     <y>219</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>847</x>
-     <y>276</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dvr</sender>
-   <signal>recording(bool)</signal>
-   <receiver>filters</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>847</x>
-     <y>219</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>847</x>
-     <y>333</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>bback</sender>
-   <signal>clicked()</signal>
-   <receiver>browser</receiver>
-   <slot>back()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>847</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>847</x>
-     <y>403</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
-</ui>
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'JansenWidget.ui'
+#
+# Created by: PyQt5 UI code generator 5.10.1
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_Jansen(object):
+    def setupUi(self, Jansen):
+        Jansen.setObjectName("Jansen")
+        Jansen.resize(1050, 727)
+        self.centralwidget = QtWidgets.QWidget(Jansen)
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setContentsMargins(2, 2, 2, 2)
+        self.gridLayout.setSpacing(2)
+        self.gridLayout.setObjectName("gridLayout")
+        self.splitter = QtWidgets.QSplitter(self.centralwidget)
+        self.splitter.setLineWidth(1)
+        self.splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter.setHandleWidth(6)
+        self.splitter.setObjectName("splitter")
+        self.screen = QJansenScreen(self.splitter)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.screen.sizePolicy().hasHeightForWidth())
+        self.screen.setSizePolicy(sizePolicy)
+        self.screen.setMinimumSize(QtCore.QSize(640, 480))
+        self.screen.setObjectName("screen")
+        self.tabWidget = QtWidgets.QTabWidget(self.splitter)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
+        self.tabWidget.setSizePolicy(sizePolicy)
+        self.tabWidget.setMinimumSize(QtCore.QSize(400, 0))
+        self.tabWidget.setAccessibleName("")
+        self.tabWidget.setObjectName("tabWidget")
+        self.tabVideo = QtWidgets.QWidget()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tabVideo.sizePolicy().hasHeightForWidth())
+        self.tabVideo.setSizePolicy(sizePolicy)
+        self.tabVideo.setMinimumSize(QtCore.QSize(0, 0))
+        self.tabVideo.setAccessibleName("")
+        self.tabVideo.setAccessibleDescription("")
+        self.tabVideo.setObjectName("tabVideo")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.tabVideo)
+        self.verticalLayout_4.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayout_4.setSpacing(2)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.groupSource = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupSource.setObjectName("groupSource")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.groupSource)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.bcamera = QtWidgets.QRadioButton(self.groupSource)
+        self.bcamera.setChecked(True)
+        self.bcamera.setObjectName("bcamera")
+        self.horizontalLayout_3.addWidget(self.bcamera)
+        self.bfilters = QtWidgets.QRadioButton(self.groupSource)
+        self.bfilters.setObjectName("bfilters")
+        self.horizontalLayout_3.addWidget(self.bfilters)
+        spacerItem = QtWidgets.QSpacerItem(283, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
+        self.fps = QtWidgets.QDoubleSpinBox(self.groupSource)
+        self.fps.setReadOnly(True)
+        self.fps.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
+        self.fps.setDecimals(1)
+        self.fps.setMaximum(1000.0)
+        self.fps.setProperty("value", 10.0)
+        self.fps.setObjectName("fps")
+        self.horizontalLayout_3.addWidget(self.fps)
+        self.verticalLayout_4.addWidget(self.groupSource)
+        self.groupDvr = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupDvr.setMinimumSize(QtCore.QSize(0, 0))
+        self.groupDvr.setObjectName("groupDvr")
+        self.dvrLayout_2 = QtWidgets.QVBoxLayout(self.groupDvr)
+        self.dvrLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.dvrLayout_2.setSpacing(1)
+        self.dvrLayout_2.setObjectName("dvrLayout_2")
+        self.dvr = QDVR(self.groupDvr)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.dvr.sizePolicy().hasHeightForWidth())
+        self.dvr.setSizePolicy(sizePolicy)
+        self.dvr.setMinimumSize(QtCore.QSize(0, 0))
+        self.dvr.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.dvr.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.dvr.setObjectName("dvr")
+        self.dvrLayout_2.addWidget(self.dvr)
+        self.verticalLayout_4.addWidget(self.groupDvr)
+        self.groupCamera = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupCamera.setMinimumSize(QtCore.QSize(0, 0))
+        self.groupCamera.setObjectName("groupCamera")
+        self.cameraLayout = QtWidgets.QVBoxLayout(self.groupCamera)
+        self.cameraLayout.setContentsMargins(2, 2, 2, 2)
+        self.cameraLayout.setSpacing(1)
+        self.cameraLayout.setObjectName("cameraLayout")
+        self.camera = QtWidgets.QFrame(self.groupCamera)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.camera.sizePolicy().hasHeightForWidth())
+        self.camera.setSizePolicy(sizePolicy)
+        self.camera.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.camera.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.camera.setObjectName("camera")
+        self.cameraLayout.addWidget(self.camera)
+        self.verticalLayout_4.addWidget(self.groupCamera)
+        self.groupFilters = QtWidgets.QGroupBox(self.tabVideo)
+        self.groupFilters.setMinimumSize(QtCore.QSize(0, 0))
+        self.groupFilters.setObjectName("groupFilters")
+        self.filterLayout_2 = QtWidgets.QVBoxLayout(self.groupFilters)
+        self.filterLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.filterLayout_2.setSpacing(1)
+        self.filterLayout_2.setObjectName("filterLayout_2")
+        self.filters = QVideoFilter(self.groupFilters)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.filters.sizePolicy().hasHeightForWidth())
+        self.filters.setSizePolicy(sizePolicy)
+        self.filters.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.filters.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.filters.setObjectName("filters")
+        self.filterLayout_2.addWidget(self.filters)
+        self.verticalLayout_4.addWidget(self.groupFilters)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 338, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_4.addItem(spacerItem1)
+        self.tabWidget.addTab(self.tabVideo, "")
+        self.tabHistogram = QtWidgets.QWidget()
+        self.tabHistogram.setObjectName("tabHistogram")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.tabHistogram)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.histogram = QHistogram(self.tabHistogram)
+        self.histogram.setObjectName("histogram")
+        self.verticalLayout_2.addWidget(self.histogram)
+        self.tabWidget.addTab(self.tabHistogram, "")
+        self.tabVision = QtWidgets.QWidget()
+        self.tabVision.setObjectName("tabVision")
+        self.visionLayout = QtWidgets.QVBoxLayout(self.tabVision)
+        self.visionLayout.setObjectName("visionLayout")
+        self.vision = QtWidgets.QWidget(self.tabVision)
+        self.vision.setObjectName("vision")
+        self.visionLayout.addWidget(self.vision)
+        self.tabWidget.addTab(self.tabVision, "")
+        self.tabHelp = QtWidgets.QWidget()
+        self.tabHelp.setObjectName("tabHelp")
+        self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.tabHelp)
+        self.verticalLayout_6.setContentsMargins(2, 2, 2, 2)
+        self.verticalLayout_6.setSpacing(4)
+        self.verticalLayout_6.setObjectName("verticalLayout_6")
+        self.bback = QtWidgets.QPushButton(self.tabHelp)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bback.sizePolicy().hasHeightForWidth())
+        self.bback.setSizePolicy(sizePolicy)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/icons/go-previous.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.bback.setIcon(icon)
+        self.bback.setObjectName("bback")
+        self.verticalLayout_6.addWidget(self.bback)
+        self.browser = QtWebEngineWidgets.QWebEngineView(self.tabHelp)
+        self.browser.setProperty("url", QtCore.QUrl("qrc:/help/help/jansen.html"))
+        self.browser.setObjectName("browser")
+        self.verticalLayout_6.addWidget(self.browser)
+        self.tabWidget.addTab(self.tabHelp, "")
+        self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
+        Jansen.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Jansen)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1050, 31))
+        self.menubar.setObjectName("menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
+        Jansen.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Jansen)
+        self.statusbar.setObjectName("statusbar")
+        Jansen.setStatusBar(self.statusbar)
+        self.actionSavePhoto = QtWidgets.QAction(Jansen)
+        self.actionSavePhoto.setObjectName("actionSavePhoto")
+        self.actionSavePhotoAs = QtWidgets.QAction(Jansen)
+        self.actionSavePhotoAs.setObjectName("actionSavePhotoAs")
+        self.actionQuit = QtWidgets.QAction(Jansen)
+        self.actionQuit.setObjectName("actionQuit")
+        self.menuFile.addAction(self.actionSavePhoto)
+        self.menuFile.addAction(self.actionSavePhotoAs)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionQuit)
+        self.menubar.addAction(self.menuFile.menuAction())
+
+        self.retranslateUi(Jansen)
+        self.tabWidget.setCurrentIndex(3)
+        self.actionQuit.triggered.connect(Jansen.close)
+        self.screen.sigFPS['double'].connect(self.fps.setValue)
+        self.dvr.recording['bool'].connect(self.camera.setDisabled)
+        self.dvr.recording['bool'].connect(self.filters.setDisabled)
+        self.bback.clicked.connect(self.browser.back)
+        QtCore.QMetaObject.connectSlotsByName(Jansen)
+
+    def retranslateUi(self, Jansen):
+        _translate = QtCore.QCoreApplication.translate
+        Jansen.setWindowTitle(_translate("Jansen", "Jansen"))
+        self.tabWidget.setStatusTip(_translate("Jansen", "Record from video camera directly"))
+        self.groupSource.setTitle(_translate("Jansen", "Recording Source"))
+        self.bcamera.setStatusTip(_translate("Jansen", "Record raw video from camera"))
+        self.bcamera.setText(_translate("Jansen", "Camera"))
+        self.bfilters.setStatusTip(_translate("Jansen", "Record filtered video stream"))
+        self.bfilters.setText(_translate("Jansen", "Filters"))
+        self.fps.setSuffix(_translate("Jansen", " fps"))
+        self.groupDvr.setTitle(_translate("Jansen", "Video Recorder"))
+        self.groupCamera.setTitle(_translate("Jansen", "Video Camera"))
+        self.groupFilters.setTitle(_translate("Jansen", "Video Filters"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVideo), _translate("Jansen", "Video"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHistogram), _translate("Jansen", "Histogram"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVision), _translate("Jansen", "Vision"))
+        self.bback.setText(_translate("Jansen", "Back"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHelp), _translate("Jansen", "Help"))
+        self.menuFile.setTitle(_translate("Jansen", "File"))
+        self.actionSavePhoto.setText(_translate("Jansen", "Save Photo"))
+        self.actionSavePhoto.setShortcut(_translate("Jansen", "Ctrl+S"))
+        self.actionSavePhotoAs.setText(_translate("Jansen", "Save Photo As ..."))
+        self.actionSavePhotoAs.setShortcut(_translate("Jansen", "Ctrl+A"))
+        self.actionQuit.setText(_translate("Jansen", "Quit"))
+        self.actionQuit.setShortcut(_translate("Jansen", "Ctrl+Q"))
+
+from PyQt5 import QtWebEngineWidgets
+from jansenlib.QDVR.QDVR import QDVR
+from jansenlib.QHistogram.QHistogram import QHistogram
+from jansenlib.QJansenScreen import QJansenScreen
+from jansenlib.video.QVideoFilter.QVideoFilter import QVideoFilter
+import help_rc
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Jansen = QtWidgets.QMainWindow()
+    ui = Ui_Jansen()
+    ui.setupUi(Jansen)
+    Jansen.show()
+    sys.exit(app.exec_())
+
