@@ -122,7 +122,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         # ViewBox presents video and contains overlays
         self.viewBox = self.addViewBox(enableMenu=False,
                                        enableMouse=False,
-                                       invertY=False,
+                                       invertY=True,
                                        lockAspect=True)
 
         self.viewBox.addItem(self.imageItem)
