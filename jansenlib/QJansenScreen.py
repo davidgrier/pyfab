@@ -33,7 +33,7 @@ class QCameraThread(QThread):
                 self._shape = frame.shape
                 self.sigNewFrame.emit(frame)
             else:
-                logger.warn('Failed to read frame')
+                logger.debug('Failed to read frame')
         logger.debug('Stopping acquisition loop')
         self.camera.close()
 
