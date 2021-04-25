@@ -176,7 +176,7 @@ class cudaCGH(CGH):
         x = alpha * (x - self.xs)
         y = y - self.ys
         self._iqx = 1j * self.qprp * x
-        self._iqy = 1j * self.qprp * y
+        self._iqy = -1j * self.qprp * y
         self._iqxz = 1j * self.qpar * x * x
         self._iqyz = 1j * self.qpar * y * y
         self.outeratan2f(y.real, x.real, self._theta)

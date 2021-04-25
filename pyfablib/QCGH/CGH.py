@@ -160,7 +160,7 @@ class CGH(QObject):
         x = alpha*(np.arange(self.width) - self.xs)
         y = np.arange(self.height) - self.ys
         self.iqx = 1j * self.qprp * x
-        self.iqy = 1j * self.qprp * y
+        self.iqy = -1j * self.qprp * y
         self.iqxz = 1j * self.qpar * x * x
         self.iqyz = 1j * self.qpar * y * y
         self.theta = np.arctan2.outer(y, x)

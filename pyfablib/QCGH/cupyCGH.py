@@ -123,7 +123,7 @@ class cupyCGH(CGH):
         qx = self.qprp * x
         qy = self.qprp * y
         self._iqx = (1j * qx).astype(cp.complex64)
-        self._iqy = (1j * qy).astype(cp.complex64)
+        self._iqy = (-1j * qy).astype(cp.complex64)
         self._iqxz = (1j * self.qpar * x * x).astype(cp.complex64)
         self._iqyz = (1j * self.qpar * y * y).astype(cp.complex64)
         self.outeratan2f(y, x, self._theta)
