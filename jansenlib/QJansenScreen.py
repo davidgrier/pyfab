@@ -11,7 +11,7 @@ import time
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.ERROR)
 
 
 class QCameraThread(QThread):
@@ -33,7 +33,7 @@ class QCameraThread(QThread):
                 self._shape = frame.shape
                 self.sigNewFrame.emit(frame)
             else:
-                logger.warn('Failed to read frame')
+                logger.debug('Failed to read frame')
         logger.debug('Stopping acquisition loop')
         self.camera.close()
 
