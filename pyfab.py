@@ -174,7 +174,7 @@ class PyFab(QMainWindow, Ui_PyFab):
 
     @pyqtSlot()
     def savePhoto(self, select=False):
-        qimage = self.screen.imageItem.qimage.mirrored(vertical=True)
+        qimage = self.screen.imageItem.qimage
         self.saveImage(qimage, select=select)
 
     @pyqtSlot()

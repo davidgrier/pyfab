@@ -181,6 +181,10 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.updateShape()
 
     @pyqtProperty(object)
+    def shape(self):
+        return self._shape
+
+    @pyqtProperty(object)
     def camera(self):
         return self._camera
 
@@ -220,6 +224,7 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.source.blockSignals(True)
         for filter in self._filters:
             image = filter(image)
+        self._shape = image.shape
         self.source.blockSignals(False)
         self.sigNewFrame.emit(image)
         self.imageItem.setImage(image, autoLevels=False)
