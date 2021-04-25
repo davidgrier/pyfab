@@ -13,7 +13,7 @@ import numpy as np
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARN)
 
 
 def getWidth():
@@ -45,7 +45,9 @@ class QTrapPropertyEdit(QLineEdit):
     @pyqtSlot()
     def updateValue(self):
         self.value = float(str(self.text()))
+        logger.debug('Changing {}: {}'.format(self.name, self.value))
         self.valueChanged.emit(self.name, self.value)
+
 
     @pyqtProperty(float)
     def value(self):
@@ -81,6 +83,7 @@ class QTrapListPropertyEdit(QLineEdit):
         txt = str(self.text())
         self.value = np.fromstring(txt[1:-1], sep=',', dtype=np.float)
         self.valueChanged.emit(self.name, self.value)
+        logger.debug('Changing {}: {}'.format(self.name, self.value))
 
     @pyqtProperty(object)
     def value(self):

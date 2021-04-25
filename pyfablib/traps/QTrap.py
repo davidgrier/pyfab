@@ -13,7 +13,7 @@ from collections import OrderedDict
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARN)
+logger.setLevel(logging.ERROR)
 
 
 class states(Enum):
@@ -109,7 +109,7 @@ class QTrap(QObject):
             self.hologramChanged.emit()
             self.propertyChanged.emit(self)
         except Exception as ex:
-            logger.debug('Could not compute hologram: ', ex)
+            logger.warn('Could not compute hologram: ', ex)
 
     # Customizable methods for subclassed traps
 
@@ -186,9 +186,8 @@ class QTrap(QObject):
         emitting signals.  This is called by QTrapWidget when the
         user edits a property.  Blocking signals prevents a loop.
         """
-        self.blockSignals(True)
+        logger.debug('Setting {}: {}'.format(name, value))
         setattr(self, name, value)
-        self.blockSignals(False)
 
     # Trap properties
     def registerProperties(self):
@@ -207,9 +206,9 @@ class QTrap(QObject):
     @r.setter
     def r(self, r):
         self._r = QVector3D(r)
+        logger.debug('Setting r: {}'.format(r))
         self.updateAppearance()
         self.computeHologram()
-        logger.debug('setting r')
 
     @pyqtProperty(float)
     def x(self):
