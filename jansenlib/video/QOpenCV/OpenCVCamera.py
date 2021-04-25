@@ -4,6 +4,7 @@
 '''QOpenCVCamera: OpenCV video camera'''
 
 import cv2
+import time
 
 import logging
 logging.basicConfig()
@@ -29,6 +30,7 @@ class OpenCVCamera(object):
                  mirrored=False,
                  flipped=True,
                  gray=False):
+        
         self.device = cv2.VideoCapture(cameraID)
 
         if cv2.__version__.startswith('2.'):
@@ -56,6 +58,7 @@ class OpenCVCamera(object):
     def read(self):
         ready, image = self.device.read()
         if not ready:
+            time.sleep(0.01)
             return ready, None
         if image.ndim == 3:
             image = cv2.cvtColor(image, self._conversion)
