@@ -28,12 +28,14 @@ class QVideoPlayer(QObject):
             self._HEIGHT = cv2.cv.CV_CAP_PROP_FRAME_HEIGHT
             self._LENGTH = cv2.cv.CV_CAP_PROP_FRAME_COUNT
             self._FPS = cv2.cv.CV_CAP_PROP_FPS
+            self.conversion = cv2.cv.CV_COLOR_BGR2RGB
         else:
             self._SEEK = cv2.CAP_PROP_POS_FRAMES
             self._WIDTH = cv2.CAP_PROP_FRAME_WIDTH
             self._HEIGHT = cv2.CAP_PROP_FRAME_HEIGHT
             self._LENGTH = cv2.CAP_PROP_FRAME_COUNT
             self._FPS = cv2.CAP_PROP_FPS
+            self.conversion = cv2.COLOR_BGR2RGB
 
         self.capture = cv2.VideoCapture(filename)
         if self.capture.isOpened():
@@ -64,6 +66,8 @@ class QVideoPlayer(QObject):
         if self.emitting:
             ready, self.frame = self.capture.read()
             if ready:
+                if self.frame.ndim == 3:
+                    self.frame = cv2.cvtColor(self.frame, self.conversion)
                 self.sigNewFrame.emit(self.frame)
             else:
                 self.emitting = False

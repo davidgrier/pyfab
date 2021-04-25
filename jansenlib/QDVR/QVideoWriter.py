@@ -35,8 +35,10 @@ class QVideoWriter(QObject):
 
         if cv2.__version__.startswith('2.'):
             fourcc = cv2.cv.CV_FOURCC(*codec)
+            self.conversion = cv2.cv.CV_COLOR_BGR2RGB
         else:
             fourcc = cv2.VideoWriter_fourcc(*codec)
+            self.conversion = cv2.COLOR_BGR2RGB
 
         msg = 'Recording: {}x{}, color: {}, fps: {}'
         logger.info(msg.format(w, h, color, fps))
@@ -52,6 +54,8 @@ class QVideoWriter(QObject):
                 (self.framenumber >= self.target)):
             self.sigFinished.emit()
             return
+        if (frame.ndim == 3):
+            frame = cv2.cvtColor(frame, self.conversion)
         self.writer.write(frame)
         self.framenumber += 1
         self.sigFrameNumber.emit(self.framenumber)

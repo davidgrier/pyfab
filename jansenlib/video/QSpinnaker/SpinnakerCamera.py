@@ -95,29 +95,29 @@ class SpinnakerCamera(object):
     '''
 
     def __init__(self,
-                 acquisitionmode='Continuous',
-                 exposuremode='Timed',
-                 exposureauto='Off',
-                 flipped=False,
-                 framerateauto='Off',
-                 framerateenabled=True,
-                 gainauto='Off',
-                 gray=True,
-                 mirrored=False):
+                 acquisitionmode=None,
+                 exposureauto=None,
+                 exposuremode=None,
+                 flipped=None,
+                 framerateauto=None,
+                 framerateenabled=None,
+                 gainauto=None,
+                 gray=None,
+                 mirrored=None):
         self.open()
 
         # Start acquisition
-        self.acquisitionmode = acquisitionmode
+        self.acquisitionmode = acquisitionmode or 'Continuous'
         self.blacklevelenabled = True
-        self.exposureauto = exposureauto
-        self.exposuremode = exposuremode
-        self.flipped = flipped
-        self.framerateauto = framerateauto
-        self.framerateenabled = framerateenabled
-        self.gainauto = gainauto
+        self.exposureauto = exposureauto or 'Off'
+        self.exposuremode = exposuremode or 'Timed'
+        self.flipped = flipped or False
+        self.framerateauto = framerateauto or 'Off'
+        self.framerateenabled = framerateenabled or True
+        self.gainauto = gainauto or 'Off'
         self.gammaenabled = True
-        self.gray = gray
-        self.mirrored = mirrored
+        self.gray = gray or True
+        self.mirrored = mirrored or False
         self.sharpnessauto = 'Off'
         self.sharpnessenabled = True
         self.start()
