@@ -96,9 +96,11 @@ class QTrappingPattern(pg.ScatterPlotItem):
             logger.debug('refreshHologram')
 
     def selectedPoint(self, position):
+        '''Index of trap at position of mouse click'''
         points = self.pointsAt(position)
-        index = self.points().tolist().index(points[0]) if points else None
-        return index
+        if len(points) == 0:
+            return None
+        return self.points().tolist().index(points[0])
 
     # Selecting traps and groups of traps
     def clickedTrap(self, pos):
