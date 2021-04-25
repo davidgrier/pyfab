@@ -66,7 +66,7 @@
         <string/>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>8</number>
        </property>
        <widget class="QWidget" name="tabVideo">
         <property name="sizePolicy">
@@ -376,8 +376,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>619</width>
-              <height>602</height>
+              <width>588</width>
+              <height>585</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="visionLayout">
@@ -445,8 +445,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>407</width>
-                <height>537</height>
+                <width>383</width>
+                <height>513</height>
                </rect>
               </property>
              </widget>
@@ -701,16 +701,16 @@
             <string>Back</string>
            </property>
            <property name="icon">
-            <iconset resource="help.qrc">
+            <iconset resource="help/help.qrc">
              <normaloff>:/icons/icons/go-previous.svg</normaloff>:/icons/icons/go-previous.svg</iconset>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QWebEngineView" name="browser" native="true">
-           <property name="url" stdset="0">
+          <widget class="QWebEngineView" name="browser">
+           <property name="url">
             <url>
-             <string>qrc:/help/help/pyfab.html</string>
+             <string>qrc:/html/html/pyfab.html</string>
             </url>
            </property>
           </widget>
@@ -887,7 +887,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="help.qrc"/>
+  <include location="help/help.qrc"/>
  </resources>
  <connections>
   <connection>

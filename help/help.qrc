@@ -1,0 +1,23 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/go-previous.svg</file>
+  </qresource>
+  <qresource prefix="html">
+    <file>html/cghtab.html</file>
+    <file>html/hardwaretab.html</file>
+    <file>html/helptab.html</file>
+    <file>html/histogramtab.html</file>
+    <file>html/jansen.html</file>
+    <file>html/pyfab.html</file>
+    <file>html/recordhowto.html</file>
+    <file>html/slmtab.html</file>
+    <file>html/traphowto.html</file>
+    <file>html/traptab.html</file>
+    <file>html/videocamera.html</file>
+    <file>html/videofilters.html</file>
+    <file>html/videorecorder.html</file>
+    <file>html/videotab.html</file>
+    <file>html/visionhowto.html</file>
+    <file>html/visiontab.html</file>
+  </qresource>
+</RCC>
