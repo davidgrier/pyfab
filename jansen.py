@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from PyQt5 import (uic, QtWebEngineWidgets)
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
 
@@ -25,11 +26,11 @@ except Exception as ex:
     from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
 
 
-class Jansen(QMainWindow, Ui_Jansen):
+class Jansen(QMainWindow):
 
     def __init__(self, parent=None, noconfig=False):
         super(Jansen, self).__init__(parent)
-        self.setupUi(self)
+        uic.LoadUi('JansenWidget.ui', self)
         self.configuration = Configuration(self)
 
         # Setup vision tab
