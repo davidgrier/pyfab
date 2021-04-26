@@ -58,7 +58,6 @@ class RenderText(QTask):
 
         # Coordinates of lit pixels
         y, x = np.nonzero(bmp)
-        y *= -1
         x = x + normal(scale=self.fuzz, size=len(x)) - np.mean(x)
         y = y + normal(scale=self.fuzz, size=len(y)) - np.mean(y)
         x *= self.spacing
