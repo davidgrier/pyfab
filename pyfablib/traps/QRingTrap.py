@@ -5,7 +5,6 @@
 from .QTrap import QTrap
 import numpy as np
 from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import (QPainterPath, QFont, QTransform)
 from scipy.special import jv
 
 
@@ -24,17 +23,7 @@ class QRingTrap(QTrap):
         self.structure = phi
 
     def plotSymbol(self):
-        sym = QPainterPath()
-        font = QFont()
-        font.setStyleHint(QFont.SansSerif, QFont.PreferAntialias)
-        font.setPointSize(12)
-        # Scale symbol to unit square
-        box = sym.boundingRect()
-        scale = 1./max(box.width(), box.height())
-        tr = QTransform().scale(scale, scale)
-        # Center symbol on (0, 0)
-        tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
-        return tr.map(sym)
+        return self.letterSymbol('O')
 
     @pyqtProperty(float)
     def R(self):

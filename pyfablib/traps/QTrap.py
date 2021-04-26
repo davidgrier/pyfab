@@ -4,7 +4,7 @@
 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
                           QObject, QPointF)
-from PyQt5.QtGui import QVector3D
+from PyQt5.QtGui import (QVector3D, QPainterPath, QFont, QTransform)
 import numpy as np
 import pyqtgraph as pg
 from enum import Enum
@@ -116,6 +116,20 @@ class QTrap(QObject):
     def plotSymbol(self):
         """Graphical representation of trap"""
         return 'o'
+
+    def letterSymbol(self, letter):
+        sym = QPainterPath()
+        font = QFont()
+        font.setStyleHint(QFont.SansSerif, QFont.PreferAntialias)
+        font.setPointSize(12)
+        sym.addText(0, 0, font, letter)
+        # Scale symbol to unit square
+        box = sym.boundingRect()
+        scale = 1./max(box.width(), box.height())
+        tr = QTransform().scale(scale, scale)
+        # Center symbol on (0, 0)
+        tr.translate(-box.x() - box.width()/2., -box.y() - box.height()/2.)
+        return tr.map(sym)
 
     def updateAppearance(self):
         """Adapt trap appearance to trap motion and property changes"""
