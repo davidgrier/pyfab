@@ -1,26 +1,14 @@
-UIFILE := $(wildcard *.ui)
-PYFILE := $(UIFILE:.ui=.py)
 QRCFILE := $(wildcard *.qrc)
 RCFILE := $(QRCFILE:.qrc=_rc.py)
 
-PYTHON = python
-PYUIC = pyuic5
 PYRCC = pyrcc5
 
-UICOPTS = -x --from-imports
+.PHONY: all clean
 
-.PHONY: all test clean
-
-all: $(PYFILE) $(RCFILE)
-
-test: $(PYFILE)
-	$(PYTHON) $(PYFILE)
+all: $(RCFILE)
 
 clean:
-	-rm $(PYFILE) $(RCFILE)
-
-%.py: %.ui
-	$(PYUIC) $< $(UICOPTS) -o $@
+	-rm $(RCFILE)
 
 %_rc.py: %.qrc
 	$(PYRCC) $< -o $@

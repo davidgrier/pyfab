@@ -1,23 +1,25 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (QObject, QThread, QEvent,
-                          pyqtSignal, pyqtSlot, pyqtProperty)
+from PyQt5 import uic
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
+                          QObject, QThread)
 from PyQt5.QtWidgets import (QFrame, QFileDialog)
+import os
+
 from common.clickable import clickable
-from .QDVRWidget import Ui_QDVRWidget
 from .QVideoWriter import QVideoWriter
 from .QHDF5Writer import QHDF5Writer
 from .QVideoPlayer import QVideoPlayer
 from .QHDF5Player import QHDF5Player
-import os
+from .icons_rc import *
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 
-class QDVR(QFrame, Ui_QDVRWidget):
+class QDVR(QFrame):
 
     recording = pyqtSignal(bool)
 
@@ -28,12 +30,15 @@ class QDVR(QFrame, Ui_QDVRWidget):
                  filename='~/data/fabdvr.avi'):
         super(QDVR, self).__init__(parent)
 
+        dir = os.path.dirname(os.path.abspath(__file__))
+        uifile = os.path.join(dir, 'QDVRWidget.ui')
+        uic.loadUi(uifile, self)
+
         self._writer = None
         self._player = None
         self._framenumber = 0
         self._nframes = 0
 
-        self.setupUi(self)
         self.connectSignals()
 
         self.source = source
