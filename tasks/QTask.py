@@ -40,7 +40,13 @@ class QTask(QObject):
     sigDone = pyqtSignal()
     sigUnblocked = pyqtSignal()
 
-    def __init__(self, delay=0, nframes=0, skip=1, paused=False, blocking=True, **kwargs):
+    def __init__(self,
+                 delay=0,
+                 nframes=0,
+                 skip=1,
+                 paused=False,
+                 blocking=True,
+                 **kwargs):
         super(QTask, self).__init__(**kwargs)
         self.source = 'camera'
         self._blocking = blocking
@@ -52,9 +58,11 @@ class QTask(QObject):
         self._busy = False
         self._frame = 0
         self._data = dict()
-        
-        self.register = None if self.parent() is None else self.parent().tasks.registerTask 
         self.widget = None
+        if self.parent() is None:
+            self.register = None
+        else:
+            self.register = self.parent().tasks.registerTask
     
     def initialize(self, frame):
         """Perform initialization operations"""
@@ -83,8 +91,9 @@ class QTask(QObject):
     def blocking(self):
         return self._blocking
     
-    @blocking.setter                      #### Call setter to move background task to background
+    @blocking.setter
     def blocking(self, blocking):
+        '''Use setter to move task to background'''
         if self.blocking and not blocking:
             self._blocking = False
             self.sigUnblocked.emit()
@@ -94,17 +103,7 @@ class QTask(QObject):
     @pyqtSlot(list)
     @pyqtSlot(np.ndarray)
     def handleTask(self, frame):
-        # logger.debug('Handling Task')
-        # logger.info('{}: {}'.format(self.name, type(frame)))
-        # try:
-            self._handleTask(frame)
-        # except Exception as ex:
-        #     self._busy = True
-        #     logger.warning('Killing task : {}'.format(ex))
-        #     data = self.data()
-        #     data['error'] = ex
-        #     self.setData(data)
-        #     self.stop()
+        self._handleTask(frame)
 
     def _handleTask(self, frame):
         if not self._initialized:
@@ -125,8 +124,7 @@ class QTask(QObject):
         self._busy = True
         self.complete()
         self.stop()
-        
-        
+           
     @pyqtSlot(bool)
     def pause(self, state):
         self._paused = state
@@ -141,7 +139,8 @@ class QTask(QObject):
         self.sigDone.emit()
         logger.info('TASK: {} done'.format(self.__class__.__name__))
     
-    def serialize(self, filename=None):   #### Save name and configurable settings
+    def serialize(self, filename=None):
+        '''Save name and configurable settings'''
         info = self.widget.settings
         info['name'] = self.name
         if filename is not None:
@@ -149,8 +148,7 @@ class QTask(QObject):
                 json.dump(info, f)
         return info    
     
-#### Slots for setting traps/trap groups.  
-    
+    # Slots for setting traps/trap groups.  
     @pyqtSlot()
     def setTraps(self):
         self.traps = self.parent().pattern.prev.flatten()
@@ -160,11 +158,15 @@ class QTask(QObject):
         self.parent().pattern.prev = self.group
         self.group.tree()
  
-    
-    #### UI setup
+    # UI setup
     def setDefaultWidget(self):
-        #### If self.widget is replaced by subclass, do we need to worry about properly deleting it? (i.e. deleteLater()) 
-        self.widget = QSettingsWidget(parent=None, device=self, ui=TaskUi(self), include=list(self.__dict__.keys()))  
+        # If self.widget is replaced by subclass,
+        # do we need to worry about properly deleting it?
+        # (i.e. deleteLater()) 
+        self.widget = QSettingsWidget(parent=None,
+                                      device=self,
+                                      ui=TaskUi(self),
+                                      include=list(self.__dict__.keys()))  
    
     
 class TaskUi(Ui_DefaultTaskWidget):        
@@ -177,7 +179,8 @@ class TaskUi(Ui_DefaultTaskWidget):
         self.layout = QFormLayout(self.settingsView)       
         keys = list(self.task.__dict__.keys())
 
-        for key in ['nframes', 'skip', 'delay', 'register', 'name', 'widget', '_blocking', '_initialized', '_frame', '_data', '_paused', '_busy']:
+        badkeys = ['nframes', 'skip', 'delay', 'register', 'name', 'widget', '_blocking', '_initialized', '_frame', '_data', '_paused', '_busy']
+        for key in badkeys:
             keys.remove(key)
 
         if '_trajectories' in keys:
@@ -189,9 +192,6 @@ class TaskUi(Ui_DefaultTaskWidget):
             self.setTraps.clicked.connect(self.task.setTraps)
             self.showSelection.setEnabled(True)
             self.showSelection.clicked.connect(self.task.selectCurrentTraps)
-#         if 'traps' in keys:
-#             keys.remove('traps')
-#             self.promptTraps()
              
         keys.reverse()    
         for key in keys:

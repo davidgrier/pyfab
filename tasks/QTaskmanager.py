@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import (QAbstractListModel, QModelIndex, pyqtSlot, pyqtSignal, pyqtProperty) 
+from PyQt5.QtCore import (pyqtSlot, pyqtSignal, pyqtProperty,
+                          QAbstractListModel)                  
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
-from .QTask import QTask
 from collections import deque
-import importlib
+from importlib import import_module
 import json
+
+from .QTask import QTask
+
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
-# class QTaskQueueManager(QAbstractListModel):
-#     def __init__(self, *args, 
 
 class QTaskmanager(QAbstractListModel):
 
@@ -39,7 +40,8 @@ class QTaskmanager(QAbstractListModel):
 
     def __init__(self, parent=None):
         super(QTaskmanager, self).__init__(parent)
-        self.sources = {'camera': self.parent().screen.source.sigNewFrame, 'screen': self.parent().screen.sigNewFrame}
+        self.sources = {'camera': self.parent().screen.source.sigNewFrame,
+                        'screen': self.parent().screen.sigNewFrame}
         self.task = None
         self.taskData = dict()
         self.tasks = deque()
@@ -50,7 +52,7 @@ class QTaskmanager(QAbstractListModel):
         """Places the named task into the task queue."""
         if isinstance(taskname, str):
             try:
-                taskmodule = importlib.import_module('tasks.lib.' + taskname)
+                taskmodule = import_module('tasks.lib.' + taskname)
                 taskclass = getattr(taskmodule, taskname)
                 task = taskclass(parent=self.parent(),
                                  blocking=blocking, 
@@ -81,20 +83,23 @@ class QTaskmanager(QAbstractListModel):
         try:
             self.sources[task.source].connect(task.handleTask)
         except KeyError:
-            logger.warn('Connect failed: PyFab has no source named {}'.format(task.source))
+            msg = 'Connect failed: PyFab has no source named {}'
+            logger.warn(msg.format(task.source))
                 
     def disconnectSignals(self, task):
             try:
                 self.sources[task.source].disconnect(task.handleTask)
             except KeyError:
-                logger.warn('Connect failed: PyFab has no source named {}'.format(task.source))
+                msg = 'Disconnect failed: PyFab has no source named {}'
+
+                logger.warn(msg.format(task.source))
             except AttributeError:
                 logger.warn('could not disconnect signals')
-            # except TypeError:
-            #     logger.warn('signal already disconnected')
 
     def setTaskData(self, task):
-        for attr in list(self.taskData.keys()).copy():   ## can't pop attr's while also looping over attr's.  Instead, copy the keys (a list of strings) and loop over that
+        for attr in list(self.taskData.keys()).copy():
+            # can't pop attr's while also looping over attr's.
+            # Instead, copy the keys and loop over that
             if hasattr(task, attr):
                 setattr(task, attr, self.taskData.pop(attr))
         # FIXME: Remove so that programmatically
@@ -121,22 +126,25 @@ class QTaskmanager(QAbstractListModel):
                 logger.debug('Starting background task')
         if self.task is None:       
             try:               
-                if self._paused:                         #### If paused while the queue is empty, queue a placeholder task so that first queued task
-                    self.task = QTask(paused=True)       #### remains in queue until unpaused
+                if self._paused:
+                    # If paused while the queue is empty,
+                    # queue a placeholder task so that first queued task
+                    # remains in queue until unpaused
+                    self.task = QTask(paused=True)      
                     self.task.name = 'Queue Paused'
-                else:                                  
-                    self.task = self.tasks.popleft()     #### Otherwise, dequeue next task
+                else:
+                    # Otherwise, dequeue next task
+                    self.task = self.tasks.popleft()     
                 self.connectSignals(self.task)
                 self.setTaskData(self.task)
             except IndexError:
-                # self.taskData.clear()
                 logger.info('Completed all pending tasks')
     
         self.layoutChanged.emit()  
 
     @pyqtSlot(QTask)
     def dequeueTask(self, task):
-        """Removes completed task from task queue or background list"""
+        """Remove completed task from task queue or background list"""
         self.disconnectSignals(task)
         if task.blocking:
             self.getTaskData(self.task)
@@ -201,52 +209,59 @@ class QTaskmanager(QAbstractListModel):
         else:
             return None
     
-    #### QAbstractItemModel must subclass data (tells PyQt how to display list) and rowCount (returns # of rows)
+    # QAbstractItemModel must subclass 'data' and 'rowCount'
     def data(self, index, role):
-#         print("where's my data?")
+        task = self.taskAt(index.row())
+        if task is None:
+            return None
         if role == Qt.DisplayRole:
-            task = self.taskAt(index.row())
             suffix = '*' if task is self.task else ''
-            return None if task is None else '{}) {}{}'.format(str(index.row()), task.name, suffix)
+            return '{}) {}{}'.format(str(index.row()),
+                                         task.name,
+                                         suffix)
         elif role == Qt.FontRole:
-            task = self.taskAt(index.row())
-            if task is None:
-                return None
             font = QFont()
             font.setBold(not task._blocking)
             font.setItalic(task._paused)
             return font
         
     def rowCount(self, index):
-        return len(self.tasks)+len(self.bgtasks)+1
+        return len(self.tasks) + len(self.bgtasks) + 1
     
-    @pyqtSlot()   #### Toggle pause for all selected tasks
+    @pyqtSlot()
     def toggleSelected(self):
-        tasks = [self.taskAt(index.row()) for index in self.parent().TaskManagerView.selectedIndexes()]
+        '''Toggle pause for all selected tasks'''
+        indexes = self.parent().TaskManagerView.selectedIndexes()
+        tasks = [self.taskAt(index.row()) for index in indexes]
         state = all([task._paused for task in tasks])
         for task in tasks:
             task._paused = not state
         self.layoutChanged.emit()
         
-    @pyqtSlot()   #### Toggle pause for current task
+    @pyqtSlot()
     def toggleCurrent(self):
-        task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
-        if task is None: return
+        '''Toggle pause for current task'''
+        index = self.parent().TaskManagerView.currentIndex().row()
+        task = self.taskAt(index)
+        if task is None:
+            return
         task._paused = not task._paused
         self.layoutChanged.emit()
   
-    @pyqtSlot()   #### Dequeue all selected tasks
+    @pyqtSlot() 
     def removeSelected(self):
+        '''Dequeue all selected tasks'''
         for index in self.parent().TaskManagerView.selectedIndexes():
             self.dequeueTask(self.taskAt(index.row()))
         self.layoutChanged.emit()
 
-    @pyqtSlot()    #### Switch the task properties widget to that of the selected task
+    @pyqtSlot()
     def displayProperties(self):
-        task = self.taskAt(self.parent().TaskManagerView.currentIndex().row())
-        if task is None: return
-        print(task.__dict__)
-
+        '''Switch the task properties widget the selected task'''
+        index = self.parent().TaskManagerView.currentIndex().row()
+        task = self.taskAt(index)
+        if task is None:
+            return
         self.parent().TaskPropertiesLayout.setCurrentWidget(task.widget)
             
  

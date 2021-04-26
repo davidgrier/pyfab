@@ -11,9 +11,10 @@ class VortexTrap(QTask):
 
     def __init__(self, center3=None, **kwargs):
         super(VortexTrap, self).__init__(**kwargs)
-        self.center3 = center3 or (self.parent().cgh.device.xc,
-                           self.parent().cgh.device.yc,
-                           0)
+        if center3 is None:
+            dev = self.parent().cgh.device
+            center3 = (dev.xc, dev.yc, 0)
+        self.center3 = center3
 
     def complete(self):
         (xc, yc, zc) = self.center3
