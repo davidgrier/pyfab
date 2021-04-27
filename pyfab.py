@@ -5,6 +5,7 @@
 from PyQt5 import (uic, QtWebEngineWidgets)
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog, QStackedLayout)
 from PyQt5.QtCore import pyqtSlot
+import os
 
 from jansenlib.video import QCamera
 from pyfablib.QCGH import CGH
@@ -31,8 +32,11 @@ class PyFab(QMainWindow):
 
     def __init__(self, parent=None, doconfig=True):
         super(PyFab, self).__init__(parent)
+
+        dir = os.path.dirname(os.path.abspath(__file__))
+        uifile = os.path.join(dir, 'pyfablib', 'FabWidget.ui')
+        uic.loadUi(uifile, self)
         
-        uic.loadUi('FabWidget.ui', self)
         self.configuration = Configuration(self)
 
         # Camera
