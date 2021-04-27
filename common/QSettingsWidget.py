@@ -10,7 +10,6 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
-#logger.setLevel(logging.DEBUG)
 
 
 class QSettingsWidget(QFrame):
@@ -169,7 +168,8 @@ class QSettingsWidget(QFrame):
             wid.setChecked(value)
         elif isinstance(wid, QPushButton):
             pass
-        elif isinstance(wid, QLabel):   ## Label will display property but is non-interactive
+        elif isinstance(wid, QLabel):
+            # Label will display property but is non-interactive
             wid.setText(str(value))
         elif isinstance(wid, QLineEdit):
             wid.setText(str(value))
@@ -305,7 +305,8 @@ class QSettingsWidget(QFrame):
 #                wid.returnPressed.disconnect()
                 wid.textEdited.disconnect(self.updateDevice)
             else:
-                logger.warn('Unknown property: {}: {}'.format(prop, type(wid)))
+                msg = 'Unknown property: {}: {}'
+                logger.warn(msg.format(prop, type(wid)))
 
     def getProperties(self):
         '''Create list of properties
@@ -319,5 +320,6 @@ class QSettingsWidget(QFrame):
         uprops = [name for name, _ in inspect.getmembers(self.ui)]
         logger.debug('UI Properties: {}'.format(uprops))
         props = [name for name in dprops if name in uprops]
-        self._properties = [name for name in props if ('_' not in name or name in self.include)]
+        self._properties = [name for name in props if
+                            ('_' not in name or name in self.include)]
         logger.debug('Common Properties: {}'.format(self._properties))
