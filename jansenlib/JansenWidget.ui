@@ -393,16 +393,16 @@
             <string>Back</string>
            </property>
            <property name="icon">
-            <iconset resource="help.qrc">
+            <iconset resource="../help/help.qrc">
              <normaloff>:/icons/icons/go-previous.svg</normaloff>:/icons/icons/go-previous.svg</iconset>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QWebEngineView" name="browser" native="true">
-           <property name="url" stdset="0">
+          <widget class="QWebEngineView" name="browser">
+           <property name="url">
             <url>
-             <string>qrc:/help/help/jansen.html</string>
+             <string>qrc:/html/html/jansen.html</string>
             </url>
            </property>
           </widget>
@@ -420,7 +420,7 @@
      <x>0</x>
      <y>0</y>
      <width>1050</width>
-     <height>31</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -462,6 +462,15 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
+   <container>1</container>
+   <slots>
+    <slot>back()</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
    <class>QDVR</class>
    <extends>QFrame</extends>
    <header>jansenlib.QDVR.QDVR</header>
@@ -491,18 +500,9 @@
    <header>jansenlib.QHistogram.QHistogram</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
-   <container>1</container>
-   <slots>
-    <slot>back()</slot>
-   </slots>
-  </customwidget>
  </customwidgets>
  <resources>
-  <include location="help.qrc"/>
+  <include location="../help/help.qrc"/>
  </resources>
  <connections>
   <connection>

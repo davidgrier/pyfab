@@ -4,8 +4,9 @@
 from PyQt5 import (uic, QtWebEngineWidgets)
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
+import os
 
-from JansenWidget import Ui_Jansen
+from jansenlib.video import QCamera
 from common.Configuration import Configuration
 
 import logging
@@ -19,18 +20,16 @@ try:
 except Exception as ex:
     ex1 = ex
 
-try:
-    from jansenlib.video.QSpinnaker.QSpinnaker import QSpinnaker as QCamera
-except Exception as ex:
-    logger.warning('Could not import Spinnaker camera: {}'.format(ex))
-    from jansenlib.video.QOpenCV.QOpenCV import QOpenCV as QCamera
-
 
 class Jansen(QMainWindow):
 
     def __init__(self, parent=None, noconfig=False):
         super(Jansen, self).__init__(parent)
-        uic.LoadUi('JansenWidget.ui', self)
+
+        dir = os.path.dirname(os.path.abspath(__file__))
+        uifile = os.path.join(dir, 'jansenlib', 'JansenWidget.ui')
+        uic.loadUi(uifile, self)
+        
         self.configuration = Configuration(self)
 
         # Setup vision tab
