@@ -9,6 +9,8 @@ import os
 from jansenlib.video import QCamera
 from common.Configuration import Configuration
 
+import help.jansen_help_rc
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)

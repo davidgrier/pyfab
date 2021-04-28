@@ -376,8 +376,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>588</width>
-              <height>585</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="visionLayout">
@@ -460,8 +460,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>403</width>
-                <height>552</height>
+                <width>98</width>
+                <height>28</height>
                </rect>
               </property>
              </widget>
@@ -716,7 +716,7 @@
             <string>Back</string>
            </property>
            <property name="icon">
-            <iconset resource="help/help.qrc">
+            <iconset resource="../help/pyfab_help.qrc">
              <normaloff>:/icons/icons/go-previous.svg</normaloff>:/icons/icons/go-previous.svg</iconset>
            </property>
           </widget>
@@ -843,6 +843,10 @@
    <class>QWebEngineView</class>
    <extends>QWidget</extends>
    <header location="global">QtWebEngineWidgets/QWebEngineView</header>
+   <container>1</container>
+   <slots>
+    <slot>back()</slot>
+   </slots>
   </customwidget>
   <customwidget>
    <class>QDVR</class>
@@ -869,6 +873,12 @@
    </slots>
   </customwidget>
   <customwidget>
+   <class>QHistogram</class>
+   <extends>QWidget</extends>
+   <header>jansenlib.QHistogram.QHistogram</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QCGH</class>
    <extends>QFrame</extends>
    <header>pyfablib.QCGH.QCGH</header>
@@ -886,12 +896,6 @@
    <header>pyfablib.QSLMWidget</header>
   </customwidget>
   <customwidget>
-   <class>QHistogram</class>
-   <extends>QWidget</extends>
-   <header>jansenlib.QHistogram.QHistogram</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>QHardwareTab</class>
    <extends>QWidget</extends>
    <header>pyfablib.QHardwareTab</header>
@@ -902,7 +906,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="help/help.qrc"/>
+  <include location="../help/pyfab_help.qrc"/>
  </resources>
  <connections>
   <connection>

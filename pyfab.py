@@ -14,7 +14,7 @@ from pyfablib.traps import QTrappingPattern
 from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
 
-import help.help_rc
+import help.pyfab_help_rc
 
 try:
     ex1 = None
