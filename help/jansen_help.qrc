@@ -2,6 +2,9 @@
   <qresource prefix="icons">
     <file>icons/go-previous.svg</file>
   </qresource>
+  <qresource prefix="css">
+    <file>css/pyfab.css</file>
+  </qresource>
   <qresource prefix="html">
     <file>html/cghtab.html</file>
     <file>html/hardwaretab.html</file>

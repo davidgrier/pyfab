@@ -3,6 +3,7 @@
 """Control panel for holographic trapping hardware"""
 
 from PyQt5.QtWidgets import (QWidget, QLabel)
+from PyQt5.QtCore import pyqtSlot
 from .QProscan.QProscan import QProscan
 from .QIPGLaser.QIPGLaser import QIPGLaser
 from common.tabLayout import tabLayout
@@ -18,7 +19,6 @@ class QHardwareTab(QWidget):
     def __init__(self, parent=None):
         super(QHardwareTab, self).__init__(parent)
         self.title = 'Hardware'
-        self.index = -1
         self._has_content = False
 
         layout = tabLayout(self)
@@ -41,8 +41,9 @@ class QHardwareTab(QWidget):
             self.wlaser = None
             logger.warning('Could not install laser: {}'.format(ex))
 
+    @pyqtSlot(int)
     def expose(self, index):
-        if index == self.index:
+        if self.sender().widget(index) is self.parent():
             logger.debug('exposing')
             if self.wstage is not None:
                 self.wstage.start()

@@ -99,14 +99,11 @@ class PyFab(QMainWindow):
         self.dvr.filename = self.configuration.datadir + 'pyfab.avi'
 
         self.TaskPropertiesLayout = QStackedLayout(self.TaskPropertiesView)
-        index = 4
-        self.hardware.index = index
-        self.tabWidget.currentChanged.connect(self.hardware.expose)
+        index = self.tabWidget.indexOf(self.hardware.parent())
         self.tabWidget.setTabEnabled(index, self.hardware.has_content())
         self.slmView.setRange(xRange=[0, self.slm.width()],
                               yRange=[0, self.slm.height()],
                               padding=0)
-        self.slmView.setYRange(0, self.slm.height())
         buildTaskMenu(self)
         self.adjustSize()
 
@@ -138,7 +135,12 @@ class PyFab(QMainWindow):
         self.bfilters.clicked.connect(
             lambda: self.setDvrSource(self.screen))
 
-        # 2. Task pipeline
+        # 2. Tab expose events
+        self.tabWidget.currentChanged.connect(self.hardware.expose)
+        self.tabWidget.currentChanged.connect(
+            lambda n: self.slmView.setData(self.cgh.device.phi))
+
+        # 3. Task pipeline
         self.bpausequeue.clicked.connect(self.pauseTasks)
         self.bclearqueue.clicked.connect(self.stopTasks)
         
