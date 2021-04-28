@@ -1,4 +1,7 @@
 <RCC>
+  <qresource prefix="icons">
+    <file>icons/go-previous.svg</file>
+  </qresource>
   <qresource prefix="html">
     <file>html/cghtab.html</file>
     <file>html/hardwaretab.html</file>
@@ -16,8 +19,5 @@
     <file>html/videotab.html</file>
     <file>html/visionhowto.html</file>
     <file>html/visiontab.html</file>
-  </qresource>
-  <qresource prefix="icons">
-    <file>icons/go-previous.svg</file>
   </qresource>
 </RCC>

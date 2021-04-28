@@ -393,7 +393,7 @@
             <string>Back</string>
            </property>
            <property name="icon">
-            <iconset resource="../help/help.qrc">
+            <iconset resource="../help/jansen_help.qrc">
              <normaloff>:/icons/icons/go-previous.svg</normaloff>:/icons/icons/go-previous.svg</iconset>
            </property>
           </widget>
@@ -502,7 +502,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../help/help.qrc"/>
+  <include location="../help/jansen_help.qrc"/>
  </resources>
  <connections>
   <connection>

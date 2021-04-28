@@ -2,7 +2,8 @@
 
 """QJansenScreen.py: PyQt GUI for live video with graphical overlay."""
 
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty, QThread, QSize)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, pyqtProperty,
+                          QThread, QSize)
 from PyQt5.QtGui import (QMouseEvent, QWheelEvent)
 import pyqtgraph as pg
 import numpy as np
@@ -224,8 +225,8 @@ class QJansenScreen(pg.GraphicsLayoutWidget):
         self.source.blockSignals(True)
         for filter in self._filters:
             image = filter(image)
-        self._shape = image.shape
         self.source.blockSignals(False)
+        self._shape = image.shape
         self.sigNewFrame.emit(image)
         self.imageItem.setImage(image, autoLevels=False)
         if self.fpsmeter.tick():

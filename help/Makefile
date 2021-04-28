@@ -1,18 +1,14 @@
-QRCFILE := help.qrc
+QRCFILE := $(wildcard *.qrc)
 RCFILE := $(QRCFILE:.qrc=_rc.py)
 HELPFILES := $(wildcard html/*.html)
 
 PYRCC = pyrcc5
 
-UICOPTS = -x
-
 .PHONY: all help clean
 
-all: $(RCFILE)
+all: help
 
-help: help_rc.py
-
-help_rc.py: help.qrc $(HELPFILES)
+help: $(RCFILE)
 
 clean:
 	-rm $(RCFILE)
