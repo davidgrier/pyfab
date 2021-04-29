@@ -3,7 +3,6 @@
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot)
 import numpy as np
 import cv2
-import platform
 
 import logging
 logging.basicConfig()
@@ -27,11 +26,13 @@ class QVideoWriter(QObject):
         h, w = self.shape[0:2]
 
         if codec is None:
-            codec = 'FFV1'
-            #if platform.system() == 'Linux':
-            #    codec = 'HFYU'
-            #else:
-            #    codec = 'X264'
+            # NOTE: libavcodec appears to seg fault when
+            # recording with the lossless FFV1 codec
+            # codec = 'FFV1'
+
+            # NOTE: HuffyYUV appears to work on both
+            # Ubuntu and Macports
+            codec = 'HFYU'
 
         if cv2.__version__.startswith('2.'):
             fourcc = cv2.cv.CV_FOURCC(*codec)
