@@ -25,7 +25,7 @@ class vmedian(object):
 
     def filter(self, data):
         self.add(data)
-        return self.get()
+        return self.get() if self.initialized else data
 
     def get(self, reshape=True):
         """Return current median image
