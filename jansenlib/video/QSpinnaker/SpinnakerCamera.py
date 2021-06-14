@@ -423,11 +423,15 @@ class SpinnakerCamera(object):
 
     def _get_feature(self, fname):
         feature = self._feature(fname)
-        value = None
-        if self._is_enum(feature) or self._is_command(feature) or self._is_category(feature):
+        
+        if self._is_enum(feature) or self._is_command(feature):
             value = feature.ToString()
+        elif self._is_category(feature):
+            value = None
         elif self._is_readable(feature):
             value = feature.GetValue()
+        else:
+            value = None
         logger.debug('Getting {}: {}'.format(fname, value))
         return value
 
@@ -475,16 +479,11 @@ class SpinnakerCamera(object):
             if self._is_category(category):
                 cname = category.GetName()
                 cnode = self._feature(cname)
-                features = []
-                #features = dict()
+                features = dict()
                 for node in cnode.GetFeatures():
-                    if not self._is_readable(node):
-                        continue
                     fname = node.GetName()
-                    # features[fname] = self._get_feature(fname)
-                    features.append(fname)
+                    features[fname] = self._get_feature(fname)
                 categories[cname] = features
-#        categories = [category.GetName() for category in root.GetFeatures()]
         return categories
 
     def transport_info(self):
