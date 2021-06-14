@@ -212,11 +212,11 @@ class SpinnakerCamera(object):
 
     @property
     def exposuremax(self):
-        return self._get_feature('AutoExposureExposureTimeUpperLimit')
+        return self._feature('ExposureTime').GetMax()
 
     @property
     def exposuremin(self):
-        return self._get_feature('AutoExposureExposureTimeLowerLimit')
+        return self._feature('ExposureTime').GetMin()
 
     @property
     def exposuremode(self):
@@ -242,16 +242,6 @@ class SpinnakerCamera(object):
     def framerate(self, value):
         self._set_feature('AcquisitionFrameRate', value)
 
-    """
-    @property
-    def framerateauto(self):
-        return self._get_feature('AcquisitionFrameRateAuto')
-
-    @framerateauto.setter
-    def framerateauto(self, state):
-        self._set_feature('AcquisitionFrameRateAuto', state)
-    """
-
     @property
     def framerateenabled(self):
         return self._get_feature('AcquisitionFrameRateEnable')
@@ -259,6 +249,14 @@ class SpinnakerCamera(object):
     @framerateenabled.setter
     def framerateenabled(self, state):
         self._set_feature('AcquisitionFrameRateEnable', state)
+        
+    @property
+    def frameratemax(self):
+        return self._feature('AcquisitionFrameRate').GetMax()
+
+    @property
+    def frameratemin(self):
+        return self._feature('AcquisitionFrameRate').GetMin()
 
     @property
     def gain(self):
@@ -278,11 +276,11 @@ class SpinnakerCamera(object):
 
     @property
     def gainmax(self):
-        return self._get_feature('AutoExposureGainUpperLimit')
+        return self._feature('Gain').GetMax()
 
     @property
     def gainmin(self):
-        return self._get_feature('AutoExposureGainLowerLimit')
+        return self._feature('Gain').GetMin()
 
     @property
     def gamma(self):
@@ -299,6 +297,14 @@ class SpinnakerCamera(object):
     @gammaenabled.setter
     def gammaenabled(self, state):
         self._set_feature('GammaEnable', bool(state))
+
+    @property
+    def gammamax(self):
+        return self._feature('Gamma').GetMax()
+
+    @property
+    def gammamin(self):
+        return self._feature('Gamma').GetMin()
 
     @property
     def gray(self):
@@ -411,14 +417,14 @@ class SpinnakerCamera(object):
             node = self._nodes.GetNode(fname)
             type = node.GetPrincipalInterfaceType()
             feature = self._fmap[type](node)
-        except AttributeError as ex:
-            logger.warn('Could not access Property: {}: {}'.format(fname, ex))
+        except AttributeError:
+            logger.warn('Could not access Property: {}'.format(fname))
         return feature
 
     def _get_feature(self, fname):
         feature = self._feature(fname)
         value = None
-        if self._is_enum(feature) or self._is_command(feature):
+        if self._is_enum(feature) or self._is_command(feature) or self._is_category(feature):
             value = feature.ToString()
         elif self._is_readable(feature):
             value = feature.GetValue()
