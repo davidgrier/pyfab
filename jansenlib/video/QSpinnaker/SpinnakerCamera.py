@@ -470,19 +470,21 @@ class SpinnakerCamera(object):
     def camera_info(self):
         '''Return dict of camera inodes and values'''
         root = PySpin.CCategoryPtr(self._nodes.GetNode('Root'))
-        #categories = dict()
-        #for category in root.GetFeatures():
-        #    if self._is_category(category):
-        #        cname = category.GetName()
-        #        cnode = self._feature(cname)
-        #        features = dict()
-        #        for node in cnode.GetFeatures():
-        #            if not self._is_readable(node):
-        #                continue
-        #            fname = node.GetName()
-        #            features[fname] = self._get_feature(fname)
-        #        categories[cname] = features
-        categories = [category.GetName() for category in root.GetFeatures()]
+        categories = dict()
+        for category in root.GetFeatures():
+            if self._is_category(category):
+                cname = category.GetName()
+                cnode = self._feature(cname)
+                features = []
+                #features = dict()
+                for node in cnode.GetFeatures():
+                    if not self._is_readable(node):
+                        continue
+                    fname = node.GetName()
+                    # features[fname] = self._get_feature(fname)
+                    features.append(fname)
+                categories[cname] = features
+#        categories = [category.GetName() for category in root.GetFeatures()]
         return categories
 
     def transport_info(self):
