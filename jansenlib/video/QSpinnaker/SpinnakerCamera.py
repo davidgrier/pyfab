@@ -29,30 +29,30 @@ _amap = {'acquisitionmode': 'AcquisitionMode',
          'acquisitionstart': 'AcquisitionStart',
          'acquisitionstop': 'AcquisitionStop',
          'blacklevel': 'BlackLevel',
-         'blacklevelenabled': 'BlackLevelEnabled',
+         'blacklevelenabled': 'BlackLevelClampingEnable',
          'exposure': 'ExposureTime',
          'exposureauto': 'ExposureAuto',
-         'exposuremax': 'AutoExposureTimeUpperLimit',
-         'exposuremin': 'AutoExposureTimeLowerLimit',
+         'exposuremax': 'AutoExposureExposureTimeUpperLimit',
+         'exposuremin': 'AutoExposureExposureTimeLowerLimit',
          'exposuremode': 'ExposureMode',
          'framerate': 'AcquisitionFrameRate',
          'framerateauto': 'AcquisitionFrameRateAuto',
-         'framerateenabled': 'AcquisitionFrameRateEnabled',
+         'framerateenabled': 'AcquisitionFrameRateEnable',
          'gain': 'Gain',
          'gainauto': 'GainAuto',
-         'gainmax': 'AutoGainLowerLimit',
-         'gainmin': 'AutoGainUpperLimit',
+         'gainmax': 'AutoExposureGainLowerLimit',
+         'gainmin': 'AutoExposureGainUpperLimit',
          'gamma': 'Gamma',
-         'gammaenabled': 'GammaEnabled',
+         'gammaenabled': 'GammaEnable',
          'height': 'Height',
          'heightmax': 'HeightMax',
          'mirrored': 'ReverseX',
          'pixelformat': 'PixelFormat',
          'sensorwidth': 'SensorWidth',
          'sensorheight': 'SensorHeight',
-         'sharpness': 'Sharpness',
-         'sharpnessauto': 'SharpnessAuto',
-         'sharpnessenabled': 'SharpnessEnabled',
+         'sharpness': 'Sharpening',
+         'sharpnessauto': 'SharpeningAuto',
+         'sharpnessenabled': 'SharpeningEnable',
          'videomode': 'VideoMode',
          'width': 'Width',
          'widthmax': 'WidthMax',
@@ -188,11 +188,11 @@ class SpinnakerCamera(object):
 
     @property
     def blacklevelenabled(self):
-        return self._get_feature('BlackLevelEnabled')
+        return self._get_feature('BlackLevelClampingEnable')
 
     @blacklevelenabled.setter
     def blacklevelenabled(self, state):
-        self._set_feature('BlackLevelEnabled', bool(state))
+        self._set_feature('BlackLevelClampingEnable', bool(state))
 
     @property
     def exposure(self):
@@ -212,11 +212,11 @@ class SpinnakerCamera(object):
 
     @property
     def exposuremax(self):
-        return self._get_feature('AutoExposureTimeUpperLimit')
+        return self._get_feature('AutoExposureExposureTimeUpperLimit')
 
     @property
     def exposuremin(self):
-        return self._get_feature('AutoExposureTimeLowerLimit')
+        return self._get_feature('AutoExposureExposureTimeLowerLimit')
 
     @property
     def exposuremode(self):
@@ -242,6 +242,7 @@ class SpinnakerCamera(object):
     def framerate(self, value):
         self._set_feature('AcquisitionFrameRate', value)
 
+    """
     @property
     def framerateauto(self):
         return self._get_feature('AcquisitionFrameRateAuto')
@@ -249,14 +250,15 @@ class SpinnakerCamera(object):
     @framerateauto.setter
     def framerateauto(self, state):
         self._set_feature('AcquisitionFrameRateAuto', state)
+    """
 
     @property
     def framerateenabled(self):
-        return self._get_feature('AcquisitionFrameRateEnabled')
+        return self._get_feature('AcquisitionFrameRateEnable')
 
     @framerateenabled.setter
     def framerateenabled(self, state):
-        self._set_feature('AcquisitionFrameRateEnabled', state)
+        self._set_feature('AcquisitionFrameRateEnable', state)
 
     @property
     def gain(self):
@@ -276,11 +278,11 @@ class SpinnakerCamera(object):
 
     @property
     def gainmax(self):
-        return self._get_feature('AutoGainUpperLimit')
+        return self._get_feature('AutoExposureGainUpperLimit')
 
     @property
     def gainmin(self):
-        return self._get_feature('AutoGainLowerLimit')
+        return self._get_feature('AutoExposureGainLowerLimit')
 
     @property
     def gamma(self):
@@ -292,11 +294,11 @@ class SpinnakerCamera(object):
 
     @property
     def gammaenabled(self):
-        return self._get_feature('GammaEnabled')
+        return self._get_feature('GammaEnable')
 
     @gammaenabled.setter
     def gammaenabled(self, state):
-        self._set_feature('GammaEnabled', bool(state))
+        self._set_feature('GammaEnable', bool(state))
 
     @property
     def gray(self):
@@ -337,29 +339,31 @@ class SpinnakerCamera(object):
     def pixelformat(self, value):
         self._set_feature('PixelFormat', value)
 
+    """
     @property
     def sharpness(self):
-        return self._get_feature('Sharpness')
+        return self._get_feature('Sharpening')
 
     @sharpness.setter
     def sharpness(self, value):
-        self._set_feature('Sharpness', value)
+        self._set_feature('Sharpening', value)
 
     @property
     def sharpnessauto(self):
-        return self._get_feature('SharpnessAuto')
+        return self._get_feature('SharpeningAuto')
 
     @sharpnessauto.setter
     def sharpnessauto(self, value):
-        self._set_feature('SharpnessAuto', value)
+        self._set_feature('SharpeningAuto', value)
 
     @property
     def sharpnessenabled(self):
-        return self._get_feature('SharpnessEnabled')
+        return self._get_feature('SharpeningEnabled')
 
     @sharpnessenabled.setter
     def sharpnessenabled(self, state):
-        self._set_feature('SharpnessEnabled', bool(state))
+        self._set_feature('SharpeningEnabled', bool(state))
+    """
 
     @property
     def videomode(self):
@@ -407,8 +411,8 @@ class SpinnakerCamera(object):
             node = self._nodes.GetNode(fname)
             type = node.GetPrincipalInterfaceType()
             feature = self._fmap[type](node)
-        except AttributeError:
-            logger.warn('Could not access Property: {}'.format(fname))
+        except AttributeError as ex:
+            logger.warn('Could not access Property: {}: {}'.format(fname, ex))
         return feature
 
     def _get_feature(self, fname):
