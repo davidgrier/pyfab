@@ -428,7 +428,7 @@ class SpinnakerCamera(object):
             value = feature.ToString()
         elif self._is_category(feature):
             nodes = feature.GetFeatures()
-            value = dir()
+            value = dict()
             for node in nodes:
                 name = node.GetName()
                 value[name] = self._get_feature(name)
