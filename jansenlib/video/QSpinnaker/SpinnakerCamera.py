@@ -32,10 +32,14 @@ class SpinnakerCamera(object):
 
     '''Abstraction of FLiR camera for PyFab/Jansen
 
+    ...
+
     Properties
     ==========
     device: PySpin.CameraPtr
         camera device in Spinnaker system
+    cameraname : str
+        Vendor and camera model
 
     Acquisition Control
     -------------------
