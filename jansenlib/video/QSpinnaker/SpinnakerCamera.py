@@ -426,6 +426,9 @@ class SpinnakerCamera(object):
         feature = self._feature(fname)
         if self._is_enum(feature) or self._is_command(feature):
             value = feature.ToString()
+        elif self._is_category(feature):
+            value = 'CATEGORY'
+            print(dir(feature))
         elif self._is_readable(feature):
             value = feature.GetValue()
         logger.debug('Getting {}: {}'.format(fname, value))
