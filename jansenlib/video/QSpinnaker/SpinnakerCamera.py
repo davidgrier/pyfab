@@ -472,6 +472,7 @@ class SpinnakerCamera(object):
     #
     def camera_info(self):
         '''Return dict of camera inodes and values'''
+        '''
         root = PySpin.CCategoryPtr(self._nodes.GetNode('Root'))
         categories = dict()
         for category in root.GetFeatures():
@@ -484,6 +485,8 @@ class SpinnakerCamera(object):
                     features[fname] = self._get_feature(fname)
                 categories[cname] = features
         return categories
+        '''
+        return self._get_feature('Root')
 
     def transport_info(self):
         '''Return dict of Transport Layer Device inodes and values'''
