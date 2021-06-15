@@ -62,10 +62,19 @@ class SpinnakerCamera(object):
 
     '''Abstraction of FLiR camera for PyFab/Jansen
 
-    Attributes
-    ----------
+    Properties
+    ==========
     device: PySpin.CameraPtr
         camera device in Spinnaker system
+
+    Acquisition Control
+    -------------------
+    acquisitionmode : str 
+        'Continuous': acquire frames continuously (Default)
+        'MultiFrame': acquire specified number of frames
+        'SingleFrame': acquire one image before stopping
+    acquisitionframecount : int 
+        Number of frames to acquire with MultiFrame
 
     exposuremode: str: 'Off', 'Timed', 'TriggerWidth', 'TriggerControlled'
         Method for initiating exposure
@@ -95,7 +104,7 @@ class SpinnakerCamera(object):
                  blacklevelselector='All',
                  framerateenable=True,
                  gammaenable=True,
-                 sharpeningenable=True,
+                 sharpeningenable=False,
                  acquisitionmode=None,
                  exposureauto=None,
                  exposuremode=None,
@@ -173,6 +182,14 @@ class SpinnakerCamera(object):
             image = cv2.flip(image, 0)
         return not error, image
 
+    @property
+    def acquisitionframecount(self):
+        return self._get_feature('AcquisitionFrameCount')
+
+    @acquisitionframecount.setter
+    def acquisitionframecount(self, value):
+        self._set_feature('AcquisitionFrameCount', value)
+        
     @property
     def acquisitionmode(self):
         return self._get_feature('AcquisitionMode')
@@ -367,10 +384,6 @@ class SpinnakerCamera(object):
     @sharpeningenable.setter
     def sharpeningenable(self, state):
         self._set_feature('SharpeningEnable', bool(state))
-
-    @property
-    def sharpeningrange(self):
-        self._feature_range('Sharpening')
 
     @property
     def videomode(self):
