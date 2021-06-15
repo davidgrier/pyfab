@@ -183,13 +183,11 @@ class SpinnakerCamera(object):
 
     def start(self):
         '''Start image acquisition'''
-        #self.device.BeginAcquisition()
-        self._feature('AcquisitionStart').Execute()
+        self.device.BeginAcquisition()
 
     def stop(self):
         '''Stop image acquisition'''
-        #self.device.EndAcquisition()
-        self._feature('AcquisitionStop').Execute()
+        self.device.EndAcquisition()
 
     def read(self):
         '''The whole point of the thing: Gimme da piccy'''
