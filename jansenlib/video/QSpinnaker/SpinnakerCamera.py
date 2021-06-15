@@ -475,6 +475,7 @@ class SpinnakerCamera(object):
     #
     def camera_info(self):
         '''Return dict of camera inodes and values'''
+        '''
         categories = dict()
         for category in self._feature('Root').GetFeatures():
             if self._is_category(category):
@@ -482,6 +483,8 @@ class SpinnakerCamera(object):
                 features = self._get_feature(name)
                 categories[name] = features
         return categories
+        '''
+        return self._get_feature('Root')
         
     def transport_info(self):
         '''Return dict of Transport Layer Device inodes and values'''
