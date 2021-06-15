@@ -111,7 +111,7 @@ class SpinnakerCamera(object):
         self.blacklevelselector = blacklevelselector
         self.framerateenable = framerateenable
         self.gammaenable = gammaenable
-        self.sharpeningenable = sharpeningable
+        self.sharpeningenable = sharpeningenable
         
         # Start acquisition
         self.acquisitionmode = acquisitionmode or 'Continuous'
