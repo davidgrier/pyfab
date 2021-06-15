@@ -113,12 +113,17 @@ class SpinnakerCamera(object):
         read() returns single-channel (grayscale) image if True
 
     Methods
-    -------
-    get(name):
-        Get named property
-    set(name, value):
-        Set named property to value
-    read(): (bool, numpy.ndarray)
+    =======
+    open(index) :
+        Open FLiR camera specified by index
+        Default: index=0, first camera
+    close() :
+        Close camera
+    start() :
+        Start image acquisition
+    stop() : 
+        Stop image acquisition
+    read() : (bool, numpy.ndarray)
         Return next available video frame
     '''
 
@@ -130,10 +135,10 @@ class SpinnakerCamera(object):
                  acquisitionmode=None,
                  exposureauto=None,
                  exposuremode=None,
-                 flipped=None,
                  framerateauto=None,
                  gainauto=None,
                  gray=None,
+                 flipped=None,
                  mirrored=None):
         self.open()
 
