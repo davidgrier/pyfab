@@ -122,7 +122,7 @@ class SpinnakerCamera(object):
         self.gainauto = gainauto or 'Off'
         self.gray = gray or True
         self.mirrored = mirrored or False
-        self.sharpeningauto = 'Off'
+        self.sharpeningauto = False
 
         self.start()
         ready, frame = self.read()
