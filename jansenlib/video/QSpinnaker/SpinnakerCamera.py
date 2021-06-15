@@ -488,7 +488,6 @@ class SpinnakerCamera(object):
         '''
         return self._feature('Root').GetFeatures()
         
-
     def transport_info(self):
         '''Return dict of Transport Layer Device inodes and values'''
         nodemap = self.device.GetTLDeviceNodeMap()  # Transport layer
