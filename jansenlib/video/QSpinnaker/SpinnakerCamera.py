@@ -486,7 +486,8 @@ class SpinnakerCamera(object):
                 categories[cname] = features
         return categories
         '''
-        return self._get_feature('Root')
+        return self._feature('Root').GetFeatures()
+        
 
     def transport_info(self):
         '''Return dict of Transport Layer Device inodes and values'''
