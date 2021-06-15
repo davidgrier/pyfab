@@ -10,8 +10,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 '''
-NOTE
-USB 3.x communication on Ubuntu 16.04 and 18.04 requires
+Technical Reference:
+http://softwareservices.flir.com/BFS-U3-123S6/latest/Model/public/index.html
+N
+OTE
+USB 3.x communication on Ubuntu 16.04 through 20.04 requires
 > sudo sh -c 'echo 1000 > /sys/module/usbcore/parameters/usbfs_memory_mb'
 
 This can be set permanently by 
@@ -23,39 +26,6 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet splash usbcore.usbfs_memory_mb=1000"
 2. > sudo update-grub
 3. > sudo reboot now
 '''
-
-# Dynamic mapping for GenICam attributes
-_amap = {'acquisitionmode': 'AcquisitionMode',
-         'acquisitionstart': 'AcquisitionStart',
-         'acquisitionstop': 'AcquisitionStop',
-         'blacklevel': 'BlackLevel',
-         'blacklevelselector': 'BlackLevelSelector',
-         'exposuretime': 'ExposureTime',
-         'exposureauto': 'ExposureAuto',
-         'exposuremode': 'ExposureMode',
-         'framerate': 'AcquisitionFrameRate',
-         'framerateauto': 'AcquisitionFrameRateAuto',
-         'framerateenable': 'AcquisitionFrameRateEnable',
-         'gain': 'Gain',
-         'gainauto': 'GainAuto',
-         'gainmax': 'AutoExposureGainLowerLimit',
-         'gainmin': 'AutoExposureGainUpperLimit',
-         'gamma': 'Gamma',
-         'gammaenable': 'GammaEnable',
-         'height': 'Height',
-         'heightmax': 'HeightMax',
-         'mirrored': 'ReverseX',
-         'pixelformat': 'PixelFormat',
-         'sensorwidth': 'SensorWidth',
-         'sensorheight': 'SensorHeight',
-         'sharpening': 'Sharpening',
-         'sharpeningauto': 'SharpeningAuto',
-         'sharpeningenable': 'SharpeningEnable',
-         'videomode': 'VideoMode',
-         'width': 'Width',
-         'widthmax': 'WidthMax',
-         'x0': 'OffsetX',
-         'y0': 'OffsetY'}
 
 
 class SpinnakerCamera(object):
@@ -75,18 +45,70 @@ class SpinnakerCamera(object):
         'SingleFrame': acquire one image before stopping
     acquisitionframecount : int 
         Number of frames to acquire with MultiFrame
-
-    exposuremode: str: 'Off', 'Timed', 'TriggerWidth', 'TriggerControlled'
+    exposuremode : str
+        'Timed', 'TriggerWidth'
         Method for initiating exposure
         Default: 'Timed'
-
-    exposureauto: str: 'Off', 'Once', 'Continuous'
-        Enable automatic control of exposure time
-    framerateauto: str: 'Off', 'Continuous'
+    exposuretime : float
+        Exposure time in microseconds when exposuremode='Timed'
+    exposuretimerange : (float, float)
+        Range of exposure times in microseconds
+    exposureauto: str
+        Automatic exposure mode
+        'Off', 'Once', 'Continuous'
+        Default: 'Off'
+    framerate : float
+        Acquisition frame rate in Hertz
+    framerateenable : bool
+        Manually control framerate
+    frameraterange : (float, float)
+        Range of frame rates in Hertz
+    framerateauto: str
         Enable automatic control of frame rate
+        'Off', 'Continuous'
+        Default: 'Off'
+
+    NOTE: Trigger Commands are not yet implemented
+
+    Analog Control
+    --------------
+    gain : float
+        Amplification of video signal in dB
+    gainrange : (float, float)
+        Range of gain values in dB
     gainauto: 'Off', 'Once', 'Continuous'
         Enable automatic control of gain
+        Default: 'Off'
+    blacklevel : int
+        Offset of video signal in camera-specific units
+    blacklevelrange : (int, int)
+        Range of black level values
+    gamma : float
+        Gamma correction of pixel intensity
+    gammarange : (float, float)
+        Range of gamma values
+    gammaenable : bool
+        Enable gamma correction
+        Default: True
+    sharpening : float
+        Amount of sharpening to apply to image
+        Default: 2.
+    sharpeningrange : (float, float)
+        Range of sharpening values
+    sharpeningenable : bool
+        Enable image sharpening
+        Default: False
+    sharpeningthreshold : float
+        Only sharpen regions with intensity changes greater than threshold
+    sharpeningthresholdrange : (float, float)
+        Range of sharpening threshold values
 
+    Image Format Control
+    --------------------
+    flipped : bool
+        Vertically flip image
+    mirrored : bool
+        Horizontally flip image
     gray: bool
         read() returns single-channel (grayscale) image if True
 
@@ -161,11 +183,13 @@ class SpinnakerCamera(object):
 
     def start(self):
         '''Start image acquisition'''
-        self.device.BeginAcquisition()
+        #self.device.BeginAcquisition()
+        self._feature('AcquisitionStart').Execute()
 
     def stop(self):
         '''Stop image acquisition'''
-        self.device.EndAcquisition()
+        #self.device.EndAcquisition()
+        self._feature('AcquisitionStop').Execute()
 
     def read(self):
         '''The whole point of the thing: Gimme da piccy'''
@@ -200,23 +224,15 @@ class SpinnakerCamera(object):
 
     @property
     def blacklevel(self):
-        return self._get_feature('BlackLevel')
+        return self._get_feature('BlackLevelRaw')
 
     @blacklevel.setter
     def blacklevel(self, value):
-        self._set_feature('BlackLevel', value)
+        self._set_feature('BlackLevelRaw', value)
 
     @property
     def blacklevelrange(self):
-        return self._feature_range('BlackLevel')
-
-    @property
-    def blacklevelselector(self):
-        return self._get_feature('BlackLevelSelector')
-
-    @blacklevelselector.setter
-    def blacklevelselector(self, value):
-        self._set_feature('BlackLevelSelector', value)
+        return self._feature_range('BlackLevelRaw')
 
     @property
     def exposureauto(self):
@@ -248,11 +264,11 @@ class SpinnakerCamera(object):
 
     @property
     def flipped(self):
-        return self._flipped
+        return self._get_feature('ReverseY')
 
     @flipped.setter
     def flipped(self, state):
-        self._flipped = bool(state)
+        self._set_feature('ReverseY', bool(state))
 
     @property
     def framerate(self):
@@ -384,6 +400,22 @@ class SpinnakerCamera(object):
     @sharpeningenable.setter
     def sharpeningenable(self, state):
         self._set_feature('SharpeningEnable', bool(state))
+
+    @property
+    def sharpeningrange(self):
+        return (1., 8.)
+
+    @property
+    def sharpeningthreshold(self):
+        return self._get_feature('SharpeningThreshold')
+
+    @sharpeningthreshold.setter
+    def sharpeningthreshold(self, value):
+        self._set_feature('SharpeningThreshold', value)
+
+    @property
+    def sharpeningthresholdrange(self):
+        return (0., 0.25)
 
     @property
     def videomode(self):
