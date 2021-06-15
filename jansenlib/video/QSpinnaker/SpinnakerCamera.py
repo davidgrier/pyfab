@@ -239,8 +239,8 @@ class SpinnakerCamera(object):
 
     @property
     def cameraname(self):
-        vendor = self._feature_get('DeviceVendorName')
-        model = self._feature_get('DeviceModelName')
+        vendor = self._get_feature('DeviceVendorName')
+        model = self._get_feature('DeviceModelName')
         return '{} {}'.format(vendor, model)
 
     @property
