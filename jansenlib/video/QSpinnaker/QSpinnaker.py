@@ -4,6 +4,9 @@
 from common.QSettingsWidget import QSettingsWidget
 from .QSpinnakerWidget import Ui_QSpinnakerWidget
 from .SpinnakerCamera import SpinnakerCamera
+import sys
+import os
+from PyQt5 import uic
 
 
 import logging

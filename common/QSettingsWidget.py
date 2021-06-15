@@ -9,7 +9,7 @@ import inspect
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 
 class QSettingsWidget(QFrame):
@@ -93,7 +93,7 @@ class QSettingsWidget(QFrame):
         '''
         if name in self.properties:
             self._setDeviceProperty(name, value)
-            actual =  self._getDeviceProperty(name)
+            actual = self._getDeviceProperty(name)
             self._setUiProperty(name, actual)
         else:
             logger.warning('unknown property: {}'.format(name))
@@ -131,10 +131,10 @@ class QSettingsWidget(QFrame):
             setattr(self.device, name, value)
             self.waitForDevice()
             logger.info('Setting {}: {}'.format(name, value))
-    
-    def _getDeviceProperty(self, name): 
+
+    def _getDeviceProperty(self, name):
         return getattr(self.device, name)
-    
+
     def waitForDevice(self):
         '''Should be overridden by subclass'''
         pass
@@ -217,7 +217,8 @@ class QSettingsWidget(QFrame):
         name = str(self.sender().objectName())
         logger.debug('Updating: {}: {}'.format(name, value))
         if value is None:
-            logger.warning('interpreting String input from QLineEdit using eval()')
+            logger.warning(
+                'interpreting String input from QLineEdit using eval()')
             try:
                 value = eval(self.sender().text())
             except NameError:
@@ -273,7 +274,7 @@ class QSettingsWidget(QFrame):
             elif isinstance(wid, QGroupBox):
                 wid.toggled.connect(self.updateDevice)
             elif isinstance(wid, QRadioButton):
-                wid.toggled.connect(self.updateDevice)                
+                wid.toggled.connect(self.updateDevice)
             elif isinstance(wid, QPushButton):
                 wid.clicked.connect(self.autoUpdateDevice)
             elif isinstance(wid, QLineEdit):
@@ -298,11 +299,11 @@ class QSettingsWidget(QFrame):
             elif isinstance(wid, QGroupBox):
                 wid.toggled.disconnect(self.updateDevice)
             elif isinstance(wid, QRadioButton):
-                wid.stateChanged.connect(self.updateDevice)    
+                wid.stateChanged.connect(self.updateDevice)
             elif isinstance(wid, QPushButton):
                 wid.clicked.disconnect(self.autoUpdateDevice)
             elif isinstance(wid, QLineEdit):
-#                wid.returnPressed.disconnect()
+                #                wid.returnPressed.disconnect()
                 wid.textEdited.disconnect(self.updateDevice)
             else:
                 msg = 'Unknown property: {}: {}'

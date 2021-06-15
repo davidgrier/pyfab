@@ -12,8 +12,8 @@ logger.setLevel(logging.WARNING)
 '''
 Technical Reference:
 http://softwareservices.flir.com/BFS-U3-123S6/latest/Model/public/index.html
-N
-OTE
+
+NOTE:
 USB 3.x communication on Ubuntu 16.04 through 20.04 requires
 > sudo sh -c 'echo 1000 > /sys/module/usbcore/parameters/usbfs_memory_mb'
 
@@ -39,11 +39,11 @@ class SpinnakerCamera(object):
 
     Acquisition Control
     -------------------
-    acquisitionmode : str 
+    acquisitionmode : str
         'Continuous': acquire frames continuously (Default)
         'MultiFrame': acquire specified number of frames
         'SingleFrame': acquire one image before stopping
-    acquisitionframecount : int 
+    acquisitionframecount : int
         Number of frames to acquire with MultiFrame
     exposuremode : str
         'Timed', 'TriggerWidth'
@@ -147,7 +147,7 @@ class SpinnakerCamera(object):
         self.framerateenable = framerateenable
         self.gammaenable = gammaenable
         self.sharpeningenable = sharpeningenable
-        
+
         # Start acquisition
         self.acquisitionmode = acquisitionmode or 'Continuous'
         self.exposureauto = exposureauto or 'Off'
@@ -216,7 +216,7 @@ class SpinnakerCamera(object):
     @acquisitionframecount.setter
     def acquisitionframecount(self, value):
         self._set_feature('AcquisitionFrameCount', value)
-        
+
     @property
     def acquisitionmode(self):
         return self._get_feature('AcquisitionMode')
@@ -227,15 +227,23 @@ class SpinnakerCamera(object):
 
     @property
     def blacklevel(self):
-        return self._get_feature('BlackLevelRaw')
+        return self._get_feature('BlackLevel')
 
     @blacklevel.setter
     def blacklevel(self, value):
-        self._set_feature('BlackLevelRaw', value)
+        self._set_feature('BlackLevel', value)
 
     @property
     def blacklevelrange(self):
-        return self._feature_range('BlackLevelRaw')
+        return self._feature_range('BlackLevel')
+
+    @property
+    def blacklevelselector(self):
+        return self._get_feature('BlackLevelSelector')
+
+    @blacklevelselector.setter
+    def blacklevelselector(self, value):
+        self._set_feature('BlackLevelSelector', value)
 
     @property
     def cameraname(self):
@@ -298,7 +306,7 @@ class SpinnakerCamera(object):
     @property
     def frameraterange(self):
         return self._feature_range('AcquisitionFrameRate')
-    
+
     @property
     def frameratemax(self):
         return self._feature('AcquisitionFrameRate').GetMax()
@@ -426,6 +434,7 @@ class SpinnakerCamera(object):
     def sharpeningthresholdrange(self):
         return (0., 0.25)
 
+    '''
     @property
     def videomode(self):
         return self._feature('VideoMode').GetValue()
@@ -435,6 +444,7 @@ class SpinnakerCamera(object):
         self.stop()
         self._feature('VideoMode').SetValue(mode)
         self.start()
+    '''
 
     @property
     def width(self):
@@ -541,7 +551,7 @@ class SpinnakerCamera(object):
     def camera_info(self):
         '''Return dict of camera inodes and values'''
         return self._get_feature('Root')
-        
+
     def transport_info(self):
         '''Return dict of Transport Layer Device inodes and values'''
         nodemap = self.device.GetTLDeviceNodeMap()  # Transport layer
