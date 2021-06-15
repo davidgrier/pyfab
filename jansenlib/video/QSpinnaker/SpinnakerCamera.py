@@ -417,8 +417,8 @@ class SpinnakerCamera(object):
             node = self._nodes.GetNode(fname)
             type = node.GetPrincipalInterfaceType()
             feature = self._fmap[type](node)
-        except AttributeError:
-            logger.warn('Could not access Property: {}'.format(fname))
+        except Exception as ex:
+            logger.warn('Could not access Property: {} {}'.format(fname, ex))
         return feature
 
     def _get_feature(self, fname):
