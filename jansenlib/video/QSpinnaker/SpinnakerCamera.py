@@ -238,6 +238,12 @@ class SpinnakerCamera(object):
         return self._feature_range('BlackLevelRaw')
 
     @property
+    def cameraname(self):
+        vendor = self._feature_get('DeviceVendorName')
+        model = self._feature_get('DeviceModelName')
+        return '{} {}'.format(vendor, model)
+
+    @property
     def exposureauto(self):
         return self._get_feature('ExposureAuto')
 

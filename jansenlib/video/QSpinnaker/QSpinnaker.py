@@ -30,9 +30,15 @@ class QSpinnaker(QSettingsWidget):
 
     def configureUi(self):
         logger.debug('configuring UI')
-        self.ui.exposure.setRange(self.device.exposuremin,
-                                  self.device.exposuremax)
-        self.ui.gain.setRange(self.device.gainmin, self.device.gainmax)
+        self.ui.framerate.setRange(*self.device.frameraterange)
+        self.ui.exposuretime.setRange(*self.device.exposuretimerange)
+        self.ui.gain.setRange(*self.device.gainrange)
+        self.ui.blacklevel.setRange(*self.device.blacklevelrange)
+        self.ui.gamma.setRange(*self.device.gammarange)
+        self.ui.x0.setRange(0, self.device.widthmax-10)
+        self.ui.y0.setRange(0, self.device.heightmax-10)
+        self.ui.width.setRange(10, self.device.widthmax)
+        self.ui.height.setRange(10, self.device.heightmax)
         self.widthChanged = self.ui.width.valueChanged
         self.heightChanged = self.ui.height.valueChanged
 
