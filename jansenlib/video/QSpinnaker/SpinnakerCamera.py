@@ -67,18 +67,17 @@ class SpinnakerCamera(object):
     device: PySpin.CameraPtr
         camera device in Spinnaker system
 
-    Attributes
-    ----------
-    exposureauto: str: 'Off', 'Once', 'Continuous'
-        Enable automatic control of exposure time
     exposuremode: str: 'Off', 'Timed', 'TriggerWidth', 'TriggerControlled'
         Method for initiating exposure
+        Default: 'Timed'
+
+    exposureauto: str: 'Off', 'Once', 'Continuous'
+        Enable automatic control of exposure time
     framerateauto: str: 'Off', 'Continuous'
         Enable automatic control of frame rate
-    framerateenable: bool
-        Enable manual control of frame rate
     gainauto: 'Off', 'Once', 'Continuous'
         Enable automatic control of gain
+
     gray: bool
         read() returns single-channel (grayscale) image if True
 
@@ -368,6 +367,10 @@ class SpinnakerCamera(object):
     @sharpeningenable.setter
     def sharpeningenable(self, state):
         self._set_feature('SharpeningEnable', bool(state))
+
+    @property
+    def sharpeningrange(self):
+        self._feature_range('Sharpening')
 
     @property
     def videomode(self):
