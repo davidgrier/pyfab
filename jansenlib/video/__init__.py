@@ -9,4 +9,4 @@ except Exception as ex:
     logger.warning('Could not import Spinnaker camera: {}'.format(ex))
     from .QOpenCV.QOpenCV import QOpenCV as QCamera
 
-__all__ = ['QCamera']
+__all__ = [QCamera]

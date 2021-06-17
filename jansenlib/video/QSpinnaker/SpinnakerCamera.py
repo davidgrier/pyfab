@@ -3,6 +3,7 @@
 
 import PySpin
 import cv2
+import time
 
 import logging
 logging.basicConfig()
@@ -136,14 +137,15 @@ class SpinnakerCamera(object):
                  framerateenable=True,
                  gammaenable=True,
                  sharpeningenable=False,
-                 acquisitionmode=None,
-                 exposureauto=None,
-                 exposuremode=None,
-                 framerateauto=None,
-                 gainauto=None,
-                 gray=None,
-                 flipped=None,
-                 mirrored=None):
+                 acquisitionmode='Continuous',
+                 exposureauto='Off',
+                 exposuremode='Timed',
+                 framerateauto='Off',
+                 gainauto='Off',
+                 sharpeningauto='Off',
+                 gray=True,
+                 flipped=False,
+                 mirrored=False):
         self.open()
 
         # Enable access to controls
@@ -153,15 +155,16 @@ class SpinnakerCamera(object):
         self.sharpeningenable = sharpeningenable
 
         # Start acquisition
-        self.acquisitionmode = acquisitionmode or 'Continuous'
-        self.exposureauto = exposureauto or 'Off'
-        self.exposuremode = exposuremode or 'Timed'
-        self.flipped = flipped or False
-        self.framerateauto = framerateauto or 'Off'
-        self.gainauto = gainauto or 'Off'
-        self.gray = gray or True
-        self.mirrored = mirrored or False
-        self.sharpeningauto = False
+        self.acquisitionmode = acquisitionmode
+        self.exposureauto = exposureauto
+        self.exposuremode = exposuremode
+        self.sharpeningauto = sharpeningauto
+        self.framerateauto = framerateauto
+        self.gainauto = gainauto
+
+        self.gray = gray
+        self.flipped = flipped
+        self.mirrored = mirrored
 
         self.start()
         ready, frame = self.read()
@@ -181,6 +184,7 @@ class SpinnakerCamera(object):
         self.device.Init()
         # Camera inodes provide access to device properties
         self._nodes = self.device.GetNodeMap()
+        self._running = False
 
     def close(self):
         logger.debug('Cleaning up')
@@ -192,26 +196,30 @@ class SpinnakerCamera(object):
 
     def start(self):
         '''Start image acquisition'''
-        self.device.BeginAcquisition()
-
+        if not self._running:
+            self._running = True
+            self.device.BeginAcquisition()
+        
     def stop(self):
         '''Stop image acquisition'''
-        self.device.EndAcquisition()
+        if self._running:
+            self.device.EndAcquisition()
+            self._running = False
 
     def read(self):
         '''The whole point of the thing: Gimme da piccy'''
-        res = self.device.GetNextImage()
-        error = res.IsIncomplete()
-        if error:
+        try:
+            res = self.device.GetNextImage()
+        except PySpin.SpinnakerException:
+            return False, None
+        if res.IsIncomplete():
             status = res.GetImageStatus()
             error_msg = res.GetImageStatusDescription(status)
             logger.warning('Incomplete Image: ' + error_msg)
-            return not error, None
-        shape = (res.GetHeight(), res.GetWidth())
+            return False, None
+        shape = (res.GetHeight(), res.GetWidth(), res.GetNumChannels())
         image = res.GetData().reshape(shape)
-        if self.flipped:
-            image = cv2.flip(image, 0)
-        return not error, image
+        return True, image
 
     @property
     def acquisitionframecount(self):
@@ -289,7 +297,9 @@ class SpinnakerCamera(object):
 
     @flipped.setter
     def flipped(self, state):
+        self.stop()
         self._set_feature('ReverseY', bool(state))
+        self.start()
 
     @property
     def framerate(self):
@@ -364,11 +374,10 @@ class SpinnakerCamera(object):
         return self.pixelformat == 'Mono8'
 
     @gray.setter
-    def gray(self, state):
-        if (state):
-            self.pixelformat = 'Mono8'
-        else:
-            self.pixelformat = 'RGB8'
+    def gray(self, gray):
+        self.stop()
+        self.pixelformat = 'Mono8' if gray else 'RGB8Packed'
+        self.start()
 
     @property
     def height(self):
@@ -388,7 +397,9 @@ class SpinnakerCamera(object):
 
     @mirrored.setter
     def mirrored(self, state):
+        self.stop()
         self._set_feature('ReverseX', bool(state))
+        self.start()
 
     @property
     def pixelformat(self):
