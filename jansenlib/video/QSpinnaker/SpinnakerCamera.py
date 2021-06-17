@@ -217,7 +217,10 @@ class SpinnakerCamera(object):
             error_msg = res.GetImageStatusDescription(status)
             logger.warning('Incomplete Image: ' + error_msg)
             return False, None
-        shape = (res.GetHeight(), res.GetWidth(), res.GetNumChannels())
+        if res.GetNumChannels() == 1:
+            shape = (res.GetHeight(), res.GetWidth())
+        else:
+            shape = (res.GetHeight(), res.GetWidth(), 3)
         image = res.GetData().reshape(shape)
         return True, image
 
@@ -262,6 +265,10 @@ class SpinnakerCamera(object):
         vendor = self._get_feature('DeviceVendorName')
         model = self._get_feature('DeviceModelName')
         return '{} {}'.format(vendor, model)
+
+    @cameraname.setter
+    def cameraname(self, name):
+        pass
 
     @property
     def exposureauto(self):
@@ -385,7 +392,9 @@ class SpinnakerCamera(object):
 
     @height.setter
     def height(self, value):
+        self.stop()
         self._set_feature('Height', value)
+        self.start()
 
     @property
     def heightmax(self):
@@ -467,7 +476,9 @@ class SpinnakerCamera(object):
 
     @width.setter
     def width(self, value):
+        self.stop()
         self._set_feature('Width', value)
+        self.start()
 
     @property
     def widthmax(self):
