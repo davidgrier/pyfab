@@ -45,23 +45,25 @@ class SpinnakerCamera(object):
     Acquisition Control
     -------------------
     acquisitionmode : str
+        Mode for acquiring frames:
         'Continuous': acquire frames continuously (Default)
         'MultiFrame': acquire specified number of frames
         'SingleFrame': acquire one image before stopping
     acquisitionframecount : int
         Number of frames to acquire with MultiFrame
     exposuremode : str
-        'Timed', 'TriggerWidth'
-        Method for initiating exposure
-        Default: 'Timed'
+        Mode for setting single-frame exposure:
+        'Timed': Fixed exposure time (Default)
+        'TriggerWidth': Determined by external trigger
     exposuretime : float
-        Exposure time in microseconds when exposuremode='Timed'
+        Exposure time in microseconds when exposuremode is 'Timed'
     exposuretimerange : (float, float)
         Range of exposure times in microseconds
     exposureauto: str
-        Automatic exposure mode
-        'Off', 'Once', 'Continuous'
-        Default: 'Off'
+        Automatic exposure mode:
+        'Off': Do not adjust exposure time (Default)
+        'Once': Optimize exposure time, then return to 'Off'
+        'Continuous': Optimize exposure time
     framerate : float
         Acquisition frame rate in Hertz
     framerateenable : bool
@@ -69,9 +71,9 @@ class SpinnakerCamera(object):
     frameraterange : (float, float)
         Range of frame rates in Hertz
     framerateauto: str
-        Enable automatic control of frame rate
-        'Off', 'Continuous'
-        Default: 'Off'
+        Automatic frame rate mode:
+        'Off': Do not optimize frame rate (Default)
+        'Continuous': Optimize frame rate
 
     NOTE: Trigger Commands are not yet implemented
 
@@ -81,9 +83,11 @@ class SpinnakerCamera(object):
         Amplification of video signal in dB
     gainrange : (float, float)
         Range of gain values in dB
-    gainauto: 'Off', 'Once', 'Continuous'
+    gainauto: 
         Enable automatic control of gain
-        Default: 'Off'
+        'Off': Do not adjust gain (Default)
+        'Once': Optimize gain, then return to 'Off'
+        'Continuous': Optimize gain
     blacklevel : int
         Offset of video signal in camera-specific units
     blacklevelrange : (int, int)
@@ -115,7 +119,8 @@ class SpinnakerCamera(object):
     mirrored : bool
         Horizontally flip image
     gray: bool
-        read() returns single-channel (grayscale) image if True
+        True: read() returns single-channel (grayscale) image
+        False: read() returns RGB8Packed three-channel image
 
     Methods
     =======
@@ -129,11 +134,13 @@ class SpinnakerCamera(object):
     stop() : 
         Stop image acquisition
     read() : (bool, numpy.ndarray)
-        Return next available video frame
+        Return a tuple containing the status of the acquisition
+        and the next available video frame
+        status: True if acquisition was successful
+        frame: numpy ndarray containing image information
     '''
 
     def __init__(self,
-                 blacklevelselector='All',
                  framerateenable=True,
                  gammaenable=True,
                  sharpeningenable=False,
@@ -149,7 +156,7 @@ class SpinnakerCamera(object):
         self.open()
 
         # Enable access to controls
-        self.blacklevelselector = blacklevelselector
+        self.blacklevelselector = 'All'
         self.framerateenable = framerateenable
         self.gammaenable = gammaenable
         self.sharpeningenable = sharpeningenable
@@ -173,20 +180,29 @@ class SpinnakerCamera(object):
         self.close()
 
     def open(self, index=0):
+        '''
+        Initialize Spinnaker and open specified camera
+
+        Keywords
+        --------
+        index : int
+            Index of camera to open. Default: 0
+        '''
         # Initialize Spinnaker and get list of cameras
         self._system = PySpin.System.GetInstance()
         self._devices = self._system.GetCameras()
         if self._devices.GetSize() < 1:
             raise IndexError('No Spinnaker cameras found')
 
-        # Work with first attached camera.  This can be generalized
+        # Initialize selected camera and get map of nodes
         self.device = self._devices[index]
         self.device.Init()
-        # Camera inodes provide access to device properties
         self._nodes = self.device.GetNodeMap()
+        
         self._running = False
 
     def close(self):
+        '''Stop acquisition, close camera and release Spinnaker'''
         logger.debug('Cleaning up')
         self.stop()
         self.device.DeInit()
