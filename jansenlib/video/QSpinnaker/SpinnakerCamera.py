@@ -209,20 +209,15 @@ class SpinnakerCamera(object):
     def read(self):
         '''The whole point of the thing: Gimme da piccy'''
         try:
-            res = self.device.GetNextImage()
+            img = self.device.GetNextImage()
         except PySpin.SpinnakerException:
             return False, None
-        if res.IsIncomplete():
-            status = res.GetImageStatus()
-            error_msg = res.GetImageStatusDescription(status)
+        if img.IsIncomplete():
+            status = img.GetImageStatus()
+            error_msg = img.GetImageStatusDescription(status)
             logger.warning('Incomplete Image: ' + error_msg)
             return False, None
-        if res.GetNumChannels() == 1:
-            shape = (res.GetHeight(), res.GetWidth())
-        else:
-            shape = (res.GetHeight(), res.GetWidth(), 3)
-        image = res.GetData().reshape(shape)
-        return True, image
+        return True, img.GetNDArray()
 
     @property
     def acquisitionframecount(self):
