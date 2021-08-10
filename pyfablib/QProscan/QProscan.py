@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 class QProscan(QWidget, Ui_QProscan):
 
     def __init__(self, parent=None, interval=200, swapxy=True, **kwargs):
-        super(QProscan, self).__init__(parent)
+        super(QProscan, self).__init__(**kwargs)
         self.setupUi(self)
         self.device = Proscan(self, **kwargs)
         if swapxy:

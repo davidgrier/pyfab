@@ -3,7 +3,7 @@
 '''Abstraction of a Prior Proscan stage controller'''
 
 from PyQt5.QtCore import (pyqtSlot, pyqtSignal)
-from common.QSerialDevice import QSerialDevice
+from pyfab.common.QSerialDevice import QSerialDevice
 
 import logging
 logging.basicConfig()
@@ -17,8 +17,8 @@ class Proscan(QSerialDevice):
     updateY = pyqtSignal(int)
     updateZ = pyqtSignal(int)
 
-    def __init__(self, parent, *args, **kwargs):
-        super(Proscan, self).__init__(parent, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(Proscan, self).__init__(*args, **kwargs)
 
     def identify(self):
         res = self.handshake('VERSION')

@@ -140,6 +140,59 @@ class SpinnakerCamera(object):
         frame: numpy ndarray containing image information
     '''
 
+    def Property(pstr, stop=False):
+        @property
+        def prop(self):
+            return self._get_feature(pstr)
+        @prop.setter
+        def prop(self, value):
+            if stop:
+                self.stop()
+                self._set_feature(pstr, value)
+                self.start()
+            else:
+                self._set_feature(pstr, value)
+        return prop
+
+    def GetRange(pstr):
+        @property
+        def prop(self):
+            return set._feature_range(pstr)
+        return prop
+
+    acquisitionframecount      = Property('AcquisitionFrameCount')
+    acquisitionframerate       = Property('AcquisitionFrameRate')
+    acquisitionframerateenable = Property('AcquisitionFrameRateEnable')
+    acquisitionmode            = Property('AcquisitionMode')
+    blacklevel                 = Property('BlackLevel')
+    blacklevelrange            = GetRange('BlackLevel')
+    blacklevelselector         = Property('BlackLevelSelector')
+    exposureauto               = Property('ExposureAuto')
+    exposuremode               = Property('ExposureMode')
+    exposuretime               = Property('ExposureTime')
+    exposuretimerange          = GetRange('ExposureTime')
+    flipped                    = Property('ReverseY', stop=True)
+    framerate                  = Property('AcquisitionFrameRate')
+    framerateenable            = Property('AcquisitionFrameRateEnable')
+    frameraterange             = GetRange('AcquisitionFrameRate')
+    gain                       = Property('Gain')
+    gainauto                   = Property('GainAuto')
+    gainrange                  = GetRange('Gain')
+    gamma                      = Property('Gamma')
+    gammaenable                = Property('GammaEnable')
+    gammarange                 = GetRange('Gamma')
+    height                     = Property('Height', stop=True)
+    mirrored                   = Property('ReverseX', stop=True)
+    pixelformat                = Property('PixelFormat')
+    reversex                   = Property('ReverseX', stop=True)
+    reversey                   = Property('ReverseY', stop=True)
+    sharpening                 = Property('Sharpening')
+    sharpeningauto             = Property('SharpeningAuto')
+    sharpeningenable           = Property('SharpeningEnable')
+    sharpeningthreshold        = Property('SharpeningThreshold')
+    width                      = Property('Width', stop=True)
+    
+        
     def __init__(self,
                  framerateenable=True,
                  gammaenable=True,
@@ -236,108 +289,10 @@ class SpinnakerCamera(object):
         return True, img.GetNDArray()
 
     @property
-    def acquisitionframecount(self):
-        return self._get_feature('AcquisitionFrameCount')
-
-    @acquisitionframecount.setter
-    def acquisitionframecount(self, value):
-        self._set_feature('AcquisitionFrameCount', value)
-
-    @property
-    def acquisitionmode(self):
-        return self._get_feature('AcquisitionMode')
-
-    @acquisitionmode.setter
-    def acquisitionmode(self, mode):
-        self._set_feature('AcquisitionMode', mode)
-
-    @property
-    def blacklevel(self):
-        return self._get_feature('BlackLevel')
-
-    @blacklevel.setter
-    def blacklevel(self, value):
-        self._set_feature('BlackLevel', value)
-
-    @property
-    def blacklevelrange(self):
-        return self._feature_range('BlackLevel')
-
-    @property
-    def blacklevelselector(self):
-        return self._get_feature('BlackLevelSelector')
-
-    @blacklevelselector.setter
-    def blacklevelselector(self, value):
-        self._set_feature('BlackLevelSelector', value)
-
-    @property
     def cameraname(self):
         vendor = self._get_feature('DeviceVendorName')
         model = self._get_feature('DeviceModelName')
         return '{} {}'.format(vendor, model)
-
-    @cameraname.setter
-    def cameraname(self, name):
-        pass
-
-    @property
-    def exposureauto(self):
-        return self._get_feature('ExposureAuto')
-
-    @exposureauto.setter
-    def exposureauto(self, value):
-        self._set_feature('ExposureAuto', value)
-
-    @property
-    def exposuremode(self):
-        return self._get_feature('ExposureMode')
-
-    @exposuremode.setter
-    def exposuremode(self, value):
-        self._set_feature('ExposureMode', value)
-
-    @property
-    def exposuretime(self):
-        return self._get_feature('ExposureTime')
-
-    @exposuretime.setter
-    def exposuretime(self, value):
-        self._set_feature('ExposureTime', value)
-
-    @property
-    def exposuretimerange(self):
-        return self._feature_range('ExposureTime')
-
-    @property
-    def flipped(self):
-        return self._get_feature('ReverseY')
-
-    @flipped.setter
-    def flipped(self, state):
-        self.stop()
-        self._set_feature('ReverseY', bool(state))
-        self.start()
-
-    @property
-    def framerate(self):
-        return self._get_feature('AcquisitionFrameRate')
-
-    @framerate.setter
-    def framerate(self, value):
-        self._set_feature('AcquisitionFrameRate', value)
-
-    @property
-    def framerateenable(self):
-        return self._get_feature('AcquisitionFrameRateEnable')
-
-    @framerateenable.setter
-    def framerateenable(self, state):
-        self._set_feature('AcquisitionFrameRateEnable', state)
-
-    @property
-    def frameraterange(self):
-        return self._feature_range('AcquisitionFrameRate')
 
     @property
     def frameratemax(self):
@@ -346,46 +301,6 @@ class SpinnakerCamera(object):
     @property
     def frameratemin(self):
         return self._feature('AcquisitionFrameRate').GetMin()
-
-    @property
-    def gain(self):
-        return self._get_feature('Gain')
-
-    @gain.setter
-    def gain(self, value):
-        self._set_feature('Gain', value)
-
-    @property
-    def gainauto(self):
-        return self._get_feature('GainAuto')
-
-    @gainauto.setter
-    def gainauto(self, value):
-        self._set_feature('GainAuto', value)
-
-    @property
-    def gainrange(self):
-        return self._feature_range('Gain')
-
-    @property
-    def gamma(self):
-        return self._get_feature('Gamma')
-
-    @gamma.setter
-    def gamma(self, value):
-        self._set_feature('Gamma', value)
-
-    @property
-    def gammaenable(self):
-        return self._get_feature('GammaEnable')
-
-    @gammaenable.setter
-    def gammaenable(self, state):
-        self._set_feature('GammaEnable', bool(state))
-
-    @property
-    def gammarange(self):
-        return self._feature_range('Gamma')
 
     @property
     def gray(self):
@@ -398,72 +313,12 @@ class SpinnakerCamera(object):
         self.start()
 
     @property
-    def height(self):
-        return self._get_feature('Height')
-
-    @height.setter
-    def height(self, value):
-        self.stop()
-        self._set_feature('Height', value)
-        self.start()
-
-    @property
     def heightmax(self):
         return self._get_feature('HeightMax')
 
     @property
-    def mirrored(self):
-        return self._get_feature('ReverseX')
-
-    @mirrored.setter
-    def mirrored(self, state):
-        self.stop()
-        self._set_feature('ReverseX', bool(state))
-        self.start()
-
-    @property
-    def pixelformat(self):
-        return self._get_feature('PixelFormat')
-
-    @pixelformat.setter
-    def pixelformat(self, value):
-        self._set_feature('PixelFormat', value)
-
-    @property
-    def sharpening(self):
-        return self._get_feature('Sharpening')
-
-    @sharpening.setter
-    def sharpening(self, value):
-        self._set_feature('Sharpening', value)
-
-    @property
-    def sharpeningauto(self):
-        return self._get_feature('SharpeningAuto')
-
-    @sharpeningauto.setter
-    def sharpeningauto(self, value):
-        self._set_feature('SharpeningAuto', value)
-
-    @property
-    def sharpeningenable(self):
-        return self._get_feature('SharpeningEnable')
-
-    @sharpeningenable.setter
-    def sharpeningenable(self, state):
-        self._set_feature('SharpeningEnable', bool(state))
-
-    @property
     def sharpeningrange(self):
         return (1., 8.)
-
-    @property
-    def sharpeningthreshold(self):
-        return self._get_feature('SharpeningThreshold')
-
-    @sharpeningthreshold.setter
-    def sharpeningthreshold(self, value):
-        self._set_feature('SharpeningThreshold', value)
 
     @property
     def sharpeningthresholdrange(self):
@@ -480,16 +335,6 @@ class SpinnakerCamera(object):
         self._feature('VideoMode').SetValue(mode)
         self.start()
     '''
-
-    @property
-    def width(self):
-        return self._get_feature('Width')
-
-    @width.setter
-    def width(self, value):
-        self.stop()
-        self._set_feature('Width', value)
-        self.start()
 
     @property
     def widthmax(self):
