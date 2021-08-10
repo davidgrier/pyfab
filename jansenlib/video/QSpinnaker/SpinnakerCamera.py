@@ -171,7 +171,7 @@ class SpinnakerCamera(object):
     exposuremode               = Property('ExposureMode')
     exposuretime               = Property('ExposureTime')
     exposuretimerange          = GetRange('ExposureTime')
-    flipped                    = Property('ReverseY', stop=True)
+    # flipped                    = Property('ReverseY', stop=True)
     framerate                  = Property('AcquisitionFrameRate')
     framerateenable            = Property('AcquisitionFrameRateEnable')
     frameraterange             = GetRange('AcquisitionFrameRate')
@@ -185,7 +185,7 @@ class SpinnakerCamera(object):
     mirrored                   = Property('ReverseX', stop=True)
     pixelformat                = Property('PixelFormat')
     reversex                   = Property('ReverseX', stop=True)
-    reversey                   = Property('ReverseY', stop=True)
+    #reversey                   = Property('ReverseY', stop=True)
     sharpening                 = Property('Sharpening')
     sharpeningauto             = Property('SharpeningAuto')
     sharpeningenable           = Property('SharpeningEnable')
@@ -293,6 +293,14 @@ class SpinnakerCamera(object):
         vendor = self._get_feature('DeviceVendorName')
         model = self._get_feature('DeviceModelName')
         return '{} {}'.format(vendor, model)
+
+    @property
+    def flipped(self):
+        return self._get_feature('ReverseY')
+
+    @flipped.setter
+    def flipped(self, value):
+        self._set_feature('ReverseY', bool(value))
 
     @property
     def frameratemax(self):
