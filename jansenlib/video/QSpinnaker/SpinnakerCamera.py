@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import PySpin
-import cv2
-import time
 
 import logging
 logging.basicConfig()
@@ -160,37 +158,37 @@ class SpinnakerCamera(object):
             return self._feature_range(pstr)
         return prop
 
-    acquisitionframecount      = Property('AcquisitionFrameCount')
-    acquisitionframerate       = Property('AcquisitionFrameRate')
-    acquisitionframerateenable = Property('AcquisitionFrameRateEnable')
-    acquisitionmode            = Property('AcquisitionMode')
-    blacklevel                 = Property('BlackLevel')
-    blacklevelrange            = GetRange('BlackLevel')
-    blacklevelselector         = Property('BlackLevelSelector')
-    exposureauto               = Property('ExposureAuto')
-    exposuremode               = Property('ExposureMode')
-    exposuretime               = Property('ExposureTime')
-    exposuretimerange          = GetRange('ExposureTime')
+    acquisitionframecount       = Property('AcquisitionFrameCount')
+    acquisitionframerate        = Property('AcquisitionFrameRate')
+    acquisitionmode             = Property('AcquisitionMode')
+    blacklevel                  = Property('BlackLevel')
+    blacklevelrange             = GetRange('BlackLevel')
+    blacklevelauto              = Property('BlackLevelAuto')
+    blacklevelenable            = Property('BlackLevelEnabled')
+    exposureauto                = Property('ExposureAuto')
+    exposuremode                = Property('ExposureMode')
+    exposuretime                = Property('ExposureTime')
+    exposuretimerange           = GetRange('ExposureTime')
     # flipped                    = Property('ReverseY', stop=True)
-    framerate                  = Property('AcquisitionFrameRate')
-    framerateenable            = Property('AcquisitionFrameRateEnable')
-    frameraterange             = GetRange('AcquisitionFrameRate')
-    gain                       = Property('Gain')
-    gainauto                   = Property('GainAuto')
-    gainrange                  = GetRange('Gain')
-    gamma                      = Property('Gamma')
-    gammaenable                = Property('GammaEnable')
-    gammarange                 = GetRange('Gamma')
-    height                     = Property('Height', stop=True)
-    mirrored                   = Property('ReverseX', stop=True)
-    pixelformat                = Property('PixelFormat')
-    reversex                   = Property('ReverseX', stop=True)
-    #reversey                   = Property('ReverseY', stop=True)
-    sharpening                 = Property('Sharpening')
-    sharpeningauto             = Property('SharpeningAuto')
-    sharpeningenable           = Property('SharpeningEnable')
-    sharpeningthreshold        = Property('SharpeningThreshold')
-    width                      = Property('Width', stop=True)
+    framerate                   = Property('AcquisitionFrameRate')
+    framerateenable             = Property('AcquisitionFrameRateEnabled')
+    frameraterange              = GetRange('AcquisitionFrameRate')
+    gain                        = Property('Gain')
+    gainauto                    = Property('GainAuto')
+    gainrange                   = GetRange('Gain')
+    gamma                       = Property('Gamma')
+    gammaenable                 = Property('GammaEnabled')
+    gammarange                  = GetRange('Gamma')
+    height                      = Property('Height', stop=True)
+    mirrored                    = Property('ReverseX', stop=True)
+    pixelformat                 = Property('PixelFormat')
+    reversex                    = Property('ReverseX', stop=True)
+    # reversey                   = Property('ReverseY', stop=True)
+    sharpening                  = Property('Sharpness')
+    sharpeningauto              = Property('SharpnessAuto')
+    sharpeningenable            = Property('SharpnessEnabled')
+    sharpeningthreshold         = Property('SharpeningThreshold')
+    width                       = Property('Width', stop=True)
     
         
     def __init__(self,
@@ -284,7 +282,7 @@ class SpinnakerCamera(object):
         if img.IsIncomplete():
             status = img.GetImageStatus()
             error_msg = img.GetImageStatusDescription(status)
-            logger.warning('Incomplete Image: ' + error_msg)
+            logger.warning(f'Incomplete Image: {error_msg}')
             return False, None
         return True, img.GetNDArray()
 
@@ -294,13 +292,19 @@ class SpinnakerCamera(object):
         model = self._get_feature('DeviceModelName')
         return '{} {}'.format(vendor, model)
 
+    @cameraname.setter
+    def cameraname(self, value):
+        logger.debug(f'Attempting to set camera name: {value}')
+
     @property
     def flipped(self):
-        return self._get_feature('ReverseY')
+        # return bool(self._get_feature('ReverseY'))
+        return self._flipped
 
     @flipped.setter
     def flipped(self, value):
-        self._set_feature('ReverseY', bool(value))
+        #self._set_feature('ReverseY', bool(value))
+        self._flipped = value
 
     @property
     def frameratemax(self):
@@ -373,7 +377,7 @@ class SpinnakerCamera(object):
             type = node.GetPrincipalInterfaceType()
             feature = self._fmap[type](node)
         except Exception as ex:
-            logger.warn('Could not access Property: {} {}'.format(fname, ex))
+            logger.warning(f'Could not access Property: {fname} {ex}')
         return feature
 
     def _get_feature(self, fname):
@@ -389,14 +393,14 @@ class SpinnakerCamera(object):
                 value[name] = self._get_feature(name)
         elif self._is_readable(feature):
             value = feature.GetValue()
-        logger.debug('Getting {}: {}'.format(fname, value))
+        logger.debug(f'Getting {fname}: {value}')
         return value
 
     def _set_feature(self, fname, value):
-        logger.debug('Setting {}: {}'.format(fname, value))
+        logger.debug('Setting {fname}: {value}')
         feature = self._feature(fname)
         if not self._is_writable(feature):
-            logger.warning('Property {} is not writable'.format(fname))
+            logger.warning(f'Property {fname} is not writable')
             return
         try:
             if self._is_enum(feature) or self._is_command(feature):
@@ -404,7 +408,7 @@ class SpinnakerCamera(object):
             else:
                 feature.SetValue(value)
         except PySpin.SpinnakerException as ex:
-            logger.warning('Could not set {}: {}'.format(fname, ex))
+            logger.warning(f'Could not set {fname}: {ex}')
 
     def _feature_range(self, fname):
         '''Return minimum and maximum values of named feature'''
@@ -412,7 +416,7 @@ class SpinnakerCamera(object):
         try:
             range = (feature.GetMin(), feature.GetMax())
         except PySpin.SpinnakerException as ex:
-            logger.warning('Could not get range of {}: {}'.format(fname, ex))
+            logger.warning(f'Could not get range of {fname}: {ex}')
             range = None
         return range
 
