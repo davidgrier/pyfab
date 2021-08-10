@@ -157,7 +157,7 @@ class SpinnakerCamera(object):
     def GetRange(pstr):
         @property
         def prop(self):
-            return set._feature_range(pstr)
+            return self._feature_range(pstr)
         return prop
 
     acquisitionframecount      = Property('AcquisitionFrameCount')
