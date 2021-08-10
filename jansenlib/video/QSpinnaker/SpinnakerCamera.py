@@ -145,7 +145,7 @@ class SpinnakerCamera(object):
         def prop(self):
             return self._get_feature(pstr)
         @prop.setter
-        def prop(self, value):
+        def prop(self, value, stop=stop):
             if stop:
                 self.stop()
                 self._set_feature(pstr, value)
