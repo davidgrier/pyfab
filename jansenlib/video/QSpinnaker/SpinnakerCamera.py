@@ -139,18 +139,16 @@ class SpinnakerCamera(object):
     '''
 
     def Property(pstr, stop=False):
-        @property
-        def prop(self):
+        def getter(self):
             return self._get_feature(pstr)
-        @prop.setter
-        def prop(self, value, stop=stop):
+        def setter(self, value, stop=stop):
             if stop and self._running:
                 self.stop()
                 self._set_feature(pstr, value)
                 self.start()
             else:
                 self._set_feature(pstr, value)
-        return prop
+        return property(getter, setter)
 
     def GetRange(pstr):
         @property
