@@ -96,7 +96,7 @@ class QSettingsWidget(QFrame):
             actual = self._getDeviceProperty(name)
             self._setUiProperty(name, actual)
         else:
-            logger.warning('unknown property: {}'.format(name))
+            logger.warning(f'unknown property: {name}')
 
     def get(self, name):
         '''Return value from device (and UI)
@@ -114,7 +114,7 @@ class QSettingsWidget(QFrame):
         if name in self.properties:
             return self._getDeviceProperty(name)
         else:
-            logger.warning('unknown property: {}'.format(name))
+            logger.warning(f'unknown property: {name}')
 
     def _setDeviceProperty(self, name, value):
         '''Set device property and wait for operation to complete
@@ -126,11 +126,11 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value to set
         '''
-        logger.debug('Setting device: {}: {}'.format(name, value))
+        logger.debug(f'Setting device: {name}: {value}')
         if hasattr(self.device, name):
             setattr(self.device, name, value)
             self.waitForDevice()
-            logger.info('Setting {}: {}'.format(name, value))
+            logger.info(f'Setting {name}: {value}')
 
     def _getDeviceProperty(self, name):
         return getattr(self.device, name)
@@ -149,7 +149,7 @@ class QSettingsWidget(QFrame):
         value : scalar
             Value to set
         '''
-        logger.debug('Setting UI: {}: {}'.format(name, value))
+        logger.debug(f'Setting UI: {name}: {value}')
         wid = getattr(self.ui, name)
         if isinstance(wid, QDoubleSpinBox):
             wid.setValue(value)
@@ -215,7 +215,7 @@ class QSettingsWidget(QFrame):
         with the UI.
         '''
         name = str(self.sender().objectName())
-        logger.debug('Updating: {}: {}'.format(name, value))
+        logger.debug(f'Updating: {name}: {value}')
         if value is None:
             logger.warning(
                 'interpreting String input from QLineEdit using eval()')
@@ -245,7 +245,7 @@ class QSettingsWidget(QFrame):
     @device.setter
     def device(self, device):
         self.disconnectSignals()
-        logger.debug('Setting device: {}'.format(device))
+        logger.debug('Setting device: {device}')
         self._properties = []
         self._device = device
         if device is None:
@@ -261,7 +261,7 @@ class QSettingsWidget(QFrame):
     def connectSignals(self, props=None):
         props = self.properties if props is None else props
         for prop in props:
-            logger.debug('Connecting {}'.format(prop))
+            logger.debug(f'Connecting {prop}')
             wid = getattr(self.ui, prop)
             if isinstance(wid, QDoubleSpinBox):
                 wid.valueChanged.connect(self.updateDevice)
@@ -282,7 +282,8 @@ class QSettingsWidget(QFrame):
                 # wid.textEdited.connect(self.updateDevice)
 
             else:
-                logger.warn('Unknown property: {}: {}'.format(prop, type(wid)))
+                msg = 'Unknown property: {}: {}'
+                logger.warn(msg.format(prop, type(wid)))
 
     def disconnectSignals(self, props=None):
         props = self.properties if props is None else props
@@ -317,10 +318,10 @@ class QSettingsWidget(QFrame):
         '''
         logger.debug('Getting Properties')
         dprops = [name for name, _ in inspect.getmembers(self.device)]
-        logger.debug('Device Properties: {}'.format(dprops))
+        logger.debug(f'Device Properties: {dprops}')
         uprops = [name for name, _ in inspect.getmembers(self.ui)]
-        logger.debug('UI Properties: {}'.format(uprops))
+        logger.debug(f'UI Properties: {uprops}')
         props = [name for name in dprops if name in uprops]
         self._properties = [name for name in props if
                             ('_' not in name or name in self.include)]
-        logger.debug('Common Properties: {}'.format(self._properties))
+        logger.debug(f'Common Properties: {self._properties}')
