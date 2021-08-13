@@ -296,7 +296,7 @@ class QSettingsWidget(QFrame):
             elif isinstance(wid, QComboBox):
                 wid.currentIndexChanged.disconnect(self.updateDevice)
             elif isinstance(wid, QCheckBox):
-                wid.stateChanged.disconnect(self.updateDevice)
+                wid.toggled.disconnect(self.updateDevice)
             elif isinstance(wid, QGroupBox):
                 wid.toggled.disconnect(self.updateDevice)
             elif isinstance(wid, QRadioButton):
