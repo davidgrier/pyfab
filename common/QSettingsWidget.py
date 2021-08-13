@@ -270,7 +270,7 @@ class QSettingsWidget(QFrame):
             elif isinstance(wid, QComboBox):
                 wid.currentIndexChanged.connect(self.updateDevice)
             elif isinstance(wid, QCheckBox):
-                wid.stateChanged.connect(self.updateDevice)
+                wid.toggled.connect(self.updateDevice)
             elif isinstance(wid, QGroupBox):
                 wid.toggled.connect(self.updateDevice)
             elif isinstance(wid, QRadioButton):
