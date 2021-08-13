@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import PySpin
+import cv2
 
 import logging
 logging.basicConfig()
@@ -151,10 +152,9 @@ class SpinnakerCamera(object):
         return property(getter, setter)
 
     def GetRange(pstr):
-        @property
-        def prop(self):
+        def getter(self):
             return self._feature_range(pstr)
-        return prop
+        return property(getter)
 
     acquisitionframecount       = Property('AcquisitionFrameCount')
     acquisitionframerate        = Property('AcquisitionFrameRate')
@@ -167,7 +167,7 @@ class SpinnakerCamera(object):
     exposuremode                = Property('ExposureMode')
     exposuretime                = Property('ExposureTime')
     exposuretimerange           = GetRange('ExposureTime')
-    # flipped                    = Property('ReverseY', stop=True)
+    # flipped                     = Property('ReverseY', stop=True)
     framerate                   = Property('AcquisitionFrameRate')
     framerateenable             = Property('AcquisitionFrameRateEnabled')
     frameraterange              = GetRange('AcquisitionFrameRate')
@@ -181,7 +181,7 @@ class SpinnakerCamera(object):
     mirrored                    = Property('ReverseX', stop=True)
     pixelformat                 = Property('PixelFormat')
     reversex                    = Property('ReverseX', stop=True)
-    # reversey                   = Property('ReverseY', stop=True)
+    # reversey                    = Property('ReverseY', stop=True)
     sharpening                  = Property('Sharpness')
     sharpeningauto              = Property('SharpnessAuto')
     sharpeningenable            = Property('SharpnessEnabled')
@@ -282,7 +282,10 @@ class SpinnakerCamera(object):
             error_msg = img.GetImageStatusDescription(status)
             logger.warning(f'Incomplete Image: {error_msg}')
             return False, None
-        return True, img.GetNDArray()
+        self.image = img.GetNDArray()
+        if self._flipped:
+            self.image = cv2.flip(self.image, 0)
+        return True, self.image
 
     @property
     def cameraname(self):
@@ -293,16 +296,6 @@ class SpinnakerCamera(object):
     @cameraname.setter
     def cameraname(self, value):
         logger.debug(f'Attempting to set camera name: {value}')
-
-    @property
-    def flipped(self):
-        # return bool(self._get_feature('ReverseY'))
-        return self._flipped
-
-    @flipped.setter
-    def flipped(self, value):
-        #self._set_feature('ReverseY', bool(value))
-        self._flipped = value
 
     @property
     def frameratemax(self):
@@ -333,6 +326,14 @@ class SpinnakerCamera(object):
     @property
     def sharpeningthresholdrange(self):
         return (0., 0.25)
+
+    @property
+    def flipped(self):
+        return self._flipped
+
+    @flipped.setter
+    def flipped(self, value):
+        self._flipped = bool(value)
 
     '''
     @property
@@ -395,7 +396,7 @@ class SpinnakerCamera(object):
         return value
 
     def _set_feature(self, fname, value):
-        logger.debug('Setting {fname}: {value}')
+        logger.debug(f'Setting {fname}: {value}')
         feature = self._feature(fname)
         if not self._is_writable(feature):
             logger.warning(f'Property {fname} is not writable')
