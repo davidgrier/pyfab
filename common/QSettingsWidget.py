@@ -245,7 +245,7 @@ class QSettingsWidget(QFrame):
     @device.setter
     def device(self, device):
         self.disconnectSignals()
-        logger.debug('Setting device: {device}')
+        logger.debug(f'Setting device: {device}')
         self._properties = []
         self._device = device
         if device is None:
