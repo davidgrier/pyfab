@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-from PyQt5 import (uic, QtWebEngineWidgets)
+from PyQt5 import uic
+from pathlib import Path
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog, QStackedLayout)
 from PyQt5.QtCore import pyqtSlot
-import os
 
 from jansenlib.video import QCamera
 from pyfablib.QCGH import CGH
@@ -14,14 +13,11 @@ from pyfablib.traps import QTrappingPattern
 from tasks import (buildTaskMenu, QTaskmanager)
 from common.Configuration import Configuration
 
+# Support for HTML Help
+from PyQt5 import QtWebEngineWidgets
 import help.pyfab_help_rc
 
-try:
-    ex1 = None
-    from tasks.vision.QVisionTab import QVisionTab
-except Exception as ex:
-    ex1 = ex
-    
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -33,17 +29,16 @@ class PyFab(QMainWindow):
     def __init__(self, parent=None, doconfig=True):
         super(PyFab, self).__init__(parent)
 
-        dir = os.path.dirname(os.path.abspath(__file__))
-        uifile = os.path.join(dir, 'pyfablib', 'FabWidget.ui')
+        uifile = Path('pyfablib').joinpath('FabWidget.ui')
         uic.loadUi(uifile, self)
-        
+
         self.configuration = Configuration(self)
 
         # Camera
         self.camera.close()  # remove placeholder widget from UI
         self.camera = QCamera()
         self.screen.camera = self.camera
-        self.cameraLayout.addWidget(self.camera)        
+        self.cameraLayout.addWidget(self.camera)
 
         # Spatial light modulator
         self.slm = QSLM(self)
@@ -60,22 +55,7 @@ class PyFab(QMainWindow):
         self.tasks = QTaskmanager(self)
         self.TaskManagerView.setModel(self.tasks)
         self.TaskManagerView.setSelectionMode(3)
-        
-        try:
-            # self.vision.close()
-            # self.vision.setObjectName("vision")
-            # self.vision = QVision(parent=self.tabVision, pyfab=self)
-            self.vision = QVisionTab(self)
-            self.tabWidget.setTabEnabled(2, True)
-            self.setupVision = True
-        except Exception as ex2:
-            err = ex2 if ex1 is None else ex1
-            msg = 'Could not import Machine Vision pipeline: {}'
-            logger.warning(msg.format(err))
-            # self.tabWidget.setTabEnabled(2, False)
-            self.setupVision = False
-        # self.tabWidget.setTabEnabled(2, False)      
-       
+
         self.configureUi()
         self.connectSignals()
 
@@ -107,7 +87,7 @@ class PyFab(QMainWindow):
         buildTaskMenu(self)
         self.adjustSize()
 
-    def connectSignals(self):      
+    def connectSignals(self):
         # Signals associated with arrival of images from camera
         newframe = self.screen.source.sigNewFrame
         # 1. Update histograms from image data
@@ -143,7 +123,7 @@ class PyFab(QMainWindow):
         # 3. Task pipeline
         self.bpausequeue.clicked.connect(self.pauseTasks)
         self.bclearqueue.clicked.connect(self.stopTasks)
-        
+
         self.bpausesel.clicked.connect(self.tasks.toggleSelected)
         self.bclearsel.clicked.connect(self.tasks.removeSelected)
         self.bserialize.clicked.connect(
@@ -152,10 +132,9 @@ class PyFab(QMainWindow):
             lambda: self.tasks.registerTask('QExperiment',
                                             info=self.experimentPath.text(),
                                             loop=self.loop.value()))
-        
+
         self.TaskManagerView.clicked.connect(self.tasks.displayProperties)
         self.TaskManagerView.doubleClicked.connect(self.tasks.toggleCurrent)
-
 
     @pyqtSlot()
     def setDvrSource(self, source):
@@ -167,14 +146,12 @@ class PyFab(QMainWindow):
     def saveImage(self, qimage, select=False):
         if qimage is None:
             return
+        filename = self.configuration.filename(suffix='.png')
         if select:
             getname = QFileDialog.getSaveFileName
-            directory = self.configuration.datadir
             filename, _ = getname(self, 'Save Image',
-                                  directory=directory,
+                                  directory=filename,
                                   filter='Image files (*.png)')
-        else:
-            filename = self.configuration.filename(suffix='.png')
         if filename:
             qimage.save(filename)
             self.statusBar().showMessage('Saved ' + filename)

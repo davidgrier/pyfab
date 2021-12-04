@@ -44,7 +44,7 @@ class QCameraThread(QThread):
     @pyqtProperty(object)
     def shape(self):
         return self._shape
-    
+
     @pyqtProperty(int)
     def width(self):
         return self._shape[1]
