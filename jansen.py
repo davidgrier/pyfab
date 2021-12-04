@@ -31,7 +31,7 @@ class Jansen(QMainWindow):
         dir = os.path.dirname(os.path.abspath(__file__))
         uifile = os.path.join(dir, 'jansenlib', 'JansenWidget.ui')
         uic.loadUi(uifile, self)
-        
+
         self.configuration = Configuration(self)
 
         # Setup vision tab
