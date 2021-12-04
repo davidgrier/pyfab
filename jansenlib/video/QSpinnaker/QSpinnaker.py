@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from common.QSettingsWidget import QSettingsWidget
-from .QSpinnakerWidget import Ui_QSpinnakerWidget
-from .SpinnakerCamera import SpinnakerCamera
-import sys
-import os
 from PyQt5 import uic
+from pathlib import Path
+from common.QSettingsWidget import QSettingsWidget
+from .SpinnakerCamera import SpinnakerCamera
 
 
 import logging
@@ -25,10 +23,11 @@ class QSpinnaker(QSettingsWidget):
                 device = SpinnakerCamera(**kwargs)
             except IndexError:
                 raise IndexError('Cannot connect to camera')
-        ui = Ui_QSpinnakerWidget()
+        uifile = Path(__file__).parent.joinpath('QSpinnakerWidget.ui')
+        uiclass, _ = uic.loadUiType(uifile)
         super(QSpinnaker, self).__init__(parent=parent,
                                          device=device,
-                                         ui=ui)
+                                         ui=uiclass())
         self.read = self.device.read
 
     def configureUi(self):

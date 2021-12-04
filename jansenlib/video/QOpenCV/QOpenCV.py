@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtProperty
+from PyQt5 import uic
 from common.QSettingsWidget import QSettingsWidget
-from .QOpenCVWidget import Ui_QOpenCVWidget
 from .OpenCVCamera import OpenCVCamera
+from pathlib import Path
 
 import logging
 logging.basicConfig()
@@ -19,10 +19,11 @@ class QOpenCV(QSettingsWidget):
     def __init__(self, parent=None, device=None, **kwargs):
         if device is None:
             device = OpenCVCamera(**kwargs)
-        ui = Ui_QOpenCVWidget()
+        uifile = Path(__file__).parent.joinpath('QOpenCVWidget.ui')
+        uiclass, _ = uic.loadUiType(uifile)
         super(QOpenCV, self).__init__(parent,
                                       device=device,
-                                      ui=ui)
+                                      ui=uiclass())
         self.read = self.device.read
 
     def configureUi(self):
