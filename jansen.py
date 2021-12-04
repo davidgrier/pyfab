@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt5 import (uic, QtWebEngineWidgets)
+from PyQt5 import uic
 from pathlib import Path
 from PyQt5.QtWidgets import (QMainWindow, QFileDialog)
 from PyQt5.QtCore import pyqtSlot
@@ -9,6 +9,8 @@ from PyQt5.QtCore import pyqtSlot
 from jansenlib.video import QCamera
 from common.Configuration import Configuration
 
+# Support for HTML help system
+from PyQt5 import QtWebEngineWidgets
 import help.jansen_help_rc
 
 import logging
@@ -27,13 +29,7 @@ class Jansen(QMainWindow):
 
         self.configuration = Configuration(self)
 
-        # Setup camera
-        self.camera.close()  # remove placeholder widget from UI
-        camera = QCamera()
-        self.camera = camera
-        self.screen.camera = camera
-        self.cameraLayout.addWidget(camera)
-
+        self.setupCamera()
         self.configureUi()
         self.connectSignals()
 
@@ -45,6 +41,13 @@ class Jansen(QMainWindow):
         self.saveSettings()
         self.screen.close()
         self.deleteLater()
+
+    def setupCamera(self):
+        self.camera.close()  # remove placeholder widget from UI
+        camera = QCamera()
+        self.camera = camera
+        self.screen.camera = camera
+        self.cameraLayout.addWidget(camera)
 
     def configureUi(self):
         self.filters.screen = self.screen
