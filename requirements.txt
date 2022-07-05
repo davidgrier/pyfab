@@ -10,4 +10,4 @@ pycuda==2019.1.2
 PyQt5==5.15.0
 PySpin==1.1.1
 trackpy==0.4.2
-ujson==3.0.0
+ujson==5.4.0
