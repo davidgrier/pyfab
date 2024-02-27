@@ -20,3 +20,6 @@ light-weight interface for holographic video microscopy.
 3. If you have CUDA installed on an nVidia GPU, you may install [cupy](https://github.com/cupy/cupy)>=7.0.0 for CUDA acceleration.
 
 4. If you wish to add Lorenz-Mie machine vision capability, install [pylorenzmie](https://github.com/davidgrier/pylorenzmie) and [CNNLorenzMie](https://github.com/laltman2/CNNLorenzMie).
+
+## Citing **pyfab**
+[![DOI](https://zenodo.org/badge/93738802.svg)](https://zenodo.org/doi/10.5281/zenodo.10719302)
