@@ -23,6 +23,10 @@ class vmedian(object):
         self._initialized = False
         self._cycled = False
 
+    def __call__(self, data):
+        self.add(data)
+        return self.get()
+
     def filter(self, data):
         self.add(data)
         return self.get() # if self.initialized else data

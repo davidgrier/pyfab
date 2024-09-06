@@ -74,6 +74,9 @@ class CGH(QObject):
         # Splay wavenumber
         self._splayFactor = 0.01
 
+        # Background field
+        self.background = np.zeros(self.shape, dtype=np.complex_)
+
     # Slots for threaded operation
     @pyqtSlot()
     def start(self):
@@ -132,7 +135,8 @@ class CGH(QObject):
     def compute(self, traps):
         """Compute phase hologram for specified traps"""
         start = time()
-        self._psi.fill(0j)
+        #self._psi.fill(0j)
+        self._psi = self.background
         for trap in traps:
             self._psi += trap.psi
         self.phi = self.quantize(self._psi)
